@@ -64,6 +64,25 @@ return function(T, H)
 		end
 	end)
 
+	T.test("review repros: newer or damaged slot records are never replaced", function()
+		local replacement = entry(build({}))
+		local cases = {
+			{ { Version = 2, Data = { Version = 1, Settings = {} } }, "NewerRecord" },
+			{ { Version = 1, Data = { Version = 2, Settings = {} } }, "NewerRecord" },
+			{ "damaged slot", "InvalidRecord" },
+			{ { Version = 1, Data = "damaged" }, "InvalidRecord" },
+			{ { Version = "1", Data = { Version = 1, Settings = {} } }, "InvalidRecord" },
+			{ { Version = 1, Data = { Version = 1, Settings = "x" } }, "InvalidRecord" },
+			{ { Version = 0, Data = { Version = 1, Settings = {} } }, "InvalidRecord" },
+		}
+		for i, case in ipairs(cases) do
+			local transform, refusal = Guard.transform(1, replacement)
+			local old = { Slots = { ["1"] = case[1] } }
+			T.eq(transform(old), nil, "case " .. i .. " must not be replaced")
+			T.eq(refusal(), case[2], "case " .. i)
+		end
+	end)
+
 	T.test("a snapshot without Build may not drop a slot's non-empty Build", function()
 		local ok, reason = Guard.checkOverwrite(profileWith({ [1] = entry(build({ item("i1") })) }), 1, entry(nil))
 		T.eq(ok, false)
@@ -211,6 +230,19 @@ return function(T, H)
 		T.eq(store.transformCalls, 2)
 		T.eq(ok, true)
 		T.eq(store.data["user:1001"].Slots["1"].Name, "Mine")
+	end)
+
+	T.test("patched Save refuses the review repro records, including on an UpdateAsync retry", function()
+		local M, store = presets()
+		store.data["user:1001"] = profileWith({ [1] = entry(nil) })
+		store.interleave = { profileWith({ [1] = { Version = 2, Data = { Version = 1, Settings = {} } } }) }
+		local ok, err = pcall(M.Save, 1001, 1, "Mine", snapshot(build({})))
+		T.eq(ok, false)
+		T.ok(tostring(err):find("newer version of the game"), tostring(err))
+		T.eq(store.data["user:1001"].Slots["1"].Version, 2, "newer record survives")
+		store.data["user:1001"] = profileWith({ [1] = { Version = 1, Data = "damaged" } })
+		T.eq(pcall(M.Save, 1001, 1, "Mine", snapshot(build({}))), false)
+		T.eq(store.data["user:1001"].Slots["1"].Data, "damaged")
 	end)
 
 	T.test("patched Save still enforces the 250000-byte preset cap", function()

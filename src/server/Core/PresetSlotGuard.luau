@@ -7,6 +7,11 @@
 	* CorruptProfile   the stored profile or its Slots table isn't a table
 	                   (the unpatched code would replace the whole profile,
 	                   losing all five slots);
+	* NewerRecord      the slot's entry Version or snapshot (Data) Version is
+	                   newer than 1;
+	* InvalidRecord    the slot holds something that isn't a readable v1 entry
+	                   (non-table entry, non-number Version, non-table Data or
+	                   Settings);
 	* NewerBuild       the slot holds a Build section from a newer version;
 	* InvalidBuild     the slot holds a Build section that doesn't decode;
 	* BuildWouldBeLost the new snapshot has no Build section (builder
@@ -26,6 +31,8 @@ local PresetSlotGuard = {}
 PresetSlotGuard.Messages = {
 	CorruptProfile = "Your saved studios couldn't be read, so nothing was overwritten.",
 	NewerBuild = "That slot was saved by a newer version of the builder. Choose another slot.",
+	NewerRecord = "That slot was saved by a newer version of the game. Choose another slot.",
+	InvalidRecord = "That slot's saved data can't be read, so it wasn't overwritten. Choose another slot.",
 	InvalidBuild = "That slot's build data can't be read, so it wasn't overwritten. Choose another slot.",
 	BuildWouldBeLost = "The builder isn't available here, so saving would remove that slot's build. Choose another slot.",
 }
@@ -46,10 +53,31 @@ function PresetSlotGuard.checkOverwrite(old, slot, entry)
 		return false, "CorruptProfile"
 	end
 	local existing = slots[tostring(slot)]
-	local data = type(existing) == "table" and existing.Data or nil
-	local build = type(data) == "table" and data[SaveSnapshot.SECTION_KEY] or nil
+	if existing == nil then
+		return true -- empty slot
+	end
+	if type(existing) ~= "table" or type(existing.Version) ~= "number" then
+		return false, "InvalidRecord"
+	end
+	if existing.Version > 1 then
+		return false, "NewerRecord"
+	end
+	if existing.Version ~= 1 then
+		return false, "InvalidRecord"
+	end
+	local data = existing.Data
+	if type(data) ~= "table" or type(data.Version) ~= "number" then
+		return false, "InvalidRecord"
+	end
+	if data.Version > 1 then
+		return false, "NewerRecord"
+	end
+	if data.Version ~= 1 or type(data.Settings) ~= "table" then
+		return false, "InvalidRecord"
+	end
+	local build = data[SaveSnapshot.SECTION_KEY]
 	if build == nil then
-		return true -- empty or legacy slot
+		return true -- legacy slot
 	end
 	local decoded, code = SaveSnapshot.decode(build)
 	if decoded == nil then

@@ -13,65 +13,68 @@ builder; saving and loading stay in the existing Studio → saved studios UI.
 | File | What it is |
 |---|---|
 | `integration/StudioPresets.luau` | Full replacement for `ServerScriptService.StudioPresets`, built from the live source. Only `M.Save` changed (guarded, retry-safe UpdateAsync transform). |
-| `integration/PodcastDirector.persistence.luau` | Three edits for `PodcastDirector`: one `require`, a replacement `snapshot()` and a replacement `restoreSnapshot()`. Not a standalone script. `persistentAction()` is **unchanged**. |
+| `integration/DirectorPersistence.luau` | New ModuleScript, installed next to PodcastDirector. It holds the Director's `snapshot` / `restoreSnapshot` / `persistentAction` logic (live code, dependency-injected) with the fixes below. |
+| `integration/PodcastDirector.persistence.luau` | The Director edit: delete the three old functions and insert the construction block that passes the Director's existing locals. Not a standalone script. |
 | `src/server/Core/PresetSlotGuard.luau` | Overwrite rules used inside the Save transform |
-| `src/server/Core/BuildPersistence.luau` | The API the Director calls: `attachBuild`, `prepareLoad`, `commitLoad`, `revertLoad` |
-| `src/server/Core/PlacementCore.luau` | `captureBuild`, `prepareLoad`, `loadBuild`, `revertLoad`, all through the same lock, host and epoch checks, rollback and recovery as edits |
+| `src/server/Core/BuildPersistence.luau` | Builder side: `attachBuild`, `prepareLoad` (stages and binds), and `begin` returning a load transaction |
+| `src/server/Core/PlacementCore.luau` | `captureBuild`, `prepareLoad`, `binding`, and `beginTransaction` (holds the edit lock: `applyBuild` / `stillAuthorized` / `commit` / `rollback`) |
 
 ## Exact install order
 
-1. **Builder first:** sync the StudioBuilder tree (Rojo `default.project.json`) so
-   `ServerScriptService.StudioBuilder.Core.PresetSlotGuard` and
-   `ServerScriptService.StudioBuilder.Runtime.BuilderService` exist. Both patched live scripts require them.
+1. **Builder first:** sync the StudioBuilder tree so `ServerScriptService.StudioBuilder.Core.PresetSlotGuard` and
+   `ServerScriptService.StudioBuilder.Runtime.BuilderService` exist.
 2. **StudioPresets:** replace `ServerScriptService.StudioPresets` with `integration/StudioPresets.luau`.
-3. **Director:**
-   1. Next to `local presets = require(...)`, add the `builderPersistence` line from the patch file.
-   2. Replace `snapshot()` with the patch version. Only its last line changes: `return builderPersistence:attachBuild(data)`.
-   3. Replace `restoreSnapshot(p, data)` with the patch version.
-   4. Leave `persistentAction()` exactly as it is.
-4. Run the Studio checklist below. Codex reviews before anything is published.
+3. **DirectorPersistence:** add `integration/DirectorPersistence.luau` as a ModuleScript named `DirectorPersistence`, sibling of PodcastDirector.
+4. **Director:**
+   1. Delete the local functions `snapshot()`, `restoreSnapshot()` and `persistentAction()`.
+   2. Insert the block from `integration/PodcastDirector.persistence.luau` where `persistentAction` was, after every local it passes exists.
+   3. The names `snapshot`, `restoreSnapshot` and `persistentAction` stay bound, so the existing `Persist` remote handler keeps calling `persistentAction`.
+5. **Optional panel control:** "Discard" sends `PodcastStudioControl:FireServer("Persist", "DiscardLoadBlock", {})` to lift the save block.
+6. Run the Studio checklist below.
 
 ## Behaviour
 
-### Save (Director "Persist" Save → `snapshot()` → `presets.Save`)
+### Save
 
-- `attachBuild` adds `Build = { Version = 1, NextId, Items = { { Id, CatalogId, Transform = { X, Y, Z, Yaw } } } }`
-  (room-relative). Preserved, unplaceable entries are written back unchanged.
-- **Visible failure:** while a builder edit or load is in flight (Busy), while the world is being
-  reconciled (RecoveryNeeded), or if the section exceeds 64 KB. The error reaches the existing
-  `feedback` path, and the message carries a position prefix, so the Director's `:%d+: (.+)$` extraction shows it.
-- **Slot guard (inside UpdateAsync):** a save writes nothing and fails visibly when:
-  - the stored profile or its Slots table is corrupt (the old code replaced the whole profile, losing all five slots);
+- `snapshot()` is the live room snapshot plus an additive `Build = { Version = 1, NextId, Items = { { Id, CatalogId, Transform } } }`.
+  Unplaceable preserved entries are written back.
+- **Visible failure:** while a builder edit or load is in flight, while the builder is in recovery, or if the build is over 64 KB.
+- **Save-block latch:** after any failed Load/LoadCode, **Save and Share are refused** for that host until a successful load or `DiscardLoadBlock`.
+  That includes a corrupt or newer build, a backend read failure, and a failed rollback.
+- **Write vs refresh:** the write and the slot-list refresh are separate. A refresh failure still reports the save as successful, with a note.
+- **Slot guard (inside UpdateAsync; the last retry decides):** the save writes nothing when:
+  - the profile or Slots table is corrupt;
+  - the slot entry isn't a readable v1 record: non-table, non-number or newer `Version`, non-table or newer `Data` (snapshot) Version, or non-table `Settings`;
   - the slot's Build is newer or unreadable;
-  - the new snapshot has no Build but the slot's Build has entries (builder unavailable in this server).
-  The transform is pure and retry-safe: it never mutates `old`, and the last invocation decides the outcome.
-- **No autosave:** the builder never writes a DataStore itself (a test enforces this). An explicit save of an empty build is allowed.
+  - a snapshot without Build would drop a non-empty Build.
+- **No autosave:** the builder never writes a DataStore.
 
-### Load (Director "Persist" Load/LoadCode → `restoreSnapshot`)
+### Load: one transaction for room and build
 
-1. Existing preset and room checks (unchanged).
-2. **`prepareLoad` (before any yield or mutation):** validates and stages the Build.
-   - A corrupt or newer section raises, so the room and the build are unchanged and the error is visible.
-   - Unplaceable entries (unknown or retired item, template not installed, collection locked, outside the current bounds)
-     are **preserved**: not spawned, counted against the 150 cap, and written back on the next save.
-   - No `Build` (legacy preset): the builder is untouched.
-3. Existing text filtering (yields) and the existing host re-check (unchanged).
-4. **`commitLoad` (before the room is touched):** replaces the build through PlacementCore's exclusive path.
-   - It takes the edit lock, so concurrent builder edits, saves and loads get Busy.
-   - It re-checks host and host epoch after every yield.
-   - It applies a two-phase world "replace": all models are built unparented first, then swapped, and rolled back on failure.
-   - A failed rollback enters recovery.
-   - Any failure raises with the build unchanged (or in recovery, which refuses edits and saves until reconciled).
-   - On success, history is cleared, logical IDs come from the save, and new IDs are never reused within the server.
-5. **Room restore:** the existing code, unchanged, runs inside a pcall. If it errors, `revertLoad` restores the previous
-   build (only when nothing changed since the load) and the error is re-raised.
-   The room's own partial-mutation behaviour is unchanged from today.
-6. `applyAll()` switches the room. Clients in build mode leave on the SceneSet change.
+1. Existing preset and room checks.
+2. **`prepareLoad`:** validates and stages the Build, and binds the load to the current **host epoch and build revision**.
+   A corrupt or newer Build fails here, before the text filter and before any mutation.
+3. Existing text filtering (yields) and host check.
+4. **Capture** the trusted pre-load room state: every setting key, plus the fixture and item overrides of the current and target scenes.
+5. **`begin`:** re-checks the binding. A → B → A during filtering is refused here with nothing changed, legacy room-only loads included.
+   It then **holds the builder's edit lock** until the end, so builder edits and saves get Busy.
+6. Inside a pcall: `applyBuild` (two-phase world swap; the model isn't committed yet), the live room restore (`applyAll` etc.),
+   then a **final authority check** (same host and same host epoch) after all yields.
+7. **On success:** `commit` (model, revision and history clear; finalize), and the latch is cleared.
+8. **On any failure:**
+   - the room is restored from the captured state **without re-filtering text** (the captured strings are the live ones), and `rememberLighting` is not called;
+   - the build world swap is rolled back;
+   - if either rollback fails, saving is latched (`RollbackFailed`) and the builder stays in recovery, refusing edits and saves.
 
-### Builder unavailable in a server (no sandbox marker)
+### Open question for Codex
 
-Saves carry no Build, and the slot guard refuses to drop an existing non-empty Build. Loads apply the room and leave
-the Build section untouched in the preset.
+- **`rememberLighting` during rollback:** its source wasn't provided, so the rollback deliberately skips it. If it caches per-room lighting
+  that the failed load overwrote, please send its source (and anything it writes) so rollback can restore that cache too.
+
+### Builder unavailable in a server
+
+Saves carry no Build, and the guard refuses to drop an existing non-empty Build. Loads run the room part through the same capture and rollback.
+There's no builder epoch then; the Director's own host checks apply.
 
 ## Live integration notes (Codex, 2026-10-25)
 
@@ -85,6 +88,8 @@ the Build section untouched in the preset.
 - [ ] Load a legacy preset: the builder is untouched and the room loads as before.
 - [ ] Hand-edit a slot to `Build.Version = 2`: Save into that slot is refused, and Load is refused with the room unchanged.
 - [ ] Save while a builder edit is in flight: a visible "still applying" message.
+- [ ] Force a room failure during Load (for example, a temporary error in applyAll): room settings, fixtures, items and the build are restored; then Save is refused until Load or Discard.
+- [ ] Load while editing in the builder: builder edits get "Still applying" until the load finishes.
 - [ ] Host transfer during Load: "Host controls changed", with build and room unchanged.
 - [ ] Share code of a preset with a Build: LoadCode restores the build.
 - [ ] Remove a template from `StudioBuilderTemplates`, then load: that item is preserved (not spawned) and survives a re-save.

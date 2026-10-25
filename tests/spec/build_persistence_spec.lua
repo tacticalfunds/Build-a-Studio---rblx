@@ -139,6 +139,21 @@ return function(T, H)
 		return { Id = id, CatalogId = catalogId, Transform = { X = x or 0, Y = 0, Z = 0, Yaw = 0 } }
 	end
 
+	-- Build-only load through the held transaction (what DirectorPersistence does
+	-- around the room restore): begin, apply, final check, commit; rollback on error.
+	local function commitLoad(env, staged)
+		local txn = env.persistence:begin(A, staged)
+		local ok, err = pcall(function()
+			txn:applyBuild()
+			assert(txn:stillAuthorized(), "Host controls changed while loading. Nothing was changed.")
+		end)
+		if not ok then
+			local rolledBack = txn:rollback()
+			error(rolledBack and err or "The builder is resynchronizing. Try again in a moment; nothing was changed.", 0)
+		end
+		return txn:commit()
+	end
+
 	-- Save -----------------------------------------------------------------------
 
 	T.test("save attaches an additive Build section; preset Version and sections untouched", function()
@@ -215,8 +230,7 @@ return function(T, H)
 		local env = setup()
 		env.place("retro_tv_cart_01", 9, 9) -- current build, about to be replaced
 		local staged = env.persistence:prepareLoad(A, saved)
-		local token = env.persistence:commitLoad(A, staged)
-		T.ok(token ~= nil)
+		T.eq(commitLoad(env, staged).ok, true)
 		local list = env.core:list()
 		T.eq(#list, 2)
 		T.eq(list[1].id, "i1")
@@ -233,7 +247,7 @@ return function(T, H)
 			env.place("cozy_plant_01", -12 + i * 4, 0) -- i1..i5 handed out in this server
 		end
 		local staged = env.persistence:prepareLoad(A, preset({ Version = 1, NextId = 2, Items = { stored("i1", "cozy_armchair_01", 5) } }))
-		env.persistence:commitLoad(A, staged)
+		commitLoad(env, staged)
 		T.eq(env.place("cozy_plant_01", -8, -8).id, "i6", "not i2")
 	end)
 
@@ -257,9 +271,8 @@ return function(T, H)
 		local before = state(env)
 		local staged = env.persistence:prepareLoad(A, preset(nil))
 		T.eq(staged.legacy, true)
-		T.eq(env.persistence:commitLoad(A, staged), nil)
+		T.eq(commitLoad(env, staged).ok, true)
 		T.eq(state(env), before)
-		T.eq(env.persistence:revertLoad(A, nil), true)
 	end)
 
 	T.test("unplaceable entries are preserved, counted against the cap, and written back", function()
@@ -276,7 +289,7 @@ return function(T, H)
 				stored("i5", "cozy_plant_01", 500), -- outside current bounds
 			},
 		}
-		env.persistence:commitLoad(A, env.persistence:prepareLoad(A, preset(section)))
+		commitLoad(env, env.persistence:prepareLoad(A, preset(section)))
 		T.eq(#env.core:list(), 1, "only the placeable entry is spawned")
 		T.eq(#env.core.preserved, 4)
 		T.eq(env.world.live.i2, nil)
@@ -295,7 +308,7 @@ return function(T, H)
 		env.world.yieldOn.replace = true
 		local result
 		local co = coroutine.create(function()
-			result = { pcall(function() return env.persistence:commitLoad(A, staged) end) }
+			result = { pcall(function() return commitLoad(env, staged) end) }
 		end)
 		assert(coroutine.resume(co))
 		env.transfer(B)
@@ -311,11 +324,11 @@ return function(T, H)
 		env.place("cozy_plant_01", 1, 1)
 		local staged = env.persistence:prepareLoad(A, preset({ Version = 1, NextId = 2, Items = { stored("i1", "cozy_armchair_01", 5) } }))
 		env.world.yieldOn.replace = true
-		local co = coroutine.create(function() env.persistence:commitLoad(A, staged) end)
+		local co = coroutine.create(function() commitLoad(env, staged) end)
 		assert(coroutine.resume(co))
 		T.eq(env.place("cozy_plant_01", 3, 3).code, "Busy")
 		T.ok(errorMessage(function() env.persistence:attachBuild(preset(nil)) end):find("still applying"))
-		local second = pcall(function() env.persistence:commitLoad(A, staged) end)
+		local second = pcall(function() commitLoad(env, staged) end)
 		T.eq(second, false, "a second load is refused while the first is applying")
 		assert(coroutine.resume(co))
 		T.eq(env.core:list()[1].record.itemId, "cozy_armchair_01")
@@ -327,7 +340,7 @@ return function(T, H)
 		local before = state(env)
 		env.world.failApply = "replace"
 		local staged = env.persistence:prepareLoad(A, preset({ Version = 1, NextId = 2, Items = { stored("i1", "cozy_armchair_01", 5) } }))
-		T.ok(errorMessage(function() env.persistence:commitLoad(A, staged) end):find("couldn't be applied"))
+		T.ok(errorMessage(function() commitLoad(env, staged) end):find("couldn't be applied"))
 		T.eq(state(env), before)
 	end)
 
@@ -340,7 +353,7 @@ return function(T, H)
 		env.world.failRollback = 1
 		local result
 		local co = coroutine.create(function()
-			result = { pcall(function() return env.persistence:commitLoad(A, staged) end) }
+			result = { pcall(function() return commitLoad(env, staged) end) }
 		end)
 		assert(coroutine.resume(co))
 		env.transfer(B)
@@ -353,63 +366,54 @@ return function(T, H)
 		T.eq(state(env), before)
 	end)
 
-	T.test("revertLoad restores the replaced build, but not after another edit", function()
-		local env = setup()
-		env.place("cozy_plant_01", 1, 1)
-		env.place("cozy_plant_01", 4, 1)
-		local before = state(env):gsub("^rev=%d+", "")
-		local staged = env.persistence:prepareLoad(A, preset({ Version = 1, NextId = 2, Items = { stored("i1", "cozy_armchair_01", 5) } }))
-		local token = env.persistence:commitLoad(A, staged)
-		T.eq(env.persistence:revertLoad(A, token), true)
-		T.eq(state(env):gsub("^rev=%d+", ""), before, "exact previous build restored")
-
-		local token2 = env.persistence:commitLoad(A, staged)
-		env.place("cozy_plant_01", -4, 0) -- an edit after the load
-		local ok, code = env.persistence:revertLoad(A, token2)
-		T.eq(ok, false)
-		T.eq(code, "StaleRevision")
-	end)
-
-	T.test("Director restore order: room failure reverts the build; build failure never touches the room", function()
-		-- Mirrors integration/PodcastDirector.persistence.luau restoreSnapshot().
-		local function restore(env, data, room)
-			local staged = env.persistence:prepareLoad(A, data) -- (a) before yields/mutation
-			room.filtered = true -- existing text filtering (may yield)
-			assert(env.host == A, "Host controls changed while loading.")
-			local token = env.persistence:commitLoad(A, staged) -- (b) before the room is touched
-			local ok, err = pcall(function()
-				room.mutations = room.mutations + 1
-				if room.fail then
-					error("room restore failed", 0)
-				end
-			end)
-			if not ok then
-				env.persistence:revertLoad(A, token)
-				error(err, 0)
-			end
-		end
-		local env = setup()
-		env.place("cozy_plant_01", 1, 1)
-		local before = state(env):gsub("^rev=%d+", "")
-		local good = preset({ Version = 1, NextId = 2, Items = { stored("i1", "cozy_armchair_01", 5) } })
-
-		local room = { mutations = 0, fail = true }
-		T.eq(select(2, pcall(restore, env, good, room)), "room restore failed")
-		T.eq(state(env):gsub("^rev=%d+", ""), before, "build reverted after the room failed")
-
-		local room2 = { mutations = 0 }
-		T.eq(pcall(restore, env, preset({ Version = 7, NextId = 1, Items = {} }), room2), false)
-		T.eq(room2.mutations, 0, "newer Build stops the load before the room is touched")
-		T.eq(room2.filtered, nil, "and before the yielding text filter")
-	end)
-
 	T.test("builder unavailable: saves carry no Build, loads skip it", function()
 		local persistence = BuildPersistence.new(function() return nil end)
 		local snapshot = preset(nil)
 		T.eq(persistence:attachBuild(snapshot), snapshot)
 		local staged = persistence:prepareLoad(A, preset({ Version = 1, NextId = 1, Items = {} }))
 		T.eq(staged.skipped, true)
-		T.eq(persistence:commitLoad(A, staged), nil)
+		local txn = persistence:begin(A, staged)
+		txn:applyBuild()
+		T.eq(txn:stillAuthorized(), true)
+		T.eq(txn:commit().ok, true)
+	end)
+
+	T.test("preparation is bound to the host session: A -> B -> A before begin is refused", function()
+		local env = setup()
+		env.place("cozy_plant_01", 1, 1)
+		local before = state(env)
+		local staged = env.persistence:prepareLoad(A, preset({ Version = 1, NextId = 2, Items = { stored("i1", "cozy_armchair_01", 5) } }))
+		local legacy = env.persistence:prepareLoad(A, preset(nil))
+		env.transfer(B) -- e.g. during the Director's yielding text filtering
+		env.transfer(A)
+		T.ok(errorMessage(function() env.persistence:begin(A, staged) end):find("Host controls changed"))
+		T.ok(errorMessage(function() env.persistence:begin(A, legacy) end):find("Host controls changed"), "legacy room-only loads too")
+		T.eq(state(env), before)
+		T.eq(env.core:getState(), "ready", "nothing left locked")
+	end)
+
+	T.test("preparation is bound to the build revision", function()
+		local env = setup()
+		local staged = env.persistence:prepareLoad(A, preset({ Version = 1, NextId = 2, Items = { stored("i1", "cozy_armchair_01", 5) } }))
+		local legacy = env.persistence:prepareLoad(A, preset(nil))
+		env.place("cozy_plant_01", 1, 1) -- the build changed after staging
+		T.ok(errorMessage(function() env.persistence:begin(A, staged) end):find("build changed"))
+		local txn = env.persistence:begin(A, legacy) -- room-only loads don't depend on the build revision
+		T.eq(txn:commit().ok, true)
+	end)
+
+	T.test("the transaction holds the edit lock until it ends", function()
+		local env = setup()
+		local txn = env.persistence:begin(A, env.persistence:prepareLoad(A, preset(nil)))
+		T.eq(env.place("cozy_plant_01", 1, 1).code, "Busy")
+		T.ok(errorMessage(function() env.persistence:attachBuild(preset(nil)) end):find("still applying"))
+		txn:rollback()
+		T.eq(env.place("cozy_plant_01", 1, 1).ok, true)
+	end)
+
+	T.test("prepareLoad refuses a non-host before anything else", function()
+		local env = setup()
+		T.ok(errorMessage(function() env.persistence:prepareLoad(B, preset(nil)) end):find("Host controls changed"))
 	end)
 
 	T.test("prepareLoad only validates: nothing is staged into the core", function()

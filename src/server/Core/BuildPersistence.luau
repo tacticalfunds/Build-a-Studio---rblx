@@ -11,18 +11,20 @@
 	       snapshot is returned unchanged and PresetSlotGuard refuses to
 	       overwrite a slot whose Build has entries.
 	Load:  staged = persistence:prepareLoad(userId, data)   -- before any yield/mutation
-	       ... Director's existing text filtering and host check ...
-	       token = persistence:commitLoad(userId, staged)  -- before mutating the room
-	       ... Director's existing room restore; on error:
-	       persistence:revertLoad(userId, token)
+	       ... text filtering (yields) and host check ...
+	       txn = persistence:begin(userId, staged)          -- holds the builder lock
+	       txn:applyBuild(); <room restore>; txn:stillAuthorized()
+	       txn:commit()   or, on any failure: <room rollback>; txn:rollback()
+	       (integration/DirectorPersistence.luau drives this.)
 	* prepareLoad validates and stages without mutating: Corrupt or newer
 	  (UnsupportedVersion) Build sections error, so nothing changes.
 	  Unplaceable entries are preserved and written back on the next save.
 	  A preset without Build (legacy) leaves the build untouched.
-	* commitLoad replaces the build through PlacementCore's exclusive path
-	  (lock, host + epoch re-checks after yields, world rollback/recovery). Any
-	  failure leaves the build unchanged and errors.
-	* revertLoad restores the replaced build if nothing changed since.
+	* prepareLoad binds the staged load to the host epoch and build revision;
+	  begin() refuses if either moved (A -> B -> A during text filtering).
+	* The transaction holds PlacementCore's edit lock across the whole room +
+	  build load, so builder edits and saves get Busy until it ends. A failed
+	  world rollback leaves the builder in recovery (edits and saves refused).
 	Error messages are player-facing; errors are raised with a position
 	prefix so the Director's existing ":%d+: (.+)$" extraction shows them.
 ]]
@@ -67,49 +69,83 @@ function BuildPersistence:attachBuild(snapshot)
 	return SaveSnapshot.attachToPreset(snapshot, section)
 end
 
+-- Validates and stages a preset's Build section before any yield or
+-- mutation, and binds it to the current host session and build revision.
+-- Corrupt or newer sections error. Returns staged = { legacy?, plan?, binding? }.
 function BuildPersistence:prepareLoad(userId, data)
-	if type(data) ~= "table" or data[SaveSnapshot.SECTION_KEY] == nil then
-		return { legacy = true }
-	end
 	local core = self.getCore()
 	if core == nil then
-		-- Builder disabled in this server: the room loads, the Build section
-		-- stays in the preset untouched (and the slot guard protects it).
+		-- Builder disabled here: the room loads; any Build section stays in the preset.
 		return { legacy = true, skipped = true }
+	end
+	if not core:_isHost(userId) then
+		fail("NotHost")
+	end
+	local binding = core:binding()
+	if type(data) ~= "table" or data[SaveSnapshot.SECTION_KEY] == nil then
+		-- Legacy (room-only): still bound to the host session.
+		return { legacy = true, binding = { epoch = binding.epoch } }
 	end
 	local plan, code = core:prepareLoad(userId, data[SaveSnapshot.SECTION_KEY])
 	if plan == nil then
 		fail(code)
 	end
-	return { plan = plan }
+	return { plan = plan, binding = binding }
 end
 
-function BuildPersistence:commitLoad(userId, staged)
-	if staged == nil or staged.legacy then
-		return nil
-	end
+local LoadTransaction = {}
+LoadTransaction.__index = LoadTransaction
+
+-- Starts the compound load: holds the builder's edit lock until commit() or
+-- rollback(). Errors (nothing changed) if the host session or build revision
+-- moved since prepareLoad. With the builder disabled, returns an inert
+-- transaction so the Director code has one shape.
+function BuildPersistence:begin(userId, staged)
 	local core = self.getCore()
-	if core == nil then
-		fail("Unavailable")
+	if core == nil or staged.skipped then
+		return setmetatable({ inert = true }, LoadTransaction)
 	end
-	local response = core:loadBuild(userId, staged.plan)
-	if not response.ok then
-		fail(response.recoveryNeeded and "RecoveryNeeded" or response.code)
+	local txn, code = core:beginTransaction(userId, staged.binding)
+	if txn == nil then
+		fail(code)
 	end
-	return response.revert
+	return setmetatable({ txn = txn, staged = staged }, LoadTransaction)
 end
 
--- Returns ok, code. A nil token (legacy load) is a no-op.
-function BuildPersistence:revertLoad(userId, token)
-	if token == nil then
+-- Applies the staged build to the world (legacy loads: no-op). Errors on failure;
+-- the caller must then call rollback().
+function LoadTransaction:applyBuild()
+	if self.inert or self.staged.legacy then
+		return
+	end
+	local ok, code = self.txn:applyBuild(self.staged.plan)
+	if not ok then
+		fail(code)
+	end
+end
+
+-- Final authority check after yields (host and host session).
+function LoadTransaction:stillAuthorized()
+	if self.inert then
 		return true
 	end
-	local core = self.getCore()
-	if core == nil then
-		return false, "Unavailable"
+	return self.txn:stillAuthorized()
+end
+
+-- Returns { ok, buildRevision?, recoveryNeeded? }.
+function LoadTransaction:commit()
+	if self.inert then
+		return { ok = true }
 	end
-	local response = core:revertLoad(userId, token)
-	return response.ok == true, response.code
+	return self.txn:commit()
+end
+
+-- Returns ok (false = the builder is now in recovery and refuses edits/saves).
+function LoadTransaction:rollback()
+	if self.inert then
+		return true
+	end
+	return self.txn:rollback()
 end
 
 return BuildPersistence

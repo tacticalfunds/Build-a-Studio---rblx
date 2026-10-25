@@ -656,8 +656,8 @@ end
 -- as edits: lock, host + epoch re-checks after every yield, two-phase world
 -- "replace" with rollback, recovery on failed rollback/finalize. History is
 -- cleared on success. expectedRevision (optional) is checked under the lock.
--- Returns { ok, code?, buildRevision, revert? }; revert undoes this load via
--- revertLoad while nothing else has changed.
+-- Returns { ok, code?, buildRevision }. Single-shot build-only load; compound
+-- room + build loads use beginTransaction instead.
 function PlacementCore:loadBuild(userId, plan, expectedRevision)
 	if not Validate.isPositiveInteger(userId) or type(plan) ~= "table" then
 		return self:_reject(Codes.BadRequest)
@@ -671,7 +671,7 @@ function PlacementCore:loadBuild(userId, plan, expectedRevision)
 			return self:_reject(Codes.StaleRevision)
 		end
 		local epoch = self.hostEpoch
-		local previous = { entries = self.model:list(), preserved = self.preserved, nextId = self.model.nextId }
+		local previous = { entries = self.model:list() }
 		local model = BuildModel.new(self.config.MaxItems)
 		model:setReserved(#plan.preserved)
 		for _, e in ipairs(plan.entries) do
@@ -691,20 +691,119 @@ function PlacementCore:loadBuild(userId, plan, expectedRevision)
 				core.history:clear(revision)
 			end,
 		})
-		if response.ok then
-			response.revert = { revision = response.buildRevision, plan = previous }
-		end
 		return response
 	end)
 end
 
--- Restores the build a load replaced, through loadBuild, only if nothing has
--- changed since that load.
-function PlacementCore:revertLoad(userId, revert)
-	if type(revert) ~= "table" or type(revert.plan) ~= "table" then
-		return self:_reject(Codes.BadRequest)
+-- Binding captured when a load is prepared: the host session and build
+-- revision it was validated against.
+function PlacementCore:binding()
+	return { epoch = self.hostEpoch, revision = self.revision }
+end
+
+-- Compound loads (room + build) hold the edit lock for their whole duration.
+-- beginTransaction refuses unless the host, host epoch and (when given) build
+-- revision still match the preparation binding. The returned transaction must
+-- end with exactly one commit() or rollback(); until then edits and saves get
+-- Busy. Returns txn or nil, code.
+local Transaction = {}
+Transaction.__index = Transaction
+
+function PlacementCore:beginTransaction(userId, binding)
+	self:_observeHost()
+	if self.state == RECOVERY and not self:recover() then
+		return nil, Codes.RecoveryNeeded
 	end
-	return self:loadBuild(userId, revert.plan, revert.revision)
+	if self.state ~= READY then
+		return nil, Codes.Busy
+	end
+	if not self:_isHost(userId) then
+		return nil, Codes.NotHost
+	end
+	if type(binding) ~= "table" or binding.epoch ~= self.hostEpoch then
+		return nil, Codes.AuthorityLost
+	end
+	if binding.revision ~= nil and binding.revision ~= self.revision then
+		return nil, Codes.StaleRevision
+	end
+	self.state = BUSY
+	return setmetatable({ core = self, userId = userId, epoch = self.hostEpoch, done = false }, Transaction)
+end
+
+-- Final authority check after any yield: same host and same host session.
+function Transaction:stillAuthorized()
+	return self.core:_stillAuthorized(self.userId, self.epoch)
+end
+
+-- Swaps the world to the staged build (two-phase; may yield). The model is
+-- committed only by commit(). Returns ok, code.
+function Transaction:applyBuild(plan)
+	assert(not self.done and self.token == nil, "transaction already applied or ended")
+	local core = self.core
+	local model = BuildModel.new(core.config.MaxItems)
+	model:setReserved(#plan.preserved)
+	for _, e in ipairs(plan.entries) do
+		local r = e.record
+		model:add(e.id, { itemId = r.itemId, placedByUserId = r.placedByUserId or self.userId, x = r.x, y = r.y, z = r.z, yaw = r.yaw })
+	end
+	model:reserveIdsThrough(math.max(plan.nextId, core.model.nextId) - 1)
+	local effect = { kind = "replace", id = "*", entries = model:list(), previous = core.model:list() }
+	local ok, token = pcall(core.world.apply, core.world, effect)
+	if not ok then
+		core:_log("world replace failed: " .. tostring(token))
+		return false, Codes.ApplyFailed
+	end
+	self.token, self.effect, self.model, self.preserved = token, effect, model, plan.preserved
+	return true
+end
+
+function Transaction:_release()
+	self.done = true
+	local core = self.core
+	core.state = core.recovery ~= nil and RECOVERY or READY
+end
+
+-- Commits the applied build (if any) and releases the lock. Never throws.
+-- Returns { ok = true, buildRevision, recoveryNeeded? }.
+function Transaction:commit()
+	assert(not self.done, "transaction already ended")
+	local core = self.core
+	local response = { ok = true, buildRevision = core.revision }
+	if self.token ~= nil then
+		core.model = self.model
+		core.preserved = self.preserved
+		core.revision = core.revision + 1
+		core.history:clear(core.revision)
+		response.buildRevision = core.revision
+		local finalized, err = pcall(core.world.commit, core.world, self.token)
+		if not finalized then
+			core:_log("world finalize failed: " .. tostring(err))
+			core:_enterRecovery("finalize", self.token, self.effect)
+			response.recoveryNeeded = true
+		end
+		pcall(core.world.publishRevision, core.world, core.revision)
+	end
+	self:_release()
+	return response
+end
+
+-- Restores the world to the previous build (the model was never changed) and
+-- releases the lock. A failed world rollback fails closed: recovery state,
+-- edits and saves refused until reconciled. Returns ok.
+function Transaction:rollback()
+	assert(not self.done, "transaction already ended")
+	local core = self.core
+	local ok = true
+	if self.token ~= nil then
+		local rolledBack, err = pcall(core.world.rollback, core.world, self.token)
+		if not rolledBack then
+			core:_log("world rollback failed: " .. tostring(err))
+			core:_enterRecovery("rollback", self.token, self.effect)
+			ok = false
+		end
+	end
+	self:_release()
+	return ok
 end
 
 return PlacementCore
