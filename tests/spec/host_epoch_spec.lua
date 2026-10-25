@@ -43,7 +43,13 @@ return function(T, H)
 			templates = { isInstalled = function() return true end, getSize = function() return { 2.93, 5.72, 2.93 } end },
 			entitlements = { isItemUnlocked = function() return true end },
 			authority = {
-				check = function(_, userId) return userId == env.host end,
+				check = function(_, userId)
+					env.checks = (env.checks or 0) + 1
+					if env.yieldOnCheck == env.checks then
+						coroutine.yield("check")
+					end
+					return userId == env.host
+				end,
 				currentHostUserId = (not options.noHostReadback) and function() return env.host end or nil,
 			},
 			bounds = { halfX = 20, halfZ = 15, height = 16 },
@@ -141,6 +147,28 @@ return function(T, H)
 		local s = env.req({ op = "Status" }, A).status
 		T.eq(s.canUndo, false, "former host is not offered undo")
 		T.eq(env.req({ op = "Undo" }, A).code, "NotHost")
+	end)
+
+	T.test("A -> B -> A during a yielding post-apply authority check does not commit", function()
+		local env = setup()
+		env.checks = 0
+		-- Checks in a Place: 1 = initial, 2 = after planning, 3 = after world.apply.
+		env.yieldOnCheck = 3
+		local response
+		local co = coroutine.create(function()
+			response = env.core:handle(A, { op = "Place", itemId = "cozy_plant_01", transform = { x = 0, y = 0, z = 0, yaw = 0 } })
+		end)
+		env.now = env.now + 1
+		assert(coroutine.resume(co))
+		T.eq(response, nil, "suspended inside the post-apply authority check")
+		env.transfer(B)
+		env.transfer(A)
+		assert(coroutine.resume(co))
+		T.eq(response.ok, false, "must not commit in a new host session")
+		T.eq(response.code, "AuthorityLost")
+		T.eq(#env.core:list(), 0)
+		T.eq(env.world.live.i1, nil, "world rolled back")
+		T.eq(env.core:getRevision(), 0)
 	end)
 
 	T.test("same host keeps history across status reads and its own edits", function()

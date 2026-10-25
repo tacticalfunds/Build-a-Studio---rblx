@@ -32,7 +32,12 @@
 	  handoff is exited, no drawer is created, open() returns "Cancelled".
 	* A failed handoff exit keeps its cleanup handle; it is reported to the
 	  panel, retried in the background and on every close()/open(), and open()
-	  refuses with "CleanupPending" until it succeeds.
+	  refuses with "CleanupPending" until it succeeds. Failed cleanup means an
+	  INACTIVE handoff that still holds handles (an active handoff's handles
+	  are not failed cleanup). Background workers are scoped to a cleanup
+	  generation: a successful cleanup, a newer worker or a new open
+	  invalidates older ones, and every wake re-checks generation and that
+	  nothing is open or opening before touching the handoff.
 	* The ghost tracks its catalog ID and is replaced when the chosen item
 	  changes; a placement only uses a preview computed for the current item.
 	* The active input method (mouse or touch) is tracked per input, not by
@@ -63,7 +68,7 @@ function BuildController.new(env)
 		pointer = nil,
 		inputMethod = "mouse",
 		lastPreview = nil,
-		cleanupRetrying = false,
+		cleanupGeneration = 0,
 		lastCloseInfo = nil,
 	}, BuildController)
 	return self
@@ -120,32 +125,51 @@ end
 
 -- Handoff cleanup -------------------------------------------------------------
 
-function BuildController:_retryCleanup()
+-- Failed cleanup = the handoff is inactive but still holds handles from a
+-- failed exit. Handles of an active (or entering/exiting) handoff are not.
+function BuildController:_hasFailedCleanup()
 	local handoff = self.env.handoff
-	if not handoff:hasPendingCleanup() then
+	return handoff:getState() == "inactive" and handoff:hasPendingCleanup()
+end
+
+-- Invalidates every background cleanup worker scheduled so far.
+function BuildController:_invalidateCleanupWorkers()
+	self.cleanupGeneration = self.cleanupGeneration + 1
+end
+
+function BuildController:_retryCleanup()
+	if not self:_hasFailedCleanup() then
 		return true
 	end
-	local ok = handoff:exit()
-	return ok and not handoff:hasPendingCleanup()
+	self.env.handoff:exit()
+	if self:_hasFailedCleanup() then
+		return false
+	end
+	self:_invalidateCleanupWorkers()
+	return true
 end
 
 function BuildController:_scheduleCleanupRetry()
-	if self.cleanupRetrying then
-		return
-	end
-	self.cleanupRetrying = true
+	self:_invalidateCleanupWorkers()
+	local generation = self.cleanupGeneration
 	self.env.spawn(function()
-		while self.env.handoff:hasPendingCleanup() do
+		while true do
 			self.env.wait(RETRY_SECONDS)
-			self:_retryCleanup()
+			-- Re-check ownership after every wait: a newer worker, a successful
+			-- cleanup or a new open/opening means this worker is stale.
+			if generation ~= self.cleanupGeneration or self.opening or self.session:isOpen() or not self:_hasFailedCleanup() then
+				return
+			end
+			if self:_retryCleanup() then
+				return
+			end
 		end
-		self.cleanupRetrying = false
 	end)
 end
 
 function BuildController:_exitHandoff()
 	local ok, failures = self.env.handoff:exit()
-	if not ok and self.env.handoff:hasPendingCleanup() then
+	if not ok and self:_hasFailedCleanup() then
 		self:_scheduleCleanupRetry()
 		return false, failures
 	end
@@ -173,6 +197,7 @@ function BuildController:open()
 		self:_scheduleCleanupRetry()
 		return false, "CleanupPending"
 	end
+	self:_invalidateCleanupWorkers() -- no worker may touch the handoff this open enters
 	local sandbox = self.env.readSandbox()
 	if sandbox == nil then
 		return false, "Unavailable"

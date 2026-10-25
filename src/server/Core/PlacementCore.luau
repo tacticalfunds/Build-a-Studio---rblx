@@ -117,9 +117,13 @@ function PlacementCore:_observeHost()
 end
 
 -- Host check bound to the host session captured when the lock was taken.
+-- Authority reads may yield, so the epoch is compared LAST, after every
+-- possibly-yielding read; a transfer during those reads (A -> B -> A) bumps
+-- the epoch and is caught.
 function PlacementCore:_stillAuthorized(userId, epoch)
+	local allowed = self:_isHost(userId)
 	self:_observeHost()
-	return self.hostEpoch == epoch and self:_isHost(userId)
+	return allowed and self.hostEpoch == epoch
 end
 
 function PlacementCore:_log(message)

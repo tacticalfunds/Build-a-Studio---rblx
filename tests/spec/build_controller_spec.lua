@@ -310,6 +310,48 @@ return function(T, H)
 		T.eq(env.c:open(), true)
 	end)
 
+	T.test("a stale cleanup worker never exits a newer active handoff", function()
+		local env = setup()
+		env.c:open()
+		env.failExit = 1 -- the close's exit fails once
+		env.c:close()
+		T.eq(env.handoff:hasPendingCleanup(), true)
+		-- The background worker is now waiting. The user reopens: open() retries
+		-- cleanup successfully and enters a NEW handoff.
+		T.eq(env.c:open(), true)
+		T.eq(env.handoff:isActive(), true)
+		local exitsBefore = 0
+		for _, entry in ipairs(env.hookLog) do
+			if entry:find(":exit") then exitsBefore = exitsBefore + 1 end
+		end
+		env.step() -- the old worker wakes
+		env.step()
+		local exitsAfter = 0
+		for _, entry in ipairs(env.hookLog) do
+			if entry:find(":exit") then exitsAfter = exitsAfter + 1 end
+		end
+		T.eq(exitsAfter, exitsBefore, "the stale worker must not run exit hooks")
+		T.eq(env.handoff:isActive(), true, "new handoff remains active")
+		T.eq(env.c:isOpen(), true)
+		T.eq(env.drawers[#env.drawers].destroyed, false, "drawer still usable")
+		env.c:chooseItem("cozy_plant_01")
+		env.c:onPointerPressed(at(1, 1), "mouse", 999, 999)
+		T.eq(lastRequest(env).op, "Place", "edits still go through")
+	end)
+
+	T.test("a newer cleanup worker is not cancelled by an older one finishing", function()
+		local env = setup()
+		env.c:open()
+		env.failExit = 3
+		env.c:close() -- fails (1), worker A scheduled
+		env.c:close() -- retry while closed fails (2), worker B scheduled
+		env.step() -- both wake: the stale one must just stop; the current one retries (3) and fails
+		T.eq(env.handoff:hasPendingCleanup(), true)
+		env.step() -- the current worker retries again and succeeds
+		T.eq(env.handoff:hasPendingCleanup(), false, "cleanup eventually completes")
+		T.eq(env.c:open(), true)
+	end)
+
 	T.test("close() while closed retries pending cleanup", function()
 		local env = setup()
 		env.c:open()
