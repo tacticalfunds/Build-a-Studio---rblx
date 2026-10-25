@@ -29,9 +29,9 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | Expansion installed (31 items, Play-checked); Executive/Broadcast pending |
+| 8 | More collection themes | 6 | 31 furniture installed; 2 decor registered (install pending); Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
-| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (server + client + 5 registered, for review; Studio install and Play pending) |
+| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (installed and remote-tested in Play; visual QA and doorway clearance pending) |
 
 **User priority (2026-10-25): keep expanding the model catalog.** Codex prepares and inspects candidates. Each set is registered in its own bounded checkpoint (manifest, catalog entries, tests), then installed and Play-checked by Codex. The queue order above is otherwise unchanged.
 
@@ -257,7 +257,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: Expansion installed (31 items, Play-checked); Executive/Broadcast pending
+## 8. More collection themes: 31 furniture installed; 2 decor registered (install pending); Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -295,6 +295,15 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
   - **Backup:** a full-place backup of this state is pending. The user stopped native Computer Use, and it isn't bypassed. The 62f2f87 RBXL remains the full-place baseline.
   - This checkpoint is documentation only, with no code, runtime or UI changes. The header comments in `Catalog.luau` still describe the pre-install state; they get fixed in the next code checkpoint.
 
+- Decor registration (after review of 24e8047):
+  - **Registered:** `retro_record_player_01` (Vintage Record Player) and `retro_radio_01` (Vintage Radio), from `docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`, with the exact name, tags (retro, 1980s, cozy) and sourceRef. Positions 37 and 38; the first 36 IDs and their order are unchanged.
+  - **Credit:** the record player keeps the creator's requested credit verbatim (`credit = "RushioLCO (credit requested)"`). The radio's creator (zzz_1551) is noted in the source and the index.
+  - Both are decorative furniture with no structure metadata and no audio. Their templates are in `ServerStorage.StudioStructureCandidates`, so they're **not installed** in the game until Codex places them in `StudioBuilderTemplates`.
+  - **Style filter counts:** Cozy 24, Retro 18, 1980s 14, Winter 11, Futuristic 9.
+  - **Still deferred:** the shoji divider (272 parts), the corner and the standalone window frame.
+  - **Evidence (executed 2026-10-25):** `lua5.4 tests/run.lua` gives **297 passed, 0 failed**. The catalog tests check: 38 entries in order; the decor matches the manifest exactly (name, tags, sourceRef); the credit is kept verbatim; there's no structure tag; the deferred 3 and the rejected asset IDs are still absent.
+    Mutations caught: the credit dropped, a wrong tag, a changed name, the radio marked as structure.
+
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
 - UX: a Branding section on the Studio page. The host enters a Roblox image asset ID and sees a preview. They then apply it either to the whole active room's branding, or by clicking or selecting eligible individual surfaces (wall signs, screens, mugs, laptop lids). Apply and Reset per room and per surface.
@@ -303,7 +312,7 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
 
-## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (server + client + 5 registered, for review; Studio install and Play pending)
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (installed and remote-tested in Play; visual QA and doorway clearance pending)
 Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
 - Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
   - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
@@ -397,4 +406,14 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Updated: the catalog tests (36 entries, furniture vs raw tag counts, the 5 registered from the manifest, the 5 deferred still blocked, rejected asset IDs still absent from source), the listing safe fields (`structure` with only `kind`), and the structure placement spec (registered kinds).
     - 11 client mutations caught: preview ignoring the kind or skipping bounds, the controller omitting the kind, a category switch keeping the preview, no yaw check on confirm, a stale preview kept, structure leaking into style filters, a 90° edge step, choose or move dropping the kind, the OffGrid message lost.
   - **Not executed:** Studio install, Play, the real drawer Instances (BuildDrawer isn't run outside Roblox), and avatar clearance. **Players can't use structures yet.**
+- Integration evidence (Codex, for 24e8047):
+  - **Suite:** 297 passed, run independently.
+  - **Installed:** after backing up all 45 existing scripts, the 11 changed modules and the 5 inspected structure templates in place 132242140555698. The marker is now 49 × 24 × 49, and the live catalog and templates hold 36.
+  - **Play:**
+    - Build → Structure opens with the matching dark/teal UI and five filters;
+    - the real client/server remote placed all five pieces; a floor move, a wall rotate, a duplicate, undo, redo and every deletion passed;
+    - BadYaw, OffGrid and OutOfBounds refusals were seen;
+    - no console errors.
+  - **Visual QA pending:** all world captures render white, including the original room in Edit mode. Rendering is Automatic, ViewMode None, with sane lighting; there's no confirmed cause. The GUI works and raycasts hit the correct geometry. **Visual placement, the hinge Rotate feel and doorway clearance are not approved.**
+  - **Backups and place state:** Studio was returned to Edit, with no publish or merge. The full-place backup is still pending; there's a source-only backup.
 

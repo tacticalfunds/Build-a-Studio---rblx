@@ -1,6 +1,12 @@
 # Structure placement plan: walls, floors, ceilings, doorways, windows
 
-**Status (client and registration checkpoint, after review of 12068ca):** **server and client code are in the repository and tested with `lua5.4` only. Not installed in Studio, not Play-tested, and not usable by players yet.**
+**Integration (Codex, after 24e8047):**
+- **Installed:** the 11 changed modules and 5 structure templates. The marker is now **49 × 24 × 49**.
+- **Checked in Play:** the Structure mode UI with five filters; placement of all five pieces over the real remote; a floor move, a wall rotate, a duplicate, undo/redo and deletions; BadYaw, OffGrid and OutOfBounds refusals; no console errors.
+- **Visual QA pending:** world captures render white, even the original room in Edit mode, with no confirmed cause. **Visual placement, the hinge Rotate feel and doorway clearance are not approved.**
+- **Backups:** the full-place backup is still pending; there's a source-only backup.
+
+**Status (client and registration checkpoint, after review of 12068ca):** server and client code were in the repository and tested with `lua5.4` only at the time; see the integration note above for what has since run in Studio.
 - **Registered:** 5 catalog entries with `structure` metadata, for a total of 36.
   - `structure_wall_01` (wall), `structure_window_wall_01` (window_wall), `structure_doorway_01` (doorway), `structure_floor_01` (floor), `structure_ceiling_01` (ceiling).
   - Names, tags and sourceRefs are exact from the manifest.
@@ -22,7 +28,7 @@
   - the **doorway clearance / obstruction policy is still pending**: not implemented, and avatar clearance not tested;
   - nothing has run in Studio.
 
-The live sandbox marker is untouched: 48 × 24 × 48 at world (2000, 12, 0).
+The sandbox marker was 48 × 24 × 48 at world (2000, 12, 0) during these checkpoints. Codex has since resized it to 49 × 24 × 49 (see the integration note above).
 
 ## 1. What the current code does (and what that means for structures)
 

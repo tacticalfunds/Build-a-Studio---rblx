@@ -60,10 +60,15 @@ return function(T, H)
 	}
 	local STRUCTURE_ORDER = { "structure_wall_01", "structure_window_wall_01", "structure_doorway_01", "structure_floor_01", "structure_ceiling_01" }
 
-	T.test("catalog holds the 7 original, 24 expansion and 5 structure IDs, earlier entries unchanged in order", function()
-		T.eq(#Catalog.Items, 36, "item count")
+	local DECOR = { "retro_record_player_01", "retro_radio_01" }
+
+	T.test("catalog holds the 7 original, 24 expansion, 5 structure and 2 decor IDs, earlier entries unchanged in order", function()
+		T.eq(#Catalog.Items, 38, "item count")
 		for i, id in ipairs(STRUCTURE_ORDER) do
 			T.eq(Catalog.Items[#ORIGINAL + #EXPANSION + i].id, id, "structure #" .. i)
+		end
+		for i, id in ipairs(DECOR) do
+			T.eq(Catalog.Items[#ORIGINAL + #EXPANSION + #STRUCTURE_ORDER + i].id, id, "decor #" .. i)
 		end
 		for i, id in ipairs(ORIGINAL) do
 			T.eq(Catalog.Items[i].id, id, "original #" .. i)
@@ -84,7 +89,8 @@ return function(T, H)
 
 	T.test("collection tag counts match the data, and every collection has items", function()
 		-- Style filters show furniture only; the 5 structure pieces carry all five tags but live in Structure mode.
-		local expected = { cozy = 22, retro = 16, ["1980s"] = 12, winter = 11, futuristic = 9 }
+		-- The 2 decor items (record player, radio) are furniture tagged retro, 1980s and cozy.
+		local expected = { cozy = 24, retro = 18, ["1980s"] = 14, winter = 11, futuristic = 9 }
 		for _, c in ipairs(Catalog.Collections) do
 			T.eq(#Catalog.getFurnitureTagged(c.id), expected[c.id], c.id .. " furniture count")
 			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id] + 5, c.id .. " raw tag count")
@@ -146,7 +152,7 @@ return function(T, H)
 		end
 	end)
 
-	T.test("structure candidates: exactly the 5 approved pieces are registered from the manifest; deferred ones and rejected asset IDs stay out", function()
+	T.test("candidates: exactly the 5 structure pieces and 2 decor items are registered from the manifest; deferred ones and rejected asset IDs stay out", function()
 		local manifest = H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json")
 		local ids = {}
 		for entry in manifest:gmatch('"templatePath": "ServerStorage%.StudioStructureCandidates%.([%w_]+)"') do
@@ -154,7 +160,8 @@ return function(T, H)
 		end
 		T.eq(#ids, 10, "candidate count")
 		local index = H.readFile(H.ROOT .. "/docs/assets/README.md")
-		local deferred = { structure_corner_01 = true, structure_industrial_window_01 = true, retro_record_player_01 = true, retro_radio_01 = true, cozy_shoji_divider_01 = true }
+		local deferred = { structure_corner_01 = true, structure_industrial_window_01 = true, cozy_shoji_divider_01 = true }
+		local decor = { retro_record_player_01 = true, retro_radio_01 = true }
 		for _, id in ipairs(ids) do
 			T.ok(index:find("`" .. id .. "`", 1, true), id .. " is indexed in docs/assets/README.md")
 			local item = Catalog.getItem(id)
@@ -162,7 +169,11 @@ return function(T, H)
 				T.eq(item, nil, id .. " is deferred and must not be registered")
 			else
 				T.ok(item ~= nil, id .. " is registered")
-				T.eq(item.structure.kind, STRUCTURE[id], id .. " kind")
+				if decor[id] then
+					T.eq(item.structure, nil, id .. " is decorative furniture, not a structure piece")
+				else
+					T.eq(item.structure.kind, STRUCTURE[id], id .. " kind")
+				end
 				-- Exact name, tags and sourceRef from this candidate's manifest entry.
 				local at = manifest:find('"id": "' .. id .. '"', 1, true)
 				local stop = manifest:find('"collections"', at, true)
@@ -191,7 +202,10 @@ return function(T, H)
 				T.eq(H.readFile(H.ROOT .. "/" .. path):find(assetId, 1, true), nil, assetId .. " appears in " .. path)
 			end
 		end
-		T.ok(index:find("RushioLCO (credit requested; keep it)", 1, true), "record player credit kept")
+		T.ok(index:find("RushioLCO (credit requested; keep it)", 1, true), "record player credit kept in the index")
+		T.ok(manifest:find('"credits": "RushioLCO (credit requested)"', 1, true))
+		T.eq(Catalog.getItem("retro_record_player_01").credit, "RushioLCO (credit requested)", "record player credit kept verbatim in the catalog")
+		T.eq(Catalog.getItem("retro_radio_01").credit, nil, "no credit text in the manifest for the radio")
 		local ceiling = H.readFile(H.ROOT .. "/src/shared/Catalog.luau")
 		T.ok(ceiling:find("Neutral recolour of the kit floor geometry", 1, true), "ceiling provenance noted in the catalog")
 	end)

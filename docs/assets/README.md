@@ -24,8 +24,9 @@ Read them in this order:
 
 ## Structure and decor candidates (2026-10-25)
 
-**Registered (catalog only, Studio install pending):** `structure_wall_01`, `structure_window_wall_01`, `structure_doorway_01`, `structure_floor_01`, `structure_ceiling_01`, with structure kinds wall, window_wall, doorway, floor and ceiling.
-**Deferred, not registered:** `structure_corner_01`, `structure_industrial_window_01`, `retro_record_player_01`, `retro_radio_01`, `cozy_shoji_divider_01`.
+**Registered, structure pieces (installed in Studio at 24e8047; visual QA pending):** `structure_wall_01`, `structure_window_wall_01`, `structure_doorway_01`, `structure_floor_01`, `structure_ceiling_01`, with structure kinds wall, window_wall, doorway, floor and ceiling.
+**Registered, decor (catalog only; Studio install pending):** `retro_record_player_01` (with the creator's requested credit "RushioLCO (credit requested)" kept verbatim in the catalog's `credit` field) and `retro_radio_01` (creator zzz_1551). Both are decorative, with no audio.
+**Deferred, not registered:** `structure_corner_01`, `structure_industrial_window_01`, `cozy_shoji_divider_01`.
 The structure plan is [`../structure-placement-plan.md`](../structure-placement-plan.md).
 The 10 templates have zero scripts and zero unanchored parts, and 319 parts in total.
 

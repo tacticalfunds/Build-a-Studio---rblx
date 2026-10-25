@@ -6,6 +6,8 @@
 	* Each item maps to a curated template Model named exactly like the item ID in
 	  ServerStorage.StudioBuilderTemplates (see server/Adapters/TemplateCatalog).
 	  Nothing here is an asset ID, and nothing is ever loaded by ID.
+	* `credit` (optional) is attribution the creator asked for; it is metadata
+	  only and is kept verbatim from the manifest.
 	* `sourceRef` is documentation only: the staging path the template was
 	  prepared from, per docs/assets/Studio_Asset_Guide_2026-10-25.json or, for
 	  the 24 expansion items, docs/assets/Catalog_Expansion_2026-10-25.json.
@@ -276,6 +278,25 @@ Catalog.Items = {
 		sourceRef = "ServerStorage.StructureCandidateImports.Modular Room.Model.Floor",
 		structure = { kind = "ceiling" },
 		-- Neutral recolour of the kit floor geometry (same source as structure_floor_01), not a separate marketplace model.
+	},
+	-- Decor (2026-10-25): 2 candidates prepared by Codex
+	-- (docs/assets/Structure_and_Decor_Candidates_2026-10-25.json; templates in
+	-- ServerStorage.StudioStructureCandidates, Studio install pending).
+	-- Decorative only: no audio or playback.
+	{
+		id = "retro_record_player_01",
+		displayName = "Vintage Record Player",
+		collections = { "retro", "1980s", "cozy" },
+		sourceRef = "ServerStorage.StructureCandidateImports.Record Player",
+		-- Attribution requested by the creator; keep it wherever credits are shown.
+		credit = "RushioLCO (credit requested)",
+	},
+	{
+		id = "retro_radio_01",
+		displayName = "Vintage Radio",
+		collections = { "retro", "1980s", "cozy" },
+		sourceRef = "ServerStorage.StructureCandidateImports.Vintage Radio",
+		-- Source creator zzz_1551 (manifest sourceCreator).
 	},
 }
 

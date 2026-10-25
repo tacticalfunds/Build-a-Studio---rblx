@@ -119,14 +119,17 @@ return function(T, H)
 
 	T.test("catalog: only the 5 registered kit pieces carry structure; metadata is optional and strictly validated", function()
 		local kinds = {}
-		for i, item in ipairs(Catalog.Items) do
-			if i <= 31 then
-				T.eq(item.structure, nil, item.id .. " (furniture)")
-			else
+		for _, item in ipairs(Catalog.Items) do
+			if item.structure ~= nil then
 				kinds[item.id] = item.structure.kind
 			end
 		end
-		T.eq(#Catalog.Items, 36)
+		T.eq(#Catalog.Items, 38)
+		for i = 1, 31 do
+			T.eq(Catalog.Items[i].structure, nil, Catalog.Items[i].id .. " (furniture)")
+		end
+		T.eq(Catalog.Items[37].structure, nil, "record player is furniture")
+		T.eq(Catalog.Items[38].structure, nil, "radio is furniture")
 		T.deepEq(kinds, { structure_wall_01 = "wall", structure_window_wall_01 = "window_wall", structure_doorway_01 = "doorway", structure_floor_01 = "floor", structure_ceiling_01 = "ceiling" })
 		local collections = { { id = "cozy", displayName = "Cozy" } }
 		local function check(structure)
