@@ -1,0 +1,400 @@
+STUDIO ASSET HANDOFF — 2026-10-25
+Place: Studio Experience / 132242140555698
+
+READ FIRST
+This is a local Studio snapshot, not a claim that these assets already exist in the GitHub source repository. Do not invent model IDs for assets whose original source is unknown. Mesh IDs are not interchangeable with model IDs. Curated collections are PROPOSED: Starter, Cozy, Retro, 1980s, Winter, Futuristic, Executive and Broadcast. All currently free; no purchases or entitlement implementation.
+
+FILES
+Studio Asset Guide 2026-10-25.json: human-oriented descriptions, function, evidence, proposed collections, metrics, known provenance for all 39 stored top-level entries and six live rooms.
+Studio Asset Inventory 2026-10-25.json: exhaustive nested MODEL index (2594 model records), four non-model loose BaseParts, 448 distinct referenced content URLs/IDs with use paths, 13 script records, service roots. Each model has exact path, parent model ID, bounds, pivot, attributes, material/color counts and descendant class counts. Counts include nested descendants and must not be summed naively. This is NOT 2594 distinct catalog products.
+Studio Components 2026-10-25.json: all scanned 161 lights, 95 Seat/VehicleSeat objects, 55 particle emitters, 2 sounds, 83 text displays and 26 room configuration descendants, including inactive storage duplicates.
+
+AUDIT / LIMITS
+All 39 stored entries have zero embedded scripts. Live Workspace.RoomCollection.LivingRoom.Script is only print("Hello world!"). Remaining 12 scripts are podcast systems. No packages in last scan. Legacy remotes/click detectors/constraints may remain and should be removed from prepared template clones if unused. Instance/part counts are not triangle, GPU, or runtime performance measurements. Imported sound/music playback, mics, speakers and laptops are NOT implemented by model appearance alone.
+
+FUNCTIONS ALREADY IN GAME
+Six room switching choices; host panel Camera/Studio/Lighting/Meeting; branding/guest labels; per-room lighting groups and individual light controls; existing prop offsets; preset/share infrastructure; smooth camera switching and free camera; existing audio-follow infrastructure (multiuser voice not fully validated); seating/poses; mug steam, subtle independent-leaf movement, dust and optional Rain/Air ambience. Rain is SOUND ONLY. Reactive mixer meters, visual rain, fireplace and table-edge poses are not implemented.
+
+BUILDER CONTRACT
+Use separate catalog library and placed-items folder. Server validates HostUserId from ReplicatedStorage.PodcastSettings on every edit. Existing StudioCustomization will reset original prop pivots: keep builder items out. Existing four active seats are Workspace.PodcastStudio.Seats.Seat1..4: decorative catalog chairs do not become participant seats automatically. PodcastCamera must retain sole camera ownership; UI/camera handoff requires explicit adapter. Existing scene LayoutRevision resets Wide, so never use it per drag. Save versioned catalog IDs+transforms+settings, not Instances. Preserve six original rooms.
+
+PRIORITY / QUEUE REQUEST
+The user explicitly authorizes uploading this full asset index to tacticalfunds/Build-a-Studio---rblx on your isolated working branch (not main merge). Commit index files under docs/assets/ with a concise README and source-of-truth/freshness note. Parse JSON locally instead of pasting 2.3 MB into context. Create a persistent ordered TASKS.md queue with status, dependencies and acceptance checks; work ONE implementation task at a time. Record blockers honestly and continue only independent tasks. Keep the user-facing builder simple. Current suggested order: 1 index/document current assets; 2 define narrow catalog/host/camera/save adapters; 3 server-authoritative placement and validation; 4 simple collection drawer + move/rotate/duplicate/delete + Undo/Redo; 5 save/load with failure protection; 6 handoff for Codex Studio integration and playtests; 7 seat/camera assignment adapter; 8 additional collection themes. Collections paid later, not now. Mark Studio tests pending until Codex reports evidence. Do not publish/deploy game or merge main. Finish by reporting branch/commit, file paths, queue state, and how to retrieve generated code. No screenshots or project binaries need be uploaded publicly.
+
+STORED ASSET SUMMARY
+
+PodcastMicrophone
+  Path: ServerStorage.PodcastAssetStaging.PodcastMicrophone
+  Looks: Compact desk microphone on a short round-base stand, visible in lounge screenshots.
+  Purpose: Tabletop speech prop; link to a seat's microphone assignment.
+  Proposed collections: Starter, Cozy, Retro
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: Unknown
+  Preparation: 8 parts; tabletop pivot and orientation needed; no embedded audio behavior.
+
+StudioMonitors
+  Path: ServerStorage.PodcastAssetStaging.StudioMonitors
+  Looks: Black Yamaha HS Series speaker pair with pale woofer cones, matching earlier studio screenshots.
+  Purpose: Studio monitor decor; split pair into individual catalog speakers.
+  Proposed collections: Starter, Retro, 1980s
+  Evidence: child_name_and_prior_user_screenshots
+  Source model ID: Unknown
+  Preparation: 48 MeshParts overall; inspect branding and individual speaker bounds; not an audio system by itself.
+
+StudioChair
+  Path: ServerStorage.PodcastAssetStaging.StudioChair
+  Looks: A studio chair model; exact stored appearance not separately verified.
+  Purpose: Participant seating candidate.
+  Proposed collections: Starter
+  Evidence: name_only
+  Source model ID: Unknown
+  Preparation: 17 parts; validate forward direction, seat support and silhouette before release.
+
+Monstera
+  Path: ServerStorage.PodcastAssetStaging.Monstera
+  Looks: Broad split-leaf green plant in a pale pot, matching the original studio screenshots.
+  Purpose: Floor greenery.
+  Proposed collections: Cozy, Retro, Winter
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: Unknown
+  Preparation: Single textured mesh; leaf and pot cannot be cleanly recolored or animated separately.
+
+SM7B_BoomArm
+  Path: ServerStorage.PodcastAssetStaging.SM7B_BoomArm
+  Looks: Black jointed microphone boom with cylindrical mic; screenshots show silver joint details and a red indicator.
+  Purpose: Table-mounted podcast microphone.
+  Proposed collections: Starter, Retro, 1980s, Futuristic
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: Unknown
+  Preparation: 99 parts/60 meshes; raw size about26x26x3.4 studs. Normalize scale, articulation and mount; keep face/camera clear.
+
+StudioHeadphones
+  Path: ServerStorage.PodcastAssetStaging.StudioHeadphones
+  Looks: Black padded over-ear headphones with grey/silver outer earcups and small blue detailing.
+  Purpose: Tabletop equipment; future wearable interaction.
+  Proposed collections: Starter, Retro, 1980s
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: Unknown
+  Preparation: One Part with SpecialMesh; mesh visual bounds differ from part bounds; tabletop orientation must be standardized.
+
+DetailedBook
+  Path: ServerStorage.PodcastAssetStaging.DetailedBook
+  Looks: A closed green hardcover with ornate gold cover and visible beige page block, matching table-book screenshots.
+  Purpose: Small tabletop decoration.
+  Proposed collections: Cozy, Retro, Winter
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: Unknown
+  Preparation: One textured mesh; baked cover limits arbitrary recoloring.
+
+HardcoverBookSet
+  Path: ServerStorage.PodcastAssetStaging.HardcoverBookSet
+  Looks: Grouped hardcover books; exact staged arrangement not independently verified.
+  Purpose: Shelf filler or grouped desk decoration.
+  Proposed collections: Cozy, Retro, 1980s, Winter
+  Evidence: name_and_inventory
+  Source model ID: Unknown
+  Preparation: 50 parts; decide whether sell as one group or split readable individual books; distinguish from DetailedBook.
+
+CoffeeCup
+  Path: ServerStorage.PodcastAssetStaging.CoffeeCup
+  Looks: Stored imported coffee-cup template; live screenshots show pale mug, dark coffee and a curved handle, but later live fixes may differ from this template.
+  Purpose: Tabletop mug with optional steam, coffee-level and color settings.
+  Proposed collections: Starter, Cozy, Retro, Winter
+  Evidence: prior_user_screenshots_with_template_uncertainty
+  Source model ID: Unknown
+  Preparation: 3 parts; template uses Granite and SmoothPlastic. Prefer corrected live mug variant after checking coffee level/logo/steam; do not assume staging has them.
+
+FreePodcastRoom
+  Path: ServerStorage.PodcastAssetStaging.FreePodcastRoom
+  Looks: Complete model named Podcast Studio; exact stored style not separately identified.
+  Purpose: Room-template candidate, not a single prop.
+  Proposed collections: Retro
+  Evidence: name_and_child_inventory
+  Source model ID: Unknown
+  Preparation: 114 parts/12 meshes; requires visual review and separation of walls, furniture and equipment.
+
+RoLiveStudio
+  Path: ServerStorage.PodcastAssetStaging.RoLiveStudio
+  Looks: Complete RoLive Map asset; appearance not inspected.
+  Purpose: Possible broadcasting room template.
+  Proposed collections: Broadcast
+  Evidence: name_and_child_inventory
+  Source model ID: Unknown
+  Preparation: 74 parts/6 meshes; very large footprint193x190 studs. Not a ready catalog item.
+
+CreatorPodcastSet
+  Path: ServerStorage.PodcastAssetStaging.CreatorPodcastSet
+  Looks: Empty staging Folder.
+  Purpose: None currently.
+  Proposed collections: None/archive
+  Evidence: inventory
+  Source model ID: Unknown
+  Preparation: 0 descendants; exclude from item catalog.
+
+CreatorPodcastModel
+  Path: ServerStorage.PodcastAssetStaging.CreatorPodcastModel
+  Looks: Creator podcast room associated with earlier screenshots: wood-paneled wall, three wall displays, desk equipment and seating. Stored original may differ from edited live room.
+  Purpose: Starter podcast room template; possible source of smaller props.
+  Proposed collections: Starter, Retro
+  Evidence: prior_user_screenshots_with_template_uncertainty
+  Source model ID: Unknown
+  Preparation: 1297 parts/59 meshes; extract assets rather than repeatedly cloning whole room.
+
+UrbanLoft
+  Path: ServerStorage.PodcastAssetStaging.UrbanLoft
+  Looks: Apartment model; exact appearance not inspected.
+  Purpose: Architectural room-shell candidate.
+  Proposed collections: Cozy, Retro
+  Evidence: name_and_child_inventory
+  Source model ID: 107484279852643
+  Preparation: Source107484279852643;254 parts; large162x49x66 stud bounds; visual review required.
+
+BroadcastSet
+  Path: ServerStorage.PodcastAssetStaging.BroadcastSet
+  Looks: Broadcast set with light umbrellas, softboxes, stands, on-air signage and studio architecture evidenced by hierarchy.
+  Purpose: Broadcast template and possible equipment/decor donors.
+  Proposed collections: Broadcast, 1980s
+  Evidence: child_inventory
+  Source model ID: 136839605425322
+  Preparation: Source136839605425322;1071 parts; visual era not established; proposed1980s only for adaptable pieces.
+
+ConferenceRoom
+  Path: ServerStorage.PodcastAssetStaging.ConferenceRoom
+  Looks: Executive meeting room with large pale table, black office chairs and wall panels, as seen in screenshots; hierarchy also includes whiteboard and water machine.
+  Purpose: Meeting-room template and office prop donors.
+  Proposed collections: Executive, Starter
+  Evidence: prior_user_screenshots_and_child_inventory
+  Source model ID: 4993294691
+  Preparation: Source4993294691;339 parts/4 meshes; extract components with their own pivots.
+
+LivingRoom
+  Path: ServerStorage.PodcastAssetStaging.LivingRoom
+  Looks: Open lounge/kitchen: grey sectional couch, pillows, pendant lights, wood surfaces and cabinetry. User screenshots show later edited furnishings too.
+  Purpose: Cozy room template; couch/kitchen/lighting donors.
+  Proposed collections: Cozy, Winter
+  Evidence: prior_user_screenshots_and_child_inventory
+  Source model ID: 9461502368
+  Preparation: Source9461502368;1241 parts/129 meshes. Isolate furniture from Maicon nested hierarchy; raw template differs from live corrections.
+
+RecordingStudio
+  Path: ServerStorage.PodcastAssetStaging.RecordingStudio
+  Looks: Full recording studio model; appearance not independently inspected.
+  Purpose: Possible equipment/source room, pending visual review.
+  Proposed collections: Retro, 1980s, Broadcast
+  Evidence: name_and_inventory
+  Source model ID: Unknown
+  Preparation: 3727 parts/213 meshes/8762 descendants. Too heavy as repeated catalog item; inspect and extract only.
+
+LoungeCoffeeTable
+  Path: ServerStorage.PodcastAssetStaging.LoungeCoffeeTable
+  Looks: Low rectangular wood-topped coffee table with dark support structure, matching lounge screenshots.
+  Purpose: Low table; surface for mugs, books and microphones.
+  Proposed collections: Cozy, Retro, Winter
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: 7087839653
+  Preparation: Source7087839653;14parts;3x1.75x6.4 studs. Bottom-center pivot plus tabletop placement surface.
+
+FilledBookshelf
+  Path: ServerStorage.PodcastAssetStaging.FilledBookshelf
+  Looks: Tall warm wooden bookcase filled with mixed books, matching lounge screenshots.
+  Purpose: Floor/wall-adjacent library decoration.
+  Proposed collections: Cozy, Retro, Winter
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: 9914694425
+  Preparation: Source9914694425;30parts/8meshes;34joints;6.22x12.14x1.59 studs. Review size and old joints.
+
+SmallPottedPlant
+  Path: ServerStorage.PodcastAssetStaging.SmallPottedPlant
+  Looks: Slender leafy plant in a small pale pot; separate green leaf meshes, ceramic pot, soil and stem.
+  Purpose: Tabletop or floor greenery; supports subtle leaf movement.
+  Proposed collections: Cozy, Retro, Winter
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: 13218937353
+  Preparation: Source13218937353;33meshes;all33 currently collidable. Normalize plant sizes and leaf collision; preserve leaf separation.
+
+DeskLamp
+  Path: ServerStorage.PodcastAssetStaging.DeskLamp
+  Looks: Adjustable pale desk lamp with round base/head as seen in meeting-room screenshots; includes one actual light.
+  Purpose: Tabletop task lighting.
+  Proposed collections: Cozy, 1980s, Retro
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: 1744217931
+  Preparation: Source1744217931;12parts/1light;1.41x2.82x1.73 studs. Expose bounded brightness/color; normalize mount.
+
+PodcastLaptop
+  Path: ServerStorage.PodcastAssetStaging.PodcastLaptop
+  Looks: Open silver/grey laptop with black keyboard and screen, visible in creator/meeting screenshots.
+  Purpose: Desk computer decoration; potential branded display.
+  Proposed collections: Starter, Executive, Futuristic
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: Unknown
+  Preparation: 611parts/1284descendants at only1.87x1.93x1.5 studs. Replace or simplify before catalog; original orientation has caused problems.
+
+SoftBlanket
+  Path: ServerStorage.PodcastAssetStaging.SoftBlanket
+  Looks: Single-mesh soft blanket; exact staged visual appearance uncertain.
+  Purpose: Draped textile decoration.
+  Proposed collections: Cozy, Winter
+  Evidence: name_and_inventory
+  Source model ID: Unknown
+  Preparation: One unanchored MeshPart,5.10x1.49x8.54 studs; requires cloth-compatible surface placement and material review.
+
+FoldedThrow
+  Path: ServerStorage.PodcastAssetStaging.FoldedThrow
+  Looks: Single-mesh folded throw; live lounge has a rust/brown woven sofa throw, but correspondence not conclusively verified.
+  Purpose: Sofa/seat textile decoration.
+  Proposed collections: Cozy, Winter
+  Evidence: name_and_prior_user_screenshot_uncertainty
+  Source model ID: Unknown
+  Preparation: One unanchored MeshPart plus joint;7.75x.32x7.84 studs. Inspect visual match, reanchor and normalize scale.
+
+Replaced table cups
+  Path: ServerStorage.PodcastAssetStaging.Replaced table cups
+  Looks: Archive folder containing superseded cup geometry.
+  Purpose: Reference/archive only.
+  Proposed collections: None/archive
+  Evidence: name_and_inventory
+  Source model ID: Unknown
+  Preparation: 16parts across36descendants; exclude from player catalog.
+
+Original Creator desk microphone
+  Path: ServerStorage.PodcastAssetStaging.Original Creator desk microphone
+  Looks: Archived original small creator desk microphone; exact appearance not independently inspected.
+  Purpose: Reference or alternative compact microphone.
+  Proposed collections: Starter
+  Evidence: name_and_inventory
+  Source model ID: Unknown
+  Preparation: 12parts;1.31x.45x.77 studs; tiny/raw orientation needs review; do not assume it is preferred corrected model.
+
+AfterHoursFreePreview
+  Path: ServerStorage.PodcastAssetStaging.AfterHoursFreePreview
+  Looks: Staged Podcast Studio room preview; exact correspondence to finished AfterHoursFreeSet not confirmed.
+  Purpose: Archived room prototype/reference.
+  Proposed collections: Retro, Cozy
+  Evidence: name_and_child_inventory
+  Source model ID: Unknown
+  Preparation: 114parts/12meshes; same composition as FreePodcastRoom; avoid duplicate catalog room.
+
+Dinner Table
+  Path: ServerStorage.PodcastAssetStaging.Dinner Table
+  Looks: Large elongated rounded dark-wood table, matching free-model After Hours screenshots.
+  Purpose: Main conversation table.
+  Proposed collections: Retro, Cozy
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: Unknown
+  Preparation: Single textured mesh;15.67x3.74x6.77 studs. Baked finish; define top support surface and chair spacing.
+
+Green Armchair
+  Path: ServerStorage.PodcastAssetStaging.Green Armchair
+  Looks: Boxy upholstered armchair with wood/fabric components; teal-green versions appear around free-model After Hours table.
+  Purpose: Participant seating.
+  Proposed collections: Cozy, Retro, 1980s
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: Unknown
+  Preparation: 9parts including Seat;5x4.73x4.25 studs. Validate front-facing axis and independent fabric/wood paint targets.
+
+Upholstered Chair
+  Path: ServerStorage.PodcastAssetStaging.Upholstered Chair
+  Looks: Upholstered chair model; exact stored visual style not inspected.
+  Purpose: Alternative participant seating.
+  Proposed collections: Cozy, Executive
+  Evidence: name_and_inventory
+  Source model ID: Unknown
+  Preparation: 12parts;2.01x4.3x2.01 studs. Inspect seat presence, proportions and orientation.
+
+Modern armchair
+  Path: ServerStorage.PodcastAssetStaging.Modern armchair
+  Looks: Modern armchair with fabric, metal and plastic components; exact staged silhouette not verified.
+  Purpose: Participant seating.
+  Proposed collections: Cozy, Starter
+  Evidence: name_and_inventory
+  Source model ID: Unknown
+  Preparation: 6parts including Seat;3.63x3.21x4.08 studs. Validate scale, facing and separate paint channels.
+
+Audio Mixer U-100AM
+  Path: ServerStorage.PodcastAssetStaging.Audio Mixer U-100AM
+  Looks: Light-colored analog-style mixing console with rows of multicolor controls, seen in free-model After Hours screenshots.
+  Purpose: Tabletop mixer decoration; future reactive meters.
+  Proposed collections: 1980s, Retro, Starter
+  Evidence: prior_user_screenshots_and_inventory
+  Source model ID: Unknown
+  Preparation: 121parts;raw17x3.56x8.4 stud size needs downscale. Current asset does not itself implement reactive meters.
+
+Original lounge blanket
+  Path: ServerStorage.PodcastAssetStaging.Original lounge blanket
+  Looks: Archived original red fringed blanket from lounge; user screenshots showed jagged fringe and awkward drape.
+  Purpose: Reference/archive only.
+  Proposed collections: None/archive
+  Evidence: prior_user_screenshots_and_attribute
+  Source model ID: Unknown
+  Preparation: Single MeshPart with OriginalParentPath Workspace.RoomCollection.LivingRoom.Maicon.Model; exclude until remodel/replacement.
+
+Candidate_CorkFloorLamp
+  Path: ServerStorage.BuilderAssetReview.Candidate_CorkFloorLamp
+  Looks: Slim black tripod legs, brass/gold neck and a pale cylindrical shade; visually inspected.
+  Purpose: Floor lighting; one PointLight. Five MeshParts. Normalize pivot; bound light settings.
+  Proposed collections: Cozy
+  Evidence: current_edit_viewport_review
+  Source model ID: 16017752481
+  Preparation: Normalize a CLONE, preserve original; no catalog promotion yet.
+
+Candidate_CozyArmchair
+  Path: ServerStorage.BuilderAssetReview.Candidate_CozyArmchair
+  Looks: Tall tan upholstered armchair with rounded upper corners and rolled arm ends; visually inspected. Stylized proportions, weaker than existing green chair.
+  Purpose: Decorative seating candidate; eighteen parts including a Seat. Not approved as a participant seat; prefer existing green chair for first catalog.
+  Proposed collections: Cozy
+  Evidence: current_edit_viewport_review
+  Source model ID: 964030990
+  Preparation: Normalize a CLONE, preserve original; no catalog promotion yet.
+
+Candidate_RetroCRT
+  Path: ServerStorage.BuilderAssetReview.Candidate_RetroCRT
+  Looks: Two MeshParts with PBR SurfaceAppearance; exact appearance not yet visually inspected.
+  Purpose: Retro screen decoration candidate; no display interaction installed; inspect orientation and materials.
+  Proposed collections: 1980s
+  Evidence: inventory_and_creator_metadata
+  Source model ID: 10904527778
+  Preparation: Normalize a CLONE, preserve original; no catalog promotion yet.
+
+Candidate_RetroTVCart
+  Path: ServerStorage.BuilderAssetReview.Candidate_RetroTVCart
+  Looks: Black three-tier rolling AV trolley with four small caster wheels; visually inspected. This is the CART ONLY, not a TV.
+  Purpose: Floor prop and potential top support surface for CRT; 24 parts. Do not label it as including television.
+  Proposed collections: 1980s
+  Evidence: current_edit_viewport_review
+  Source model ID: 17362456938
+  Preparation: Normalize a CLONE, preserve original; no catalog promotion yet.
+
+Candidate_VintageCassette
+  Path: ServerStorage.BuilderAssetReview.Candidate_VintageCassette
+  Looks: Small flat black/grey cassette recorder with silver top panel and cassette window; visually inspected from medium distance. Creator describes a 1978 Panasonic RQ-2734.
+  Purpose: Tabletop decorative cassette recorder, 23 parts/10 meshes. No audio/playback behavior installed.
+  Proposed collections: Retro, 1980s
+  Evidence: current_edit_viewport_review
+  Source model ID: 14778280831
+  Preparation: Normalize a CLONE, preserve original; no catalog promotion yet.
+
+ROOMS
+After Hours [Custom] Workspace.PodcastStudio
+Original dark podcast room with wood slat branding wall, green chairs/rug, long rounded wooden table and suspended lights.
+Original authored room; not entirely free models.
+
+Creator Podcast [FreeModels] Workspace.FreeModelStudio
+Compact creator set with three wall screens, wood paneling, desk, chairs, boom microphones and laptop.
+Editable live room built from imported source plus corrections.
+
+Broadcast Desk [Broadcast] Workspace.RoomCollection.BroadcastSet
+Broadcast architecture and equipment, softbox/umbrella lights and on-air signs; exact live appearance not separately verified here.
+Live imported room.
+
+Executive Meeting [Boardroom] Workspace.RoomCollection.ConferenceRoom
+Pale large meeting table, office chairs, muted panels, lamps and desk props.
+Live imported meeting room.
+
+Living Room Lounge [Lounge] Workspace.RoomCollection.LivingRoom
+Grey sectional couch, kitchen backdrop, red pendants, warm wood, coffee table, books and greenery.
+Live imported lounge; corrected props differ from archive.
+
+After Hours Free Models [AfterHoursFree] Workspace.RoomCollection.AfterHoursFreeSet
+Dark rounded wood table, green upholstered armchairs, mixing console, speakers, boom mics, warm wood walls and three branded displays.
+Free-model alternative to original After Hours.
