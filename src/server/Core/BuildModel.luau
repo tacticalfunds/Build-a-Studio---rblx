@@ -18,11 +18,23 @@ end
 BuildModel.copyRecord = copyRecord
 
 function BuildModel.new(maxItems)
-	return setmetatable({ items = {}, count = 0, nextId = 1, maxItems = maxItems }, BuildModel)
+	return setmetatable({ items = {}, count = 0, reserved = 0, nextId = 1, maxItems = maxItems }, BuildModel)
+end
+
+-- Capacity held by preserved (saved but not placeable) entries.
+function BuildModel:setReserved(n)
+	self.reserved = n
 end
 
 function BuildModel:hasCapacity()
-	return self.count < self.maxItems
+	return self.count + self.reserved < self.maxItems
+end
+
+-- Never hand out IDs at or below n.
+function BuildModel:reserveIdsThrough(n)
+	if n >= self.nextId then
+		self.nextId = n + 1
+	end
 end
 
 function BuildModel:peekNextId()

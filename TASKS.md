@@ -26,7 +26,7 @@ Known contracts (from Codex, 2026-10-25):
 | 2 | Define narrow adapters (catalog, host, room, camera, save) | 1 | Done (Studio pending) |
 | 3 | Server-authoritative placement and validation | 2 | Done (Studio pending) |
 | 4 | Simple drawer UI, item editing and Undo/Redo | 3 | Done (Studio pending) |
-| 5 | Save/load with failure protection | 3 | Pending |
+| 5 | Save/load with failure protection | 3 | Done (Studio/DataStore pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Pending |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | Pending |
 | 8 | More collection themes | 6 | Pending |
@@ -131,10 +131,30 @@ Cozy and 1980s filters, ViewportFrame cards, and placement on a surface. A selec
   - Suite: **187 passed, 0 failed**. UI and style unchanged.
 
 
-## 5. Save/load with failure protection: Pending
+## 5. Save/load with failure protection: Done (Studio install and DataStore pending)
 Versioned records, validated on load. A failed load keeps the current build and blocks saving. A failed save is shown to the player. Empty or failed loads never autosave over real data. Records newer than the current version are never downgraded. There are no LayoutRevision writes.
 - Also: route the `Build` section through StudioPresets (`Persist` Save/Load, 5 slots, 250000-byte cap, entry Version 1). The Director must rebuild Build items before applying fixture and item overrides, and a missing Build keeps legacy loading.
 - Acceptance: tests run for backend errors, corrupt records, newer versions, the empty-autosave guard and interleaved saves. Persistence through DataStore is marked untested.
+- Delivered: the Build section inside the existing StudioPresets (5 slots, 250000 bytes, entry Version 1); no new profile, no autosave, and Done just leaves the builder.
+  - `PlacementCore`: `captureBuild`, `prepareLoad` (stages without mutating; preserves unplaceable entries), `loadBuild` (the same exclusive path as edits, via the new two-phase world `replace`) and `revertLoad`. The tail of `_locked` became the shared `_executePlan`.
+  - `BuildPersistence`: the Director API. `PresetSlotGuard`: overwrite rules and a retry-safe transform. `PlacedItemsWorld`: the `replace` effect. `BuilderService.getPersistence()`.
+  - Integration: `integration/StudioPresets.luau` (only `Save` changed, diff-checked against the live source) and `integration/PodcastDirector.persistence.luau` (one require, plus `snapshot()` and `restoreSnapshot()`, whitespace-diff-checked; `persistentAction` unchanged). Install order and checklist: [`docs/integration-task5.md`](docs/integration-task5.md).
+- Evidence (executed 2026-10-25): `lua5.4 tests/run.lua` gives **217 passed, 0 failed** across 22 specs.
+  - `build_persistence_spec` (17 tests):
+    - additive save shape; visible save failure while busy, in recovery and when oversized; no DataStore writes anywhere in the builder source;
+    - load round trip with exact IDs and history cleared; no ID reuse;
+    - corrupt, NaN and newer Builds fail before any change; legacy presets untouched;
+    - unplaceable entries preserved, counted against the cap and written back;
+    - A → B → A during the world replace rolls back; edits, saves and a second load are serialized; replace failure leaves the build unchanged;
+    - a failed rollback enters recovery, which restores the old build; revertLoad is exact and refused after an edit;
+    - Director-order contract (a room failure reverts the build; a build failure never touches the room or the text filter); builder unavailable.
+  - `preset_slot_guard_spec` (12 tests):
+    - guard rules (legacy, same-version, corrupt profile, newer or invalid Build, Build would be lost); the transform never mutates and resets its refusal on every call;
+    - the **actual patched StudioPresets executed** against a fake DataStore: Save/Load/List, a newer-Build refusal that is visible (with position prefix) and writes nothing, a corrupt profile kept, legacy slots overwritten with other slots preserved, UpdateAsync retries in both directions, and the 250000-byte cap.
+  - Mutations caught: a non-reset refusal, overwritable newer Builds, a mutating `withSlot` (original behaviour), corrupt profile replaced (original behaviour), unplaceables not preserved, capture ignoring busy/recovery, revert ignoring edits, ID reuse, preserved entries not counted, patched Save ignoring the refusal.
+- Not executed: real DataStore calls, the Director patch in a live server (only its ordering contract is tested), text filtering, a Studio install, Play.
+- Deliberate behaviour change for review: the patched Save refuses a non-table profile or Slots table (the old code replaced the whole profile, losing all five slots).
+
 
 ## 6. Integration README and Codex Studio playtest handoff: Pending
 Document the Rojo mapping, adapter wiring, protocol and security model, and list what is implemented versus Studio-pending. Write a playtest checklist for Codex.

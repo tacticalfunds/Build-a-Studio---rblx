@@ -36,6 +36,8 @@ local RoomProvider = require(Adapters:WaitForChild("RoomProvider"))
 local PlacedItemsWorld = require(script.Parent:WaitForChild("PlacedItemsWorld"))
 local TemplateSanitizer = require(script.Parent:WaitForChild("TemplateSanitizer"))
 
+local BuildPersistence = require(Server:WaitForChild("Core"):WaitForChild("BuildPersistence"))
+
 local BuilderService = {}
 local started = false
 local core = nil
@@ -178,6 +180,14 @@ function BuilderService.start()
 				core:recover()
 			end
 		end
+	end)
+end
+
+-- Director integration (task 5): save/load the Build section inside StudioPresets.
+-- Safe to call before start(); the core is looked up on every call.
+function BuilderService.getPersistence()
+	return BuildPersistence.new(function()
+		return core
 	end)
 end
 

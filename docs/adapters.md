@@ -125,3 +125,7 @@ Studio-pending: there's no installation or full Play UI test yet. The pure decis
 4. **Room-switch gate:** optional `roomSwitchSignal`. `PodcastSettings.SceneSet` changes are also handled.
 
 Done currently closes like Back. Task 5 adds the save, and a failed save will be visible and keep the drawer open.
+
+## Save/load (task 5)
+
+The build is saved as an additive `Build` section in the existing StudioPresets slots: no separate profile and no autosave. Exact install order, behaviour and the Studio checklist: [`docs/integration-task5.md`](integration-task5.md). `SaveBackends.memory()` from task 2 is no longer on any path.

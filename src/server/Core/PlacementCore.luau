@@ -55,6 +55,7 @@ local Protocol = require(Shared:WaitForChild("Protocol"))
 local Transform = require(Shared:WaitForChild("Transform"))
 local Validate = require(Shared:WaitForChild("Validate"))
 
+local SaveSnapshot = require(script.Parent.Parent:WaitForChild("Adapters"):WaitForChild("SaveSnapshot"))
 local BuildHistory = require(script.Parent.BuildHistory)
 local BuildModel = require(script.Parent.BuildModel)
 local RateLimiter = require(script.Parent.RateLimiter)
@@ -79,6 +80,7 @@ function PlacementCore.new(deps)
 		self[k] = v
 	end
 	self.model = BuildModel.new(deps.config.MaxItems)
+	self.preserved = {} -- saved entries that can't be placed right now; written back on save
 	self.history = BuildHistory.new(deps.config.HistoryLimit or 50)
 	self.limiter = RateLimiter.new(deps.config.RateLimits, deps.clock)
 	self.revision = 0
@@ -456,6 +458,13 @@ function PlacementCore:_locked(userId, op, payload)
 	if plan.noop then
 		return { ok = true, id = plan.id, buildRevision = self.revision }
 	end
+	return self:_executePlan(userId, epoch, plan)
+end
+
+-- Shared tail for every mutation (edits, undo/redo, build loads): host + epoch
+-- re-check, world apply, re-check, model commit, revision, finalize. Runs with
+-- the edit lock held.
+function PlacementCore:_executePlan(userId, epoch, plan)
 	-- Planning dependencies may have yielded.
 	if not self:_stillAuthorized(userId, epoch) then
 		return self:_reject(Codes.AuthorityLost)
@@ -553,6 +562,13 @@ function PlacementCore:_respond(userId, response)
 end
 
 function PlacementCore:_handleEdit(userId, op, payload)
+	return self:_exclusive(function()
+		return self:_locked(userId, op, payload)
+	end)
+end
+
+-- Runs body with the edit lock held; every mutation goes through here.
+function PlacementCore:_exclusive(body)
 	if self.state == RECOVERY and not self:recover() then
 		return self:_reject(Codes.RecoveryNeeded)
 	end
@@ -561,7 +577,7 @@ function PlacementCore:_handleEdit(userId, op, payload)
 	end
 
 	self.state = BUSY
-	local ok, response = pcall(self._locked, self, userId, op, payload)
+	local ok, response = pcall(body)
 	if not ok then
 		self:_log("edit failed: " .. tostring(response))
 		if self.pending ~= nil then
@@ -576,6 +592,119 @@ function PlacementCore:_handleEdit(userId, op, payload)
 	end
 	self.state = self.recovery ~= nil and RECOVERY or READY
 	return response
+end
+
+-- Persistence (task 5) -------------------------------------------------------
+
+local function entryOf(id, r)
+	return { id = id, itemId = r.itemId, x = r.x, y = r.y, z = r.z, yaw = r.yaw }
+end
+
+-- The current build as a Build section (SaveSnapshot shape), preserved
+-- entries included. Synchronous; refuses while an edit or load is in flight
+-- (Busy) or the world is unreconciled (RecoveryNeeded), so a save never
+-- captures a half-applied build.
+function PlacementCore:captureBuild()
+	if self.state == RECOVERY then
+		return nil, Codes.RecoveryNeeded
+	end
+	if self.state ~= READY then
+		return nil, Codes.Busy
+	end
+	local items = {}
+	for _, e in ipairs(self.model:list()) do
+		items[#items + 1] = entryOf(e.id, e.record)
+	end
+	local section = SaveSnapshot.encode({ nextId = self.model.nextId, items = items, preserved = self.preserved })
+	local fits, code = SaveSnapshot.checkSize(section)
+	if not fits then
+		return nil, code
+	end
+	return section
+end
+
+-- Validates and stages a Build section without mutating anything. Entries
+-- that can't be placed now (unknown/retired/uninstalled/locked item, outside
+-- the current bounds) are preserved, never dropped. Returns a plan or nil, code
+-- (Corrupt, UnsupportedVersion).
+function PlacementCore:prepareLoad(userId, section)
+	local decoded, code = SaveSnapshot.decode(section, {
+		maxItems = self.config.MaxItems,
+		classify = function(entry)
+			local _, itemCode = self:_checkCreatable(userId, entry.itemId)
+			if itemCode then
+				return false
+			end
+			return self:_clean(entry.itemId, entry) ~= nil
+		end,
+	})
+	if decoded == nil then
+		return nil, code
+	end
+	local entries = {}
+	for _, e in ipairs(decoded.items) do
+		local t = self:_clean(e.itemId, e)
+		if t == nil then
+			return nil, Codes.OutOfBounds -- classify accepted it; defensive
+		end
+		entries[#entries + 1] = { id = e.id, record = { itemId = e.itemId, x = t.x, y = t.y, z = t.z, yaw = t.yaw } }
+	end
+	return { entries = entries, preserved = decoded.preserved, nextId = decoded.nextId }
+end
+
+-- Replaces the whole build with a staged plan through the same exclusive path
+-- as edits: lock, host + epoch re-checks after every yield, two-phase world
+-- "replace" with rollback, recovery on failed rollback/finalize. History is
+-- cleared on success. expectedRevision (optional) is checked under the lock.
+-- Returns { ok, code?, buildRevision, revert? }; revert undoes this load via
+-- revertLoad while nothing else has changed.
+function PlacementCore:loadBuild(userId, plan, expectedRevision)
+	if not Validate.isPositiveInteger(userId) or type(plan) ~= "table" then
+		return self:_reject(Codes.BadRequest)
+	end
+	self:_observeHost()
+	return self:_exclusive(function()
+		if not self:_isHost(userId) then
+			return self:_reject(Codes.NotHost)
+		end
+		if expectedRevision ~= nil and expectedRevision ~= self.revision then
+			return self:_reject(Codes.StaleRevision)
+		end
+		local epoch = self.hostEpoch
+		local previous = { entries = self.model:list(), preserved = self.preserved, nextId = self.model.nextId }
+		local model = BuildModel.new(self.config.MaxItems)
+		model:setReserved(#plan.preserved)
+		for _, e in ipairs(plan.entries) do
+			local r = e.record
+			model:add(e.id, { itemId = r.itemId, placedByUserId = r.placedByUserId or userId, x = r.x, y = r.y, z = r.z, yaw = r.yaw })
+		end
+		-- IDs are never reused within a server, even across loads.
+		model:reserveIdsThrough(math.max(plan.nextId, self.model.nextId) - 1)
+		local core = self
+		local response = self:_executePlan(userId, epoch, {
+			effect = { kind = "replace", id = "*", entries = model:list(), previous = previous.entries },
+			commit = function()
+				core.model = model
+				core.preserved = plan.preserved
+			end,
+			afterCommit = function(revision)
+				core.history:clear(revision)
+			end,
+		})
+		if response.ok then
+			response.revert = { revision = response.buildRevision, plan = previous }
+		end
+		return response
+	end)
+end
+
+-- Restores the build a load replaced, through loadBuild, only if nothing has
+-- changed since that load.
+function PlacementCore:revertLoad(userId, revert)
+	if type(revert) ~= "table" or type(revert.plan) ~= "table" then
+		return self:_reject(Codes.BadRequest)
+	end
+	return self:loadBuild(userId, revert.plan, revert.revision)
 end
 
 return PlacementCore

@@ -158,11 +158,40 @@ G = setmetatable({ require = robloxRequire, game = fakeGame, warn = function() e
 local H = {}
 H.ROOT = ROOT
 H.sourceList = sourceList
+
+-- Integration patches for live scripts (compile-checked, never loaded).
+H.integrationList = {}
+do
+	local p = assert(io.popen('cd "' .. ROOT .. '" && find integration -name "*.luau" 2>/dev/null | sort'))
+	for line in p:lines() do
+		H.integrationList[#H.integrationList + 1] = line:gsub("^%./", "")
+	end
+	p:close()
+end
 H.readFile = readFile
 
 -- H.load("src/server/Adapters/HostAuthority")
 function H.load(path)
 	return robloxRequire(pathNode(path) or error("no module " .. path))
+end
+
+-- Loads an integration/ module (a patched live script) with fake services.
+-- services: { [serviceName] = fakeObject }; other services resolve to the
+-- mapped StudioBuilder tree as usual. Enum is a minimal stub.
+function H.loadIntegration(path, services)
+	local game = {
+		GetService = function(_, name)
+			return services[name] or serviceNode(name)
+		end,
+	}
+	local enumStub = setmetatable({}, {
+		__index = function(_, enumName)
+			return setmetatable({}, { __index = function(_, item) return enumName .. "." .. item end })
+		end,
+	})
+	local env = setmetatable({ game = game, Enum = enumStub, require = robloxRequire, warn = function() end }, { __index = _G })
+	local chunk = assert(loadfile(ROOT .. "/" .. path, "t", env))
+	return chunk()
 end
 
 -- Inject a fake child under a service, e.g. ReplicatedStorage.PodcastSettings.

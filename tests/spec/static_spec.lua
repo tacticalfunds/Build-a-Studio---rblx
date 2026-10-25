@@ -64,6 +64,14 @@ return function(T, H)
 		end
 	end)
 
+	T.test("integration patches compile (live-script patches in integration/)", function()
+		T.ok(#H.integrationList >= 2, "integration files missing")
+		for _, rel in ipairs(H.integrationList) do
+			local chunk, err = load(H.readFile(H.ROOT .. "/" .. rel), rel, "t", {})
+			T.ok(chunk ~= nil, tostring(err))
+		end
+	end)
+
 	T.test("no Lua 5.4-only syntax that Luau would reject", function()
 		local patterns = {
 			{ "%f[%w_]goto%f[^%w_]", "goto" },

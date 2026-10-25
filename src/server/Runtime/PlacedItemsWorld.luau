@@ -12,6 +12,9 @@
 	          rollback destroys the clone.
 	* move:   PivotTo the new transform; rollback restores the previous pivot.
 	* remove: unparent; rollback re-parents; commit destroys.
+	* replace (build load): build all new models unparented first (failure
+	  leaves the world untouched), then swap; rollback restores the old set;
+	  commit destroys the old set.
 
 	Templates have bottom-centre pivots (verified by TemplateCatalog's probe),
 	so the world pivot is origin * (x, y, z) * yaw. Each model is tagged with
@@ -37,31 +40,60 @@ function PlacedItemsWorld:_cframe(record)
 	return self.origin * CFrame.new(record.x, record.y, record.z) * CFrame.Angles(0, math.rad(record.yaw), 0)
 end
 
+-- Clones, sanitizes, tags and pivots a model for id/record; returns it UNPARENTED.
+function PlacedItemsWorld:_build(id, record)
+	local template = self.getTemplate(record.itemId)
+	if template == nil then
+		error("template missing for " .. record.itemId)
+	end
+	local model = template:Clone()
+	if model == nil then
+		error("template is not Archivable: " .. record.itemId)
+	end
+	local ok, err = pcall(function()
+		TemplateSanitizer.forPlacement(model)
+		model.Name = id
+		model:SetAttribute(Config.BuildItemIdAttribute, id)
+		model:SetAttribute("BuildCatalogId", record.itemId)
+		model:SetAttribute("BuildPlacedByUserId", record.placedByUserId)
+		model:PivotTo(self:_cframe(record))
+	end)
+	if not ok then
+		model:Destroy()
+		error(err, 0)
+	end
+	return model
+end
+
 function PlacedItemsWorld:apply(effect)
 	if effect.kind == "spawn" then
-		local template = self.getTemplate(effect.record.itemId)
-		if template == nil then
-			error("template missing for " .. effect.record.itemId)
-		end
-		local model = template:Clone()
-		if model == nil then
-			error("template is not Archivable: " .. effect.record.itemId)
-		end
-		local ok, err = pcall(function()
-			TemplateSanitizer.forPlacement(model)
-			model.Name = effect.id
-			model:SetAttribute(Config.BuildItemIdAttribute, effect.id)
-			model:SetAttribute("BuildCatalogId", effect.record.itemId)
-			model:SetAttribute("BuildPlacedByUserId", effect.record.placedByUserId)
-			model:PivotTo(self:_cframe(effect.record))
-			model.Parent = self.folder
-		end)
-		if not ok then
-			model:Destroy()
-			error(err, 0)
-		end
+		local model = self:_build(effect.id, effect.record)
+		model.Parent = self.folder
 		self.models[effect.id] = model
 		return { kind = "spawn", id = effect.id, model = model }
+	elseif effect.kind == "replace" then
+		-- Build loads: build every new model first; any failure leaves the world untouched.
+		local created = {}
+		local ok, err = pcall(function()
+			for _, entry in ipairs(effect.entries) do
+				created[entry.id] = self:_build(entry.id, entry.record)
+			end
+		end)
+		if not ok then
+			for _, model in pairs(created) do
+				model:Destroy()
+			end
+			error(err, 0)
+		end
+		local old = self.models
+		for _, model in pairs(old) do
+			model.Parent = nil
+		end
+		for _, model in pairs(created) do
+			model.Parent = self.folder
+		end
+		self.models = created
+		return { kind = "replace", id = "*", old = old, new = created }
 	elseif effect.kind == "move" then
 		local model = self.models[effect.id]
 		if model == nil then
@@ -82,7 +114,15 @@ function PlacedItemsWorld:apply(effect)
 end
 
 function PlacedItemsWorld:rollback(token)
-	if token.kind == "spawn" then
+	if token.kind == "replace" then
+		for _, model in pairs(token.new) do
+			model:Destroy()
+		end
+		for _, model in pairs(token.old) do
+			model.Parent = self.folder
+		end
+		self.models = token.old
+	elseif token.kind == "spawn" then
 		self.models[token.id] = nil
 		token.model:Destroy()
 	elseif token.kind == "move" then
@@ -93,7 +133,11 @@ function PlacedItemsWorld:rollback(token)
 end
 
 function PlacedItemsWorld:commit(token)
-	if token.kind == "remove" then
+	if token.kind == "replace" then
+		for _, model in pairs(token.old) do
+			model:Destroy()
+		end
+	elseif token.kind == "remove" then
 		self.models[token.id] = nil
 		token.model:Destroy()
 	end
