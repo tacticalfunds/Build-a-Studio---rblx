@@ -388,11 +388,11 @@ return function(T, H)
 		local function maybe(percent)
 			return rand(100) < percent
 		end
-		local FIELDS = { Place = { "itemId", "transform" }, Move = { "id", "transform" }, Rotate = { "id" }, Duplicate = { "id" }, Delete = { "id" } }
+		local FIELDS = { Place = { "itemId", "transform" }, Move = { "id", "transform" }, Rotate = { "id" }, Duplicate = { "id" }, Delete = { "id" }, Undo = {}, Redo = {} }
 		local successes = 0
 		local codes = {}
 		for i = 1, 3000 do
-			local ops = { "Place", "Place", "Move", "Move", "Rotate", "Duplicate", "Delete", "Delete", "Bogus" }
+			local ops = { "Place", "Place", "Move", "Move", "Rotate", "Duplicate", "Delete", "Delete", "Undo", "Undo", "Redo", "Bogus" }
 			local op = ops[rand(#ops) + 1]
 			local payload = { op = op }
 			-- ~90% of requests carry exactly the fields their op needs; the rest are malformed.
@@ -413,6 +413,9 @@ return function(T, H)
 				payload.transform = { x = num(), y = maybe(80) and 0 or num(), z = num(), yaw = maybe(5) and 7 or rand(48) * 15 - 360 }
 			end
 			if op == "Rotate" and maybe(30) then payload.direction = rand(3) - 1 end
+			if (op == "Undo" or op == "Redo") and maybe(40) then
+				payload.expectedRevision = maybe(70) and env.core:getRevision() or rand(50)
+			end
 			if maybe(3) then payload.extra = true end
 			local user = rand(10) == 0 and GUEST or HOST
 			local ok, r = pcall(env.core.handle, env.core, user, payload)

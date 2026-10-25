@@ -25,7 +25,7 @@ Known contracts (from Codex, 2026-10-25):
 | 1 | Index the current Studio assets | none | Done |
 | 2 | Define narrow adapters (catalog, host, room, camera, save) | 1 | Done (Studio pending) |
 | 3 | Server-authoritative placement and validation | 2 | Done (Studio pending) |
-| 4 | Simple drawer UI, item editing and Undo/Redo | 3 | Pending |
+| 4 | Simple drawer UI, item editing and Undo/Redo | 3 | Done (Studio pending) |
 | 5 | Save/load with failure protection | 3 | Pending |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Pending |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | Pending |
@@ -75,15 +75,37 @@ A pure core handles the catalog whitelist, finite and bounded transforms, room b
   Regression tests: `tests/spec/placement_recovery_spec.lua` (10 tests). All failed on 9a2bb6a: blocker 1 reproduced as B getting `Internal` from its duplicate-ID commit. Mutations (lock after planning, failed rollback only logging, no reconcile fallback, edits allowed during recovery, no host recheck after planning) each make them fail. Suite: **118 passed, 0 failed**. Fuzz: 3000 requests, 1229 committed.
 - Decision applied: the current host edits every item after a transfer, and the former host gets `NotHost`. `ownerUserId` became `placedByUserId` (metadata only); the `NotOwner` code was removed and `RecoveryNeeded` added.
 - Studio evidence from Codex (2026-10-25): f54454d passed five real-Luau handoff regressions. The template probe recognizes all seven real templates. Real unparented Model clones of all seven passed spawn, move, pivot rollback, remove rollback, delete and sanitized previews in Studio. Nothing installed into the runtime yet. The recovery and reconcile paths added here haven't been run in Studio yet.
+- Studio evidence from Codex after 4616648: 26 placement and recovery tests (16 placement, 10 recovery) passed in real Studio Luau. Fuzz there: 3000 requests, 1183 commits. Real unparented Instance reconciliation passed for all 7 prepared models: detached rebuild, stray removal, pivot correction, empty reconciliation and placement attribution. There's no installation or full Play UI test yet.
 - Decisions (2026-10-25): separate builder rate limit; overlaps and floating placement allowed in the sandbox prototype, with UI surface snapping by default; shared studio editable by the current host. Codex supplies the sandbox marker and live room-switch gate during integration. Details in docs/adapters.md.
 
-## 4. Simple drawer UI, item editing and Undo/Redo: Pending
+## 4. Simple drawer UI, item editing and Undo/Redo: Done (Studio and Play pending)
 - **Visual contract:** follow [`docs/ui-contract.md`](docs/ui-contract.md) exactly. That means the live panel tokens (`C.bg`, `card`, `teal`, `white`, `muted`, GothamMedium, 8 px buttons, selected = teal on `C.bg`), its layout and responsive fit, and its drag and touch behaviour. Add a Build entry inside the existing Studio tab; no fifth tab and no second host panel. The catalog drawer uses the same conventions, with Back/Done returning to the panel at its kept position. Theme filters Retro, 1980s, Futuristic, Cozy and Winter all share one button style. Add a shared theme/helper module for new builder UI only; don't rewrite the existing panel source.
 - **Integration:** explicit callbacks and adapters only. The live `toggleOpen` is local (it updates `Drawer.Visible`, `launch.Text` and `PanelOpen`), so the `hostDrawer` hook waits for Codex to expose a callable open/close. Codex does the panel wiring and visual comparison.
 Cozy and 1980s filters, ViewportFrame cards, and placement on a surface. A selected item can be moved, rotated, duplicated or deleted. Undo/Redo and Done. Grid snapping is on by default, R rotates 15°, and Escape cancels placement without swallowing UI controls. Undo/redo runs on the server, restores logical item IDs and handles rejected edits.
 - Also: invalidate undo/redo history on host transfer (shared studio, current host edits everything). Snap placement to surfaces by default; the server allows overlap and floating. Handle `RecoveryNeeded` and `recoveryNeeded` responses by pausing edits with a visible message.
 - Also: cancel previews and drags, and exit build mode, on host loss, room switch, respawn or disconnect. Bind the handoff slots once Codex adds the panel and camera gates.
 - Acceptance: tests run for undo/redo ID restoration and history conflicts. UI behavior is Studio-pending.
+- Delivered:
+  - Server: `Undo`/`Redo`/`Status` ops and `BuildHistory`. Undo and redo plan through the same lock, host checks, validation, world apply/rollback and recovery, and restore exact logical IDs. Conflicts are dropped with `HistoryConflict` and the world untouched. History is invalidated on host transfer, unexpected revisions and recovery. `expectedRevision` gives `StaleRevision`. Sandbox origin and size are published as attributes for the client preview.
+  - Client: `UI/PanelTheme` (contract tokens and layout), `Build/BuildSession`, `Build/PlacementPreview`, `Build/BuildInput`, `Build/BuildDrawer`, `BuilderClient`. Details and Codex wiring steps: [`docs/adapters.md`](docs/adapters.md#build-drawer-and-undoredo-task-4). Contract interpretations to check: [`docs/ui-contract.md`](docs/ui-contract.md#implementation-notes-task-4-to-check-during-the-visual-comparison).
+- Evidence (executed 2026-10-25): `lua5.4 tests/run.lua` gives **156 passed, 0 failed** across 18 specs.
+  - `placement_history_spec` (17 tests):
+    - undo/redo of place, delete, move, rotate and duplicate with exact IDs;
+    - redo cleared by a new edit; rejected and no-op edits not recorded; nothing-to-undo/redo leaves state unchanged;
+    - conflicts (locked collection, removed template, diverged item) dropped with world and state untouched, and the chain continuing;
+    - host transfer clearing history for both hosts; stale `expectedRevision` refused without consuming history;
+    - authority lost or world failure during undo keeps the step; undo rollback failure enters recovery and clears history;
+    - redo serialized by the lock; depth limit; Status read-only for anyone, and every response carries status.
+  - `client_ui_spec` (21 tests):
+    - contract tokens and layout numbers, responsive fit and drag clamp;
+    - floor and tabletop snapping, grid on/off, walls rejected, preview invalid exactly where the server rejects;
+    - text-entry safety, Escape listen-only, E/Q/RMB/1–5/V/F never handled;
+    - session flows, the RecoveryNeeded pause and resume, and cancel on host loss, room switch, respawn or unexpected revision.
+  - The placement fuzz now includes undo/redo: 3000 requests, 1337 committed, model and world consistent.
+  - Mutation checks each made tests fail: redo with a new ID, conflict not dropped, history kept across host transfer, no stale-revision check, history kept through recovery, re-create skipping the entitlement check, Escape ignored when processed, walls accepted as surfaces.
+- Not executed: BuildDrawer and BuilderClient (Instances, raycasts, input, ViewportFrames), the Studio-page entry and live hook binding (Codex), full Play UI. Lua 5.4 compile check only.
+- Codex wiring needed: the Build button in the Studio tab calls `BuilderClient.open()`; `configure({ hooks = { camera, hostControls, hostDrawer, worldClickHandlers }, panel = { getPosition, onClosed } })`; visual comparison against the live panel.
+
 
 ## 5. Save/load with failure protection: Pending
 Versioned records, validated on load. A failed load keeps the current build and blocks saving. A failed save is shown to the player. Empty or failed loads never autosave over real data. Records newer than the current version are never downgraded. There are no LayoutRevision writes.

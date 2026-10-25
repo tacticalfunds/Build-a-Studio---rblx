@@ -31,8 +31,14 @@
 	  recoveryNeeded=true, and refuses edits until recover() succeeds (retry
 	  the operation, then world.reconcile from the model as a fallback).
 	* Shared studio: the current host may edit any placed item, whoever placed
-	  it (placedByUserId is metadata only). Undo history from a previous host
-	  must be invalidated by the undo layer (task 4).
+	  it (placedByUserId is metadata only).
+	* Undo/Redo are planners like any other op: same lock, host checks,
+	  validation (catalog, template, entitlement, bounds, cap), world
+	  apply/rollback and recovery. They restore exact logical IDs. A step that
+	  no longer applies (item changed, template removed, collection locked) is
+	  dropped with HistoryConflict and never touches the world. History is
+	  cleared on host transfer, on any revision change it did not make, and on
+	  entering recovery. Undo/Redo may carry expectedRevision (StaleRevision).
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -41,6 +47,7 @@ local Protocol = require(Shared:WaitForChild("Protocol"))
 local Transform = require(Shared:WaitForChild("Transform"))
 local Validate = require(Shared:WaitForChild("Validate"))
 
+local BuildHistory = require(script.Parent.BuildHistory)
 local BuildModel = require(script.Parent.BuildModel)
 local RateLimiter = require(script.Parent.RateLimiter)
 local RequestValidator = require(script.Parent.RequestValidator)
@@ -64,6 +71,7 @@ function PlacementCore.new(deps)
 		self[k] = v
 	end
 	self.model = BuildModel.new(deps.config.MaxItems)
+	self.history = BuildHistory.new(deps.config.HistoryLimit or 50)
 	self.limiter = RateLimiter.new(deps.config.RateLimits, deps.clock)
 	self.revision = 0
 	self.state = READY
@@ -102,6 +110,16 @@ end
 
 function PlacementCore:list()
 	return self.model:list()
+end
+
+-- Status for userId; attached to every response.
+function PlacementCore:status(userId)
+	return {
+		state = self.state,
+		canUndo = self.history:canUndo(userId, self.revision),
+		canRedo = self.history:canRedo(userId, self.revision),
+		revision = self.revision,
+	}
 end
 
 -- Catalog, install and entitlement checks for creating an instance of itemId.
@@ -148,11 +166,24 @@ local function sameTransform(a, b)
 	return a.x == b.x and a.y == b.y and a.z == b.z and a.yaw == b.yaw
 end
 
-function PlacementCore:_spawnPlan(record)
+local function sameRecord(a, b)
+	return a.itemId == b.itemId and sameTransform(a, b)
+end
+
+-- History entry describing a committed effect (exact logical ID).
+local function entryFromEffect(effect)
+	if effect.kind == "move" then
+		return { kind = "move", id = effect.id, before = BuildModel.copyRecord(effect.from), after = BuildModel.copyRecord(effect.to) }
+	end
+	return { kind = effect.kind, id = effect.id, record = BuildModel.copyRecord(effect.record) }
+end
+
+-- id is optional: a new ID is allocated unless an exact one is restored (redo/undo).
+function PlacementCore:_spawnPlan(record, id)
 	if not self.model:hasCapacity() then
 		return nil, Codes.ItemCap
 	end
-	local id = self.model:peekNextId()
+	id = id or self.model:peekNextId()
 	local model = self.model
 	return {
 		id = id,
@@ -271,8 +302,65 @@ function planners.Delete(self, _, payload)
 	}
 end
 
+-- Plans one undo or redo step. A step that no longer applies comes back as
+-- { conflict = code } so the caller drops it without touching the world.
+function PlacementCore:_historyPlan(userId, direction)
+	local entry = self.history:peek(direction)
+	if entry == nil then
+		return nil, direction == "undo" and Codes.NothingToUndo or Codes.NothingToRedo
+	end
+	local current = self.model:get(entry.id)
+	local removing = (entry.kind == "spawn" and direction == "undo") or (entry.kind == "remove" and direction == "redo")
+	local creating = (entry.kind == "remove" and direction == "undo") or (entry.kind == "spawn" and direction == "redo")
+	local plan, code
+	if removing then
+		if current == nil or not sameRecord(current, entry.record) then
+			return { conflict = Codes.NotFound }
+		end
+		plan = planners.Delete(self, userId, { id = entry.id })
+	elseif creating then
+		if current ~= nil then
+			return { conflict = Codes.HistoryConflict }
+		end
+		local _, itemCode = self:_checkCreatable(userId, entry.record.itemId)
+		if itemCode then
+			return { conflict = itemCode }
+		end
+		local t, tCode = self:_clean(entry.record.itemId, entry.record)
+		if t == nil then
+			return { conflict = tCode }
+		end
+		plan, code = self:_spawnPlan(withTransform(entry.record, t), entry.id)
+	else
+		local expected = direction == "undo" and entry.after or entry.before
+		local target = direction == "undo" and entry.before or entry.after
+		if current == nil or not sameRecord(current, expected) then
+			return { conflict = Codes.NotFound }
+		end
+		plan, code = self:_movePlan(entry.id, current, target)
+	end
+	if plan == nil then
+		return { conflict = code }
+	end
+	local history = self.history
+	plan.afterCommit = function(revision)
+		history:commitStep(direction, revision)
+	end
+	return plan
+end
+
+function planners.Undo(self, userId)
+	return self:_historyPlan(userId, "undo")
+end
+
+function planners.Redo(self, userId)
+	return self:_historyPlan(userId, "redo")
+end
+
 function PlacementCore:_enterRecovery(kind, token, effect)
 	self.recovery = { kind = kind, token = token, effect = effect }
+	-- The world may differ from what history describes.
+	self.history:clear(self.revision)
 	self:_log("entering recovery after failed " .. kind .. " of " .. tostring(effect and effect.kind) .. " " .. tostring(effect and effect.id))
 end
 
@@ -296,9 +384,27 @@ function PlacementCore:_locked(userId, op, payload)
 	if not self:_isHost(userId) then
 		return self:_reject(Codes.NotHost)
 	end
+	if op == "Undo" or op == "Redo" then
+		local valid, expected = RequestValidator.optionalRevision(rawget(payload, "expectedRevision"))
+		if not valid then
+			return self:_reject(Codes.BadRequest)
+		end
+		if expected ~= nil and expected ~= self.revision then
+			return self:_reject(Codes.StaleRevision)
+		end
+	end
+	-- History belongs to one host at one revision (host transfer, recovery or
+	-- a future load invalidate it).
+	self.history:sync(userId, self.revision)
 	local plan, planCode = planners[op](self, userId, payload)
 	if plan == nil then
 		return self:_reject(planCode)
+	end
+	if plan.conflict then
+		self.history:drop(op == "Undo" and "undo" or "redo")
+		local response = self:_reject(Codes.HistoryConflict)
+		response.reason = plan.conflict
+		return response
 	end
 	if plan.noop then
 		return { ok = true, id = plan.id, buildRevision = self.revision }
@@ -326,6 +432,11 @@ function PlacementCore:_locked(userId, op, payload)
 	end
 	self.pending = nil
 	self.revision = self.revision + 1
+	if plan.afterCommit then
+		plan.afterCommit(self.revision)
+	else
+		self.history:record(entryFromEffect(plan.effect), self.revision)
+	end
 
 	local response = { ok = true, id = plan.id, buildRevision = self.revision }
 	local finalized, finalizeErr = pcall(self.world.commit, self.world, token)
@@ -374,13 +485,26 @@ function PlacementCore:handle(userId, payload)
 	if not Validate.isPositiveInteger(userId) then
 		return self:_reject(Codes.BadRequest)
 	end
-	if not self.limiter:allow(userId, "edit") then
-		return self:_reject(Codes.RateLimited)
-	end
 	local op, code = RequestValidator.op(payload)
-	if op == nil then
-		return self:_reject(code)
+	local category = op == "Status" and "status" or "edit"
+	if not self.limiter:allow(userId, category) then
+		return self:_respond(userId, self:_reject(Codes.RateLimited))
 	end
+	if op == nil then
+		return self:_respond(userId, self:_reject(code))
+	end
+	if op == "Status" then
+		return self:_respond(userId, { ok = true, buildRevision = self.revision })
+	end
+	return self:_respond(userId, self:_handleEdit(userId, op, payload))
+end
+
+function PlacementCore:_respond(userId, response)
+	response.status = self:status(userId)
+	return response
+end
+
+function PlacementCore:_handleEdit(userId, op, payload)
 	if self.state == RECOVERY and not self:recover() then
 		return self:_reject(Codes.RecoveryNeeded)
 	end

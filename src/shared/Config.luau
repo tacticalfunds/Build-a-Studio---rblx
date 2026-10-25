@@ -22,9 +22,13 @@ Config.RotationStep = 15 -- degrees; yaw must be a multiple of this
 Config.PositionPrecision = 0.01 -- server quantizes positions to this step
 Config.BoundsEpsilon = 0.001
 
+-- Server-side undo history depth (per current host; cleared on host transfer)
+Config.HistoryLimit = 50
+
 -- Per-player token buckets
 Config.RateLimits = {
 	edit = { capacity = 12, refillPerSecond = 6 },
+	status = { capacity = 6, refillPerSecond = 2 },
 }
 
 -- Build save payload: an additive `Build` section inside a StudioPresets snapshot

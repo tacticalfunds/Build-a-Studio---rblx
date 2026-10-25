@@ -6,7 +6,8 @@
 	2. resolves the sandbox from the StudioBuilderSandbox marker part. With no
 	   marker the builder stays disabled and every request returns Unavailable.
 	   Nothing is created in, or searched for inside, the six rooms;
-	3. creates Workspace.StudioBuilderPlacedItems (dedicated; BuildRevision attribute);
+	3. creates Workspace.StudioBuilderPlacedItems (dedicated; BuildRevision,
+	   SandboxOrigin and SandboxSize attributes for the client preview);
 	4. publishes sanitized preview copies of installed templates to
 	   ReplicatedStorage.StudioBuilder.PreviewTemplates for the client ghost and cards;
 	5. creates Remotes.BuilderRequest (RemoteFunction) -> PlacementCore:handle.
@@ -111,6 +112,9 @@ function BuilderService.start()
 
 	local placedFolder = getOrCreate(Workspace, "Folder", Config.PlacedItemsFolderName)
 	placedFolder:SetAttribute(Config.BuildRevisionAttribute, 0)
+	-- Read by the client preview (advisory only; the server re-validates).
+	placedFolder:SetAttribute("SandboxOrigin", sandbox.origin)
+	placedFolder:SetAttribute("SandboxSize", Vector3.new(sandbox.bounds.halfX * 2, sandbox.bounds.height, sandbox.bounds.halfZ * 2))
 	publishPreviews(templates)
 
 	core = PlacementCore.new({

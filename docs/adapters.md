@@ -85,3 +85,34 @@ The template probe also rejects templates whose pivot isn't upright or isn't at 
 3. **Surface/collision policy:** overlaps and floating placement are allowed in the sandbox prototype. The UI snaps to surfaces by default (task 4). The server checks bounds only.
 4. **Sandbox marker and room-switch gate:** Codex supplies the `StudioBuilderSandbox` marker and the live room-switch gate during integration. Until the marker exists, the builder answers `Unavailable`.
 5. **StudioCustomization** still needs its live-script exclusion for `BuildItemId` and `StudioBuilderPlacedItems`.
+
+## Build drawer and undo/redo (task 4)
+
+Studio-pending: there's no installation or full Play UI test yet. The pure decision modules are tested.
+
+| Piece | File | Role |
+|---|---|---|
+| Undo/Redo | `src/server/Core/PlacementCore.luau`, `BuildHistory.luau` | `Undo`/`Redo` ops plan like any edit: same lock, host checks, validation, world apply/rollback and recovery. Exact logical IDs are restored. A step that no longer applies is dropped with `HistoryConflict` (`reason` gives why) and never touches the world. History is cleared on host transfer, on any revision change it didn't make, and on entering recovery. `expectedRevision` makes stale or double clicks fail with `StaleRevision`. Depth: 50. |
+| Status | `PlacementCore` | `{ op = "Status" }`, read-only and allowed for anyone. Every response carries `status = { state, canUndo, canRedo, revision }`. |
+| PanelTheme | `src/client/UI/PanelTheme.luau` | The `docs/ui-contract.md` tokens, layout constants, `fit()`/`clamp()` and constructors for new builder UI only |
+| BuildSession | `src/client/Build/BuildSession.luau` | Drawer state machine: placing/moving/selected, read-only, paused (RecoveryNeeded), and cancel on host loss, room switch, respawn or unexpected revision |
+| PlacementPreview | `src/client/Build/PlacementPreview.luau` | Surface snapping (upward-facing floor, tabletop or placed item), grid snapping, and the same bounds rules as the server |
+| BuildInput | `src/client/Build/BuildInput.luau` | Listen-only input. Text entry is always ignored. Escape cancels without being sunk. R and clicks fire only when unprocessed. E/Q, right mouse, 1–5, V and F are never handled. |
+| BuildDrawer | `src/client/Build/BuildDrawer.luau` | The drawer, built only from PanelTheme in the contract layout: filters in the tab row, then rows for actions (Undo/Redo/Back/Done), selection (Move/Rotate/Duplicate/Delete), a placement hint (Place here on touch / Cancel) and ViewportFrame cards from `PreviewTemplates`. Not-installed cards are disabled. Draggable and clamped. |
+| BuilderClient | `src/client/BuilderClient.luau` | `configure({ hooks, panel = { getPosition, onClosed }, roomSwitchSignal })`, `open() -> ok, reason`, `close(reason)`, `isOpen()` |
+
+### What Codex wires (nothing is guessed or auto-bound)
+
+1. **Studio-page Build entry:** a button in the existing Studio tab calls `BuilderClient.open()`. If it returns
+   `false, "HandoffUnbound" | "HandoffFailed" | "Unavailable"`, show that in the panel's status line.
+2. **Hooks** via `BuilderClient.configure({ hooks = ... })`:
+   - `camera`: e.g. `PodcastCameraHook.fromLocalPlayer()`, the verified `StudioCameraControl`;
+   - `hostControls`: the PodcastCamera shortcut gate;
+   - `hostDrawer`: the panel's exposed open/close;
+   - `worldClickHandlers`: the panel world-picker gate.
+   `camera` and `hostControls` are required, so open() fails closed without them.
+3. **Panel position:** `panel.getPosition()` opens the drawer where the panel is. `panel.onClosed({ x, y, reason })`
+   lets the panel keep or restore its position and show the exit reason.
+4. **Room-switch gate:** optional `roomSwitchSignal`. `PodcastSettings.SceneSet` changes are also handled.
+
+Done currently closes like Back. Task 5 adds the save, and a failed save will be visible and keep the drawer open.

@@ -77,3 +77,14 @@ local C = {
   hook (BuildModeHandoff) needs Codex to expose one; setting `Drawer.Visible` alone leaves
   `PanelOpen` and the launcher text stale.
 - Codex handles the exact wiring into the existing panel and the visual comparison against it.
+
+## Implementation notes (task 4) to check during the visual comparison
+
+- Tokens, sizes and layout come only from `src/client/UI/PanelTheme.luau`. A test asserts the numbers above.
+- The Build drawer puts the five collection filters in the tab-row position (x 14, y 72, height 34,
+  6 px gaps). The four panel tabs are untouched because the panel itself is hidden only through the
+  `hostDrawer` hook.
+- Interpretations not in the contract, to confirm or adjust:
+  - The close button label is `X`; match the live close glyph.
+  - Disabled buttons keep the card background with `C.muted` text.
+  - The world-space placement ghost uses teal when valid and a red tint (235, 87, 87) when invalid. That colour is only on the 3D ghost, never in panel UI.

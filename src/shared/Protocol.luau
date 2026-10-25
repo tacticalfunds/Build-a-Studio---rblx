@@ -10,11 +10,16 @@
 		{ op = "Rotate",    id = "i12", direction = 1 | -1 }   -- direction optional, default 1
 		{ op = "Duplicate", id = "i12" }
 		{ op = "Delete",    id = "i12" }
+		{ op = "Undo",      expectedRevision = n? }  -- refused with StaleRevision if n is stale
+		{ op = "Redo",      expectedRevision = n? }
+		{ op = "Status" }                            -- read-only; allowed for anyone
 
 	Transforms are local to the sandbox origin: studs, yaw in degrees (a
-	multiple of Config.RotationStep). Responses:
-		{ ok = true,  id = "i12", buildRevision = n, recoveryNeeded = true? }
-		{ ok = false, code = "<Code>", buildRevision = n, recoveryNeeded = true? }
+	multiple of Config.RotationStep). Responses
+	(every response carries status):
+		{ ok = true,  id = "i12", buildRevision = n, recoveryNeeded = true?, status }
+		{ ok = false, code = "<Code>", reason = "<Code>"?, buildRevision = n, recoveryNeeded = true?, status }
+		status = { state = "ready" | "busy" | "recovery", canUndo, canRedo, revision }
 	recoveryNeeded means the world could not be reconciled yet; further edits
 	return RecoveryNeeded until the server recovers.
 ]]
@@ -27,6 +32,9 @@ Protocol.Ops = {
 	Rotate = "Rotate",
 	Duplicate = "Duplicate",
 	Delete = "Delete",
+	Undo = "Undo",
+	Redo = "Redo",
+	Status = "Status",
 }
 
 -- Fields each op may carry besides `op`, and whether they are required.
@@ -36,6 +44,9 @@ Protocol.OpFields = {
 	Rotate = { id = true, direction = false },
 	Duplicate = { id = true },
 	Delete = { id = true },
+	Undo = { expectedRevision = false },
+	Redo = { expectedRevision = false },
+	Status = {},
 }
 
 Protocol.Codes = {
@@ -54,6 +65,10 @@ Protocol.Codes = {
 	ItemCap = "ItemCap",
 	NotFound = "NotFound",
 	RecoveryNeeded = "RecoveryNeeded",
+	NothingToUndo = "NothingToUndo",
+	NothingToRedo = "NothingToRedo",
+	HistoryConflict = "HistoryConflict",
+	StaleRevision = "StaleRevision",
 	ApplyFailed = "ApplyFailed",
 	Internal = "Internal",
 }
@@ -74,6 +89,10 @@ Protocol.Messages = {
 	ItemCap = "The item limit has been reached.",
 	NotFound = "That item no longer exists.",
 	RecoveryNeeded = "The build area is resynchronizing; edits are paused for a moment.",
+	NothingToUndo = "Nothing to undo.",
+	NothingToRedo = "Nothing to redo.",
+	HistoryConflict = "That step can't be undone anymore, so it was skipped.",
+	StaleRevision = "The studio changed; check it and try again.",
 	ApplyFailed = "The change couldn't be applied; nothing was changed.",
 	Internal = "Something went wrong.",
 }

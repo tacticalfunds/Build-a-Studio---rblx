@@ -84,6 +84,18 @@ function RequestValidator.transformShape(v)
 	return v
 end
 
+-- Optional revision the client last saw: nil, or a non-negative integer.
+-- Returns ok, value.
+function RequestValidator.optionalRevision(v)
+	if v == nil then
+		return true, nil
+	end
+	if not Validate.isInteger(v) or v < 0 or v > 1000000000 then
+		return false
+	end
+	return true, v
+end
+
 -- Optional rotation direction: nil -> 1; otherwise exactly 1 or -1.
 function RequestValidator.direction(v)
 	if v == nil then
