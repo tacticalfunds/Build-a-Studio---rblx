@@ -1,0 +1,17 @@
+{
+  "name": "StudioBuilder",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "StudioBuilder": { "$path": "src/shared" }
+    },
+    "ServerScriptService": {
+      "StudioBuilder": { "$path": "src/server" }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "StudioBuilder": { "$path": "src/client" }
+      }
+    }
+  }
+}

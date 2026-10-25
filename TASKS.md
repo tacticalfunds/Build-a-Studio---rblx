@@ -22,7 +22,7 @@ Known contracts (from Codex, 2026-10-25):
 | # | Task | Depends on | Status |
 |---|---|---|---|
 | 1 | Index the current Studio assets | none | Done |
-| 2 | Define narrow adapters (catalog, host, room, camera, save) | 1 | Pending |
+| 2 | Define narrow adapters (catalog, host, room, camera, save) | 1 | Done (Studio pending) |
 | 3 | Server-authoritative placement and validation | 2 | Pending |
 | 4 | Simple drawer UI, item editing and Undo/Redo | 3 | Pending |
 | 5 | Save/load with failure protection | 3 | Pending |
@@ -35,16 +35,19 @@ Commit Codex's four snapshot files under `docs/assets/` with an index README.
 - Acceptance: all four files committed byte-for-byte. README gives the place ID, snapshot date, what each file holds, reading rules and refresh steps. Counts checked locally: 39 guide entries, 6 rooms, 2594 model records, 448 content refs, 161 lights, 95 seats, 55 emitters, 2 sounds, 83 displays.
 - Evidence: counts confirmed by a local JSON parse on 2026-10-25.
 
-## 2. Define narrow adapters: Pending
-Create `src/shared`, `src/server` and `src/client` with a Rojo project. Write adapter modules, each with a documented contract and a safe default:
-- `HostAuthorization`: reads the HostUserId attribute and fails closed.
-- `RoomProvider`: returns the sandbox origin and bounds.
-- `TemplateCatalog`: stable IDs mapped to prepared templates. A missing template shows as a disabled "not installed" card. Test fixtures are opt-in and must not look like production furniture.
-- `SaveBackend`: separate versioned Build snapshot, in-memory by default.
-- `CameraHandoff`: hooks into PodcastCamera without assuming a signature.
-- `BuildModeControls`: suppresses the listed controls and the host drawer.
-- Initial catalog IDs: `cozy_armchair_01`, `cozy_coffee_table_01`, `cozy_bookshelf_01`, `cozy_plant_01`, `cozy_floor_lamp_01`, `retro_tv_cart_01`, `retro_cassette_01`. Collections have stable IDs and optional entitlement metadata. Everything is free.
+## 2. Define narrow adapters: Done (Studio integration pending)
+Create `src/shared`, `src/server` and `src/client` with a Rojo project. Write adapter modules, each with a documented contract and a safe default. Contract table: [`docs/adapters.md`](docs/adapters.md).
+- `Catalog` (shared): the 7 stable IDs (`cozy_armchair_01`, `cozy_coffee_table_01`, `cozy_bookshelf_01`, `cozy_plant_01`, `cozy_floor_lamp_01`, `retro_tv_cart_01`, `retro_cassette_01`). Collections are tags: Cozy, 1980s, Retro, Winter, Futuristic (no items yet). Every collection has `entitlement = {kind="free"}`. Each item's `sourceRef` points at the asset guide and is documentation only.
+- `Entitlements`: future unlock hook via injected resolvers. `free` always unlocks, unknown kinds fail closed, no paywall.
+- `HostAuthority`: injected `getHostUserId`. The default reads `PodcastSettings.HostUserId` with no caching. Fails closed.
+- `TemplateCatalog`: injected probe. The default looks for a Model named `<itemId>` in `ServerStorage.StudioBuilderTemplates`. Each item is installed, not_installed (shown as a disabled card) or invalid. Fixtures are opt-in and Studio-only.
+- `RoomProvider`: injected resolver for the sandbox only, with validated bounds.
+- `SaveSnapshot` + `SaveBackends`: schema `StudioBuilder.Build` v1 with migrations. Strict decode. Newer versions are refused, unplaceable entries are preserved, 64 KB cap. Memory backend only.
+- `BuildModeHandoff` (client): the camera-mode, host-controls, drawer and click-handler slots, all injected. `camera` and `hostControls` are required. Rollback on enter failure, best-effort exit.
 - Acceptance: each adapter has a single documented entry point. No Podcast* API is guessed beyond the contracts above. Every file passes a compile check.
+- Evidence (executed 2026-10-25): `lua5.4 tests/run.lua` gives **59 passed, 0 failed** across 9 specs. A mutation check (host check disabled, schema check removed, rollback removed) made 5 tests fail as expected, then went back to green.
+- Not executed: anything needing real Instances (`podcastSettingsSource` against a live PodcastSettings, `serverStorageProbe`, `markerSource`, CFrame validation). The Luau compiler wasn't available (running its binary was blocked), so files are compile-checked as Lua 5.4 only.
+- Open for task 3/4: a server-published copy of curated templates for client cards and ghosts. Binding the real hooks waits on Codex's extracted signatures.
 
 ## 3. Server-authoritative placement and validation: Pending
 A pure core handles the catalog whitelist, finite and bounded transforms, room bounds, the item cap, per-player rate limits, an edit check against HostUserId on every request, and edits limited to the player's own build items. A thin Roblox layer applies the results inside a dedicated builder folder.
