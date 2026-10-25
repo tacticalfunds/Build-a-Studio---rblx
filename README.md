@@ -14,6 +14,7 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 | Adapter contracts, placement, drawer, streaming | [`docs/adapters.md`](docs/adapters.md) |
 | Host-panel visual contract (exact tokens and layout) | [`docs/ui-contract.md`](docs/ui-contract.md) |
 | Save/load install details, behaviour, recovery | [`docs/integration-task5.md`](docs/integration-task5.md) |
+| Catalog expansion install and Play evidence | [`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md) |
 | Asset inventory from Studio | [`docs/assets/`](docs/assets/README.md) |
 | Installed live source reference (bb3efa6, 45 scripts) | [`docs/studio-reference/`](docs/studio-reference/README.md) |
 | Seat assignment model and wiring plan (task 7) | [`docs/task7-seat-plan.md`](docs/task7-seat-plan.md) |
@@ -23,13 +24,13 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 
 | Area | Status |
 |---|---|
-| Catalog | 31 items: 7 verified in Studio, plus 24 expansion items registered and **pending Studio verification** (see "Catalog and content status") |
+| Catalog | **31 items installed** in the working place. Place→Delete passed in Play for all 31, and the drawer filters were checked ([`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md)). Real DataStore save/load with expansion items, multiplayer and a performance benchmark are not done. |
 | Placement, undo/redo, host authority, recovery (server) | Tested locally and in real Studio Luau; Place/Undo/Redo/Delete checked in Play |
 | Build drawer UI | Full UI flow passed in Play at 62f2f87 (latest Play run: UI mouse automation stalled, so not re-checked) |
 | Save/load through StudioPresets | Director logic tested locally and in real Studio Luau; Play round trip done **against a memory stand-in for StudioPresets** |
 | Real DataStore, real text filtering, multiplayer | **Not verified** |
 | Seat assignment (task 7) | Pure model and integration plan only ([`docs/task7-seat-plan.md`](docs/task7-seat-plan.md)); no runtime wiring, no real anchor metadata |
-| More collections (task 8), Branding (task 9) | Not started |
+| Executive/Broadcast collections (task 8), Branding (task 9) | Not started |
 
 ## Repository layout and Rojo mapping
 
@@ -250,13 +251,12 @@ Use a test place or a private server with DataStore access. Never publish.
 - [ ] A non-host sending BuilderRequest edits gets `NotHost`. Status still answers.
 - [ ] The second client sees placed items (streaming) and doesn't see the ghost.
 
-**Catalog expansion (24 items):**
-- [ ] With all 24 templates in `StudioBuilderTemplates` under their IDs, each card shows as installed. The probe accepts each one: upright pivot at the bottom centre, no scripts.
-- [ ] Each filter (Cozy 22, Retro 16, 1980s 12, Winter 11, Futuristic 9) shows the right cards, and the drawer still matches the panel style.
-- [ ] Place, Move, Rotate, Duplicate and Delete one item from each collection.
-  The largest footprints (`retro_meeting_table_01` about 15.7 × 6.8 studs, `winter_white_rug_01` 12 × 8, `future_curved_sofa_01` 11 × 7.9) must fit the sandbox bounds, or Place answers `OutOfBounds`.
-- [ ] Preview cost: `PreviewTemplates` replicates sanitized copies of all 31 templates, some with over 100 parts (`future_shelf_01`, `studio_mixer_01`, `winter_white_rug_01`). Check join time and drawer ViewportFrame performance.
-- [ ] Save and Load a build that uses expansion items.
+**Catalog expansion (24 items).** Done in Play (Codex): templates installed, Place then Delete for all 31 IDs, `OutOfBounds` at the sandbox edge, filter counts, a card-click placement, 31 preview models. Remaining:
+- [ ] Move, Rotate, Duplicate, Undo and Redo on expansion items (only Place and Delete ran for all 31).
+- [ ] Card-click placement for more items than the Curved Lounge Sofa.
+- [ ] Preview cost: join time and drawer ViewportFrame performance with 31 preview templates, some over 100 parts (`future_shelf_01`, `studio_mixer_01`, `winter_white_rug_01`).
+- [ ] Real DataStore Save and Load of a build that uses expansion items; a second client sees them.
+- [ ] Decide whether the legacy `cozy_floor_lamp_01` template should keep its light. It still emits light; the 24 new templates have lights disabled.
 
 **UI and place:**
 - [ ] While building, 1–5, V, F, D-pad/Y and AutoShot do nothing; WASD, Q/E, right-drag look and Escape cursor release still work. After Done, the shortcuts work again.
@@ -266,18 +266,20 @@ Use a test place or a private server with DataStore access. Never publish.
 
 ## Catalog and content status
 
-`Catalog.luau` lists **31 items**, all free and all **decorative**: chairs aren't seats, lamps don't light, and microphones, mixers and headphones have no audio.
+`Catalog.luau` lists **31 items**, all free and all **decorative**. No seat, light or audio adapter exists:
+- chairs aren't seats;
+- microphones, mixers and headphones have no audio;
+- the legacy `cozy_floor_lamp_01` template still contains and emits its own light. That isn't an adapter.
 
-- **Installed and verified in Studio (7):**
+**Installed (2026-10-25):** all 31 templates are in `ServerStorage.StudioBuilderTemplates` in the working place, and the installed Catalog source is 6a8e490. Evidence: [`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md).
+- **The original 7:**
   - `cozy_armchair_01`, `cozy_coffee_table_01`, `cozy_bookshelf_01`, `cozy_plant_01`, `cozy_floor_lamp_01`;
   - `retro_tv_cart_01`, `retro_cassette_01`.
-- **Expansion, registered here but pending Studio verification (24):**
-  - Codex prepared and visually reviewed the templates: bottom-centred pivots, safe sizes, zero scripts, no seat profiles. The manifest is [`docs/assets/Catalog_Expansion_2026-10-25.json`](docs/assets/Catalog_Expansion_2026-10-25.json).
-  - The IDs, names, collection tags and sourceRefs are copied from it exactly. A test checks them against the manifest.
-  - The manifest's `sourceAssetId` fields stay in the manifest only; the catalog never carries asset IDs.
-  - This includes `retro_crt_tv_01`, prepared earlier.
-- **Install step for the expansion:** the templates were prepared in `ServerStorage.StudioBuilderExpansion`, but the runtime probe looks only in **`ServerStorage.StudioBuilderTemplates`**.
-  Each one must be placed there, named by its item ID. Until then its card shows "not installed" and Place answers `NotInstalled`.
+- **The expansion (24):**
+  - Prepared and visually reviewed by Codex; scriptless and anchored, with Seats, lights and effects disabled. No seat profiles.
+  - The original manifest, kept as provenance, is [`docs/assets/Catalog_Expansion_2026-10-25.json`](docs/assets/Catalog_Expansion_2026-10-25.json). The catalog's IDs, names, tags and sourceRefs match it exactly; a test checks this.
+  - The `sourceAssetId` fields stay in the manifest only.
+  - The prepared originals remain in `ServerStorage.StudioBuilderExpansion`, and 24 manual-use copies are in the asset yard (`07 Builder Catalog Expansion`).
 - **Collection counts (items can carry several tags):** Cozy 22, Retro 16, 1980s 12, Winter 11, Futuristic 9. Every filter now has items.
   Executive and Broadcast (task 8) don't exist yet.
 

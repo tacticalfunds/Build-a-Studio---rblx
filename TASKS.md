@@ -29,7 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | Expansion prepared (24 items; Studio verification pending) |
+| 8 | More collection themes | 6 | Expansion installed (31 items, Play-checked); Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 
 ## 1. Index the current Studio assets: Done
@@ -254,7 +254,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: Expansion prepared (Studio verification pending)
+## 8. More collection themes: Expansion installed (31 items, Play-checked); Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -273,6 +273,24 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
     The old hard-coded 7-item and "futuristic is empty" assertions were replaced.
   - **Evidence (executed 2026-10-25):** `lua5.4 tests/run.lua` gives **263 passed, 0 failed**. These mutations were each caught: a wrong tag, sourceRef or display name; a duplicate display name; a dropped item; a renamed original.
   - **Pending (Codex, Studio):** install the 24 templates in `StudioBuilderTemplates`, probe acceptance, filters, placing each collection, large footprints against the sandbox bounds, the replication and drawer cost of 31 preview templates, save and load with expansion items.
+- Integration evidence (Codex, 2026-10-25, for 6a8e490). Full report: [`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md).
+  - **Installed:** all 24 templates in `ServerStorage.StudioBuilderTemplates` (31 total); the prepared originals kept; 24 manual-use copies in `StudioAssetYard/07 Builder Catalog Expansion`.
+    Only the reviewed `Catalog` source was installed; the runtime is still bb3efa6 plus the local integration patches.
+    The new templates are scriptless and anchored, with Seats, lights and effects disabled and ThumbnailCameras removed.
+  - **Verified:**
+    - real Studio Luau `Catalog.validate` passed;
+    - in Play, client Place then Delete succeeded for all 31 IDs with zero failures, and the curved sofa at x = 23 correctly returned `OutOfBounds`;
+    - the OPEN BUILDER drawer filters show Cozy 22, Retro 16, 1980s 12, Winter 11, Futuristic 9;
+    - a Curved Lounge Sofa card plus floor click placed it;
+    - `PreviewTemplates` has 31 models;
+    - Play stopped with no QA scripts kept.
+  - **Observation:** the legacy `cozy_floor_lamp_01` template still has its light (a template decision, not an adapter).
+  - **Not done, not claimed:**
+    - real DataStore save/load with expansion items, multiplayer, a bulk performance benchmark;
+    - Move, Rotate, Duplicate, Undo and Redo per expansion item;
+    - any seat runtime (task 7 is still a pure model with no approved profiles).
+  - **Backup:** a full-place backup of this state is pending. The user stopped native Computer Use, and it isn't bypassed. The 62f2f87 RBXL remains the full-place baseline.
+  - This checkpoint is documentation only, with no code, runtime or UI changes. The header comments in `Catalog.luau` still describe the pre-install state; they get fixed in the next code checkpoint.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.

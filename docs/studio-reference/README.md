@@ -25,6 +25,7 @@ When the live scripts change, a new snapshot replaces this one, and this index i
 All 34 comparable scripts (32 StudioBuilder modules, plus `DirectorPersistence` and `StudioPresets`) were compared with this repository at commit bb3efa6.
 The comparison ignores `\r` and trailing newlines. They are identical.
 Later commits (for example, task 7's seat constants in `Config`) are newer than this snapshot.
+The working place has since installed the 6a8e490 `Catalog` (31 items) and 24 more templates. Neither is in this JSON (see `docs/integration-catalog-expansion.md`).
 
 ## Index
 
