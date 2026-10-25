@@ -29,8 +29,11 @@ builder; saving and loading stay in the existing Studio → saved studios UI.
    1. Delete the local functions `snapshot()`, `restoreSnapshot()` and `persistentAction()`.
    2. Insert the block from `integration/PodcastDirector.persistence.luau` where `persistentAction` was, after every local it passes exists.
    3. The names `snapshot`, `restoreSnapshot` and `persistentAction` stay bound, so the existing `Persist` remote handler keeps calling `persistentAction`.
-5. **Optional panel control:** "Discard" sends `PodcastStudioControl:FireServer("Persist", "DiscardLoadBlock", {})` to lift the save block.
-6. Run the Studio checklist below.
+5. **Room-mutation gate:** make the two handler edits in step (4) of `integration/PodcastDirector.persistence.luau`:
+   1. a `roomMutationBlocked()` refusal for every non-Persist action, right after the existing `layoutBusy` line;
+   2. the same check in the Text branch after its filter returns.
+6. **Optional panel control:** "Discard" sends `PodcastStudioControl:FireServer("Persist", "DiscardLoadBlock", {})` to lift the save block.
+7. Run the Studio checklist below.
 
 ## Behaviour
 
@@ -76,6 +79,18 @@ builder; saving and loading stay in the existing Studio → saved studios UI.
   The Director passes `getRoomLook` / `setRoomLook` closures over its existing `roomLooks` table (see the patch file).
 - **Locking:** `beginTransaction` takes the edit lock before any possibly-yielding authority read and releases it on every refusal or error.
 
+### Room-mutation gate (review of ce59b1d)
+
+- **Problem:** after a failed load enters compound recovery, the Director's `layoutBusy` is false. A recovery attempt (the background retry every 2 s, or the retry at the start of each Persist action) can yield inside `applyAll` during the room restore. A normal room command during that yield survived, so `recover()` returned true with a mix of the captured and the new state.
+- **Gate:** `directorPersistence.roomMutationBlocked()` is true while any `restoreSnapshot` is in flight (counted for every caller, released on error) and while the builder's recovery is unresolved.
+  - The core stays in recovery for the whole of every attempt, yields included, and leaves it only when the room and the build are both restored. The gate reads that state; it is not a flag toggled around an attempt, so it never drops while recovery is still unresolved.
+  - If the state can't be read, the gate stays closed.
+- **Director wiring:** step (4) of the patch file.
+  - Every non-Persist action (Fixture, Item, Set, Preset, Text, Look, Transfer) is refused with `ROOM_MUTATION_MESSAGE`.
+  - The Text branch re-checks the gate (and `layoutBusy`) after its filter returns, so a filter already in flight when a load or recovery started can't write.
+  - Persist stays open: List works, every Persist action retries recovery first, and the builder's Status op still answers.
+- **Core unchanged:** builder edits and capture are still refused in recovery.
+
 ### Builder unavailable in a server
 
 Saves carry no Build, and the guard refuses to drop an existing non-empty Build. Loads run the room part through the same capture and rollback.
@@ -96,6 +111,8 @@ There's no builder epoch then; the Director's own host checks apply.
 - [ ] Force a room failure during Load (for example, a temporary error in applyAll): room settings, fixtures, items and the build are restored; then Save is refused until Load or Discard.
 - [ ] Load while editing in the builder: builder edits get "Still applying" until the load finishes.
 - [ ] Host transfer during Load: "Host controls changed", with build and room unchanged.
+- [ ] With `applyAll` failing during Load and rollback (compound recovery): Set, Fixture, Item, Look, Text, Preset and Transfer are refused with the room-changes message, and Persist List still works. Remove the failure, wait for the background retry: the room is exactly as before the load and room commands work again.
+- [ ] Send a Text change, then start a failing Load before the filter returns: the text isn't applied.
 - [ ] Share code of a preset with a Build: LoadCode restores the build.
 - [ ] Remove a template from `StudioBuilderTemplates`, then load: that item is preserved (not spawned) and survives a re-save.
 - [ ] Confirm that `SaveBackends.memory` (task 2) is unused. Persistence goes only through StudioPresets.

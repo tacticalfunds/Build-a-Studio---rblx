@@ -44,11 +44,25 @@
 	* a build finalize failure after the room loaded is reported as an
 	  incomplete load (latched) until reconciliation succeeds;
 	* rememberLighting's roomLooks entry is captured and restored exactly.
+
+	Room-mutation gate (review of ce59b1d):
+	* M.roomMutationBlocked() is true while any restoreSnapshot is in flight
+	  and while the builder's recovery is unresolved. The core stays in
+	  recovery for the whole of every recovery attempt (the background retry
+	  in BuilderService, a Persist-triggered retry, or a direct recover()),
+	  including while the outside room restore yields inside applyAll, and
+	  only leaves it once room and build are both restored. The gate is
+	  derived from that state, never from a flag toggled around an attempt.
+	* The Director refuses every non-Persist room command while it is true,
+	  and re-checks it after an in-flight Text filter returns (see
+	  integration/PodcastDirector.persistence.luau). Persist stays open:
+	  List works and every Persist action retries recovery first.
 ]]
 
 local DirectorPersistence = {}
 
 local RECOVERY_MESSAGE = "The studio is still being restored after a failed load. Saving and loading are paused until that finishes."
+local ROOM_MUTATION_MESSAGE = "The studio is still being restored after a failed load. Room changes are paused until that finishes."
 local LATCH_MESSAGE = "Your last load didn't complete, so saving is paused to protect your saved studios. Load a studio again, or discard to save the current room anyway."
 
 local function clamp(v, lo, hi)
@@ -59,6 +73,7 @@ function DirectorPersistence.new(d)
 	local M = {}
 	local settings = d.settings
 	local latched = {} -- [userId] = reason
+	local loadsInFlight = 0
 
 	local function currentScene()
 		return settings:GetAttribute("SceneSet") or "Custom"
@@ -249,7 +264,7 @@ function DirectorPersistence.new(d)
 		return p.Parent ~= nil and p.UserId == settings:GetAttribute("HostUserId")
 	end
 
-	function M.restoreSnapshot(p, data)
+	local function restoreBody(p, data)
 		assert(type(data) == "table" and data.Version == 1 and type(data.Settings) == "table", "Unsupported studio preset.")
 		local values = data.Settings
 		local scene = values.SceneSet
@@ -298,6 +313,30 @@ function DirectorPersistence.new(d)
 		end
 		error(err, 0)
 	end
+
+	-- Counted for the room-mutation gate for its whole duration, whoever calls it.
+	function M.restoreSnapshot(p, data)
+		loadsInFlight = loadsInFlight + 1
+		local ok, err = pcall(restoreBody, p, data)
+		loadsInFlight = loadsInFlight - 1
+		if not ok then
+			error(err, 0)
+		end
+	end
+
+	-- Shared room-mutation gate: true while a load is in flight or a failed
+	-- load's recovery (room + build) is unresolved, including during every
+	-- yielding recovery attempt. Fails closed if the state can't be read.
+	function M.roomMutationBlocked()
+		if loadsInFlight > 0 then
+			return true
+		end
+		local ok, recovering = pcall(function()
+			return d.builderPersistence:recovering()
+		end)
+		return not ok or recovering == true
+	end
+	M.ROOM_MUTATION_MESSAGE = ROOM_MUTATION_MESSAGE
 
 	-- Live persistentAction with the latch and the separated list refresh.
 	local persistenceBusy, persistenceLast = {}, {}

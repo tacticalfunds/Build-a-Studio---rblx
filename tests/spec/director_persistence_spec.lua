@@ -87,7 +87,10 @@ return function(T, H)
 			},
 			remote = { FireClient = function(_, p, ok, message, payload) env.fired[#env.fired + 1] = { ok = ok, message = message, payload = payload } end },
 			feedback = function(p, ok, message) env.feedbacks[#env.feedbacks + 1] = message end,
-			setLayoutBusy = function(v) env.busy[#env.busy + 1] = v end,
+			setLayoutBusy = function(v)
+				env.busy[#env.busy + 1] = v
+				env.layoutBusy = v
+			end,
 			clock = function() return env.now end,
 			warn = function() end,
 		}
@@ -167,6 +170,52 @@ return function(T, H)
 		function env.transfer(userId)
 			env.settings:SetAttribute("HostUserId", userId)
 			env.core:onHostChanged()
+		end
+		-- The live PodcastStudioControl handler with the documented wiring
+		-- (integration/PodcastDirector.persistence.luau, edit 4): the existing
+		-- layoutBusy gate, then the room-mutation gate for every non-Persist
+		-- action, and the Text branch's re-check after its filter yields.
+		env.layoutBusy = false
+		local function refused(p, message)
+			deps.feedback(p, false, message)
+			return false
+		end
+		function env.command(p, action, key, value)
+			if env.layoutBusy then
+				return refused(p, "The studio layout is changing.")
+			end
+			if action ~= "Persist" and env.dp.roomMutationBlocked() then
+				return refused(p, env.dp.ROOM_MUTATION_MESSAGE)
+			end
+			local scene = env.settings:GetAttribute("SceneSet") or "Custom"
+			if action == "Set" then
+				env.settings:SetAttribute(key, value)
+			elseif action == "Fixture" then
+				fixtures[scene][1].Light:SetAttribute(key, value)
+			elseif action == "Item" then
+				items[scene][1].Object:SetAttribute(key, value)
+			elseif action == "Look" then
+				env.roomLooks[scene] = { Fog = value }
+			elseif action == "Text" then
+				local filtered = value
+				if env.onCommandFilter then env.onCommandFilter() end -- TextService yields
+				if not (p.Parent ~= nil and p.UserId == env.settings:GetAttribute("HostUserId")) then
+					return refused(p, "Host controls changed.")
+				end
+				if env.layoutBusy or env.dp.roomMutationBlocked() then
+					return refused(p, env.dp.ROOM_MUTATION_MESSAGE)
+				end
+				env.settings:SetAttribute(key, filtered)
+			elseif action == "Persist" then
+				env.now = env.now + 3
+				env.dp.persistentAction(p, key, value or {})
+			end
+			return true
+		end
+		function env.roomState()
+			return deepCopy({ settings = env.settings.attrs, looks = env.roomLooks,
+				C1 = fixtures.Custom[1].Light.attrs, L1 = fixtures.Lounge[1].Light.attrs,
+				CI = items.Custom[1].Object.attrs, LI = items.Lounge[1].Object.attrs })
 		end
 		function env.lastFired() return env.fired[#env.fired] end
 		function env.lastFeedback() return env.feedbacks[#env.feedbacks] end
@@ -474,6 +523,162 @@ return function(T, H)
 		env.onApplyAll = function() env.onApplyAll = nil error("boom") end
 		env.action("Load", { Slot = 1 })
 		T.deepEq(env.roomLooks.Custom, { CustomLighting = true, Fog = 0.9 }, "previous entry restored exactly")
+	end)
+
+	-- Room-mutation gate (review of ce59b1d) ----------------------------------------
+
+	-- A failed load whose room rollback also fails: compound recovery, with
+	-- the Director's layoutBusy already back to false.
+	local function enterCompoundRecovery(env)
+		saveLoungePreset(env)
+		local captured = env.roomState()
+		env.onApplyAll = function() error("applyAll broken") end
+		env.action("Load", { Slot = 1 })
+		T.eq(env.core:getState(), "recovery")
+		T.eq(env.layoutBusy, false, "precondition: layoutBusy is false while recovery is unresolved")
+		return captured
+	end
+
+	T.test("room commands are refused while recovery is unresolved and during a yielded background recovery attempt", function()
+		local env = setup()
+		local captured = enterCompoundRecovery(env)
+		local bp = { UserId = B, Parent = {} }
+		-- Unresolved, between attempts.
+		T.eq(env.command(env.p, "Set", "Title", "Between attempts"), false)
+		T.eq(env.dp.roomMutationBlocked(), true)
+		-- The background retry (BuilderService calls core:recover()); the room
+		-- restore yields inside applyAll after writing the captured settings.
+		env.onApplyAll = function()
+			env.onApplyAll = nil
+			coroutine.yield("applyAll")
+		end
+		local co = coroutine.create(function() return env.core:recover() end)
+		local resumed, where = coroutine.resume(co)
+		T.ok(resumed and where == "applyAll", "recovery attempt yielded in applyAll")
+		T.eq(env.layoutBusy, false)
+		T.eq(env.command(env.p, "Set", "Title", "Hijack"), false, "Set refused mid-recovery")
+		T.eq(env.command(env.p, "Set", "Brightness", 0.1), false)
+		T.eq(env.command(env.p, "Fixture", "LightIntensity", 9), false)
+		T.eq(env.command(env.p, "Item", "StudioMoveX", 7), false)
+		T.eq(env.command(env.p, "Look", nil, 0.9), false)
+		T.eq(env.command(env.p, "Text", "Title", "Typed"), false)
+		T.eq(env.command(bp, "Set", "Title", "Other player"), false)
+		T.eq(env.lastFeedback(), env.dp.ROOM_MUTATION_MESSAGE)
+		-- Builder edits and capture stay refused (core behaviour unchanged).
+		T.eq(env.place(0).code, "RecoveryNeeded")
+		T.eq(pcall(function() env.dp.snapshot() end), false)
+		-- The recovery route stays open: status, List, and Persist retries.
+		env.now = env.now + 1
+		local status = env.core:handle(A, { op = "Status" })
+		T.eq(status.ok, true)
+		T.eq(status.status.state, "recovery")
+		env.command(env.p, "Persist", "List")
+		T.eq(env.lastFired().ok, true, "List works during recovery")
+		local storedBefore = deepCopy(env.store.data)
+		env.command(env.p, "Persist", "Save", { Slot = 2, Name = "mid" })
+		T.eq(env.lastFeedback(), "The studio is still being restored after a failed load. Saving and loading are paused until that finishes.")
+		T.deepEq(env.store.data, storedBefore)
+		-- The attempt finishes: exactly the captured state, nothing mixed in.
+		local finished, recovered = coroutine.resume(co)
+		T.ok(finished, tostring(recovered))
+		T.eq(recovered, true)
+		T.eq(coroutine.status(co), "dead")
+		T.deepEq(env.roomState(), captured, "recovery restored exactly the captured room")
+		-- Resolved: the gate lifts.
+		T.eq(env.dp.roomMutationBlocked(), false)
+		T.eq(env.command(env.p, "Set", "Title", "After recovery"), true)
+		T.eq(env.settings:GetAttribute("Title"), "After recovery")
+	end)
+
+	T.test("a failed recovery attempt keeps the gate closed; a Persist-triggered retry holds it too", function()
+		local env = setup()
+		local captured = enterCompoundRecovery(env)
+		-- An attempt that yields, then fails again: still unresolved, still gated.
+		env.onApplyAll = function()
+			coroutine.yield("applyAll")
+			error("still broken")
+		end
+		local co = coroutine.create(function() return env.core:recover() end)
+		assert(coroutine.resume(co))
+		T.eq(env.command(env.p, "Set", "Title", "Hijack"), false)
+		local _, recovered = coroutine.resume(co)
+		T.eq(recovered, false)
+		T.eq(env.dp.roomMutationBlocked(), true, "gate never drops while recovery is unresolved")
+		T.eq(env.command(env.p, "Set", "Title", "Hijack"), false)
+		-- Recovery driven from a Persist action (it retries first); its room
+		-- restore yields, and room commands are refused meanwhile.
+		env.onApplyAll = function()
+			env.onApplyAll = nil
+			coroutine.yield("applyAll")
+		end
+		local persist = coroutine.create(function() env.command(env.p, "Persist", "List") end)
+		assert(coroutine.resume(persist))
+		T.eq(coroutine.status(persist), "suspended")
+		T.eq(env.command(env.p, "Fixture", "LightIntensity", 9), false)
+		T.eq(env.command(env.p, "Set", "Title", "Hijack"), false)
+		assert(coroutine.resume(persist))
+		T.eq(env.lastFired().ok, true)
+		T.eq(env.core:getState(), "ready")
+		T.deepEq(env.roomState(), captured)
+		T.eq(env.command(env.p, "Set", "Title", "Free"), true)
+	end)
+
+	T.test("a Text command whose filter was in flight is refused when it returns after a failed load entered recovery", function()
+		local env = setup()
+		saveLoungePreset(env)
+		local captured = env.roomState()
+		env.onCommandFilter = function()
+			env.onCommandFilter = nil
+			coroutine.yield("filter")
+		end
+		local text = coroutine.create(function() return env.command(env.p, "Text", "Title", "Typed earlier") end)
+		assert(coroutine.resume(text))
+		T.eq(coroutine.status(text), "suspended", "text filter in flight")
+		-- Meanwhile a load fails and its room rollback fails: compound recovery.
+		env.onApplyAll = function() error("applyAll broken") end
+		env.action("Load", { Slot = 1 })
+		T.eq(env.core:getState(), "recovery")
+		T.eq(env.layoutBusy, false)
+		local _, applied = coroutine.resume(text)
+		T.eq(applied, false, "the in-flight Text write is refused by the re-check")
+		T.eq(env.lastFeedback(), env.dp.ROOM_MUTATION_MESSAGE)
+		T.ok(env.settings:GetAttribute("Title") ~= "Typed earlier")
+		env.onApplyAll = nil
+		T.eq(env.core:recover(), true)
+		T.deepEq(env.roomState(), captured, "recovery restores the captured room; the text never landed")
+	end)
+
+	T.test("a Text command whose filter returns while a load is in flight is refused, even if layoutBusy is not set by the caller", function()
+		local env = setup()
+		saveLoungePreset(env)
+		local data = env.dp.snapshot() -- a valid preset to load directly
+		env.onCommandFilter = function()
+			env.onCommandFilter = nil
+			coroutine.yield("filter")
+		end
+		local text = coroutine.create(function() return env.command(env.p, "Text", "Title", "Typed earlier") end)
+		assert(coroutine.resume(text))
+		-- A direct restoreSnapshot (no persistentAction, so no layoutBusy) yielding in applyAll.
+		env.onApplyAll = function()
+			env.onApplyAll = nil
+			coroutine.yield("applyAll")
+		end
+		local load = coroutine.create(function() env.dp.restoreSnapshot(env.p, data) end)
+		assert(coroutine.resume(load))
+		T.eq(coroutine.status(load), "suspended")
+		T.eq(env.layoutBusy, false)
+		T.eq(env.dp.roomMutationBlocked(), true, "a load in flight holds the gate")
+		local _, applied = coroutine.resume(text)
+		T.eq(applied, false)
+		T.eq(env.command(env.p, "Set", "Title", "Hijack"), false)
+		local ok, err = coroutine.resume(load)
+		T.ok(ok, tostring(err))
+		T.eq(coroutine.status(load), "dead")
+		T.eq(env.dp.roomMutationBlocked(), false, "released when the load finishes")
+		T.eq(env.settings:GetAttribute("Title"), data.Settings.Title)
+		-- A failing direct load also releases its count (and errors as before).
+		T.eq(pcall(env.dp.restoreSnapshot, env.p, { Version = 2 }), false)
+		T.eq(env.dp.roomMutationBlocked(), false)
 	end)
 
 	T.test("cooldown and busy handling are unchanged", function()
