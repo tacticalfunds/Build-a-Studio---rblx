@@ -31,6 +31,9 @@ Known contracts (from Codex, 2026-10-25):
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
 | 8 | More collection themes | 6 | Expansion installed (31 items, Play-checked); Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
+| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | Pending (plan only) |
+
+**User priority (2026-10-25): keep expanding the model catalog.** Codex prepares and inspects candidates. Each set is registered in its own bounded checkpoint (manifest, catalog entries, tests), then installed and Play-checked by Codex. The queue order above is otherwise unchanged.
 
 ## 1. Index the current Studio assets: Done
 Commit Codex's four snapshot files under `docs/assets/` with an index README.
@@ -299,3 +302,22 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - **Visual contract:** Branding sits inside the existing Studio tab, in the same row, heading and input style as the live panel ([`docs/ui-contract.md`](docs/ui-contract.md)). No new visual style.
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
+
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: Pending (plan only)
+Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
+- Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
+  - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
+  - **Ordinary decor:** record player (RushioLCO credit kept), radio, shoji divider (272 parts).
+  - The ceiling is a recolour of the kit floor geometry, not a separate marketplace model.
+  - **None are registered in `Catalog.luau` or the Build UI.**
+- Plan: [`docs/structure-placement-plan.md`](docs/structure-placement-plan.md), based on the current Transform, PlacementPreview, RoomProvider and PlacementCore code. It covers:
+  - the 16-stud structure grid: wall edges and corners, floor and ceiling heights;
+  - 90° yaw and Rotate; door clearance; window wall-face attachment;
+  - support deletion (keep "floating allowed" for now);
+  - outer-wall vs. bounds arithmetic, and a shared pure grid rule enforced by the server;
+  - undo and save compatibility (no format change; off-grid pieces preserved);
+  - a Structure mode reusing the drawer's filter row and theme.
+- Decisions D1–D7 are open. Codex measurements are needed: opening boxes, wall centreline, corner legs, window mounting, the live sandbox marker size.
+- Acceptance (draft): the tests listed in section 7 of the plan. Runtime placement, avatar clearance and window fitting are Play-tested by Codex.
+- **Not done:** any structure runtime, catalog entry or UI. Structural snapping isn't implemented.
+- Evidence for this docs checkpoint: `lua5.4 tests/run.lua` runs the catalog and static checks, including a new guard that none of the 10 candidate IDs is in `Catalog.luau` and that no rejected asset ID appears in source.

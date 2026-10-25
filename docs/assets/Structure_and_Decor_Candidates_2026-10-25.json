@@ -1,0 +1,313 @@
+{
+  "generatedAt": "2026-10-25",
+  "studioPlaceId": "132242140555698",
+  "status": "Prepared and visually inspected in Edit mode; not registered in live Build UI.",
+  "stagingPath": "Workspace.StudioAssetYard.08 Structure and Decor Review.Prepared Pieces",
+  "templateRoot": "ServerStorage.StudioStructureCandidates",
+  "items": [
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.structure_wall_01",
+      "id": "structure_wall_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Plaster Wall",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight windowless",
+      "category": "wall",
+      "status": "prepared_not_registered",
+      "size": [
+        16,
+        15,
+        1
+      ],
+      "scripts": 0,
+      "parts": 1,
+      "sourceCreator": "plexaruszx",
+      "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ]
+    },
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.structure_window_wall_01",
+      "id": "structure_window_wall_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Window Wall",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight window",
+      "category": "wall",
+      "status": "prepared_not_registered",
+      "size": [
+        16.00006103515625,
+        14.999996185302734,
+        1
+      ],
+      "scripts": 0,
+      "parts": 7,
+      "sourceCreator": "plexaruszx",
+      "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ]
+    },
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.structure_doorway_01",
+      "id": "structure_doorway_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Open Doorway Wall",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight door",
+      "category": "doorway",
+      "status": "prepared_not_registered",
+      "size": [
+        16,
+        15.000016212463379,
+        1
+      ],
+      "scripts": 0,
+      "parts": 5,
+      "sourceCreator": "plexaruszx",
+      "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ]
+    },
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.structure_corner_01",
+      "id": "structure_corner_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Plaster Corner",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall corner windowless",
+      "category": "wall",
+      "status": "prepared_not_registered",
+      "size": [
+        16,
+        15.000014305114746,
+        16
+      ],
+      "scripts": 0,
+      "parts": 2,
+      "sourceCreator": "plexaruszx",
+      "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ]
+    },
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.structure_floor_01",
+      "id": "structure_floor_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Wood Floor Tile",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Floor",
+      "category": "floor",
+      "status": "prepared_not_registered",
+      "size": [
+        16,
+        1,
+        16
+      ],
+      "scripts": 0,
+      "parts": 2,
+      "sourceCreator": "plexaruszx",
+      "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ]
+    },
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.structure_ceiling_01",
+      "id": "structure_ceiling_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Plain Ceiling Tile",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Floor",
+      "category": "ceiling",
+      "status": "prepared_not_registered",
+      "size": [
+        16,
+        1,
+        16
+      ],
+      "scripts": 0,
+      "parts": 2,
+      "sourceCreator": "plexaruszx",
+      "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ]
+    },
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.structure_industrial_window_01",
+      "id": "structure_industrial_window_01",
+      "sourceAssetId": "13304797063",
+      "displayName": "Industrial Window Frame",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Industrial Window Frame",
+      "category": "window",
+      "status": "prepared_not_registered",
+      "size": [
+        5.199999809265137,
+        7.133112907409668,
+        1.393786907196045
+      ],
+      "scripts": 0,
+      "parts": 1,
+      "sourceCreator": "2BeeSupreme",
+      "sourceUrl": "https://create.roblox.com/store/asset/13304797063",
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ]
+    },
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.retro_record_player_01",
+      "id": "retro_record_player_01",
+      "sourceAssetId": "12769863525",
+      "displayName": "Vintage Record Player",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Record Player",
+      "credits": "RushioLCO (credit requested)",
+      "category": "decor",
+      "status": "prepared_not_registered",
+      "size": [
+        2.0986480712890625,
+        2.3494224548339844,
+        1.9359664916992188
+      ],
+      "scripts": 0,
+      "parts": 26,
+      "sourceCreator": "RushioLCO",
+      "sourceUrl": "https://create.roblox.com/store/asset/12769863525",
+      "collections": [
+        "retro",
+        "1980s",
+        "cozy"
+      ]
+    },
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.retro_radio_01",
+      "id": "retro_radio_01",
+      "sourceAssetId": "14003553892",
+      "displayName": "Vintage Radio",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Vintage Radio",
+      "category": "decor",
+      "status": "prepared_not_registered",
+      "size": [
+        1.554669737815857,
+        1.2753616571426392,
+        1.0424234867095947
+      ],
+      "scripts": 0,
+      "parts": 1,
+      "sourceCreator": "zzz_1551",
+      "sourceUrl": "https://create.roblox.com/store/asset/14003553892",
+      "collections": [
+        "retro",
+        "1980s",
+        "cozy"
+      ]
+    },
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.cozy_shoji_divider_01",
+      "id": "cozy_shoji_divider_01",
+      "sourceAssetId": "10862992379",
+      "displayName": "Shoji Room Divider",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Japanese Room Divider",
+      "category": "divider",
+      "status": "prepared_not_registered",
+      "size": [
+        1.7096991539001465,
+        6.173994064331055,
+        4.4600090980529785
+      ],
+      "scripts": 0,
+      "parts": 272,
+      "sourceCreator": "Sjenchi",
+      "sourceUrl": "https://create.roblox.com/store/asset/10862992379",
+      "collections": [
+        "cozy",
+        "retro"
+      ]
+    }
+  ],
+  "inspection": {
+    "scriptsInPreparedTemplates": 0,
+    "unanchoredParts": 0,
+    "totalParts": 319,
+    "straightWallSize": [
+      16,
+      15,
+      1
+    ],
+    "straightWallSeamGapAt16StudPitch": 0,
+    "doorwayCenterAt4StudsClear": true,
+    "visuals": "Window wall, open doorway, record player, industrial frame, divider and floor inspected; runtime placement not tested.",
+    "modifications": [
+      "Removed kit floor sections from standalone walls; removed helper parts, imported interactions and door leaf.",
+      "Aligned primary straight-wall geometry to local X; centered bottom pivots.",
+      "Ceiling is a neutral recolor of the kit floor geometry, not a distinct marketplace asset.",
+      "Divider uniformly scaled to 42%."
+    ],
+    "remaining": [
+      "Structure-aware edge snapping and elevation/ceiling placement require reviewed builder support.",
+      "Wall-bound window fitting, floor/wall collision and doorway avatar clearance require Play testing.",
+      "Divider has272 parts; performance review required before high-density placement.",
+      "Preserve RushioLCO credit for record player.",
+      "New full-place backup pending; previous native backup interaction was stopped by user."
+    ]
+  },
+  "rejected": [
+    {
+      "assetId": "107809369531099",
+      "name": "Rooms Kit Walls Floors Doors Interior",
+      "scripts": 43,
+      "reason": "Unrelated/obfuscated embedded code; entire imported candidate removed."
+    },
+    {
+      "assetId": "72345259689081",
+      "name": "Acoustic Foam Tile Wall Studio Concrete Panel Back",
+      "scripts": 2,
+      "reason": "Hidden unrelated runtime and UI controller despite no-script description; entire imported candidate removed."
+    }
+  ],
+  "deferred": [
+    {
+      "assetId": "120565443892509",
+      "name": "Modular Wall Pack",
+      "creator": "WilliamBosso",
+      "reason": "Needs orientation and fit review before preparation"
+    },
+    {
+      "assetId": "87617727134882",
+      "name": "Modular Wall Trim Pack (FIXED)",
+      "creator": "KoBoIce",
+      "reason": "Needs orientation and fit review before preparation"
+    },
+    {
+      "assetId": "15777685204",
+      "name": "Old Wood Flooring",
+      "creator": "FroztedFrozty",
+      "reason": "MaterialVariant, not a standalone floor model"
+    }
+  ]
+}

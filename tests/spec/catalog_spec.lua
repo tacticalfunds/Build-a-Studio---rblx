@@ -124,6 +124,33 @@ return function(T, H)
 		end
 	end)
 
+	T.test("structure/decor candidates are indexed but not registered; rejected asset IDs never appear in source", function()
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json")
+		local ids = {}
+		for entry in manifest:gmatch('"templatePath": "ServerStorage%.StudioStructureCandidates%.([%w_]+)"') do
+			ids[#ids + 1] = entry
+		end
+		T.eq(#ids, 10, "candidate count")
+		local index = H.readFile(H.ROOT .. "/docs/assets/README.md")
+		for _, id in ipairs(ids) do
+			T.eq(Catalog.getItem(id), nil, id .. " must not be registered yet")
+			T.ok(index:find("`" .. id .. "`", 1, true), id .. " is indexed in docs/assets/README.md")
+		end
+		local rejected = manifest:match('"rejected": (%b[])')
+		local rejectedIds = {}
+		for assetId in rejected:gmatch('"assetId": "(%d+)"') do
+			rejectedIds[#rejectedIds + 1] = assetId
+		end
+		T.eq(#rejectedIds, 2, "rejected imports")
+		for _, assetId in ipairs(rejectedIds) do
+			T.ok(index:find(assetId, 1, true), assetId .. " rejection kept in the index")
+			for _, path in ipairs(H.sourceList) do
+				T.eq(H.readFile(H.ROOT .. "/" .. path):find(assetId, 1, true), nil, assetId .. " appears in " .. path)
+			end
+		end
+		T.ok(index:find("RushioLCO (credit requested; keep it)", 1, true), "record player credit kept")
+	end)
+
 	T.test("sorted collections follow declared order", function()
 		local sorted = Catalog.getCollectionsSorted()
 		for i = 2, #sorted do

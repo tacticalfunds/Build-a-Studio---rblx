@@ -15,6 +15,7 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 | Host-panel visual contract (exact tokens and layout) | [`docs/ui-contract.md`](docs/ui-contract.md) |
 | Save/load install details, behaviour, recovery | [`docs/integration-task5.md`](docs/integration-task5.md) |
 | Catalog expansion install and Play evidence | [`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md) |
+| Structure placement plan (walls, floors, ceilings; not implemented) | [`docs/structure-placement-plan.md`](docs/structure-placement-plan.md) |
 | Asset inventory from Studio | [`docs/assets/`](docs/assets/README.md) |
 | Installed live source reference (bb3efa6, 45 scripts) | [`docs/studio-reference/`](docs/studio-reference/README.md) |
 | Seat assignment model and wiring plan (task 7) | [`docs/task7-seat-plan.md`](docs/task7-seat-plan.md) |
@@ -282,6 +283,8 @@ Use a test place or a private server with DataStore access. Never publish.
   - The prepared originals remain in `ServerStorage.StudioBuilderExpansion`, and 24 manual-use copies are in the asset yard (`07 Builder Catalog Expansion`).
 - **Collection counts (items can carry several tags):** Cozy 22, Retro 16, 1980s 12, Winter 11, Futuristic 9. Every filter now has items.
   Executive and Broadcast (task 8) don't exist yet.
+- **Candidates, not installed (10):** 7 structure pieces (walls, doorway, corner, floor, ceiling, window frame) and 3 decor items. They're prepared in Studio and indexed in [`docs/assets/README.md`](docs/assets/README.md), but they aren't in `Catalog.luau` or the Build UI.
+  Structure placement is only a plan ([`docs/structure-placement-plan.md`](docs/structure-placement-plan.md), task 10). Structural snapping is **not** implemented.
 
 ## Next tasks
 
