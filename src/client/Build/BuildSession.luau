@@ -13,6 +13,8 @@
 	* A BuildRevision the session didn't cause cancels an in-progress move
 	  (the item may have changed); undo/redo send expectedRevision so the
 	  server refuses stale steps.
+	* Responses are ignored once closed, and status older than the newest
+	  known revision is ignored (a Status op entirely).
 ]]
 
 local BuildSession = {}
@@ -51,6 +53,9 @@ end
 
 function BuildSession:opened(isHost)
 	self.mode = "idle"
+	self.revision = nil
+	self.paused = false
+	self.canUndo, self.canRedo = false, false
 	self.readOnly = not isHost
 	self.itemId, self.selectedId, self.message = nil, nil, nil
 	if self.readOnly then
@@ -134,7 +139,17 @@ end
 -- Applies a server response to op. Failed placements keep the preview so the
 -- user can try another spot.
 function BuildSession:applyResponse(op, response)
+	if self.mode == "closed" then
+		return -- a late response must never revive a closed session
+	end
 	local status = type(response) == "table" and response.status or nil
+	if type(status) == "table" and type(status.revision) == "number" and self.revision ~= nil and status.revision < self.revision then
+		-- Older than what we already know (e.g. a slow Status poll): ignore it.
+		if op == "Status" then
+			return
+		end
+		status = nil
+	end
 	if type(status) == "table" then
 		self.canUndo = status.canUndo == true
 		self.canRedo = status.canRedo == true

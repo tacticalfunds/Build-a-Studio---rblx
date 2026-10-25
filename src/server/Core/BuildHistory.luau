@@ -6,46 +6,50 @@
 		{ kind = "remove", id, record }          undo = spawn id again, redo = remove id
 		{ kind = "move",   id, before, after }   undo = move to before, redo = move to after
 
-	History is valid only for the user who made it and only at the build
-	revision it last recorded. sync() clears it when either differs: a host
-	transfer, or a revision change that history did not make (recovery,
-	reconcile or a future load). Pure.
+	History is valid only for the user who made it, in the host session
+	(epoch) it was made in, and only at the build revision it last recorded.
+	sync() clears it when any differs: a host transfer (even A -> B -> A,
+	which bumps the epoch), or a revision change that history did not make
+	(recovery, reconcile or a future load). Pure.
 ]]
 
 local BuildHistory = {}
 BuildHistory.__index = BuildHistory
 
 function BuildHistory.new(limit)
-	return setmetatable({ limit = limit, undoStack = {}, redoStack = {}, ownerUserId = nil, revision = 0 }, BuildHistory)
+	return setmetatable({ limit = limit, undoStack = {}, redoStack = {}, ownerUserId = nil, revision = 0, epoch = nil }, BuildHistory)
 end
 
 function BuildHistory:clear(revision)
 	self.undoStack = {}
 	self.redoStack = {}
 	self.ownerUserId = nil
+	self.epoch = nil
 	self.revision = revision
 end
 
--- Clears the stacks unless they belong to userId at revision. Returns true if cleared.
-function BuildHistory:sync(userId, revision)
-	if self.ownerUserId == userId and self.revision == revision then
+function BuildHistory:_valid(userId, revision, epoch)
+	return self.ownerUserId == userId and self.revision == revision and self.epoch == epoch
+end
+
+-- Clears the stacks unless they belong to userId in epoch at revision.
+-- Returns true if cleared.
+function BuildHistory:sync(userId, revision, epoch)
+	if self:_valid(userId, revision, epoch) then
 		return false
 	end
 	self:clear(revision)
 	self.ownerUserId = userId
+	self.epoch = epoch
 	return true
 end
 
-function BuildHistory:_valid(userId, revision)
-	return self.ownerUserId == userId and self.revision == revision
+function BuildHistory:canUndo(userId, revision, epoch)
+	return self:_valid(userId, revision, epoch) and #self.undoStack > 0
 end
 
-function BuildHistory:canUndo(userId, revision)
-	return self:_valid(userId, revision) and #self.undoStack > 0
-end
-
-function BuildHistory:canRedo(userId, revision)
-	return self:_valid(userId, revision) and #self.redoStack > 0
+function BuildHistory:canRedo(userId, revision, epoch)
+	return self:_valid(userId, revision, epoch) and #self.redoStack > 0
 end
 
 -- A new edit: push it and drop the redo stack.

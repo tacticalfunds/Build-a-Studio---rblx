@@ -145,6 +145,26 @@ function BuilderService.start()
 		return response
 	end
 
+	-- Host sessions: invalidate history the moment HostUserId changes (A -> B -> A included).
+	local function watchSettings(settings)
+		settings:GetAttributeChangedSignal("HostUserId"):Connect(function()
+			core:onHostChanged()
+		end)
+	end
+	local settings = ReplicatedStorage:FindFirstChild("PodcastSettings")
+	if settings then
+		watchSettings(settings)
+	else
+		local added
+		added = ReplicatedStorage.ChildAdded:Connect(function(child)
+			if child.Name == "PodcastSettings" then
+				added:Disconnect()
+				watchSettings(child)
+				core:onHostChanged()
+			end
+		end)
+	end
+
 	Players.PlayerRemoving:Connect(function(player)
 		core.limiter:forget(player.UserId)
 	end)

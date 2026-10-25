@@ -88,3 +88,8 @@ local C = {
   - The close button label is `X`; match the live close glyph.
   - Disabled buttons keep the card background with `C.muted` text.
   - The world-space placement ghost uses teal when valid and a red tint (235, 87, 87) when invalid. That colour is only on the 3D ghost, never in panel UI.
+- Review fixes (3d6519f), same tokens and layout:
+  - The placement row is **Place here / Rotate / Cancel**. Place here appears when the last input was touch (per input, not per device), and Rotate covers touch users with no R key.
+  - The drawer refits with the live `fit()` formula and re-clamps on viewport resize or orientation change.
+  - Every press inside the drawer, including its background and labels, is kept out of the world explicitly.
+  - Dragging stops on release anywhere and on window focus loss.

@@ -7,7 +7,8 @@
 		config, catalog,
 		templates     = { isInstalled(itemId), getSize(itemId) },   -- TemplateCatalog
 		entitlements  = { isItemUnlocked(userId, item, catalog) },  -- Entitlements
-		authority     = { check(userId) -> allowed, reason },       -- HostAuthority
+		authority     = { check(userId) -> allowed, reason,          -- HostAuthority
+		                  currentHostUserId() -> id? (optional) },
 		bounds        = { halfX, halfZ, height },                   -- RoomProvider sandbox
 		world         = { apply(effect) -> token, rollback(token), commit(token),
 		                  reconcile(entries)?, publishRevision(n) }, -- PlacedItemsWorld
@@ -39,6 +40,13 @@
 	  dropped with HistoryConflict and never touches the world. History is
 	  cleared on host transfer, on any revision change it did not make, and on
 	  entering recovery. Undo/Redo may carry expectedRevision (StaleRevision).
+	* Host sessions: onHostChanged() (wired to PodcastSettings.HostUserId)
+	  bumps a host epoch and clears history at once, so A -> B -> A ends A's
+	  old history even with no edit in between. Every request also compares
+	  authority.currentHostUserId() with the last seen host, in case a signal
+	  was missed. The epoch is captured with the lock and re-checked with the
+	  host after every possibly-yielding step; a change aborts (rollback) with
+	  AuthorityLost. Status offers undo/redo only to the current host.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -78,7 +86,40 @@ function PlacementCore.new(deps)
 	self.pending = nil -- { token, effect } between world.apply and the model commit
 	self.recovery = nil -- { kind = "rollback" | "finalize", token, effect }
 	self.recovering = false
+	self.hostEpoch = 0
+	self.lastSeenHost = self:_currentHost()
 	return self
+end
+
+function PlacementCore:_currentHost()
+	if self.authority.currentHostUserId == nil then
+		return nil
+	end
+	local ok, hostUserId = pcall(self.authority.currentHostUserId, self.authority)
+	return ok and hostUserId or nil
+end
+
+-- Runtime notification that PodcastSettings.HostUserId changed.
+function PlacementCore:onHostChanged()
+	self.hostEpoch = self.hostEpoch + 1
+	self.lastSeenHost = self:_currentHost()
+	self.history:clear(self.revision)
+end
+
+-- Fallback for a missed notification: compare with the last seen host.
+function PlacementCore:_observeHost()
+	if self.authority.currentHostUserId == nil then
+		return
+	end
+	if self:_currentHost() ~= self.lastSeenHost then
+		self:onHostChanged()
+	end
+end
+
+-- Host check bound to the host session captured when the lock was taken.
+function PlacementCore:_stillAuthorized(userId, epoch)
+	self:_observeHost()
+	return self.hostEpoch == epoch and self:_isHost(userId)
 end
 
 function PlacementCore:_log(message)
@@ -114,10 +155,11 @@ end
 
 -- Status for userId; attached to every response.
 function PlacementCore:status(userId)
+	local authorized = self:_isHost(userId)
 	return {
 		state = self.state,
-		canUndo = self.history:canUndo(userId, self.revision),
-		canRedo = self.history:canRedo(userId, self.revision),
+		canUndo = authorized and self.history:canUndo(userId, self.revision, self.hostEpoch),
+		canRedo = authorized and self.history:canRedo(userId, self.revision, self.hostEpoch),
 		revision = self.revision,
 	}
 end
@@ -384,6 +426,7 @@ function PlacementCore:_locked(userId, op, payload)
 	if not self:_isHost(userId) then
 		return self:_reject(Codes.NotHost)
 	end
+	local epoch = self.hostEpoch
 	if op == "Undo" or op == "Redo" then
 		local valid, expected = RequestValidator.optionalRevision(rawget(payload, "expectedRevision"))
 		if not valid then
@@ -395,7 +438,7 @@ function PlacementCore:_locked(userId, op, payload)
 	end
 	-- History belongs to one host at one revision (host transfer, recovery or
 	-- a future load invalidate it).
-	self.history:sync(userId, self.revision)
+	self.history:sync(userId, self.revision, epoch)
 	local plan, planCode = planners[op](self, userId, payload)
 	if plan == nil then
 		return self:_reject(planCode)
@@ -410,7 +453,7 @@ function PlacementCore:_locked(userId, op, payload)
 		return { ok = true, id = plan.id, buildRevision = self.revision }
 	end
 	-- Planning dependencies may have yielded.
-	if not self:_isHost(userId) then
+	if not self:_stillAuthorized(userId, epoch) then
 		return self:_reject(Codes.AuthorityLost)
 	end
 
@@ -422,7 +465,7 @@ function PlacementCore:_locked(userId, op, payload)
 	self.pending = { token = token, effect = plan.effect }
 
 	-- world.apply may yield.
-	if not self:_isHost(userId) then
+	if not self:_stillAuthorized(userId, epoch) then
 		return self:_undoPending(Codes.AuthorityLost)
 	end
 	local committed, commitErr = pcall(plan.commit)
@@ -485,6 +528,7 @@ function PlacementCore:handle(userId, payload)
 	if not Validate.isPositiveInteger(userId) then
 		return self:_reject(Codes.BadRequest)
 	end
+	self:_observeHost()
 	local op, code = RequestValidator.op(payload)
 	local category = op == "Status" and "status" or "edit"
 	if not self.limiter:allow(userId, category) then

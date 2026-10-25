@@ -59,6 +59,15 @@ function HostAuthority:check(userId)
 	return true
 end
 
+-- The current host's UserId when valid, else nil (used to detect host changes).
+function HostAuthority:currentHostUserId()
+	local ok, hostUserId = pcall(self.getHostUserId)
+	if ok and Validate.isPositiveInteger(hostUserId) then
+		return hostUserId
+	end
+	return nil
+end
+
 -- Default live source. Studio integration pending: verifies nothing beyond the
 -- documented attribute name.
 function HostAuthority.podcastSettingsSource()

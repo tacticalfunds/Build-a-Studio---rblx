@@ -92,6 +92,7 @@ Studio-pending: there's no installation or full Play UI test yet. The pure decis
 
 | Piece | File | Role |
 |---|---|---|
+| Host sessions | `PlacementCore:onHostChanged()`, wired by BuilderService to `PodcastSettings.HostUserId` | Each host change bumps a host epoch and clears history immediately (A → B → A included, with no edit needed). Every request also compares `HostAuthority:currentHostUserId()` with the last host it saw, in case a signal is missed. The epoch is captured with the lock and re-checked with the host after every possibly-yielding step, so a change aborts with rollback (`AuthorityLost`). History is keyed by user, revision and epoch. Status offers undo/redo only to the current host. |
 | Undo/Redo | `src/server/Core/PlacementCore.luau`, `BuildHistory.luau` | `Undo`/`Redo` ops plan like any edit: same lock, host checks, validation, world apply/rollback and recovery. Exact logical IDs are restored. A step that no longer applies is dropped with `HistoryConflict` (`reason` gives why) and never touches the world. History is cleared on host transfer, on any revision change it didn't make, and on entering recovery. `expectedRevision` makes stale or double clicks fail with `StaleRevision`. Depth: 50. |
 | Status | `PlacementCore` | `{ op = "Status" }`, read-only and allowed for anyone. Every response carries `status = { state, canUndo, canRedo, revision }`. |
 | PanelTheme | `src/client/UI/PanelTheme.luau` | The `docs/ui-contract.md` tokens, layout constants, `fit()`/`clamp()` and constructors for new builder UI only |
@@ -99,7 +100,15 @@ Studio-pending: there's no installation or full Play UI test yet. The pure decis
 | PlacementPreview | `src/client/Build/PlacementPreview.luau` | Surface snapping (upward-facing floor, tabletop or placed item), grid snapping, and the same bounds rules as the server |
 | BuildInput | `src/client/Build/BuildInput.luau` | Listen-only input. Text entry is always ignored. Escape cancels without being sunk. R and clicks fire only when unprocessed. E/Q, right mouse, 1–5, V and F are never handled. |
 | BuildDrawer | `src/client/Build/BuildDrawer.luau` | The drawer, built only from PanelTheme in the contract layout: filters in the tab row, then rows for actions (Undo/Redo/Back/Done), selection (Move/Rotate/Duplicate/Delete), a placement hint (Place here on touch / Cancel) and ViewportFrame cards from `PreviewTemplates`. Not-installed cards are disabled. Draggable and clamped. |
-| BuilderClient | `src/client/BuilderClient.luau` | `configure({ hooks, panel = { getPosition, onClosed }, roomSwitchSignal })`, `open() -> ok, reason`, `close(reason)`, `isOpen()` |
+| BuildController | `src/client/Build/BuildController.luau` | All client build-mode behaviour behind an injected `env`, so it can be tested with fakes:
+- A **generation** guard on every yielding request: late results after close or reopen are discarded.
+- **Opening** is tracked separately; close, host loss, room switch or respawn during `handoff:enter` cancels the open and exits the handoff.
+- A failed handoff exit is kept, retried in the background and on `close`/`open`, and `open` refuses with `CleanupPending`.
+- The ghost tracks its catalog ID.
+- The **active input method** (mouse or touch) is tracked per input, so touchscreens with a mouse attached work.
+- Presses inside the drawer are blocked explicitly.
+- Viewport refit and drag cancel on focus loss. |
+| BuilderClient | `src/client/BuilderClient.luau` | A thin Roblox binding: builds `env` and connects signals (host, room, respawn, input, viewport, focus, revision) once at load. API: `configure({ hooks, panel = { getPosition, onClosed }, roomSwitchSignal })`, `open() -> ok, reason` (`Unavailable`, `HandoffUnbound`, `HandoffFailed`, `Cancelled`, `CleanupPending`, `Opening`), `close()`, `isOpen()`. `onClosed` receives `{ x, y, reason, cancelled, cleanupFailed }`. |
 
 ### What Codex wires (nothing is guessed or auto-bound)
 

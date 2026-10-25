@@ -10,10 +10,13 @@
 	  standard/selected button styles;
 	* scroll body (x 14, y 119, w - 28, h - 177), rows with 9 px padding:
 	  actions (Undo / Redo / Back / Done), selection (Move / Rotate /
-	  Duplicate / Delete), placement hint (Place here on touch / Cancel),
-	  then catalog cards with ViewportFrames from PreviewTemplates;
+	  Duplicate / Delete), placement row (Place here when the active input is
+	  touch / Rotate / Cancel), then catalog cards with ViewportFrames from
+	  PreviewTemplates;
 	* footer status at (18, bottom - 49), 11 px muted.
-	The drawer is draggable by its handle and clamped on-screen.
+	The drawer is draggable by its handle and clamped on-screen; refit() follows
+	viewport resizes/orientation; containsPoint() lets the controller keep every
+	press on the drawer (background and labels included) out of the world.
 ]]
 
 local UserInputService = game:GetService("UserInputService")
@@ -66,7 +69,7 @@ end
 -- callbacks: onFilter(id), onItem(itemId), onUndo, onRedo, onBack, onDone,
 --            onMove, onRotate, onDuplicate, onDelete, onPlaceHere, onCancel
 -- collections: sorted { id, displayName }
-function BuildDrawer.new(playerGui, collections, callbacks, touchOnly)
+function BuildDrawer.new(playerGui, collections, callbacks)
 	local self = setmetatable({ callbacks = callbacks, cards = {}, filterButtons = {} }, BuildDrawer)
 
 	local gui = Instance.new("ScreenGui")
@@ -81,6 +84,7 @@ function BuildDrawer.new(playerGui, collections, callbacks, touchOnly)
 	local drawer = PanelTheme.drawer("Drawer")
 	drawer.Size = UDim2.fromOffset(fit.width, fit.height)
 	drawer.Position = UDim2.fromOffset(fit.x, fit.y)
+	drawer.Active = true
 	drawer.Parent = gui
 	self.drawer = drawer
 
@@ -146,24 +150,27 @@ function BuildDrawer.new(playerGui, collections, callbacks, touchOnly)
 	self.selectionButtons = selection
 
 	local hint = row(body, 3, 54)
-	place(PanelTheme.label("description", touchOnly and "Tap a surface to preview, then Place here." or "Click a surface to place. R rotates, Esc cancels."), hint, UDim2.new(), UDim2.new(1, 0, 0, 16))
+	self.hintText = place(PanelTheme.label("description", ""), hint, UDim2.new(), UDim2.new(1, 0, 0, 16))
 	local hintButtons = row(hint, 1, L.tabsHeight)
 	hintButtons.Position = UDim2.fromOffset(0, 20)
 	local hintLayout = Instance.new("UIListLayout")
 	hintLayout.FillDirection = Enum.FillDirection.Horizontal
 	hintLayout.Padding = UDim.new(0, L.tabsGap)
+	hintLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	hintLayout.Parent = hintButtons
-	if touchOnly then
-		local placeHere = PanelTheme.button("Place here", true)
-		placeHere.Size = UDim2.new(0.5, -L.tabsGap / 2, 1, 0)
-		placeHere.Parent = hintButtons
-		placeHere.Activated:Connect(callbacks.onPlaceHere)
+	local function hintButton(text, selected, order, callback)
+		local b = PanelTheme.button(text, selected)
+		b.Size = UDim2.new(1 / 3, -L.tabsGap * 2 / 3, 1, 0)
+		b.LayoutOrder = order
+		b.Parent = hintButtons
+		b.Activated:Connect(callback)
+		return b
 	end
-	local cancel = PanelTheme.button("Cancel", false)
-	cancel.Size = UDim2.new(0.5, -L.tabsGap / 2, 1, 0)
-	cancel.Parent = hintButtons
-	cancel.Activated:Connect(callbacks.onCancel)
+	self.placeHere = hintButton("Place here", true, 1, callbacks.onPlaceHere)
+	hintButton("Rotate", false, 2, callbacks.onRotate) -- touch users have no R key
+	hintButton("Cancel", false, 3, callbacks.onCancel)
 	self.hintRow = hint
+	self:setInputMode("mouse")
 
 	local heading = row(body, 4, 34)
 	self.collectionHeading = place(PanelTheme.label("heading", ""), heading, UDim2.new(), UDim2.new(1, 0, 0, 16))
@@ -175,24 +182,61 @@ function BuildDrawer.new(playerGui, collections, callbacks, touchOnly)
 	return self
 end
 
+local function isPress(input)
+	return input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch
+end
+
 function BuildDrawer:_makeDraggable(handle)
-	local dragging, startInput, startPosition = false, nil, nil
+	local startInput, startPosition = nil, nil
+	self.dragging = false
 	handle.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging, startInput, startPosition = true, input.Position, self.drawer.AbsolutePosition
+		if isPress(input) then
+			self.dragging, startInput, startPosition = true, input.Position, self.drawer.AbsolutePosition
 		end
 	end)
-	handle.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = false
+	-- Release anywhere ends the drag (the handle may not see the release).
+	self.dragEndConnection = UserInputService.InputEnded:Connect(function(input)
+		if isPress(input) then
+			self.dragging = false
 		end
 	end)
 	self.dragConnection = UserInputService.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		if self.dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 			local delta = input.Position - startInput
 			self:setPosition(startPosition.X + delta.X, startPosition.Y + delta.Y)
 		end
 	end)
+end
+
+-- Focus loss: stop dragging so the panel doesn't follow a later mouse move.
+function BuildDrawer:cancelDrag()
+	self.dragging = false
+end
+
+-- Viewport resize/orientation: refit size with the live formula, keep the
+-- current position but clamp it on-screen.
+function BuildDrawer:refit(viewportX, viewportY)
+	local fit = PanelTheme.fit(viewportX, viewportY)
+	self.drawer.Size = UDim2.fromOffset(fit.width, fit.height)
+	local p = self.drawer.AbsolutePosition
+	local x, y = PanelTheme.clamp(p.X, p.Y, fit.width, fit.height, viewportX, viewportY)
+	self.drawer.Position = UDim2.fromOffset(x, y)
+end
+
+-- True when (x, y) in GUI space (same space as InputObject.Position) is on the drawer.
+function BuildDrawer:containsPoint(x, y)
+	if type(x) ~= "number" or type(y) ~= "number" then
+		return false
+	end
+	local p, size = self.drawer.AbsolutePosition, self.drawer.AbsoluteSize
+	return x >= p.X and x <= p.X + size.X and y >= p.Y and y <= p.Y + size.Y
+end
+
+-- "touch" shows Place here (taps only preview); "mouse" clicks place directly.
+function BuildDrawer:setInputMode(method)
+	local touch = method == "touch"
+	self.placeHere.Visible = touch
+	self.hintText.Text = touch and "Tap a surface to preview, then Place here." or "Click a surface to place. R rotates, Esc cancels."
 end
 
 function BuildDrawer:setPosition(x, y)
@@ -290,6 +334,9 @@ end
 function BuildDrawer:destroy()
 	if self.dragConnection then
 		self.dragConnection:Disconnect()
+	end
+	if self.dragEndConnection then
+		self.dragEndConnection:Disconnect()
 	end
 	self.gui:Destroy()
 end
