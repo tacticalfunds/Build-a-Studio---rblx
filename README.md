@@ -15,6 +15,8 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 | Host-panel visual contract (exact tokens and layout) | [`docs/ui-contract.md`](docs/ui-contract.md) |
 | Save/load install details, behaviour, recovery | [`docs/integration-task5.md`](docs/integration-task5.md) |
 | Asset inventory from Studio | [`docs/assets/`](docs/assets/README.md) |
+| Installed live source reference (bb3efa6, 45 scripts) | [`docs/studio-reference/`](docs/studio-reference/README.md) |
+| Seat assignment model and wiring plan (task 7) | [`docs/task7-seat-plan.md`](docs/task7-seat-plan.md) |
 | Task queue and per-checkpoint evidence | [`TASKS.md`](TASKS.md) |
 
 ## Status at a glance (2026-10-25)
@@ -25,7 +27,8 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 | Build drawer UI | Full UI flow passed in Play at 62f2f87 (latest Play run: UI mouse automation stalled, so not re-checked) |
 | Save/load through StudioPresets | Director logic tested locally and in real Studio Luau; Play round trip done **against a memory stand-in for StudioPresets** |
 | Real DataStore, real text filtering, multiplayer | **Not verified** |
-| Seat anchors (task 7), more collections (task 8), Branding (task 9) | Not started |
+| Seat assignment (task 7) | Pure model and integration plan only ([`docs/task7-seat-plan.md`](docs/task7-seat-plan.md)); no runtime wiring, no real anchor metadata |
+| More collections (task 8), Branding (task 9) | Not started |
 
 ## Repository layout and Rojo mapping
 
@@ -37,7 +40,8 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 | `src/server` | `ServerScriptService.StudioBuilder` | `StudioBuilderBootstrap.server` plus `Adapters/`, `Core/`, `Runtime/`, `Bootstrap/` |
 | `src/client` | `StarterPlayer.StarterPlayerScripts.StudioBuilder` | `BuilderClient` (ModuleScript) plus `Build/`, `UI/`, `Adapters/` |
 | `integration/` | not synced by Rojo | Files installed by hand into live scripts (see below) |
-| `tests/` | not synced | `lua5.4 tests/run.lua` harness and 24 specs |
+| `tests/` | not synced | `lua5.4 tests/run.lua` harness and 25 specs |
+| `docs/studio-reference/` | not synced | Installed bb3efa6 source snapshot (reference only, read by one spec) |
 
 `BuilderClient` is a ModuleScript and doesn't start itself. The host panel requires it and calls `configure` and `open`.
 
@@ -64,62 +68,84 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 
 ## Live patch points in the working Studio
 
-These are the patches Codex has made in the working place. Its baseline is builder commit 62f2f87, plus the
-host-panel, camera and streaming patches, plus the task 5 install at bb3efa6; a full-place and 42-script
-checkpoint is saved. The exact source of the panel, camera and streaming patches exists **only in that Studio
-checkpoint, not in this repository**. The list records what each one is for and what was reported working.
+The installed source of 45 scripts at bb3efa6 is now in the repository as a **reference**:
+[`docs/studio-reference/`](docs/studio-reference/README.md), with an index of paths, hashes and the commit.
+Each hook below was checked against that source.
+- Every installed StudioBuilder module, `DirectorPersistence` and `StudioPresets` is identical to this repository at bb3efa6, apart from line endings.
+- **Backups:** the full-place RBXL backup is still the **62f2f87 baseline**. The JSON snapshot backs up the bb3efa6 scripts only, not the place.
 
-### PodcastDirector (installed at bb3efa6, per Codex)
+### PodcastDirector (installed, verified in source)
 
-- The `directorPersistence` instance is built once, and `snapshot`, `restoreSnapshot` and `persistentAction` are bound to it.
-  The same instance serves the gates below. `getRoomLook` / `setRoomLook` are closures over the Director's `roomLooks`.
-- **Entry gate**, right after the existing `if layoutBusy then feedback(...); return end`:
-  `if action ~= "Persist" and directorPersistence.roomMutationBlocked() then` refuse with `ROOM_MUTATION_MESSAGE`.
-  This refuses Fixture, Item, Set, Preset, Text, Look and Transfer while a load is running or a failed load's recovery is unresolved.
+- `directorPersistence` is built once from the Director's own locals, and `snapshot`, `restoreSnapshot` and `persistentAction` are bound to it.
+  `getRoomLook` / `setRoomLook` are closures over the Director's `roomLooks`.
+- **Entry gate:** in `PodcastStudioControl.OnServerEvent`, right after `if layoutBusy then feedback(p,false,"Please wait for the room transition."); return end`:
+  `if action~="Persist" and directorPersistence.roomMutationBlocked() then feedback(p,false,directorPersistence.ROOM_MUTATION_MESSAGE); return end`.
+  Fixture, Item, Set, Preset, Text, Timer, Look and Transfer are refused while a load is running or a failed load's recovery is unresolved.
   Persist stays open, so List works and every Persist action retries recovery first.
-- **Post-filter gate** in the Text branch, before `SetAttribute`: `if layoutBusy or directorPersistence.roomMutationBlocked() then` refuse.
-  A Text filter that was already in flight when a load or recovery began can't write when it returns.
+- **Post-filter gate:** in the Text branch, after the player/host re-check that follows the filter, and before `SetAttribute`:
+  `if layoutBusy or directorPersistence.roomMutationBlocked() then` refuse.
 
 ### StudioPresets (installed)
 
 - `Save` uses `PresetSlotGuard.transform`. It refuses to write over a corrupt profile, a newer or invalid record,
   snapshot or Build, or a slot whose existing non-empty Build would be lost.
 
-### Host panel: PodcastStudioPanel (local patch, per Codex)
+### Host panel: PodcastStudioPanel (verified in source)
 
-- The **OPEN BUILDER** entry in the existing Studio tab calls `BuilderClient.open()`. There is no fifth tab and no second panel.
-- The patch calls `BuilderClient.configure({ hooks = {...}, panel = { getPosition, onClosed } })`. The contract for each slot:
-  - `hostDrawer`: the panel's open/close, keeping `Drawer.Visible`, the launcher text and `PanelOpen` in sync;
-  - `worldClickHandlers`: gates off the panel's world picker while building;
-  - `panel.getPosition` / `panel.onClosed`: open the drawer at the panel position and restore it on Back/Done.
-- Which optional slots the local patch binds isn't recorded in this repository. Done restoring the host drawer in Play suggests `hostDrawer` is bound.
-- **Reported working in Play:** the drawer matches the existing UI, and Done restores shot 0 and the host drawer.
-- **No Discard control yet.** `Persist` / `DiscardLoadBlock` exists on the server, but no panel button sends it.
+- **OPEN BUILDER:** the Studio tab gets a "BUILD YOUR STUDIO" heading and an OPEN BUILDER action row at the top of the page (`LayoutOrder` -20 / -19), built with the panel's own `heading` and `actionRow`.
+  It refuses non-hosts, calls `builderClient.open()`, and shows a failure as `Builder: <reason>`. There is no fifth tab and no second panel.
+- **Loading:** `BuilderClient` is required from `PlayerScripts.StudioBuilder` inside a `pcall`. If it's missing, the panel warns and keeps working without the builder.
+- **`builderClient.configure`** binds all four hook slots:
+  - `camera`: `PodcastCameraHook.fromLocalPlayer()`, wrapped (see the camera section);
+  - `hostControls`: sets `PodcastCameraUI.StudioBuilderActive` to true on enter and false on exit;
+  - `hostDrawer`:
+    - enter: `cancelSharedEdits()`, `BuildModeActive = true`, `setPanelOpen(false)` (keeping `Drawer.Visible`, the launcher text and `PanelOpen` in sync), launcher text `BACK TO STUDIO  [P]`;
+    - exit: `BuildModeActive = false`;
+  - `worldClickHandlers`: sets the same `BuildModeActive` attribute. The panel's world picker returns early while it's set.
+    Because both slots share one attribute, whichever exits first clears it.
+  - `panel.getPosition` / `panel.onClosed`: open the drawer at the panel position. On close, the panel re-clamps the returned position, reopens, and shows the exit reason. "Restoring camera controls…" appears when cleanup failed.
+  - `roomSwitchSignal = Workspace.PodcastStudio:GetAttributeChangedSignal("LayoutRevision")`.
+    **Every** `StudioLayout.Apply` closes the builder: a room switch, a table/layout change, Look Recall/Reset, and a preset Load (through `applyAll`).
+- **Launcher and P key:** while the builder is open, they close the builder instead of toggling the panel.
+- **No Discard control.** No panel code sends `Persist` / `DiscardLoadBlock`.
   After a failed load, the save-block message mentions discarding. Until a control is added, **a successful Load is the only way to lift the save block**.
 
-### Camera: PodcastCamera (local patch, per Codex)
+### Camera: PodcastCamera (verified in source)
 
-- `camera` slot: `PodcastCameraHook.fromLocalPlayer()`.
-  - On enter, it fires `PlayerGui.PodcastCameraUI.StudioCameraControl:Fire("FreeCamera", true)`.
-  - On exit, it restores the previous view: free stays free; seat shots 1–4 and POV are reselected; Wide, Walk and unknown views go to Wide; Walk is never re-entered.
-- `hostControls` slot (required). Per the contract, it must suppress 1–5, V, F, D-pad/Y shot controls and AutoShot while building,
-  and keep WASD, Q/E, Shift/Ctrl, right-drag look and the cursor-release safeguards.
-  Build mode refuses to open without both required slots, so OPEN BUILDER working in Play implies both are bound.
-  That each suppressed key is really ignored hasn't been reported, so it's on the checklist.
+- **New `BuildCamera` action** on `StudioCameraControl` (value: a CFrame). It switches to free camera (`selectShot(-2)`), places the free camera at that CFrame and sets Focus.
+  It's handled before the build-mode gate, so it works while building.
+- **Camera hook as wrapped by the panel:**
+  - **Enter:** remembers whether the free camera was on and the current camera CFrame. Then the original hook (`FreeCamera = true`), then `BuildCamera` at `sandboxOrigin * (24, 23, 29)`, looking at `sandboxOrigin * (0, 1, 0)`.
+  - **Exit:** the original hook restores the previous view (free stays free; seat shots 1–4 and POV reselected; Wide, Walk and unknown views go to Wide; Walk never re-entered). If the camera was free before, `BuildCamera` returns it to its old CFrame.
+- **While `StudioBuilderActive` is set,** this is ignored:
+  - `selectShot` (except free camera), and the forced Wide on `LayoutRevision`;
+  - V / gamepad Y view toggle, F walk, the Sit button;
+  - the `AutoShot`, `Shot`, `POV`, `Walk` and `Reset` actions;
+  - keys 1–5, V, F and D-pad.
+
+  The camera bar and header are hidden.
+- **Still working while building:**
+  - **Escape:** its handler runs first and always releases the cursor.
+  - **Right-mouse free look:** works while the camera is free; free look is released when build mode toggles.
+  - **WASD / Q / E flight:** the code is unchanged; it's on the checklist rather than re-verified here.
+- `PodcastSpeakerFollow` has no builder check of its own. Its `AutoShot` requests are ignored by the camera while building.
 - Isolated MCP `require` calls report `HandoffUnbound`, because they get a separate, unconfigured module instance. This is expected and not a wiring fault.
 
-### Streaming (local patch, per Codex)
+### Streaming (Studio settings, per Codex)
 
 - `StreamingEnabled = true`. The build camera can be far from the avatar, for example avatar in the Boardroom and camera at (2024, 23, 29).
 - The sandbox Model and the 7 templates are persistent in Studio, and `PlacedItemsWorld` makes every placed model persistent before parenting.
 - Room assets keep normal streaming.
-- Verified by Codex: client replication and floor raycasts.
+- Verified by Codex: client replication and floor raycasts. These are Instance properties, so they aren't in the script snapshot.
 
-### Still to confirm in the working place
+### StudioCustomization: isolation without a guard (verified in source)
 
-- **StudioCustomization exclusion:** skip `BuildItemId`-tagged models and `StudioBuilderPlacedItems`, so its `StudioBasePivot` reset can't move builder items.
-  This isn't reported as done.
-- **Room-switch gate** (`roomSwitchSignal` in `BuilderClient.configure`, optional; `PodcastSettings.SceneSet` changes are handled anyway): not reported either way.
+- `StudioCustomization.GetItems(scene)` walks only the selected room root:
+  - `Workspace.PodcastStudio` for Custom, which returns no items;
+  - otherwise the model named by that room's `PodcastRooms` config.
+- Builder items live separately in `Workspace.StudioBuilderPlacedItems`, so the `StudioBasePivot` reset never reaches them.
+- There is **no explicit `BuildItemId` or folder guard**. Isolation comes only from that traversal.
+- A defensive guard is needed before builder items are ever placed inside a room root. The seat-assignment spec asserts both the isolation and the absent guard.
 
 ## Protocol and security model
 
@@ -157,7 +183,8 @@ checkpoint, not in this repository**. The list records what each one is for and 
 
 ### Executed in this repository
 
-- `lua5.4 tests/run.lua`: **243 passed, 0 failed**, across 24 specs.
+- `lua5.4 tests/run.lua`: **259 passed, 0 failed**, across 25 specs.
+- `seat_assignments_spec` also checks the seat model's contracts against the attached bb3efa6 source: seat count, seat index range, pose modes, Lounge-only couch poses, seat labels and StudioCustomization isolation.
 - The tests run the real modules (and the real `integration/` files) against fakes. Yields are driven by coroutines.
 - Key behaviours were also checked by mutation: each original bug, put back, makes a test fail.
 - All source is compile-checked as Lua 5.4. The Luau CLI couldn't run in this environment.
@@ -192,7 +219,7 @@ checkpoint, not in this repository**. The list records what each one is for and 
 - Multiplayer: host transfer during building and during Load, a non-host trying to edit, two clients watching the build, late joiners and streaming for other players.
 - A real forced room failure during Load (rollback and recovery in a live server), and the Director gates refusing real panel actions during it.
 - Touch input, and the drawer flow at bb3efa6.
-- The StudioCustomization exclusion and the room-switch gate (see above).
+- Anything about seats with the builder: task 7 is a pure model so far.
 
 ## Playtest checklist for Codex (remaining)
 
@@ -225,7 +252,7 @@ Use a test place or a private server with DataStore access. Never publish.
 **UI and place:**
 - [ ] While building, 1–5, V, F, D-pad/Y and AutoShot do nothing; WASD, Q/E, right-drag look and Escape cursor release still work. After Done, the shortcuts work again.
 - [ ] Re-run the drawer flow at bb3efa6 (Place/Move/Rotate/Duplicate/Delete/Undo/Redo/Done, R, Escape) with mouse and with touch.
-- [ ] Confirm or add the StudioCustomization exclusion. Changing room customization must not move builder items.
+- [ ] Changing room customization (Studio tab item edits in a free-model room) doesn't move builder items. Isolation comes from the root traversal; there's no tag guard.
 - [ ] Remove one template from `StudioBuilderTemplates`, then load a build that uses it: the item is kept (not spawned) and survives a re-save.
 
 ## Catalog and content status
@@ -238,7 +265,8 @@ Use a test place or a private server with DataStore access. Never publish.
 
 ## Next tasks
 
-- **Task 7, seat anchors and camera assignment:** waits on the actual StudioLayout, seating and camera source contracts. Until it's done, catalog chairs are decorative only.
+- **Task 7, seat assignment:** the foundation (pure model, tests, plan) is in [`docs/task7-seat-plan.md`](docs/task7-seat-plan.md).
+  Wiring waits on review, on the decisions listed there, and on real anchor and profile metadata from Codex. Until then, catalog chairs are decorative only.
 - **Task 8:** more collection themes, for templates Codex has prepared.
 - **Task 9:** Studio > Branding.
 - **Discard control (small, panel side):** a button that sends `PodcastStudioControl:FireServer("Persist", "DiscardLoadBlock", {})`.

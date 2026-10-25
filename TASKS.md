@@ -28,7 +28,7 @@ Known contracts (from Codex, 2026-10-25):
 | 4 | Simple drawer UI, item editing and Undo/Redo | 3 | Done (Studio pending) |
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
-| 7 | Seat-anchor and camera-assignment adapter | 6 | Pending |
+| 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
 | 8 | More collection themes | 6 | Pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 
@@ -211,9 +211,42 @@ Document the Rojo mapping, adapter wiring, protocol and security model, and list
 - Not documented from source: the exact panel, camera and streaming patch code lives only in the Studio checkpoint. The README describes each patch's contract and what was reported, and lists unreported items (StudioCustomization exclusion, room-switch gate, per-key hostControls suppression) as checks.
 - No code changed in this task. `lua5.4 tests/run.lua`: 243 passed, 0 failed.
 
-## 7. Seat-anchor and camera-assignment adapter: Pending
+## 7. Seat-anchor and camera-assignment adapter: In progress (foundation for review; wiring pending)
 Turn chosen decorative chairs into seat anchors that work with StudioLayout and Seat1–Seat4. `StudioLayout.Apply` resets all four seat CFrames and the camera shots, so this needs an explicit anchor-to-seat assignment or coordinated Layout changes, occupant-safe moves, and pose-profile validation (e.g. couch poses) on both server and panel.
 - Acceptance: none until the contracts are inspected. Until this task is Done, don't claim seating integration works. (Cassie offered help. This task is unclaimed.)
+- Foundation checkpoint (2026-10-25), grounded in the installed bb3efa6 source (45 scripts) Codex attached:
+  - **Reference:** stored verbatim at `docs/studio-reference/Studio_Persistence_bb3efa6_Source_Backup.json`, with an index (`docs/studio-reference/README.md`: paths, classes, hashes, commit, PlaceId). It's a reference, not a sync source.
+    All 34 comparable installed scripts (32 StudioBuilder modules, plus DirectorPersistence and StudioPresets) are identical to the repository at bb3efa6.
+    The full-place RBXL is still the 62f2f87 baseline; the JSON backs up bb3efa6 scripts only.
+  - **`src/shared/SeatProfiles.luau`:**
+    - an explicit seat-profile table, **shipped empty** (decorative by default), with strict validation;
+    - Chair and Couch pose profiles mapped to the live PodcastPoses modes. Couch is gated, because live PodcastPoses is Lounge-only.
+  - **`src/server/Core/SeatAssignments.luau`** (pure, not wired): four slots (Host, Guest 1–3 = Seat1..4) map to (placed item ID, approved anchor ID).
+    - Validates host and host-session epoch, slot range, an existing item, a configured profile, the anchor, pose support, unique anchors, occupied-seat protection (an unreadable occupancy counts as occupied) and stale revisions.
+    - `checkEffect` gates the real PlacementCore effect kinds:
+      - Move, Rotate and Undo/Redo moves re-anchor, or are refused when occupied;
+      - Delete and Undo-of-Place are refused while assigned;
+      - a load replace is refused while occupied.
+    - `reconcile` preserves and later promotes. `resolve(stageActive)` covers room switching.
+    - Additive versioned `BuildSeats` section: legacy-compatible; newer and corrupt versions refused; unknown profiles, missing items and conflicts preserved and written back, never silently dropped. Load is staged, then committed with an occupancy re-check.
+  - **`Config`:** `SeatSectionKey`, `SeatSectionVersion`, `SeatSlotCount`, `MaxSeatEntries`, `MaxSeatAnchorIdLength`.
+  - **Plan:** `docs/task7-seat-plan.md` covers:
+    - the live contracts;
+    - decisions needed: the builder stage as a SceneSet, the 120-stud check against Seat1, the couch pose gate, camera shot offsets, the reservation race;
+    - runtime hooks H1–H8, all **not implemented**. The key constraint: re-anchoring must not call `Layout.Apply`, because `LayoutRevision` forces Wide and closes the builder.
+  - **README:** the hooks are now verified from source.
+    - The panel wraps PodcastCameraHook and adds a `BuildCamera` action.
+    - hostControls is the `StudioBuilderActive` attribute; hostDrawer and worldClicks share `BuildModeActive`; roomSwitchSignal is `LayoutRevision`. No Discard button.
+    - StudioCustomization's isolation comes from root traversal only, with no tag guard; a defensive guard is flagged.
+- Evidence (executed 2026-10-25): `lua5.4 tests/run.lua` gives **259 passed, 0 failed** (25 specs).
+  - New in `seat_assignments_spec` (16 tests):
+    - contract checks parsed from the attached live source;
+    - profiles and validation; assign/unassign rules, host transfer and A → B → A;
+    - real PlacementCore effects for Move, Rotate, Undo, Redo, Duplicate, Delete and Undo-of-Place, plus a real build-load replace through BuildPersistence;
+    - reconcile and promotion, room-switch resolve;
+    - save decode refusals; load classification, round trip and revival with later profiles; commitLoad occupancy; the section bound.
+  - 18 mutations caught, among them: occupancy ignored or failing open, remove allowed, move ignoring occupancy, reconcile or load dropping entries, epoch not checked, uniqueness off, couch ungated, commitLoad ignoring occupancy, resolve ignoring the stage, a newer version accepted, no bound, promotion onto an occupied seat, preserved entries never superseded, unknown keys accepted, offset aliasing, load conflicts undetected.
+- Not executed: any Roblox Instance, seat movement, occupied avatars, poses or camera shots; live wiring; real anchor metadata (Codex supplies it).
 
 ## 8. More collection themes: Pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.

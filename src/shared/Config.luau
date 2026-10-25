@@ -38,6 +38,15 @@ Config.BuildSectionKey = "Build"
 Config.BuildSectionVersion = 1
 Config.MaxBuildSectionBytes = 64 * 1024 -- leaves room for the rest of the preset
 
+-- Seat assignments (task 7 foundation): a separate additive top-level section
+-- `BuildSeats` in the same snapshot, versioned on its own. Four participant
+-- slots match the live Workspace.PodcastStudio.Seats.Seat1..Seat4.
+Config.SeatSectionKey = "BuildSeats"
+Config.SeatSectionVersion = 1
+Config.SeatSlotCount = 4
+Config.MaxSeatEntries = 16 -- active plus preserved entries in one section
+Config.MaxSeatAnchorIdLength = 24
+
 -- Instance names (builder-owned; never shared with existing Podcast* systems)
 Config.TemplateFolderName = "StudioBuilderTemplates" -- curated by Codex in ServerStorage
 Config.PlacedItemsFolderName = "StudioBuilderPlacedItems" -- excluded from StudioCustomization
