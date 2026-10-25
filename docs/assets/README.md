@@ -9,7 +9,23 @@ No binary models or place files are stored in this repository.
 | Snapshot date | 2026-10-25 (inventory generated `2026-10-25T17:42:27Z`) |
 | Produced by | Codex (asset discovery / Studio integration), from a local Studio scan |
 
-## Files
+## Current state: refresh of 2026-10-25 (installed commit 46d55cb)
+
+**Start here for what's installed and pending now:** [`refresh-2026-10-25/README.md`](refresh-2026-10-25/README.md).
+It's a full asset list with descriptions, appearance evidence, function versus proposed use, collection tags, source paths, IDs, creators and credits, dimensions, counts of parts, scripts and effects, the model hierarchy, dependencies, script metadata, limitations and SHA-256 checksums. Checksums and counts were verified on archive.
+
+| Group | Count |
+|---|---|
+| Installed catalog templates | 38 (zero embedded scripts) |
+| Tracked unregistered candidates | 13 (3 earlier prepared + 2 new walls + 8 new imports) |
+| Live rooms | 6 |
+| Nested/copy Model records | 5,758 (**not** unique marketplace assets) |
+| Distinct content references | 500 |
+| Script containers | 59 |
+
+The refresh's installed and pending sections are current. The files below are earlier snapshots, kept unchanged as history; where their status claims differ, the refresh wins.
+
+## Files (historical snapshots)
 
 Read them in this order:
 

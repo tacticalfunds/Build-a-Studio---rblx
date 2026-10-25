@@ -29,7 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | 31 furniture installed; 2 decor registered (install pending); Executive/Broadcast pending |
+| 8 | More collection themes | 6 | 38 catalog entries installed (incl. 5 structure); 13 candidates tracked, not registered; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (installed and remote-tested in Play; visual QA and doorway clearance pending) |
 
@@ -257,7 +257,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 31 furniture installed; 2 decor registered (install pending); Executive/Broadcast pending
+## 8. More collection themes: 38 catalog entries installed (incl. 5 structure); 13 candidates tracked, not registered; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -303,6 +303,24 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
   - **Still deferred:** the shoji divider (272 parts), the corner and the standalone window frame.
   - **Evidence (executed 2026-10-25):** `lua5.4 tests/run.lua` gives **297 passed, 0 failed**. The catalog tests check: 38 entries in order; the decor matches the manifest exactly (name, tags, sourceRef); the credit is kept verbatim; there's no structure tag; the deferred 3 and the rejected asset IDs are still absent.
     Mutations caught: the credit dropped, a wrong tag, a changed name, the radio marked as structure.
+
+- Integration evidence for 46d55cb (Codex):
+  - Both decor props are installed. Real Play Place, Rotate and Delete passed.
+  - Independent full suite: 297 passed, 0 failed.
+  - Studio returned to Edit, and a source catalog backup was saved.
+  - World captures are still white, so there's no fresh visual approval. No full-place backup is claimed.
+- Asset index refresh (2026-10-25; documentation only, no runtime change). Archived in [`docs/assets/refresh-2026-10-25/`](docs/assets/refresh-2026-10-25/README.md): the original ZIP, the standalone handoff TXT and the extracted JSON and TXT files, with a README summarising installed vs pending and the verification.
+  - **Checksums:** all four checksums in the ZIP's checksum file match, and the standalone TXT is byte-identical to the zipped one.
+  - **Counts verified:**
+    - 38 installed, all with zero scripts; their IDs, order, names and tags are identical to `Catalog.luau`;
+    - 13 tracked candidates: 3 prepared + 2 walls + 8 imports;
+    - 6 rooms; 5,758 Model records (**not** unique assets); 500 distinct content references; 59 script containers.
+  - `docs/assets/README.md` now points to the refresh as the current state; the earlier snapshots stay as history.
+  - **Pending, not registered:**
+    - corner, standalone window frame and shoji divider;
+    - Concrete Sci-Fi Wall and White Brick Wall (grid adaptation needed);
+    - 8 new imports: two fireplaces, two pillows, executive sci-fi desk, realistic rug, old floor lamp, wood truss beam. Zero embedded scripts, but scaling, effects and visual QA remain, and they're **not approved**.
+  - **Observation from the refresh:** four installed templates (cork floor lamp, modern lamp, desk lamp, lantern) each contain one light object. Whether those are enabled isn't stated. The builder doesn't control them.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.

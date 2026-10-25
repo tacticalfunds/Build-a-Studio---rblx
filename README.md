@@ -25,7 +25,7 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 
 | Area | Status |
 |---|---|
-| Catalog | **31 items installed** in the working place. Place→Delete passed in Play for all 31, and the drawer filters were checked ([`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md)). Real DataStore save/load with expansion items, multiplayer and a performance benchmark are not done. The 5 structure pieces are installed too, and their placement was checked over the real remote in Play (24e8047); **visual QA is pending** (see the catalog section). 2 decor items are registered in the repository but not installed (38 entries). |
+| Catalog | **31 items installed** in the working place. Place→Delete passed in Play for all 31, and the drawer filters were checked ([`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md)). Real DataStore save/load with expansion items, multiplayer and a performance benchmark are not done. The 5 structure pieces are installed too, and their placement was checked over the real remote in Play (24e8047); **visual QA is pending** (see the catalog section). The 2 decor items are installed too (46d55cb: Play Place/Rotate/Delete passed), for **38 installed**. Full current asset list: [`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md). |
 | Placement, undo/redo, host authority, recovery (server) | Tested locally and in real Studio Luau; Place/Undo/Redo/Delete checked in Play |
 | Build drawer UI | Full UI flow passed in Play at 62f2f87 (latest Play run: UI mouse automation stalled, so not re-checked) |
 | Save/load through StudioPresets | Director logic tested locally and in real Studio Luau; Play round trip done **against a memory stand-in for StudioPresets** |
@@ -270,7 +270,7 @@ Use a test place or a private server with DataStore access. Never publish.
 `Catalog.luau` lists **38 items**:
 - 31 furniture items (installed);
 - 5 structure pieces (installed at 24e8047, visual QA pending);
-- 2 decor items (registered, Studio install pending).
+- 2 decor items (installed at 46d55cb; Play Place/Rotate/Delete passed).
 
 All are free and all are **decorative**. No seat, light or audio adapter exists:
 - chairs aren't seats;
@@ -297,10 +297,14 @@ All are free and all are **decorative**. No seat, light or audio adapter exists:
     - no console errors.
   - **Visual QA is pending:** every world capture came out white, including the original room in Edit mode, with no confirmed cause; the GUI works and raycasts hit the correct geometry. **Visual placement and doorway clearance are not approved.**
   - Plan: [`docs/structure-placement-plan.md`](docs/structure-placement-plan.md) (task 10).
-- **Decor (2), registered in the repository, not installed:** `retro_record_player_01` (Vintage Record Player; credit: RushioLCO, requested) and `retro_radio_01` (Vintage Radio; creator zzz_1551).
-  - They're tagged Retro, 1980s and Cozy, and they're decorative with no audio. Their templates are in `ServerStorage.StudioStructureCandidates` until Codex installs them in `StudioBuilderTemplates`.
-  - Style counts once they're installed: Cozy 24, Retro 18, 1980s 14, Winter 11, Futuristic 9.
-- **Deferred candidates (3):** the corner, the standalone window frame and the 272-part shoji divider. Indexed in [`docs/assets/README.md`](docs/assets/README.md), not registered.
+- **Decor (2), installed at 46d55cb:** `retro_record_player_01` (Vintage Record Player; credit: RushioLCO, requested) and `retro_radio_01` (Vintage Radio; creator zzz_1551).
+  - They're tagged Retro, 1980s and Cozy, and they're decorative with no audio.
+  - Real Play Place, Rotate and Delete passed.
+  - Style counts: Cozy 24, Retro 18, 1980s 14, Winter 11, Futuristic 9.
+- **Pending, tracked, not registered (13):** see the current refresh, [`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md).
+  - **Earlier prepared (3):** the corner, the standalone window frame and the 272-part shoji divider.
+  - **New walls (2):** Concrete Sci-Fi Wall and White Brick Wall. They need grid adaptation.
+  - **New imports (8):** two fireplaces, two pillows, an executive sci-fi desk, a patterned rug, an old floor lamp and a wood truss beam. Zero embedded scripts, but scaling, effects and visual QA remain.
 
 ## Next tasks
 

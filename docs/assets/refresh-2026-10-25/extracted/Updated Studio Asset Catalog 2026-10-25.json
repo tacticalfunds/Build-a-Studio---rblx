@@ -1,0 +1,3948 @@
+{
+  "generatedUTC": "2026-10-25T23:41:44.335Z",
+  "placeId": 132242140555698,
+  "commitInstalled": "46d55cb",
+  "scope": "Current reusable catalog and tracked pending candidates, with prior descriptive guide and exhaustive current Model hierarchy companion. Hierarchy records include nested models and duplicate staging/room copies, not unique marketplace assets.",
+  "counts": {
+    "installedCatalog": 38,
+    "trackedPendingCandidates": 13,
+    "rooms": 6,
+    "currentModelRecords": 5758,
+    "uniqueContentReferences": 500,
+    "scriptContainers": 59
+  },
+  "collections": [
+    {
+      "id": "cozy",
+      "entitlement": {
+        "kind": "free"
+      },
+      "order": 1,
+      "displayName": "Cozy"
+    },
+    {
+      "id": "1980s",
+      "entitlement": {
+        "kind": "free"
+      },
+      "order": 2,
+      "displayName": "1980s"
+    },
+    {
+      "id": "retro",
+      "entitlement": {
+        "kind": "free"
+      },
+      "order": 3,
+      "displayName": "Retro"
+    },
+    {
+      "id": "winter",
+      "entitlement": {
+        "kind": "free"
+      },
+      "order": 4,
+      "displayName": "Winter"
+    },
+    {
+      "id": "futuristic",
+      "entitlement": {
+        "kind": "free"
+      },
+      "order": 5,
+      "displayName": "Futuristic"
+    }
+  ],
+  "installed": [
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.cozy_armchair_01",
+      "id": "cozy_armchair_01",
+      "displayName": "Green Armchair",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.Green Armchair",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 9,
+      "size": [
+        4.2955322265625,
+        4.733280181884766,
+        5.042710304260254
+      ],
+      "look": "Boxy upholstered armchair with wood/fabric components; teal-green versions appear around free-model After Hours table.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white."
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "winter"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.cozy_coffee_table_01",
+      "id": "cozy_coffee_table_01",
+      "displayName": "Lounge Coffee Table",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.LoungeCoffeeTable",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 14,
+      "size": [
+        5.545442581176758,
+        1.7500014305114746,
+        7.065976619720459
+      ],
+      "look": "Low rectangular wood-topped coffee table with dark support structure, matching lounge screenshots.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white."
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "winter"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.cozy_bookshelf_01",
+      "id": "cozy_bookshelf_01",
+      "displayName": "Filled Bookshelf",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.FilledBookshelf",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 30,
+      "size": [
+        6.2542924880981445,
+        12.136024475097656,
+        4.166752815246582
+      ],
+      "look": "Tall warm wooden bookcase filled with mixed books, matching lounge screenshots.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white."
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "winter"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.cozy_plant_01",
+      "id": "cozy_plant_01",
+      "displayName": "Small Potted Plant",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.SmallPottedPlant",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 33,
+      "size": [
+        2.960292339324951,
+        5.7237725257873535,
+        2.9764366149902344
+      ],
+      "look": "Slender leafy plant in a small pale pot; separate green leaf meshes, ceramic pot, soil and stem.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white."
+    },
+    {
+      "lights": 1,
+      "collections": [
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.cozy_floor_lamp_01",
+      "id": "cozy_floor_lamp_01",
+      "displayName": "Cork Floor Lamp",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderAssetReview.Candidate_CorkFloorLamp",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 5,
+      "size": [
+        2.5404300689697266,
+        6.31694221496582,
+        2.5404300689697266
+      ],
+      "look": "Slim black tripod legs, brass/gold neck and a pale cylindrical shade; visually inspected.",
+      "lookEvidence": "current_edit_viewport_review",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white."
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.retro_tv_cart_01",
+      "id": "retro_tv_cart_01",
+      "displayName": "AV Cart",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderAssetReview.Candidate_RetroTVCart",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 24,
+      "size": [
+        4.660398483276367,
+        4.6794047355651855,
+        4.937622547149658
+      ],
+      "look": "Black three-tier rolling AV trolley with four small caster wheels; visually inspected. This is the CART ONLY, not a TV.",
+      "lookEvidence": "current_edit_viewport_review",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white."
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.retro_cassette_01",
+      "id": "retro_cassette_01",
+      "displayName": "Cassette Recorder",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderAssetReview.Candidate_VintageCassette",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 23,
+      "size": [
+        1.6928550004959106,
+        0.25420719385147095,
+        1.4037470817565918
+      ],
+      "look": "Small flat black/grey cassette recorder with silver top panel and cassette window; visually inspected from medium distance. Creator describes a 1978 Panasonic RQ-2734.",
+      "lookEvidence": "current_edit_viewport_review",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white."
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "winter"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.cozy_book_set_01",
+      "id": "cozy_book_set_01",
+      "displayName": "Hardcover Book Collection",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.HardcoverBookSet",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 50,
+      "size": [
+        2.499994993209839,
+        1.2800871133804321,
+        0.9437588453292847
+      ],
+      "look": "Grouped hardcover books; exact staged arrangement not independently verified.",
+      "lookEvidence": "name_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "retro",
+          "winter"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.cozy_book_set_01",
+        "id": "cozy_book_set_01",
+        "displayName": "Hardcover Book Collection",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.HardcoverBookSet",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 50,
+        "size": [
+          2.499994993209839,
+          1.2800871133804321,
+          0.9437588453292847
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.cozy_monstera_01",
+      "id": "cozy_monstera_01",
+      "displayName": "Large Monstera Plant",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.Monstera",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 1,
+      "size": [
+        4.193380832672119,
+        5.642024517059326,
+        4.260310649871826
+      ],
+      "look": "Broad split-leaf green plant in a pale pot, matching the original studio screenshots.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "retro"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.cozy_monstera_01",
+        "id": "cozy_monstera_01",
+        "displayName": "Large Monstera Plant",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.Monstera",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 1,
+        "size": [
+          4.193380832672119,
+          5.642024517059326,
+          4.260310649871826
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.cozy_upholstered_chair_01",
+      "id": "cozy_upholstered_chair_01",
+      "displayName": "Upholstered Dining Chair",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.Upholstered Chair",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 12,
+      "size": [
+        2.009993076324463,
+        4.299993991851807,
+        2.0099854469299316
+      ],
+      "look": "Upholstered chair model; exact stored visual style not inspected.",
+      "lookEvidence": "name_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "retro",
+          "1980s"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.cozy_upholstered_chair_01",
+        "id": "cozy_upholstered_chair_01",
+        "displayName": "Upholstered Dining Chair",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.Upholstered Chair",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 12,
+        "size": [
+          2.009993076324463,
+          4.299993991851807,
+          2.0099854469299316
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.future_curved_sofa_01",
+      "id": "future_curved_sofa_01",
+      "displayName": "Curved Lounge Sofa",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Futuristic C-Shaped Sofa",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 1,
+      "size": [
+        10.999999046325684,
+        3.8304898738861084,
+        7.943655490875244
+      ],
+      "look": "Curving C-shaped lounge sofa; seating is decorative in the builder.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "futuristic"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.future_curved_sofa_01",
+        "id": "future_curved_sofa_01",
+        "sourceAssetId": "13994566248",
+        "displayName": "Curved Lounge Sofa",
+        "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Futuristic C-Shaped Sofa",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 1,
+        "size": [
+          10.999999046325684,
+          3.8304898738861084,
+          7.943655490875244
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.future_glass_table_01",
+      "id": "future_glass_table_01",
+      "displayName": "Neon Glass Coffee Table",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Sci-Fi Coffee Table",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 19,
+      "size": [
+        2.800004243850708,
+        1.8666855096817017,
+        6.533336162567139
+      ],
+      "look": "Glass-topped sci-fi coffee table with neon styling.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "futuristic"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.future_glass_table_01",
+        "id": "future_glass_table_01",
+        "sourceAssetId": "5541521182",
+        "displayName": "Neon Glass Coffee Table",
+        "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Sci-Fi Coffee Table",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 19,
+        "size": [
+          2.800004243850708,
+          1.8666855096817017,
+          6.533336162567139
+        ]
+      }
+    },
+    {
+      "lights": 1,
+      "collections": [
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.future_modern_lamp_01",
+      "id": "future_modern_lamp_01",
+      "displayName": "Sculptural Modern Lamp",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Modern Lamp",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 21,
+      "size": [
+        3.7878496646881104,
+        5.534836292266846,
+        3.786896228790283
+      ],
+      "look": "Sculptural modern lamp; lighting controls are not wired to this catalog prop.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "futuristic"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.future_modern_lamp_01",
+        "id": "future_modern_lamp_01",
+        "sourceAssetId": "5673452350",
+        "displayName": "Sculptural Modern Lamp",
+        "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Modern Lamp",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 21,
+        "size": [
+          3.7878496646881104,
+          5.534836292266846,
+          3.786896228790283
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.future_shelf_01",
+      "id": "future_shelf_01",
+      "displayName": "Sci-Fi Display Shelf",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Sci-Fi Shelf",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 129,
+      "size": [
+        6.900008678436279,
+        5.700085163116455,
+        2.250063896179199
+      ],
+      "look": "Futuristic display shelf for room dressing.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "futuristic"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.future_shelf_01",
+        "id": "future_shelf_01",
+        "sourceAssetId": "13907820770",
+        "displayName": "Sci-Fi Display Shelf",
+        "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Sci-Fi Shelf",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 129,
+        "size": [
+          6.900008678436279,
+          5.700085163116455,
+          2.250063896179199
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.modern_lounge_chair_01",
+      "id": "modern_lounge_chair_01",
+      "displayName": "Modern Lounge Chair",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.Modern armchair",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 6,
+      "size": [
+        3.6325929164886475,
+        3.214853286743164,
+        4.076424598693848
+      ],
+      "look": "Modern armchair with fabric, metal and plastic components; exact staged silhouette not verified.",
+      "lookEvidence": "name_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "futuristic"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.modern_lounge_chair_01",
+        "id": "modern_lounge_chair_01",
+        "displayName": "Modern Lounge Chair",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.Modern armchair",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 6,
+        "size": [
+          3.6325929164886475,
+          3.214853286743164,
+          4.076424598693848
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.retro_book_01",
+      "id": "retro_book_01",
+      "displayName": "Vintage Hardcover",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.DetailedBook",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 1,
+      "size": [
+        2,
+        0.30000001192092896,
+        3
+      ],
+      "look": "A closed green hardcover with ornate gold cover and visible beige page block, matching table-book screenshots.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "retro"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.retro_book_01",
+        "id": "retro_book_01",
+        "displayName": "Vintage Hardcover",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.DetailedBook",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 1,
+        "size": [
+          2,
+          0.30000001192092896,
+          3
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.retro_crt_tv_01",
+      "id": "retro_crt_tv_01",
+      "displayName": "Vintage CRT Television",
+      "installed": true,
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.retro_crt_tv_01",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 2,
+      "size": [
+        2.3926689624786377,
+        2.1688342094421387,
+        1.730144739151001
+      ],
+      "look": "Boxy vintage CRT television; no working video playback.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "retro",
+          "1980s"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.retro_crt_tv_01",
+        "id": "retro_crt_tv_01",
+        "sourceAssetId": 10904527778,
+        "displayName": "Vintage CRT Television",
+        "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.retro_crt_tv_01",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 2,
+        "size": [
+          2.3926689624786377,
+          2.1688342094421387,
+          1.730144739151001
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.retro_meeting_table_01",
+      "id": "retro_meeting_table_01",
+      "displayName": "Oval Wooden Table",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.Dinner Table",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 1,
+      "size": [
+        15.671741485595703,
+        3.741966485977173,
+        6.771535396575928
+      ],
+      "look": "Large elongated rounded dark-wood table, matching free-model After Hours screenshots.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "retro",
+          "1980s"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.retro_meeting_table_01",
+        "id": "retro_meeting_table_01",
+        "displayName": "Oval Wooden Table",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.Dinner Table",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 1,
+        "size": [
+          15.671741485595703,
+          3.741966485977173,
+          6.771535396575928
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.studio_boom_mic_01",
+      "id": "studio_boom_mic_01",
+      "displayName": "Boom Arm Microphone",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.SM7B_BoomArm",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 99,
+      "size": [
+        3.637300968170166,
+        3.66524076461792,
+        0.47253718972206116
+      ],
+      "look": "Black jointed microphone boom with cylindrical mic; screenshots show silver joint details and a red indicator.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "retro",
+          "1980s",
+          "futuristic"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.studio_boom_mic_01",
+        "id": "studio_boom_mic_01",
+        "displayName": "Boom Arm Microphone",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.SM7B_BoomArm",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 99,
+        "size": [
+          3.637300968170166,
+          3.66524076461792,
+          0.47253718972206116
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.studio_chair_01",
+      "id": "studio_chair_01",
+      "displayName": "Director's Folding Chair",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.StudioChair",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 17,
+      "size": [
+        3.2057368755340576,
+        5.84356689453125,
+        2.4722771644592285
+      ],
+      "look": "A studio chair model; exact stored appearance not separately verified.",
+      "lookEvidence": "name_only",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "retro",
+          "1980s"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.studio_chair_01",
+        "id": "studio_chair_01",
+        "displayName": "Director's Folding Chair",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.StudioChair",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 17,
+        "size": [
+          3.2057368755340576,
+          5.84356689453125,
+          2.4722771644592285
+        ]
+      }
+    },
+    {
+      "lights": 1,
+      "collections": [
+        "cozy",
+        "1980s",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.studio_desk_lamp_01",
+      "id": "studio_desk_lamp_01",
+      "displayName": "Adjustable Desk Lamp",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.DeskLamp",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 12,
+      "size": [
+        1.4063735008239746,
+        2.823174238204956,
+        1.7336349487304688
+      ],
+      "look": "Adjustable pale desk lamp with round base/head as seen in meeting-room screenshots; includes one actual light.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "1980s",
+          "futuristic"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.studio_desk_lamp_01",
+        "id": "studio_desk_lamp_01",
+        "sourceAssetId": "1744217931",
+        "displayName": "Adjustable Desk Lamp",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.DeskLamp",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 12,
+        "size": [
+          1.4063735008239746,
+          2.823174238204956,
+          1.7336349487304688
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.studio_desk_mic_01",
+      "id": "studio_desk_mic_01",
+      "displayName": "Desktop Microphone",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.PodcastMicrophone",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 8,
+      "size": [
+        1.161905288696289,
+        1.7311736345291138,
+        2.61041259765625
+      ],
+      "look": "Compact desk microphone on a short round-base stand, visible in lounge screenshots.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "retro",
+          "1980s"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.studio_desk_mic_01",
+        "id": "studio_desk_mic_01",
+        "displayName": "Desktop Microphone",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.PodcastMicrophone",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 8,
+        "size": [
+          1.161905288696289,
+          1.7311736345291138,
+          2.61041259765625
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.studio_headphones_01",
+      "id": "studio_headphones_01",
+      "displayName": "Studio Headphones",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.StudioHeadphones",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 1,
+      "size": [
+        2,
+        1,
+        1
+      ],
+      "look": "Black padded over-ear headphones with grey/silver outer earcups and small blue detailing.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "retro",
+          "1980s",
+          "futuristic"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.studio_headphones_01",
+        "id": "studio_headphones_01",
+        "displayName": "Studio Headphones",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.StudioHeadphones",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 1,
+        "size": [
+          2,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "retro",
+        "1980s",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.studio_mixer_01",
+      "id": "studio_mixer_01",
+      "displayName": "Studio Mixing Console",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.Audio Mixer U-100AM",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 121,
+      "size": [
+        4.420008182525635,
+        0.9245128631591797,
+        2.184246301651001
+      ],
+      "look": "Light-colored analog-style mixing console with rows of multicolor controls, seen in free-model After Hours screenshots.",
+      "lookEvidence": "prior_user_screenshots_and_inventory",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "retro",
+          "1980s",
+          "futuristic"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.studio_mixer_01",
+        "id": "studio_mixer_01",
+        "displayName": "Studio Mixing Console",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.Audio Mixer U-100AM",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 121,
+        "size": [
+          4.420008182525635,
+          0.9245128631591797,
+          2.184246301651001
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "winter",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.winter_firewood_shelf_01",
+      "id": "winter_firewood_shelf_01",
+      "displayName": "Firewood Storage Shelf",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Firewood Rack Set.Prop_FirewoodLogHolderShelf",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 2,
+      "size": [
+        4.790076732635498,
+        3.314645290374756,
+        2.616426467895508
+      ],
+      "look": "Shelf containing stacked firewood.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "winter",
+          "cozy"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.winter_firewood_shelf_01",
+        "id": "winter_firewood_shelf_01",
+        "sourceAssetId": "15036276417",
+        "displayName": "Firewood Storage Shelf",
+        "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Firewood Rack Set.Prop_FirewoodLogHolderShelf",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 2,
+        "size": [
+          4.790076732635498,
+          3.314645290374756,
+          2.616426467895508
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "winter"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.winter_folded_throw_01",
+      "id": "winter_folded_throw_01",
+      "displayName": "Folded Knit Throw",
+      "installed": true,
+      "sourceRef": "ServerStorage.PodcastAssetStaging.FoldedThrow",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 1,
+      "size": [
+        3.100508451461792,
+        0.12836280465126038,
+        3.1349239349365234
+      ],
+      "look": "Single-mesh folded throw; live lounge has a rust/brown woven sofa throw, but correspondence not conclusively verified.",
+      "lookEvidence": "name_and_prior_user_screenshot_uncertainty",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "cozy",
+          "winter"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.winter_folded_throw_01",
+        "id": "winter_folded_throw_01",
+        "displayName": "Folded Knit Throw",
+        "sourceRef": "ServerStorage.PodcastAssetStaging.FoldedThrow",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 1,
+        "size": [
+          3.100508451461792,
+          0.12836280465126038,
+          3.1349239349365234
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "winter",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.winter_furry_chair_01",
+      "id": "winter_furry_chair_01",
+      "displayName": "Cream Furry Lounge Chair",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Cream Furry Lounge Chair",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 1,
+      "size": [
+        3.799999475479126,
+        3.8000001907348633,
+        4.749999523162842
+      ],
+      "look": "Cream furry upholstered lounge chair.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "winter",
+          "cozy"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.winter_furry_chair_01",
+        "id": "winter_furry_chair_01",
+        "sourceAssetId": "114921837360351",
+        "displayName": "Cream Furry Lounge Chair",
+        "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Cream Furry Lounge Chair",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 1,
+        "size": [
+          3.799999475479126,
+          3.8000001907348633,
+          4.749999523162842
+        ]
+      }
+    },
+    {
+      "lights": 1,
+      "collections": [
+        "winter",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.winter_lantern_01",
+      "id": "winter_lantern_01",
+      "displayName": "Candle Lantern",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Candle Lantern",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 37,
+      "size": [
+        1.2891201972961426,
+        1.607383370399475,
+        1.2490379810333252
+      ],
+      "look": "Candle-style decorative lantern.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "winter",
+          "cozy"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.winter_lantern_01",
+        "id": "winter_lantern_01",
+        "sourceAssetId": "13990062734",
+        "displayName": "Candle Lantern",
+        "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Candle Lantern",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 37,
+        "size": [
+          1.2891201972961426,
+          1.607383370399475,
+          1.2490379810333252
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "winter",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.winter_log_basket_01",
+      "id": "winter_log_basket_01",
+      "displayName": "Firewood Basket",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Firewood Rack Set.Prop_FirewoodLogHolder",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 2,
+      "size": [
+        2.3633224964141846,
+        2.0348143577575684,
+        2.288613796234131
+      ],
+      "look": "Basket holding firewood logs.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "winter",
+          "cozy"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.winter_log_basket_01",
+        "id": "winter_log_basket_01",
+        "sourceAssetId": "15036276417",
+        "displayName": "Firewood Basket",
+        "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Firewood Rack Set.Prop_FirewoodLogHolder",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 2,
+        "size": [
+          2.3633224964141846,
+          2.0348143577575684,
+          2.288613796234131
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "winter"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.winter_snow_globe_01",
+      "id": "winter_snow_globe_01",
+      "displayName": "Snow Globe",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Snow Globe",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 12,
+      "size": [
+        1.320068359375,
+        1.3765106201171875,
+        1.3176422119140625
+      ],
+      "look": "Small decorative snow globe.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "winter"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.winter_snow_globe_01",
+        "id": "winter_snow_globe_01",
+        "sourceAssetId": "15432449820",
+        "displayName": "Snow Globe",
+        "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Snow Globe",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 12,
+        "size": [
+          1.320068359375,
+          1.3765106201171875,
+          1.3176422119140625
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "winter",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.winter_white_rug_01",
+      "id": "winter_white_rug_01",
+      "displayName": "Geometric Winter Rug",
+      "installed": true,
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.White Rug",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 138,
+      "size": [
+        12.00006103515625,
+        0.09020309150218964,
+        7.999902248382568
+      ],
+      "look": "Pale rug with geometric pattern.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "collections": [
+          "winter",
+          "cozy"
+        ],
+        "templatePath": "ServerStorage.StudioBuilderExpansion.winter_white_rug_01",
+        "id": "winter_white_rug_01",
+        "sourceAssetId": "16017501070",
+        "displayName": "Geometric Winter Rug",
+        "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.White Rug",
+        "scripts": 0,
+        "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+        "parts": 138,
+        "size": [
+          12.00006103515625,
+          0.09020309150218964,
+          7.999902248382568
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.structure_wall_01",
+      "id": "structure_wall_01",
+      "displayName": "Plaster Wall",
+      "installed": true,
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight windowless",
+      "sounds": 0,
+      "scripts": 0,
+      "effects": 0,
+      "parts": 1,
+      "structure": {
+        "kind": "wall"
+      },
+      "size": [
+        16,
+        15,
+        1
+      ],
+      "look": "Solid rectangular plaster wall, 16 x 15 x 1 studs.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Room structure: grid-constrained placement at its kind-specific level.",
+      "visualQA": "Installed and remote-tested; in-scene visual placement and doorway clearance pending.",
+      "provenance": {
+        "templatePath": "ServerStorage.StudioStructureCandidates.structure_wall_01",
+        "id": "structure_wall_01",
+        "sourceAssetId": "12219944662",
+        "displayName": "Plaster Wall",
+        "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight windowless",
+        "category": "wall",
+        "size": [
+          16,
+          15,
+          1
+        ],
+        "scripts": 0,
+        "parts": 1,
+        "sourceCreator": "plexaruszx",
+        "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+        "collections": [
+          "cozy",
+          "retro",
+          "1980s",
+          "winter",
+          "futuristic"
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.structure_window_wall_01",
+      "id": "structure_window_wall_01",
+      "displayName": "Window Wall",
+      "installed": true,
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight window",
+      "sounds": 0,
+      "scripts": 0,
+      "effects": 0,
+      "parts": 7,
+      "structure": {
+        "kind": "window_wall"
+      },
+      "size": [
+        16.00006103515625,
+        14.999996185302734,
+        1
+      ],
+      "look": "16-stud wall segment with frame and glass window.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Room structure: grid-constrained placement at its kind-specific level.",
+      "visualQA": "Installed and remote-tested; in-scene visual placement and doorway clearance pending.",
+      "provenance": {
+        "templatePath": "ServerStorage.StudioStructureCandidates.structure_window_wall_01",
+        "id": "structure_window_wall_01",
+        "sourceAssetId": "12219944662",
+        "displayName": "Window Wall",
+        "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight window",
+        "category": "wall",
+        "size": [
+          16.00006103515625,
+          14.999996185302734,
+          1
+        ],
+        "scripts": 0,
+        "parts": 7,
+        "sourceCreator": "plexaruszx",
+        "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+        "collections": [
+          "cozy",
+          "retro",
+          "1980s",
+          "winter",
+          "futuristic"
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.structure_doorway_01",
+      "id": "structure_doorway_01",
+      "displayName": "Open Doorway Wall",
+      "installed": true,
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight door",
+      "sounds": 0,
+      "scripts": 0,
+      "effects": 0,
+      "parts": 5,
+      "structure": {
+        "kind": "doorway"
+      },
+      "size": [
+        16,
+        15.000016212463379,
+        1
+      ],
+      "look": "16-stud wall segment with an open doorway; no moving door leaf.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Room structure: grid-constrained placement at its kind-specific level.",
+      "visualQA": "Installed and remote-tested; in-scene visual placement and doorway clearance pending.",
+      "provenance": {
+        "templatePath": "ServerStorage.StudioStructureCandidates.structure_doorway_01",
+        "id": "structure_doorway_01",
+        "sourceAssetId": "12219944662",
+        "displayName": "Open Doorway Wall",
+        "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight door",
+        "category": "doorway",
+        "size": [
+          16,
+          15.000016212463379,
+          1
+        ],
+        "scripts": 0,
+        "parts": 5,
+        "sourceCreator": "plexaruszx",
+        "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+        "collections": [
+          "cozy",
+          "retro",
+          "1980s",
+          "winter",
+          "futuristic"
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.structure_floor_01",
+      "id": "structure_floor_01",
+      "displayName": "Wood Floor Tile",
+      "installed": true,
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Floor",
+      "sounds": 0,
+      "scripts": 0,
+      "effects": 0,
+      "parts": 2,
+      "structure": {
+        "kind": "floor"
+      },
+      "size": [
+        16,
+        1,
+        16
+      ],
+      "look": "16 x 16 wooden floor tile, 1 stud thick.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Room structure: grid-constrained placement at its kind-specific level.",
+      "visualQA": "Installed and remote-tested; in-scene visual placement and doorway clearance pending.",
+      "provenance": {
+        "templatePath": "ServerStorage.StudioStructureCandidates.structure_floor_01",
+        "id": "structure_floor_01",
+        "sourceAssetId": "12219944662",
+        "displayName": "Wood Floor Tile",
+        "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Floor",
+        "category": "floor",
+        "size": [
+          16,
+          1,
+          16
+        ],
+        "scripts": 0,
+        "parts": 2,
+        "sourceCreator": "plexaruszx",
+        "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+        "collections": [
+          "cozy",
+          "retro",
+          "1980s",
+          "winter",
+          "futuristic"
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.structure_ceiling_01",
+      "id": "structure_ceiling_01",
+      "displayName": "Plain Ceiling Tile",
+      "installed": true,
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Floor",
+      "sounds": 0,
+      "scripts": 0,
+      "effects": 0,
+      "parts": 2,
+      "structure": {
+        "kind": "ceiling"
+      },
+      "size": [
+        16,
+        1,
+        16
+      ],
+      "look": "Neutral recolour of the floor geometry, used as a ceiling tile.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Room structure: grid-constrained placement at its kind-specific level.",
+      "visualQA": "Installed and remote-tested; in-scene visual placement and doorway clearance pending.",
+      "provenance": {
+        "templatePath": "ServerStorage.StudioStructureCandidates.structure_ceiling_01",
+        "id": "structure_ceiling_01",
+        "sourceAssetId": "12219944662",
+        "displayName": "Plain Ceiling Tile",
+        "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Floor",
+        "category": "ceiling",
+        "size": [
+          16,
+          1,
+          16
+        ],
+        "scripts": 0,
+        "parts": 2,
+        "sourceCreator": "plexaruszx",
+        "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+        "collections": [
+          "cozy",
+          "retro",
+          "1980s",
+          "winter",
+          "futuristic"
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "retro",
+        "1980s",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.retro_record_player_01",
+      "id": "retro_record_player_01",
+      "displayName": "Vintage Record Player",
+      "installed": true,
+      "sourceRef": "ServerStorage.StructureCandidateImports.Record Player",
+      "credit": "RushioLCO (credit requested)",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 26,
+      "size": [
+        1.9451082944869995,
+        2.3494224548339844,
+        2.1049256324768066
+      ],
+      "look": "Open-lid vintage record player with turntable details; decorative, no audio.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "templatePath": "ServerStorage.StudioStructureCandidates.retro_record_player_01",
+        "id": "retro_record_player_01",
+        "sourceAssetId": "12769863525",
+        "displayName": "Vintage Record Player",
+        "sourceRef": "ServerStorage.StructureCandidateImports.Record Player",
+        "credits": "RushioLCO (credit requested)",
+        "category": "decor",
+        "size": [
+          2.0986480712890625,
+          2.3494224548339844,
+          1.9359664916992188
+        ],
+        "scripts": 0,
+        "parts": 26,
+        "sourceCreator": "RushioLCO",
+        "sourceUrl": "https://create.roblox.com/store/asset/12769863525",
+        "collections": [
+          "retro",
+          "1980s",
+          "cozy"
+        ]
+      }
+    },
+    {
+      "lights": 0,
+      "collections": [
+        "retro",
+        "1980s",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderTemplates.retro_radio_01",
+      "id": "retro_radio_01",
+      "displayName": "Vintage Radio",
+      "installed": true,
+      "sourceRef": "ServerStorage.StructureCandidateImports.Vintage Radio",
+      "scripts": 0,
+      "sounds": 0,
+      "effects": 0,
+      "parts": 1,
+      "size": [
+        1.049750804901123,
+        1.2753616571426392,
+        1.5595732927322388
+      ],
+      "look": "Compact vintage radio; decorative, no audio.",
+      "lookEvidence": "prior inspection or provided screenshots",
+      "function": "Placeable decorative model. No functional seating, media playback, or speech behavior implied.",
+      "visualQA": "Previously reviewed/tested as documented; no fresh visual certification while viewport is white.",
+      "provenance": {
+        "templatePath": "ServerStorage.StudioStructureCandidates.retro_radio_01",
+        "id": "retro_radio_01",
+        "sourceAssetId": "14003553892",
+        "displayName": "Vintage Radio",
+        "sourceRef": "ServerStorage.StructureCandidateImports.Vintage Radio",
+        "category": "decor",
+        "size": [
+          1.554669737815857,
+          1.2753616571426392,
+          1.0424234867095947
+        ],
+        "scripts": 0,
+        "parts": 1,
+        "sourceCreator": "zzz_1551",
+        "sourceUrl": "https://create.roblox.com/store/asset/14003553892",
+        "collections": [
+          "retro",
+          "1980s",
+          "cozy"
+        ]
+      }
+    }
+  ],
+  "pendingPrepared": [
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.structure_corner_01",
+      "id": "structure_corner_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Plaster Corner",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall corner windowless",
+      "category": "wall",
+      "status": "prepared_not_registered",
+      "size": [
+        16,
+        15.000014305114746,
+        16
+      ],
+      "scripts": 0,
+      "parts": 2,
+      "sourceCreator": "plexaruszx",
+      "sourceUrl": "https://create.roblox.com/store/asset/12219944662",
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ]
+    },
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.structure_industrial_window_01",
+      "id": "structure_industrial_window_01",
+      "sourceAssetId": "13304797063",
+      "displayName": "Industrial Window Frame",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Industrial Window Frame",
+      "category": "window",
+      "status": "prepared_not_registered",
+      "size": [
+        5.199999809265137,
+        7.133112907409668,
+        1.393786907196045
+      ],
+      "scripts": 0,
+      "parts": 1,
+      "sourceCreator": "2BeeSupreme",
+      "sourceUrl": "https://create.roblox.com/store/asset/13304797063",
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ]
+    },
+    {
+      "templatePath": "ServerStorage.StudioStructureCandidates.cozy_shoji_divider_01",
+      "id": "cozy_shoji_divider_01",
+      "sourceAssetId": "10862992379",
+      "displayName": "Shoji Room Divider",
+      "sourceRef": "ServerStorage.StructureCandidateImports.Japanese Room Divider",
+      "category": "divider",
+      "status": "prepared_not_registered",
+      "size": [
+        1.7096991539001465,
+        6.173994064331055,
+        4.4600090980529785
+      ],
+      "scripts": 0,
+      "parts": 272,
+      "sourceCreator": "Sjenchi",
+      "sourceUrl": "https://create.roblox.com/store/asset/10862992379",
+      "collections": [
+        "cozy",
+        "retro"
+      ]
+    }
+  ],
+  "pendingWalls": [
+    {
+      "sounds": 0,
+      "meshes": 0,
+      "name": "Concrete Sci-Fi Wall",
+      "scripts": [],
+      "size": [
+        34.1204833984375,
+        12.81501579284668,
+        3.750730514526367
+      ],
+      "textureRefs": [
+        "rbxassetid://321649430",
+        "rbxassetid://321649430",
+        "rbxassetid://321649430",
+        "rbxassetid://321649430",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://321649430",
+        "rbxassetid://321649430",
+        "rbxassetid://321649430",
+        "rbxassetid://321649430",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://321649430",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152",
+        "rbxassetid://299427152"
+      ],
+      "parts": 79
+    },
+    {
+      "sounds": 0,
+      "meshes": 0,
+      "name": "White Brick Wall",
+      "scripts": [],
+      "size": [
+        16,
+        13,
+        2
+      ],
+      "textureRefs": [],
+      "parts": 1
+    }
+  ],
+  "pendingNewImports": [
+    {
+      "description": "Get warm and cozy with this model",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/4514902964",
+      "assetType": "Model",
+      "thumbnailUrl": "https://thumbnails.roblox.com/v1/assets?assetIds=4514902964&returnPolicy=PlaceHolder&size=150x150&format=Png",
+      "isFree": true,
+      "assetId": "4514902964",
+      "name": "Fireplace",
+      "priceCents": 0,
+      "creatorName": "Ashbashthesmash",
+      "source": "creator_store",
+      "inspection": {
+        "lights": 1,
+        "meshes": 0,
+        "name": "Review_4514902964",
+        "scripts": [],
+        "seats": 0,
+        "size": [
+          8.002859115600586,
+          14.44821548461914,
+          4.549944877624512
+        ],
+        "effects": [
+          {
+            "name": "Fire",
+            "class": "Fire"
+          }
+        ],
+        "parts": 34
+      },
+      "storagePath": "ServerStorage.NextCatalogInspection.Review_4514902964",
+      "status": "inspected_source_no_scripts; thumbnail_reviewed; in_scene_QA_pending",
+      "collections": [
+        "cozy",
+        "winter"
+      ],
+      "look": "Tall stone chimney fireplace with a mantel and visible flame effect.",
+      "lookEvidence": "Marketplace thumbnail; in-scene QA pending",
+      "functionIntent": "Decorative prop; raw effects are not an approved gameplay integration."
+    },
+    {
+      "description": "made by eeriebun",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/8136731803",
+      "assetType": "Model",
+      "thumbnailUrl": "https://thumbnails.roblox.com/v1/assets?assetIds=8136731803&returnPolicy=PlaceHolder&size=150x150&format=Png",
+      "isFree": true,
+      "assetId": "8136731803",
+      "name": "antique fireplace - eeriebun",
+      "priceCents": 0,
+      "creatorName": "EerieBun",
+      "source": "creator_store",
+      "inspection": {
+        "lights": 0,
+        "meshes": 1,
+        "name": "Review_8136731803",
+        "scripts": [],
+        "seats": 0,
+        "size": [
+          13.602980613708496,
+          12.744510650634766,
+          8.537467956542969
+        ],
+        "effects": [
+          {
+            "name": "ParticleEmitter",
+            "class": "ParticleEmitter"
+          }
+        ],
+        "parts": 2
+      },
+      "storagePath": "ServerStorage.NextCatalogInspection.Review_8136731803",
+      "status": "inspected_source_no_scripts; thumbnail_reviewed; in_scene_QA_pending",
+      "collections": [
+        "cozy",
+        "winter"
+      ],
+      "look": "Dark carved antique wooden fireplace surround with hearth and flame particles.",
+      "lookEvidence": "Marketplace thumbnail; in-scene QA pending",
+      "functionIntent": "Decorative prop; raw effects are not an approved gameplay integration."
+    },
+    {
+      "description": "",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/17525320179",
+      "assetType": "Model",
+      "thumbnailUrl": "https://thumbnails.roblox.com/v1/assets?assetIds=17525320179&returnPolicy=PlaceHolder&size=150x150&format=Png",
+      "isFree": true,
+      "assetId": "17525320179",
+      "name": "Pillow",
+      "priceCents": 0,
+      "creatorName": "kipischill",
+      "source": "creator_store",
+      "inspection": {
+        "lights": 0,
+        "meshes": 1,
+        "name": "Review_17525320179",
+        "scripts": [],
+        "seats": 0,
+        "size": [
+          1.9206520318984985,
+          0.6589474678039551,
+          2.5309269428253174
+        ],
+        "effects": [],
+        "parts": 1
+      },
+      "storagePath": "ServerStorage.NextCatalogInspection.Review_17525320179",
+      "status": "inspected_source_no_scripts; thumbnail_reviewed; in_scene_QA_pending",
+      "collections": [
+        "cozy",
+        "winter"
+      ],
+      "look": "Soft gray cushion with rounded fabric folds.",
+      "lookEvidence": "Marketplace thumbnail; in-scene QA pending",
+      "functionIntent": "Decorative prop; raw effects are not an approved gameplay integration."
+    },
+    {
+      "description": "",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/8918744044",
+      "assetType": "Model",
+      "thumbnailUrl": "https://thumbnails.roblox.com/v1/assets?assetIds=8918744044&returnPolicy=PlaceHolder&size=150x150&format=Png",
+      "isFree": true,
+      "assetId": "8918744044",
+      "name": "Pillow Mesh",
+      "priceCents": 0,
+      "creatorName": "A_RandomPuppy",
+      "source": "creator_store",
+      "inspection": {
+        "lights": 0,
+        "meshes": 1,
+        "name": "Review_8918744044",
+        "scripts": [],
+        "seats": 0,
+        "size": [
+          4.989733695983887,
+          1.9962469339370728,
+          5.538208484649658
+        ],
+        "effects": [],
+        "parts": 1
+      },
+      "storagePath": "ServerStorage.NextCatalogInspection.Review_8918744044",
+      "status": "inspected_source_no_scripts; thumbnail_reviewed; in_scene_QA_pending",
+      "collections": [
+        "cozy",
+        "winter"
+      ],
+      "look": "Light-blue pillow with prominent wrinkled fabric folds.",
+      "lookEvidence": "Marketplace thumbnail; in-scene QA pending",
+      "functionIntent": "Decorative prop; raw effects are not an approved gameplay integration."
+    },
+    {
+      "description": "",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/2713840225",
+      "assetType": "Model",
+      "thumbnailUrl": "https://thumbnails.roblox.com/v1/assets?assetIds=2713840225&returnPolicy=PlaceHolder&size=150x150&format=Png",
+      "isFree": true,
+      "assetId": "2713840225",
+      "name": "Executive sci-fi desk",
+      "priceCents": 0,
+      "creatorName": "neovow",
+      "source": "creator_store",
+      "inspection": {
+        "lights": 0,
+        "meshes": 0,
+        "name": "Review_2713840225",
+        "scripts": [],
+        "seats": 0,
+        "size": [
+          24.502578735351562,
+          13.85712718963623,
+          24.30168914794922
+        ],
+        "effects": [],
+        "parts": 44
+      },
+      "storagePath": "ServerStorage.NextCatalogInspection.Review_2713840225",
+      "status": "inspected_source_no_scripts; thumbnail_reviewed; in_scene_QA_pending",
+      "collections": [
+        "futuristic",
+        "1980s"
+      ],
+      "look": "Angular sci-fi workstation with cyan hologram-like globe display.",
+      "lookEvidence": "Marketplace thumbnail; in-scene QA pending",
+      "functionIntent": "Decorative prop; raw effects are not an approved gameplay integration."
+    },
+    {
+      "description": "",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/11829259774",
+      "assetType": "Model",
+      "thumbnailUrl": "https://thumbnails.roblox.com/v1/assets?assetIds=11829259774&returnPolicy=PlaceHolder&size=150x150&format=Png",
+      "isFree": true,
+      "assetId": "11829259774",
+      "name": "Realistic Rug",
+      "priceCents": 0,
+      "creatorName": "caductis",
+      "source": "creator_store",
+      "inspection": {
+        "lights": 0,
+        "meshes": 1,
+        "name": "Review_11829259774",
+        "scripts": [],
+        "seats": 0,
+        "size": [
+          15.428566932678223,
+          0.46767330169677734,
+          13.912392616271973
+        ],
+        "effects": [],
+        "parts": 1
+      },
+      "storagePath": "ServerStorage.NextCatalogInspection.Review_11829259774",
+      "status": "inspected_source_no_scripts; thumbnail_reviewed; in_scene_QA_pending",
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s"
+      ],
+      "look": "Low patterned woven rug with muted red/brown tones and fringe.",
+      "lookEvidence": "Marketplace thumbnail; in-scene QA pending",
+      "functionIntent": "Decorative prop; raw effects are not an approved gameplay integration."
+    },
+    {
+      "description": "",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/4128475322",
+      "assetType": "Model",
+      "thumbnailUrl": "https://thumbnails.roblox.com/v1/assets?assetIds=4128475322&returnPolicy=PlaceHolder&size=150x150&format=Png",
+      "isFree": true,
+      "assetId": "4128475322",
+      "name": "Old Floor Lamp (Mesh)",
+      "priceCents": 0,
+      "creatorName": "bearduckmonkey",
+      "source": "creator_store",
+      "inspection": {
+        "lights": 0,
+        "meshes": 1,
+        "name": "Review_4128475322",
+        "scripts": [],
+        "seats": 0,
+        "size": [
+          1.9999996423721313,
+          6.500036239624023,
+          2
+        ],
+        "effects": [],
+        "parts": 1
+      },
+      "storagePath": "ServerStorage.NextCatalogInspection.Review_4128475322",
+      "status": "inspected_source_no_scripts; thumbnail_reviewed; in_scene_QA_pending",
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s"
+      ],
+      "look": "Slender distressed metal floor lamp with a cage-like shade.",
+      "lookEvidence": "Marketplace thumbnail; in-scene QA pending",
+      "functionIntent": "Decorative prop; raw effects are not an approved gameplay integration."
+    },
+    {
+      "description": "",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/65523456",
+      "assetType": "Model",
+      "thumbnailUrl": "https://thumbnails.roblox.com/v1/assets?assetIds=65523456&returnPolicy=PlaceHolder&size=150x150&format=Png",
+      "isFree": true,
+      "assetId": "65523456",
+      "name": "Wood Truss Beam",
+      "priceCents": 0,
+      "creatorName": "Roblox",
+      "source": "creator_store",
+      "inspection": {
+        "lights": 0,
+        "meshes": 0,
+        "name": "Review_65523456",
+        "scripts": [],
+        "seats": 0,
+        "size": [
+          2,
+          10,
+          2
+        ],
+        "effects": [],
+        "parts": 1
+      },
+      "storagePath": "ServerStorage.NextCatalogInspection.Review_65523456",
+      "status": "inspected_source_no_scripts; thumbnail_reviewed; in_scene_QA_pending",
+      "collections": [
+        "cozy",
+        "winter"
+      ],
+      "look": "Vertical wooden truss beam with triangular diagonal bracing.",
+      "lookEvidence": "Marketplace thumbnail; in-scene QA pending",
+      "functionIntent": "Decorative prop; raw effects are not an approved gameplay integration."
+    }
+  ],
+  "rooms": [
+    {
+      "path": "Workspace.PodcastStudio",
+      "sceneId": "Custom",
+      "displayName": "After Hours",
+      "look": "Original dark podcast room with wood slat branding wall, green chairs/rug, long rounded wooden table and suspended lights.",
+      "evidence": "prior_user_screenshots",
+      "proposedCollections": [
+        "Retro",
+        "Cozy"
+      ],
+      "role": "Original authored room; not entirely free models."
+    },
+    {
+      "path": "Workspace.FreeModelStudio",
+      "sceneId": "FreeModels",
+      "displayName": "Creator Podcast",
+      "look": "Compact creator set with three wall screens, wood paneling, desk, chairs, boom microphones and laptop.",
+      "evidence": "prior_user_screenshots",
+      "proposedCollections": [
+        "Starter",
+        "Retro"
+      ],
+      "role": "Editable live room built from imported source plus corrections."
+    },
+    {
+      "path": "Workspace.RoomCollection.BroadcastSet",
+      "sceneId": "Broadcast",
+      "displayName": "Broadcast Desk",
+      "look": "Broadcast architecture and equipment, softbox/umbrella lights and on-air signs; exact live appearance not separately verified here.",
+      "evidence": "hierarchy_and_name",
+      "proposedCollections": [
+        "Broadcast"
+      ],
+      "role": "Live imported room."
+    },
+    {
+      "path": "Workspace.RoomCollection.ConferenceRoom",
+      "sceneId": "Boardroom",
+      "displayName": "Executive Meeting",
+      "look": "Pale large meeting table, office chairs, muted panels, lamps and desk props.",
+      "evidence": "prior_user_screenshots",
+      "proposedCollections": [
+        "Executive"
+      ],
+      "role": "Live imported meeting room."
+    },
+    {
+      "path": "Workspace.RoomCollection.LivingRoom",
+      "sceneId": "Lounge",
+      "displayName": "Living Room Lounge",
+      "look": "Grey sectional couch, kitchen backdrop, red pendants, warm wood, coffee table, books and greenery.",
+      "evidence": "prior_user_screenshots",
+      "proposedCollections": [
+        "Cozy",
+        "Winter"
+      ],
+      "role": "Live imported lounge; corrected props differ from archive."
+    },
+    {
+      "path": "Workspace.RoomCollection.AfterHoursFreeSet",
+      "sceneId": "AfterHoursFree",
+      "displayName": "After Hours Free Models",
+      "look": "Dark rounded wood table, green upholstered armchairs, mixing console, speakers, boom mics, warm wood walls and three branded displays.",
+      "evidence": "prior_user_screenshots",
+      "proposedCollections": [
+        "Retro",
+        "Cozy",
+        "1980s"
+      ],
+      "role": "Free-model alternative to original After Hours."
+    }
+  ],
+  "priorSourceGuide": {
+    "scope": "Snapshot of current authorized Studio Experience place 132242140555698, 2026-10-25. Includes 34 prior staging entries + 5 new review candidates + 6 live rooms. Collections and functionIntent are proposals unless explicitly noted. Model/mesh assets are not automatically functional gameplay systems.",
+    "date": "2026-10-25",
+    "assets": [
+      {
+        "name": "PodcastMicrophone",
+        "path": "ServerStorage.PodcastAssetStaging.PodcastMicrophone",
+        "look": "Compact desk microphone on a short round-base stand, visible in lounge screenshots.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Tabletop speech prop; link to a seat's microphone assignment.",
+        "proposedCollections": [
+          "Starter",
+          "Cozy",
+          "Retro"
+        ],
+        "preparation": "8 parts; tabletop pivot and orientation needed; no embedded audio behavior.",
+        "modelRecordId": 620,
+        "boundsStuds": [
+          1.161905288696289,
+          1.7311736345291138,
+          2.61041259765625
+        ],
+        "descendantClassCounts": {
+          "Part": 6,
+          "Decal": 6,
+          "UnionOperation": 2,
+          "Model": 1
+        },
+        "materialCounts": {
+          "Plastic": 3,
+          "Ice": 5
+        },
+        "colorCounts": {
+          "#A0844F": 1,
+          "#F5CD30": 1,
+          "#635F62": 1,
+          "#5B5D69": 4,
+          "#111111": 1
+        }
+      },
+      {
+        "name": "StudioMonitors",
+        "path": "ServerStorage.PodcastAssetStaging.StudioMonitors",
+        "look": "Black Yamaha HS Series speaker pair with pale woofer cones, matching earlier studio screenshots.",
+        "evidence": "child_name_and_prior_user_screenshots",
+        "functionIntent": "Studio monitor decor; split pair into individual catalog speakers.",
+        "proposedCollections": [
+          "Starter",
+          "Retro",
+          "1980s"
+        ],
+        "preparation": "48 MeshParts overall; inspect branding and individual speaker bounds; not an audio system by itself.",
+        "modelRecordId": 1138,
+        "boundsStuds": [
+          3.539766788482666,
+          4.399999141693115,
+          12.818647384643555
+        ],
+        "descendantClassCounts": {
+          "MeshPart": 48,
+          "Model": 5
+        },
+        "materialCounts": {
+          "SmoothPlastic": 8,
+          "Plastic": 40
+        },
+        "colorCounts": {
+          "#1B2A35": 4,
+          "#A3A2A5": 40,
+          "#111111": 4
+        }
+      },
+      {
+        "name": "StudioChair",
+        "path": "ServerStorage.PodcastAssetStaging.StudioChair",
+        "look": "A studio chair model; exact stored appearance not separately verified.",
+        "evidence": "name_only",
+        "functionIntent": "Participant seating candidate.",
+        "proposedCollections": [
+          "Starter"
+        ],
+        "preparation": "17 parts; validate forward direction, seat support and silhouette before release.",
+        "modelRecordId": 1134,
+        "boundsStuds": [
+          3.2057368755340576,
+          5.84356689453125,
+          2.4722771644592285
+        ],
+        "descendantClassCounts": {
+          "Part": 2,
+          "Seat": 1,
+          "UnionOperation": 14,
+          "Model": 1
+        },
+        "materialCounts": {
+          "Wood": 15,
+          "Plastic": 2
+        },
+        "colorCounts": {
+          "#F5CD30": 14,
+          "#1B2A35": 3
+        }
+      },
+      {
+        "name": "Monstera",
+        "path": "ServerStorage.PodcastAssetStaging.Monstera",
+        "look": "Broad split-leaf green plant in a pale pot, matching the original studio screenshots.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Floor greenery.",
+        "proposedCollections": [
+          "Cozy",
+          "Retro",
+          "Winter"
+        ],
+        "preparation": "Single textured mesh; leaf and pot cannot be cleanly recolored or animated separately.",
+        "modelRecordId": 547,
+        "boundsStuds": [
+          4.193380832672119,
+          5.642024517059326,
+          4.260310649871826
+        ],
+        "descendantClassCounts": {
+          "MeshPart": 1,
+          "Model": 1
+        },
+        "materialCounts": {
+          "Plastic": 1
+        },
+        "colorCounts": {
+          "#A3A2A5": 1
+        }
+      },
+      {
+        "name": "SM7B_BoomArm",
+        "path": "ServerStorage.PodcastAssetStaging.SM7B_BoomArm",
+        "look": "Black jointed microphone boom with cylindrical mic; screenshots show silver joint details and a red indicator.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Table-mounted podcast microphone.",
+        "proposedCollections": [
+          "Starter",
+          "Retro",
+          "1980s",
+          "Futuristic"
+        ],
+        "preparation": "99 parts/60 meshes; raw size about26x26x3.4 studs. Normalize scale, articulation and mount; keep face/camera clear.",
+        "modelRecordId": 1120,
+        "boundsStuds": [
+          25.98072052001953,
+          26.154905319213867,
+          3.375265598297119
+        ],
+        "descendantClassCounts": {
+          "IntersectOperation": 10,
+          "Model": 10,
+          "Part": 27,
+          "MeshPart": 60,
+          "UnionOperation": 2
+        },
+        "materialCounts": {
+          "SmoothPlastic": 1,
+          "Plastic": 98
+        },
+        "colorCounts": {
+          "#3C3C3C": 7,
+          "#0A0A0A": 1,
+          "#323232": 16,
+          "#282828": 7,
+          "#32323C": 8,
+          "#918F8F": 1,
+          "#111111": 59
+        }
+      },
+      {
+        "name": "StudioHeadphones",
+        "path": "ServerStorage.PodcastAssetStaging.StudioHeadphones",
+        "look": "Black padded over-ear headphones with grey/silver outer earcups and small blue detailing.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Tabletop equipment; future wearable interaction.",
+        "proposedCollections": [
+          "Starter",
+          "Retro",
+          "1980s"
+        ],
+        "preparation": "One Part with SpecialMesh; mesh visual bounds differ from part bounds; tabletop orientation must be standardized.",
+        "modelRecordId": 1136,
+        "boundsStuds": [
+          2,
+          1,
+          1
+        ],
+        "descendantClassCounts": {
+          "StringValue": 1,
+          "Accessory": 1,
+          "Model": 1,
+          "Part": 1,
+          "Attachment": 1,
+          "SpecialMesh": 1,
+          "TouchTransmitter": 1
+        },
+        "materialCounts": {
+          "Plastic": 1
+        },
+        "colorCounts": {
+          "#A3A2A5": 1
+        }
+      },
+      {
+        "name": "DetailedBook",
+        "path": "ServerStorage.PodcastAssetStaging.DetailedBook",
+        "look": "A closed green hardcover with ornate gold cover and visible beige page block, matching table-book screenshots.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Small tabletop decoration.",
+        "proposedCollections": [
+          "Cozy",
+          "Retro",
+          "Winter"
+        ],
+        "preparation": "One textured mesh; baked cover limits arbitrary recoloring.",
+        "modelRecordId": 374,
+        "boundsStuds": [
+          2,
+          0.30000001192092896,
+          3
+        ],
+        "descendantClassCounts": {
+          "MeshPart": 1
+        },
+        "materialCounts": {
+          "Plastic": 1
+        },
+        "colorCounts": {
+          "#A3A2A5": 1
+        }
+      },
+      {
+        "name": "HardcoverBookSet",
+        "path": "ServerStorage.PodcastAssetStaging.HardcoverBookSet",
+        "look": "Grouped hardcover books; exact staged arrangement not independently verified.",
+        "evidence": "name_and_inventory",
+        "functionIntent": "Shelf filler or grouped desk decoration.",
+        "proposedCollections": [
+          "Cozy",
+          "Retro",
+          "1980s",
+          "Winter"
+        ],
+        "preparation": "50 parts; decide whether sell as one group or split readable individual books; distinguish from DetailedBook.",
+        "modelRecordId": 398,
+        "boundsStuds": [
+          2.4999961853027344,
+          1.2800871133804321,
+          0.9437587857246399
+        ],
+        "descendantClassCounts": {
+          "Part": 36,
+          "UnionOperation": 14,
+          "Model": 34
+        },
+        "materialCounts": {
+          "Plastic": 48,
+          "Metal": 2
+        },
+        "colorCounts": {
+          "#1B2A35": 1,
+          "#F8F8F8": 38,
+          "#FFFFCC": 1,
+          "#506D54": 2,
+          "#564236": 1,
+          "#562424": 1,
+          "#5B5D69": 1,
+          "#7C9C6B": 1,
+          "#B9C4B1": 1,
+          "#750000": 1,
+          "#AA5500": 1,
+          "#7E683F": 1
+        }
+      },
+      {
+        "name": "CoffeeCup",
+        "path": "ServerStorage.PodcastAssetStaging.CoffeeCup",
+        "look": "Stored imported coffee-cup template; live screenshots show pale mug, dark coffee and a curved handle, but later live fixes may differ from this template.",
+        "evidence": "prior_user_screenshots_with_template_uncertainty",
+        "functionIntent": "Tabletop mug with optional steam, coffee-level and color settings.",
+        "proposedCollections": [
+          "Starter",
+          "Cozy",
+          "Retro",
+          "Winter"
+        ],
+        "preparation": "3 parts; template uses Granite and SmoothPlastic. Prefer corrected live mug variant after checking coffee level/logo/steam; do not assume staging has them.",
+        "modelRecordId": 125,
+        "boundsStuds": [
+          1.3969285488128662,
+          1.3606352806091309,
+          1
+        ],
+        "descendantClassCounts": {
+          "Part": 2,
+          "UnionOperation": 1,
+          "Model": 1
+        },
+        "materialCounts": {
+          "SmoothPlastic": 2,
+          "Granite": 1
+        },
+        "colorCounts": {
+          "#F8F8F8": 2,
+          "#6A3909": 1
+        }
+      },
+      {
+        "name": "FreePodcastRoom",
+        "path": "ServerStorage.PodcastAssetStaging.FreePodcastRoom",
+        "look": "Complete model named Podcast Studio; exact stored style not separately identified.",
+        "evidence": "name_and_child_inventory",
+        "functionIntent": "Room-template candidate, not a single prop.",
+        "proposedCollections": [
+          "Retro"
+        ],
+        "preparation": "114 parts/12 meshes; requires visual review and separation of walls, furniture and equipment.",
+        "modelRecordId": 386,
+        "boundsStuds": [
+          54.517608642578125,
+          25.25,
+          72.38028717041016
+        ],
+        "descendantClassCounts": {
+          "WedgePart": 16,
+          "MeshPart": 12,
+          "StringValue": 1,
+          "PointLight": 1,
+          "Model": 9,
+          "Seat": 2,
+          "UnionOperation": 15,
+          "Part": 69,
+          "Texture": 12
+        },
+        "materialCounts": {
+          "Neon": 52,
+          "Plastic": 62
+        },
+        "colorCounts": {
+          "#1B2A35": 63,
+          "#04AFEC": 2,
+          "#0989CF": 43,
+          "#111111": 6
+        }
+      },
+      {
+        "name": "RoLiveStudio",
+        "path": "ServerStorage.PodcastAssetStaging.RoLiveStudio",
+        "look": "Complete RoLive Map asset; appearance not inspected.",
+        "evidence": "name_and_child_inventory",
+        "functionIntent": "Possible broadcasting room template.",
+        "proposedCollections": [
+          "Broadcast"
+        ],
+        "preparation": "74 parts/6 meshes; very large footprint193x190 studs. Not a ready catalog item.",
+        "modelRecordId": 1109,
+        "boundsStuds": [
+          193.095947265625,
+          29.5,
+          189.7486114501953
+        ],
+        "descendantClassCounts": {
+          "RemoteEvent": 4,
+          "Part": 41,
+          "MeshPart": 6,
+          "SpecialMesh": 4,
+          "WeldConstraint": 3,
+          "Folder": 6,
+          "BoolValue": 3,
+          "Tool": 1,
+          "Texture": 25,
+          "ClickDetector": 4,
+          "Seat": 4,
+          "SpawnLocation": 1,
+          "BlurEffect": 1,
+          "CylinderMesh": 4,
+          "Model": 9,
+          "Atmosphere": 1,
+          "UnionOperation": 22,
+          "SunRaysEffect": 1,
+          "BloomEffect": 1
+        },
+        "materialCounts": {
+          "Rubber": 1,
+          "Plaster": 6,
+          "Neon": 4,
+          "Sand": 1,
+          "Grass": 1,
+          "Plastic": 26,
+          "SmoothPlastic": 16,
+          "Metal": 19
+        },
+        "colorCounts": {
+          "#1B2A35": 17,
+          "#A3A2A5": 4,
+          "#9FA1AC": 2,
+          "#F8F8F8": 2,
+          "#ABA89E": 4,
+          "#335882": 2,
+          "#8C5B9F": 2,
+          "#4B974B": 1,
+          "#98C2DB": 1,
+          "#6E99CA": 1,
+          "#C7AC78": 6,
+          "#635F62": 12,
+          "#5B5D69": 1,
+          "#111111": 19
+        }
+      },
+      {
+        "name": "CreatorPodcastSet",
+        "path": "ServerStorage.PodcastAssetStaging.CreatorPodcastSet",
+        "look": "Empty staging Folder.",
+        "evidence": "inventory",
+        "functionIntent": "None currently.",
+        "proposedCollections": [],
+        "preparation": "0 descendants; exclude from item catalog."
+      },
+      {
+        "name": "CreatorPodcastModel",
+        "path": "ServerStorage.PodcastAssetStaging.CreatorPodcastModel",
+        "look": "Creator podcast room associated with earlier screenshots: wood-paneled wall, three wall displays, desk equipment and seating. Stored original may differ from edited live room.",
+        "evidence": "prior_user_screenshots_with_template_uncertainty",
+        "functionIntent": "Starter podcast room template; possible source of smaller props.",
+        "proposedCollections": [
+          "Starter",
+          "Retro"
+        ],
+        "preparation": "1297 parts/59 meshes; extract assets rather than repeatedly cloning whole room.",
+        "modelRecordId": 209,
+        "boundsStuds": [
+          27.330482482910156,
+          15.121572494506836,
+          20.14818572998047
+        ],
+        "descendantClassCounts": {
+          "Decal": 13,
+          "RemoteEvent": 1,
+          "Part": 988,
+          "MeshPart": 59,
+          "SpecialMesh": 132,
+          "SurfaceGui": 2,
+          "StringValue": 1,
+          "Weld": 93,
+          "Attachment": 8,
+          "Texture": 11,
+          "ClickDetector": 1,
+          "WedgePart": 206,
+          "Seat": 3,
+          "BlockMesh": 376,
+          "ManualWeld": 316,
+          "PointLight": 1,
+          "Beam": 4,
+          "Model": 162,
+          "TextBox": 1,
+          "CylinderMesh": 263,
+          "SpotLight": 4,
+          "UnionOperation": 41
+        },
+        "materialCounts": {
+          "LeafyGrass": 1,
+          "Glass": 30,
+          "Neon": 19,
+          "Plastic": 29,
+          "SmoothPlastic": 908,
+          "Grass": 1,
+          "Concrete": 11,
+          "Wood": 4,
+          "Fabric": 237,
+          "Metal": 57
+        },
+        "colorCounts": {
+          "#F8F8F8": 7,
+          "#9FA1AC": 6,
+          "#BC9B5D": 2,
+          "#F2F3F3": 1,
+          "#A05F35": 1,
+          "#111111": 932,
+          "#EAB892": 1,
+          "#000000": 2,
+          "#FFB000": 2,
+          "#443630": 1,
+          "#FFFFFF": 1,
+          "#4B974B": 1,
+          "#EDEAEA": 8,
+          "#1B2A35": 148,
+          "#A3A2A5": 36,
+          "#CDCDCD": 1,
+          "#C4B9AE": 1,
+          "#2154B9": 1,
+          "#9C9A9A": 8,
+          "#5B5D69": 13,
+          "#958988": 1,
+          "#353535": 1,
+          "#242424": 24,
+          "#5A4C42": 1,
+          "#FFFF00": 4,
+          "#191919": 3,
+          "#7D5630": 5,
+          "#2A2A2A": 6,
+          "#323232": 55,
+          "#64544B": 3,
+          "#635F62": 18,
+          "#9FADC0": 1,
+          "#FF0000": 2
+        }
+      },
+      {
+        "name": "UrbanLoft",
+        "path": "ServerStorage.PodcastAssetStaging.UrbanLoft",
+        "look": "Apartment model; exact appearance not inspected.",
+        "evidence": "name_and_child_inventory",
+        "functionIntent": "Architectural room-shell candidate.",
+        "proposedCollections": [
+          "Cozy",
+          "Retro"
+        ],
+        "preparation": "Source107484279852643;254 parts; large162x49x66 stud bounds; visual review required.",
+        "modelRecordId": 1146,
+        "boundsStuds": [
+          162.00003051757812,
+          49.00000762939453,
+          66
+        ],
+        "descendantClassCounts": {
+          "Decal": 108,
+          "UnionOperation": 4,
+          "Model": 1,
+          "Part": 250,
+          "Folder": 1,
+          "Configuration": 1,
+          "Texture": 324
+        },
+        "materialCounts": {
+          "Concrete": 238,
+          "Metal": 16
+        },
+        "colorCounts": {
+          "#A3A2A5": 254
+        },
+        "sourceAssetId": "107484279852643",
+        "sourceUrl": "https://create.roblox.com/store/asset/107484279852643"
+      },
+      {
+        "name": "BroadcastSet",
+        "path": "ServerStorage.PodcastAssetStaging.BroadcastSet",
+        "look": "Broadcast set with light umbrellas, softboxes, stands, on-air signage and studio architecture evidenced by hierarchy.",
+        "evidence": "child_inventory",
+        "functionIntent": "Broadcast template and possible equipment/decor donors.",
+        "proposedCollections": [
+          "Broadcast",
+          "1980s"
+        ],
+        "preparation": "Source136839605425322;1071 parts; visual era not established; proposed1980s only for adaptable pieces.",
+        "modelRecordId": 40,
+        "boundsStuds": [
+          61.82367706298828,
+          30.49602508544922,
+          89.0003890991211
+        ],
+        "descendantClassCounts": {
+          "ManualWeld": 4,
+          "Part": 997,
+          "MeshPart": 3,
+          "SpotLight": 12,
+          "SurfaceGui": 2,
+          "Folder": 2,
+          "TrussPart": 6,
+          "Texture": 6,
+          "Vector3Value": 1,
+          "SpecialMesh": 6,
+          "WedgePart": 19,
+          "Configuration": 1,
+          "Seat": 3,
+          "BlockMesh": 8,
+          "Decal": 24,
+          "PointLight": 3,
+          "TextLabel": 2,
+          "UnionOperation": 43,
+          "CylinderMesh": 469,
+          "NumberValue": 4,
+          "Snap": 5,
+          "Model": 84
+        },
+        "materialCounts": {
+          "Wood": 1,
+          "Glass": 1,
+          "Neon": 25,
+          "Sand": 1,
+          "Plastic": 442,
+          "SmoothPlastic": 549,
+          "DiamondPlate": 3,
+          "Concrete": 1,
+          "Metal": 48
+        },
+        "colorCounts": {
+          "#6A6A6A": 4,
+          "#F8F8F8": 38,
+          "#E5E4DF": 10,
+          "#9FA1AC": 14,
+          "#989898": 4,
+          "#527CAE": 1,
+          "#002060": 2,
+          "#287F47": 18,
+          "#111111": 204,
+          "#E8BAC8": 5,
+          "#627FDC": 1,
+          "#FF0000": 17,
+          "#FFFFFF": 5,
+          "#4B974B": 5,
+          "#6E99CA": 14,
+          "#2A2A2A": 9,
+          "#00FF00": 2,
+          "#1B2A35": 103,
+          "#C4281C": 38,
+          "#FFAF00": 1,
+          "#CDCDCD": 54,
+          "#2154B9": 9,
+          "#CCFFCC": 5,
+          "#957977": 2,
+          "#5B5D69": 59,
+          "#74869D": 5,
+          "#AA00AA": 5,
+          "#A3A2A5": 217,
+          "#EDEAEA": 7,
+          "#00FFFF": 5,
+          "#635F62": 189,
+          "#0D69AC": 15,
+          "#FFB000": 4
+        },
+        "sourceAssetId": "136839605425322",
+        "sourceUrl": "https://create.roblox.com/store/asset/136839605425322"
+      },
+      {
+        "name": "ConferenceRoom",
+        "path": "ServerStorage.PodcastAssetStaging.ConferenceRoom",
+        "look": "Executive meeting room with large pale table, black office chairs and wall panels, as seen in screenshots; hierarchy also includes whiteboard and water machine.",
+        "evidence": "prior_user_screenshots_and_child_inventory",
+        "functionIntent": "Meeting-room template and office prop donors.",
+        "proposedCollections": [
+          "Executive",
+          "Starter"
+        ],
+        "preparation": "Source4993294691;339 parts/4 meshes; extract components with their own pivots.",
+        "modelRecordId": 127,
+        "boundsStuds": [
+          96.57999420166016,
+          21.039234161376953,
+          52.099998474121094
+        ],
+        "descendantClassCounts": {
+          "ManualWeld": 53,
+          "UnionOperation": 37,
+          "ParticleEmitter": 18,
+          "Part": 286,
+          "MeshPart": 4,
+          "SpotLight": 21,
+          "BlockMesh": 10,
+          "Decal": 1,
+          "Seat": 12,
+          "Weld": 47,
+          "Model": 81,
+          "SpecialMesh": 48,
+          "Rotate": 2,
+          "CylinderMesh": 51,
+          "BodyGyro": 1
+        },
+        "materialCounts": {
+          "Wood": 72,
+          "Neon": 2,
+          "WoodPlanks": 2,
+          "Plastic": 130,
+          "SmoothPlastic": 36,
+          "Foil": 35,
+          "Metal": 24,
+          "Grass": 4,
+          "Concrete": 26,
+          "Brick": 3,
+          "Fabric": 1,
+          "Ice": 4
+        },
+        "colorCounts": {
+          "#F8F8F8": 82,
+          "#102ADC": 1,
+          "#766052": 30,
+          "#FF00BF": 1,
+          "#2A1905": 1,
+          "#04AFEC": 4,
+          "#AF9483": 1,
+          "#69665C": 2,
+          "#564236": 9,
+          "#DCBC81": 16,
+          "#694028": 4,
+          "#111111": 8,
+          "#C4281C": 7,
+          "#9FA1AC": 6,
+          "#FF0000": 1,
+          "#A3A2A5": 37,
+          "#E7E7EC": 6,
+          "#6C584B": 4,
+          "#F8D96D": 4,
+          "#7C5C46": 8,
+          "#79665A": 34,
+          "#9FADC0": 1,
+          "#382208": 1,
+          "#FFFFFF": 6,
+          "#DA8541": 1,
+          "#473C35": 1,
+          "#635F62": 61,
+          "#00FF00": 2
+        },
+        "sourceAssetId": "4993294691",
+        "sourceUrl": "https://create.roblox.com/store/asset/4993294691"
+      },
+      {
+        "name": "LivingRoom",
+        "path": "ServerStorage.PodcastAssetStaging.LivingRoom",
+        "look": "Open lounge/kitchen: grey sectional couch, pillows, pendant lights, wood surfaces and cabinetry. User screenshots show later edited furnishings too.",
+        "evidence": "prior_user_screenshots_and_child_inventory",
+        "functionIntent": "Cozy room template; couch/kitchen/lighting donors.",
+        "proposedCollections": [
+          "Cozy",
+          "Winter"
+        ],
+        "preparation": "Source9461502368;1241 parts/129 meshes. Isolate furniture from Maicon nested hierarchy; raw template differs from live corrections.",
+        "modelRecordId": 433,
+        "boundsStuds": [
+          42.67143249511719,
+          16.163585662841797,
+          48.134796142578125
+        ],
+        "descendantClassCounts": {
+          "Vector3Value": 139,
+          "Humanoid": 2,
+          "Part": 1019,
+          "MeshPart": 129,
+          "SpecialMesh": 400,
+          "Shirt": 2,
+          "Attachment": 109,
+          "Texture": 1,
+          "WedgePart": 8,
+          "TouchTransmitter": 11,
+          "Decal": 9,
+          "Configuration": 7,
+          "StringValue": 13,
+          "ObjectValue": 7,
+          "Weld": 89,
+          "Pants": 2,
+          "CFrameValue": 7,
+          "Pose": 12,
+          "SurfaceLight": 9,
+          "CylinderMesh": 1,
+          "KeyframeSequence": 1,
+          "ShirtGraphic": 1,
+          "Animation": 10,
+          "ManualWeld": 8,
+          "SpotLight": 12,
+          "WrapTarget": 26,
+          "Accessory": 11,
+          "BodyColors": 2,
+          "PointLight": 5,
+          "Seat": 11,
+          "Model": 104,
+          "Motor6D": 30,
+          "UnionOperation": 74,
+          "RopeConstraint": 1,
+          "Keyframe": 1
+        },
+        "materialCounts": {
+          "Wood": 38,
+          "Glass": 4,
+          "Neon": 29,
+          "Sand": 26,
+          "Plastic": 237,
+          "SmoothPlastic": 247,
+          "Fabric": 1,
+          "Grass": 24,
+          "DiamondPlate": 6,
+          "Marble": 9,
+          "Ice": 6,
+          "Concrete": 12,
+          "Pebble": 2,
+          "Slate": 1,
+          "Metal": 599
+        },
+        "colorCounts": {
+          "#3A3A3A": 2,
+          "#4C4B4D": 22,
+          "#9FA1AC": 11,
+          "#FFCC99": 15,
+          "#22190F": 1,
+          "#787878": 2,
+          "#BBB3B2": 2,
+          "#DFDCE1": 33,
+          "#E6D7A7": 6,
+          "#FFBF75": 5,
+          "#FFECD5": 1,
+          "#614A2D": 1,
+          "#111111": 276,
+          "#A56C50": 1,
+          "#FFBC2D": 18,
+          "#676568": 1,
+          "#6B6E7C": 7,
+          "#E4E3E6": 24,
+          "#000000": 161,
+          "#FF0000": 20,
+          "#C2C2C3": 1,
+          "#A10404": 5,
+          "#4B974B": 2,
+          "#FDFBFF": 45,
+          "#7E7D7F": 1,
+          "#59595B": 2,
+          "#7F8E64": 6,
+          "#506D54": 90,
+          "#8AAB85": 17,
+          "#1B2A35": 13,
+          "#80BBDB": 1,
+          "#A3A2A5": 63,
+          "#B31717": 1,
+          "#C4281C": 1,
+          "#CDCDCD": 7,
+          "#E9DADA": 1,
+          "#A05F35": 15,
+          "#191919": 6,
+          "#D490BD": 12,
+          "#AF9483": 13,
+          "#A5916D": 12,
+          "#6C584B": 6,
+          "#750000": 1,
+          "#FFAD83": 9,
+          "#8D8F98": 1,
+          "#C6C6C6": 2,
+          "#DFDFDE": 1,
+          "#4D4D4D": 3,
+          "#CACBD1": 9,
+          "#E7E7EC": 4,
+          "#848484": 2,
+          "#2F2F30": 5,
+          "#AFDDFF": 1,
+          "#3D3D3E": 7,
+          "#27462D": 1,
+          "#2C2C2D": 2,
+          "#FFFFFF": 148,
+          "#F8F8F8": 81,
+          "#635F62": 2,
+          "#5B5D69": 21,
+          "#868686": 12
+        },
+        "sourceAssetId": "9461502368",
+        "sourceUrl": "https://create.roblox.com/store/asset/9461502368"
+      },
+      {
+        "name": "RecordingStudio",
+        "path": "ServerStorage.PodcastAssetStaging.RecordingStudio",
+        "look": "Full recording studio model; appearance not independently inspected.",
+        "evidence": "name_and_inventory",
+        "functionIntent": "Possible equipment/source room, pending visual review.",
+        "proposedCollections": [
+          "Retro",
+          "1980s",
+          "Broadcast"
+        ],
+        "preparation": "3727 parts/213 meshes/8762 descendants. Too heavy as repeated catalog item; inspect and extract only.",
+        "modelRecordId": 622,
+        "boundsStuds": [
+          70.06425476074219,
+          10.543888092041016,
+          32.26622772216797
+        ],
+        "descendantClassCounts": {
+          "Decal": 200,
+          "Part": 1953,
+          "MeshPart": 213,
+          "CylinderMesh": 308,
+          "StringValue": 7,
+          "NegateOperation": 4,
+          "Weld": 189,
+          "BoolValue": 24,
+          "Attachment": 5,
+          "Texture": 83,
+          "WedgePart": 15,
+          "BlockMesh": 274,
+          "Snap": 6,
+          "PointLight": 2,
+          "ManualWeld": 3084,
+          "Model": 482,
+          "UnionOperation": 1530,
+          "Seat": 12,
+          "RopeConstraint": 5,
+          "SpecialMesh": 366
+        },
+        "materialCounts": {
+          "Grass": 5,
+          "Glass": 12,
+          "ForceField": 5,
+          "Sand": 37,
+          "DiamondPlate": 1,
+          "CorrodedMetal": 8,
+          "Granite": 6,
+          "Plastic": 478,
+          "SmoothPlastic": 1252,
+          "Brick": 3,
+          "Wood": 114,
+          "Neon": 249,
+          "WoodPlanks": 3,
+          "Concrete": 11,
+          "Pebble": 1,
+          "Fabric": 148,
+          "Metal": 1394
+        },
+        "colorCounts": {
+          "#6A6A6A": 1,
+          "#818181": 176,
+          "#564236": 2,
+          "#8D6429": 6,
+          "#F5CD30": 5,
+          "#111111": 580,
+          "#008F9C": 11,
+          "#CBA990": 1,
+          "#0C0C0C": 2,
+          "#FF0000": 37,
+          "#FFD8AA": 2,
+          "#222222": 12,
+          "#4B974B": 1,
+          "#0000FF": 2,
+          "#DDCCB3": 4,
+          "#1B2A35": 247,
+          "#CDCDCD": 69,
+          "#303030": 8,
+          "#AA5500": 1,
+          "#191919": 8,
+          "#750000": 96,
+          "#FF4B15": 2,
+          "#828183": 1,
+          "#FFEAC4": 1,
+          "#C7AC78": 8,
+          "#8D888C": 48,
+          "#4667A4": 2,
+          "#2C651D": 1,
+          "#635F62": 733,
+          "#CACBD1": 332,
+          "#797A82": 23,
+          "#9FA1AC": 140,
+          "#BC9B5D": 8,
+          "#002060": 1,
+          "#A34B4B": 1,
+          "#287F47": 243,
+          "#D3BE96": 1,
+          "#000000": 21,
+          "#FFFFFF": 2,
+          "#FDEA8D": 2,
+          "#A0844F": 8,
+          "#EDEAEA": 22,
+          "#6C5535": 17,
+          "#3D3E42": 4,
+          "#C4281C": 21,
+          "#EFB838": 2,
+          "#6B327C": 4,
+          "#970000": 3,
+          "#694028": 1,
+          "#817F82": 2,
+          "#A05F35": 1,
+          "#F2F3F3": 1,
+          "#3A3A3A": 2,
+          "#F8F8F8": 181,
+          "#5B5D69": 52,
+          "#FFC9C9": 1,
+          "#D7C59A": 1,
+          "#1E1E1E": 2,
+          "#DFDFDE": 4,
+          "#240D24": 1,
+          "#353535": 1,
+          "#E7E7EC": 6,
+          "#EAB892": 6,
+          "#515358": 2,
+          "#7E683F": 7,
+          "#A3A2A5": 503,
+          "#0D69AC": 4,
+          "#545454": 6,
+          "#D5733D": 10,
+          "#6D4533": 1,
+          "#FEFEFE": 1,
+          "#562424": 1,
+          "#9FF3E9": 8
+        }
+      },
+      {
+        "name": "LoungeCoffeeTable",
+        "path": "ServerStorage.PodcastAssetStaging.LoungeCoffeeTable",
+        "look": "Low rectangular wood-topped coffee table with dark support structure, matching lounge screenshots.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Low table; surface for mugs, books and microphones.",
+        "proposedCollections": [
+          "Cozy",
+          "Retro",
+          "Winter"
+        ],
+        "preparation": "Source7087839653;14parts;3x1.75x6.4 studs. Bottom-center pivot plus tabletop placement surface.",
+        "modelRecordId": 538,
+        "boundsStuds": [
+          3.000000476837158,
+          1.7500011920928955,
+          6.400001049041748
+        ],
+        "descendantClassCounts": {
+          "Part": 14,
+          "Model": 5
+        },
+        "materialCounts": {
+          "SmoothPlastic": 12,
+          "Wood": 2
+        },
+        "colorCounts": {
+          "#8F796B": 2,
+          "#323232": 12
+        },
+        "sourceAssetId": "7087839653",
+        "sourceUrl": "https://create.roblox.com/store/asset/7087839653"
+      },
+      {
+        "name": "FilledBookshelf",
+        "path": "ServerStorage.PodcastAssetStaging.FilledBookshelf",
+        "look": "Tall warm wooden bookcase filled with mixed books, matching lounge screenshots.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Floor/wall-adjacent library decoration.",
+        "proposedCollections": [
+          "Cozy",
+          "Retro",
+          "Winter"
+        ],
+        "preparation": "Source9914694425;30parts/8meshes;34joints;6.22x12.14x1.59 studs. Review size and old joints.",
+        "modelRecordId": 376,
+        "boundsStuds": [
+          6.217623233795166,
+          12.136022567749023,
+          1.5911686420440674
+        ],
+        "descendantClassCounts": {
+          "Decal": 40,
+          "Weld": 34,
+          "Model": 8,
+          "Part": 22,
+          "MeshPart": 8,
+          "SpecialMesh": 9
+        },
+        "materialCounts": {
+          "Wood": 13,
+          "Fabric": 16,
+          "SmoothPlastic": 1
+        },
+        "colorCounts": {
+          "#335882": 9,
+          "#A3A2A5": 8,
+          "#7C5C46": 13
+        },
+        "sourceAssetId": "9914694425",
+        "sourceUrl": "https://create.roblox.com/store/asset/9914694425"
+      },
+      {
+        "name": "SmallPottedPlant",
+        "path": "ServerStorage.PodcastAssetStaging.SmallPottedPlant",
+        "look": "Slender leafy plant in a small pale pot; separate green leaf meshes, ceramic pot, soil and stem.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Tabletop or floor greenery; supports subtle leaf movement.",
+        "proposedCollections": [
+          "Cozy",
+          "Retro",
+          "Winter"
+        ],
+        "preparation": "Source13218937353;33meshes;all33 currently collidable. Normalize plant sizes and leaf collision; preserve leaf separation.",
+        "modelRecordId": 1131,
+        "boundsStuds": [
+          2.934387683868408,
+          5.723772048950195,
+          2.9343674182891846
+        ],
+        "descendantClassCounts": {
+          "Folder": 1,
+          "MeshPart": 33,
+          "Model": 1
+        },
+        "materialCounts": {
+          "Concrete": 1,
+          "SmoothPlastic": 31,
+          "Ground": 1
+        },
+        "colorCounts": {
+          "#694028": 1,
+          "#27462D": 1,
+          "#A3A2A5": 1,
+          "#2C651D": 30
+        },
+        "sourceAssetId": "13218937353",
+        "sourceUrl": "https://create.roblox.com/store/asset/13218937353"
+      },
+      {
+        "name": "DeskLamp",
+        "path": "ServerStorage.PodcastAssetStaging.DeskLamp",
+        "look": "Adjustable pale desk lamp with round base/head as seen in meeting-room screenshots; includes one actual light.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Tabletop task lighting.",
+        "proposedCollections": [
+          "Cozy",
+          "1980s",
+          "Retro"
+        ],
+        "preparation": "Source1744217931;12parts/1light;1.41x2.82x1.73 studs. Expose bounded brightness/color; normalize mount.",
+        "modelRecordId": 372,
+        "boundsStuds": [
+          1.4063738584518433,
+          2.823173999786377,
+          1.733635425567627
+        ],
+        "descendantClassCounts": {
+          "Model": 1,
+          "Part": 8,
+          "SpotLight": 1,
+          "SpecialMesh": 2,
+          "UnionOperation": 4
+        },
+        "materialCounts": {
+          "SmoothPlastic": 11,
+          "Neon": 1
+        },
+        "colorCounts": {
+          "#E7E7EC": 8,
+          "#CACBD1": 2,
+          "#9FA1AC": 2
+        },
+        "sourceAssetId": "1744217931",
+        "sourceUrl": "https://create.roblox.com/store/asset/1744217931"
+      },
+      {
+        "name": "PodcastLaptop",
+        "path": "ServerStorage.PodcastAssetStaging.PodcastLaptop",
+        "look": "Open silver/grey laptop with black keyboard and screen, visible in creator/meeting screenshots.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Desk computer decoration; potential branded display.",
+        "proposedCollections": [
+          "Starter",
+          "Executive",
+          "Futuristic"
+        ],
+        "preparation": "611parts/1284descendants at only1.87x1.93x1.5 studs. Replace or simplify before catalog; original orientation has caused problems.",
+        "modelRecordId": 554,
+        "boundsStuds": [
+          1.86855149269104,
+          1.9321476221084595,
+          1.4992785453796387
+        ],
+        "descendantClassCounts": {
+          "Decal": 1,
+          "Part": 604,
+          "CylinderMesh": 262,
+          "BlockMesh": 334,
+          "Model": 65,
+          "TextBox": 1,
+          "SurfaceGui": 2,
+          "UnionOperation": 7,
+          "SpecialMesh": 8
+        },
+        "materialCounts": {
+          "SmoothPlastic": 611
+        },
+        "colorCounts": {
+          "#2154B9": 1,
+          "#F8F8F8": 1,
+          "#F2F3F3": 1,
+          "#A3A2A5": 1,
+          "#000000": 2,
+          "#5B5D69": 12,
+          "#1B2A35": 1,
+          "#111111": 592
+        }
+      },
+      {
+        "name": "SoftBlanket",
+        "path": "ServerStorage.PodcastAssetStaging.SoftBlanket",
+        "look": "Single-mesh soft blanket; exact staged visual appearance uncertain.",
+        "evidence": "name_and_inventory",
+        "functionIntent": "Draped textile decoration.",
+        "proposedCollections": [
+          "Cozy",
+          "Winter"
+        ],
+        "preparation": "One unanchored MeshPart,5.10x1.49x8.54 studs; requires cloth-compatible surface placement and material review.",
+        "modelRecordId": 1133,
+        "boundsStuds": [
+          5.096685409545898,
+          1.485197901725769,
+          8.540444374084473
+        ],
+        "descendantClassCounts": {
+          "MeshPart": 1
+        },
+        "materialCounts": {
+          "Plastic": 1
+        },
+        "colorCounts": {
+          "#A3A2A5": 1
+        }
+      },
+      {
+        "name": "FoldedThrow",
+        "path": "ServerStorage.PodcastAssetStaging.FoldedThrow",
+        "look": "Single-mesh folded throw; live lounge has a rust/brown woven sofa throw, but correspondence not conclusively verified.",
+        "evidence": "name_and_prior_user_screenshot_uncertainty",
+        "functionIntent": "Sofa/seat textile decoration.",
+        "proposedCollections": [
+          "Cozy",
+          "Winter"
+        ],
+        "preparation": "One unanchored MeshPart plus joint;7.75x.32x7.84 studs. Inspect visual match, reanchor and normalize scale.",
+        "modelRecordId": 385,
+        "boundsStuds": [
+          7.7512712478637695,
+          0.32090699672698975,
+          7.837309837341309
+        ],
+        "descendantClassCounts": {
+          "Weld": 1,
+          "MeshPart": 1
+        },
+        "materialCounts": {
+          "Plastic": 1
+        },
+        "colorCounts": {
+          "#A3A2A5": 1
+        }
+      },
+      {
+        "name": "Replaced table cups",
+        "path": "ServerStorage.PodcastAssetStaging.Replaced table cups",
+        "look": "Archive folder containing superseded cup geometry.",
+        "evidence": "name_and_inventory",
+        "functionIntent": "Reference/archive only.",
+        "proposedCollections": [],
+        "preparation": "16parts across36descendants; exclude from player catalog."
+      },
+      {
+        "name": "Original Creator desk microphone",
+        "path": "ServerStorage.PodcastAssetStaging.Original Creator desk microphone",
+        "look": "Archived original small creator desk microphone; exact appearance not independently inspected.",
+        "evidence": "name_and_inventory",
+        "functionIntent": "Reference or alternative compact microphone.",
+        "proposedCollections": [
+          "Starter"
+        ],
+        "preparation": "12parts;1.31x.45x.77 studs; tiny/raw orientation needs review; do not assume it is preferred corrected model.",
+        "modelRecordId": 549,
+        "boundsStuds": [
+          1.3101985454559326,
+          0.4453464150428772,
+          0.7674738168716431
+        ],
+        "descendantClassCounts": {
+          "CylinderMesh": 1,
+          "RemoteEvent": 1,
+          "ClickDetector": 1,
+          "Model": 4,
+          "Part": 8,
+          "Weld": 2,
+          "SpecialMesh": 5,
+          "UnionOperation": 4
+        },
+        "materialCounts": {
+          "Neon": 1,
+          "Fabric": 5,
+          "Plastic": 1,
+          "SmoothPlastic": 4,
+          "Metal": 1
+        },
+        "colorCounts": {
+          "#1B2A35": 4,
+          "#635F62": 1,
+          "#111111": 7
+        }
+      },
+      {
+        "name": "AfterHoursFreePreview",
+        "path": "ServerStorage.PodcastAssetStaging.AfterHoursFreePreview",
+        "look": "Staged Podcast Studio room preview; exact correspondence to finished AfterHoursFreeSet not confirmed.",
+        "evidence": "name_and_child_inventory",
+        "functionIntent": "Archived room prototype/reference.",
+        "proposedCollections": [
+          "Retro",
+          "Cozy"
+        ],
+        "preparation": "114parts/12meshes; same composition as FreePodcastRoom; avoid duplicate catalog room.",
+        "modelRecordId": 28,
+        "boundsStuds": [
+          54.517608642578125,
+          25.25,
+          72.38034057617188
+        ],
+        "descendantClassCounts": {
+          "WedgePart": 16,
+          "MeshPart": 12,
+          "StringValue": 1,
+          "PointLight": 1,
+          "Model": 9,
+          "Seat": 2,
+          "UnionOperation": 15,
+          "Part": 69,
+          "Texture": 12
+        },
+        "materialCounts": {
+          "Neon": 52,
+          "Plastic": 62
+        },
+        "colorCounts": {
+          "#1B2A35": 63,
+          "#04AFEC": 2,
+          "#0989CF": 43,
+          "#111111": 6
+        }
+      },
+      {
+        "name": "Dinner Table",
+        "path": "ServerStorage.PodcastAssetStaging.Dinner Table",
+        "look": "Large elongated rounded dark-wood table, matching free-model After Hours screenshots.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Main conversation table.",
+        "proposedCollections": [
+          "Retro",
+          "Cozy"
+        ],
+        "preparation": "Single textured mesh;15.67x3.74x6.77 studs. Baked finish; define top support surface and chair spacing.",
+        "modelRecordId": 375,
+        "boundsStuds": [
+          15.671741485595703,
+          3.741966485977173,
+          6.771535396575928
+        ],
+        "descendantClassCounts": {
+          "MeshPart": 1
+        },
+        "materialCounts": {
+          "Plastic": 1
+        },
+        "colorCounts": {
+          "#A3A2A5": 1
+        }
+      },
+      {
+        "name": "Green Armchair",
+        "path": "ServerStorage.PodcastAssetStaging.Green Armchair",
+        "look": "Boxy upholstered armchair with wood/fabric components; teal-green versions appear around free-model After Hours table.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Participant seating.",
+        "proposedCollections": [
+          "Cozy",
+          "Retro",
+          "1980s"
+        ],
+        "preparation": "9parts including Seat;5x4.73x4.25 studs. Validate front-facing axis and independent fabric/wood paint targets.",
+        "modelRecordId": 396,
+        "boundsStuds": [
+          5.000012397766113,
+          4.733280181884766,
+          4.245142936706543
+        ],
+        "descendantClassCounts": {
+          "Seat": 1,
+          "Part": 8,
+          "Model": 1
+        },
+        "materialCounts": {
+          "Fabric": 5,
+          "Wood": 4
+        },
+        "colorCounts": {
+          "#00FF00": 9
+        }
+      },
+      {
+        "name": "Upholstered Chair",
+        "path": "ServerStorage.PodcastAssetStaging.Upholstered Chair",
+        "look": "Upholstered chair model; exact stored visual style not inspected.",
+        "evidence": "name_and_inventory",
+        "functionIntent": "Alternative participant seating.",
+        "proposedCollections": [
+          "Cozy",
+          "Executive"
+        ],
+        "preparation": "12parts;2.01x4.3x2.01 studs. Inspect seat presence, proportions and orientation.",
+        "modelRecordId": 1144,
+        "boundsStuds": [
+          2.009993076324463,
+          4.299993991851807,
+          2.0099854469299316
+        ],
+        "descendantClassCounts": {
+          "Part": 10,
+          "Seat": 1,
+          "UnionOperation": 1,
+          "Model": 1
+        },
+        "materialCounts": {
+          "Wood": 10,
+          "Fabric": 2
+        },
+        "colorCounts": {
+          "#694028": 10,
+          "#750000": 1,
+          "#1B2A35": 1
+        }
+      },
+      {
+        "name": "Modern armchair",
+        "path": "ServerStorage.PodcastAssetStaging.Modern armchair",
+        "look": "Modern armchair with fabric, metal and plastic components; exact staged silhouette not verified.",
+        "evidence": "name_and_inventory",
+        "functionIntent": "Participant seating.",
+        "proposedCollections": [
+          "Cozy",
+          "Starter"
+        ],
+        "preparation": "6parts including Seat;3.63x3.21x4.08 studs. Validate scale, facing and separate paint channels.",
+        "modelRecordId": 544,
+        "boundsStuds": [
+          3.6325936317443848,
+          3.214853286743164,
+          4.076424598693848
+        ],
+        "descendantClassCounts": {
+          "Seat": 1,
+          "Texture": 18,
+          "UnionOperation": 5,
+          "Model": 2
+        },
+        "materialCounts": {
+          "Plastic": 1,
+          "Fabric": 3,
+          "Metal": 2
+        },
+        "colorCounts": {
+          "#EAB892": 3,
+          "#A3A2A5": 1,
+          "#1B2A35": 2
+        }
+      },
+      {
+        "name": "Audio Mixer U-100AM",
+        "path": "ServerStorage.PodcastAssetStaging.Audio Mixer U-100AM",
+        "look": "Light-colored analog-style mixing console with rows of multicolor controls, seen in free-model After Hours screenshots.",
+        "evidence": "prior_user_screenshots_and_inventory",
+        "functionIntent": "Tabletop mixer decoration; future reactive meters.",
+        "proposedCollections": [
+          "1980s",
+          "Retro",
+          "Starter"
+        ],
+        "preparation": "121parts;raw17x3.56x8.4 stud size needs downscale. Current asset does not itself implement reactive meters.",
+        "modelRecordId": 38,
+        "boundsStuds": [
+          17.000030517578125,
+          3.555819034576416,
+          8.400947570800781
+        ],
+        "descendantClassCounts": {
+          "Decal": 16,
+          "Model": 1,
+          "Part": 120,
+          "WedgePart": 1,
+          "CylinderMesh": 73,
+          "BlockMesh": 15
+        },
+        "materialCounts": {
+          "Plastic": 121
+        },
+        "colorCounts": {
+          "#694028": 12,
+          "#635F62": 39,
+          "#C4281C": 14,
+          "#E5E4DF": 6,
+          "#1B2A35": 20,
+          "#6B327C": 12,
+          "#3A7D15": 4,
+          "#A3A2A5": 14
+        }
+      },
+      {
+        "name": "Original lounge blanket",
+        "path": "ServerStorage.PodcastAssetStaging.Original lounge blanket",
+        "look": "Archived original red fringed blanket from lounge; user screenshots showed jagged fringe and awkward drape.",
+        "evidence": "prior_user_screenshots_and_attribute",
+        "functionIntent": "Reference/archive only.",
+        "proposedCollections": [],
+        "preparation": "Single MeshPart with OriginalParentPath Workspace.RoomCollection.LivingRoom.Maicon.Model; exclude until remodel/replacement."
+      },
+      {
+        "name": "Candidate_CorkFloorLamp",
+        "path": "ServerStorage.BuilderAssetReview.Candidate_CorkFloorLamp",
+        "sourceAssetId": "16017752481",
+        "sourceUrl": "https://create.roblox.com/store/asset/16017752481",
+        "creator": "DEV_MohamedTarek",
+        "sourceTitle": "Modern Floor Lamp_Cork",
+        "look": "Slim black tripod legs, brass/gold neck and a pale cylindrical shade; visually inspected.",
+        "functionIntent": "Floor lighting; one PointLight. Five MeshParts. Normalize pivot; bound light settings.",
+        "evidence": "current_edit_viewport_review",
+        "proposedCollections": [
+          "Cozy"
+        ],
+        "status": "Unapproved candidate; scripts scanned, zero found",
+        "preparation": "Normalize a CLONE, preserve original; no catalog promotion yet.",
+        "modelRecordId": 1,
+        "boundsStuds": [
+          1.9010000228881836,
+          6.31694221496582,
+          1.9010000228881836
+        ],
+        "descendantClassCounts": {
+          "MeshPart": 5,
+          "PointLight": 1,
+          "Model": 1
+        },
+        "materialCounts": {
+          "Wood": 1,
+          "Neon": 1,
+          "SmoothPlastic": 1,
+          "Metal": 2
+        },
+        "colorCounts": {
+          "#1B2A35": 1,
+          "#CDCDCD": 1,
+          "#EAB892": 1,
+          "#BC9B5D": 2
+        }
+      },
+      {
+        "name": "Candidate_CozyArmchair",
+        "path": "ServerStorage.BuilderAssetReview.Candidate_CozyArmchair",
+        "sourceAssetId": "964030990",
+        "sourceUrl": "https://create.roblox.com/store/asset/964030990",
+        "creator": "jupsy42",
+        "sourceTitle": "Cozy armchair",
+        "look": "Tall tan upholstered armchair with rounded upper corners and rolled arm ends; visually inspected. Stylized proportions, weaker than existing green chair.",
+        "functionIntent": "Decorative seating candidate; eighteen parts including a Seat. Not approved as a participant seat; prefer existing green chair for first catalog.",
+        "evidence": "current_edit_viewport_review",
+        "proposedCollections": [
+          "Cozy"
+        ],
+        "status": "Unapproved candidate; scripts scanned, zero found",
+        "preparation": "Normalize a CLONE, preserve original; no catalog promotion yet.",
+        "modelRecordId": 3,
+        "boundsStuds": [
+          4.399940013885498,
+          5.800029754638672,
+          3.6000003814697266
+        ],
+        "descendantClassCounts": {
+          "Model": 1,
+          "Seat": 1,
+          "CylinderMesh": 4,
+          "SpecialMesh": 10,
+          "Part": 17
+        },
+        "materialCounts": {
+          "Fabric": 18
+        },
+        "colorCounts": {
+          "#CC8E69": 18
+        }
+      },
+      {
+        "name": "Candidate_RetroCRT",
+        "path": "ServerStorage.BuilderAssetReview.Candidate_RetroCRT",
+        "sourceAssetId": "10904527778",
+        "sourceUrl": "https://create.roblox.com/store/asset/10904527778",
+        "creator": "Ligij",
+        "sourceTitle": "Old CRT TV Mesh PBR",
+        "look": "Two MeshParts with PBR SurfaceAppearance; exact appearance not yet visually inspected.",
+        "functionIntent": "Retro screen decoration candidate; no display interaction installed; inspect orientation and materials.",
+        "evidence": "inventory_and_creator_metadata",
+        "proposedCollections": [
+          "1980s"
+        ],
+        "status": "Unapproved candidate; scripts scanned, zero found",
+        "preparation": "Normalize a CLONE, preserve original; no catalog promotion yet.",
+        "modelRecordId": 5,
+        "boundsStuds": [
+          4.124922275543213,
+          3.098334789276123,
+          4.1249213218688965
+        ],
+        "descendantClassCounts": {
+          "SurfaceAppearance": 2,
+          "MeshPart": 2,
+          "Camera": 1,
+          "Model": 1
+        },
+        "materialCounts": {
+          "Plastic": 2
+        },
+        "colorCounts": {
+          "#A3A2A5": 2
+        }
+      },
+      {
+        "name": "Candidate_RetroTVCart",
+        "path": "ServerStorage.BuilderAssetReview.Candidate_RetroTVCart",
+        "sourceAssetId": "17362456938",
+        "sourceUrl": "https://create.roblox.com/store/asset/17362456938",
+        "creator": "MinecraftPro97k",
+        "sourceTitle": "Retro Television Cart",
+        "look": "Black three-tier rolling AV trolley with four small caster wheels; visually inspected. This is the CART ONLY, not a TV.",
+        "functionIntent": "Floor prop and potential top support surface for CRT; 24 parts. Do not label it as including television.",
+        "evidence": "current_edit_viewport_review",
+        "proposedCollections": [
+          "1980s"
+        ],
+        "status": "Unapproved candidate; scripts scanned, zero found",
+        "preparation": "Normalize a CLONE, preserve original; no catalog promotion yet.",
+        "modelRecordId": 7,
+        "boundsStuds": [
+          3.291564464569092,
+          4.6794047355651855,
+          3.96881103515625
+        ],
+        "descendantClassCounts": {
+          "Part": 12,
+          "Camera": 1,
+          "UnionOperation": 12,
+          "Model": 16
+        },
+        "materialCounts": {
+          "SmoothPlastic": 24
+        },
+        "colorCounts": {
+          "#191919": 4,
+          "#1E1E1E": 1,
+          "#A3A2A5": 16,
+          "#2D2D2D": 3
+        }
+      },
+      {
+        "name": "Candidate_VintageCassette",
+        "path": "ServerStorage.BuilderAssetReview.Candidate_VintageCassette",
+        "sourceAssetId": "14778280831",
+        "sourceUrl": "https://create.roblox.com/store/asset/14778280831",
+        "creator": "Sadra_Washington",
+        "sourceTitle": "Vintage cassette player",
+        "look": "Small flat black/grey cassette recorder with silver top panel and cassette window; visually inspected from medium distance. Creator describes a 1978 Panasonic RQ-2734.",
+        "functionIntent": "Tabletop decorative cassette recorder, 23 parts/10 meshes. No audio/playback behavior installed.",
+        "evidence": "current_edit_viewport_review",
+        "proposedCollections": [
+          "Retro",
+          "1980s"
+        ],
+        "status": "Unapproved candidate; scripts scanned, zero found",
+        "preparation": "Normalize a CLONE, preserve original; no catalog promotion yet.",
+        "modelRecordId": 24,
+        "boundsStuds": [
+          1.4709782600402832,
+          0.25420719385147095,
+          0.8462045192718506
+        ],
+        "descendantClassCounts": {
+          "TextLabel": 7,
+          "Model": 3,
+          "Part": 9,
+          "MeshPart": 10,
+          "UnionOperation": 4,
+          "SurfaceGui": 7
+        },
+        "materialCounts": {
+          "CorrodedMetal": 1,
+          "Plastic": 7,
+          "SmoothPlastic": 10,
+          "Metal": 5
+        },
+        "colorCounts": {
+          "#F8F8F8": 8,
+          "#D55F30": 1,
+          "#CDCDCD": 12,
+          "#111A21": 1,
+          "#555559": 1
+        }
+      }
+    ],
+    "rooms": [
+      {
+        "path": "Workspace.PodcastStudio",
+        "sceneId": "Custom",
+        "displayName": "After Hours",
+        "look": "Original dark podcast room with wood slat branding wall, green chairs/rug, long rounded wooden table and suspended lights.",
+        "evidence": "prior_user_screenshots",
+        "proposedCollections": [
+          "Retro",
+          "Cozy"
+        ],
+        "role": "Original authored room; not entirely free models."
+      },
+      {
+        "path": "Workspace.FreeModelStudio",
+        "sceneId": "FreeModels",
+        "displayName": "Creator Podcast",
+        "look": "Compact creator set with three wall screens, wood paneling, desk, chairs, boom microphones and laptop.",
+        "evidence": "prior_user_screenshots",
+        "proposedCollections": [
+          "Starter",
+          "Retro"
+        ],
+        "role": "Editable live room built from imported source plus corrections."
+      },
+      {
+        "path": "Workspace.RoomCollection.BroadcastSet",
+        "sceneId": "Broadcast",
+        "displayName": "Broadcast Desk",
+        "look": "Broadcast architecture and equipment, softbox/umbrella lights and on-air signs; exact live appearance not separately verified here.",
+        "evidence": "hierarchy_and_name",
+        "proposedCollections": [
+          "Broadcast"
+        ],
+        "role": "Live imported room."
+      },
+      {
+        "path": "Workspace.RoomCollection.ConferenceRoom",
+        "sceneId": "Boardroom",
+        "displayName": "Executive Meeting",
+        "look": "Pale large meeting table, office chairs, muted panels, lamps and desk props.",
+        "evidence": "prior_user_screenshots",
+        "proposedCollections": [
+          "Executive"
+        ],
+        "role": "Live imported meeting room."
+      },
+      {
+        "path": "Workspace.RoomCollection.LivingRoom",
+        "sceneId": "Lounge",
+        "displayName": "Living Room Lounge",
+        "look": "Grey sectional couch, kitchen backdrop, red pendants, warm wood, coffee table, books and greenery.",
+        "evidence": "prior_user_screenshots",
+        "proposedCollections": [
+          "Cozy",
+          "Winter"
+        ],
+        "role": "Live imported lounge; corrected props differ from archive."
+      },
+      {
+        "path": "Workspace.RoomCollection.AfterHoursFreeSet",
+        "sceneId": "AfterHoursFree",
+        "displayName": "After Hours Free Models",
+        "look": "Dark rounded wood table, green upholstered armchairs, mixing console, speakers, boom mics, warm wood walls and three branded displays.",
+        "evidence": "prior_user_screenshots",
+        "proposedCollections": [
+          "Retro",
+          "Cozy",
+          "1980s"
+        ],
+        "role": "Free-model alternative to original After Hours."
+      }
+    ],
+    "commonPreparation": [
+      "Normalize cloned template pivots to bottom-center and forward direction; preserve original models.",
+      "Assign stable catalog IDs; remove inherited live StudioItemId/room-state attributes from clones.",
+      "Provide allowed floor/wall/ceiling/table surfaces and separately bounded paint/settings channels.",
+      "All34 staging entries scanned with zero scripts; live LivingRoom still contains print('Hello world!') script. Strip that if cloning entire live room.",
+      "No triangle-count or runtime performance proof from this inventory; part counts are not rendering cost.",
+      "Five new candidates in BuilderAssetReview include CRT, separate TV cart, cassette recorder, armchair and floor lamp. All have zero scripts. They remain unapproved; CRT appearance not yet viewed. No complete Futuristic or Winter collection sourced."
+    ]
+  },
+  "limitations": [
+    "White world viewport blocks current in-scene visual approval.",
+    "38 installed templates were checked; metadata-only current hierarchy does not certify every stored raw model safe.",
+    "Scripts in raw archives/review storage are distinct from inspected script-free catalog templates.",
+    "Descriptions inherited from earlier screenshots/inspections are identified; no new visual inspection claimed.",
+    "Full-place backup is pending; source backups exist.",
+    "No monetization, publishing, or main merge."
+  ],
+  "rejectedAssetIds": [
+    "107809369531099",
+    "72345259689081"
+  ]
+}

@@ -1,0 +1,235 @@
+UPDATED STUDIO ASSET HANDOFF
+Place: Studio Experience 132242140555698
+Installed: 38 catalog entries; pending tracked candidates: 13; rooms: 6.
+Hierarchy: 5758 nested/copy model records, NOT that many unique models.
+Installed code: 46d55cb. Catalog source and templates installed; automated suite 297/0.
+Record player/radio actual Play placement/rotation/deletion passed. Current visual QA blocked by white world captures.
+
+INSTALLED CATALOG
+cozy_armchair_01 | Green Armchair | cozy, retro, 1980s
+  Look: Boxy upholstered armchair with wood/fabric components; teal-green versions appear around free-model After Hours table.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.cozy_armchair_01 | 9 parts | scripts: 0
+  Size: 4.30 x 4.73 x 5.04
+cozy_coffee_table_01 | Lounge Coffee Table | cozy, retro, winter
+  Look: Low rectangular wood-topped coffee table with dark support structure, matching lounge screenshots.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.cozy_coffee_table_01 | 14 parts | scripts: 0
+  Size: 5.55 x 1.75 x 7.07
+cozy_bookshelf_01 | Filled Bookshelf | cozy, retro, winter
+  Look: Tall warm wooden bookcase filled with mixed books, matching lounge screenshots.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.cozy_bookshelf_01 | 30 parts | scripts: 0
+  Size: 6.25 x 12.14 x 4.17
+cozy_plant_01 | Small Potted Plant | cozy, retro, winter
+  Look: Slender leafy plant in a small pale pot; separate green leaf meshes, ceramic pot, soil and stem.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.cozy_plant_01 | 33 parts | scripts: 0
+  Size: 2.96 x 5.72 x 2.98
+cozy_floor_lamp_01 | Cork Floor Lamp | cozy
+  Look: Slim black tripod legs, brass/gold neck and a pale cylindrical shade; visually inspected.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.cozy_floor_lamp_01 | 5 parts | scripts: 0
+  Size: 2.54 x 6.32 x 2.54
+retro_tv_cart_01 | AV Cart | 1980s
+  Look: Black three-tier rolling AV trolley with four small caster wheels; visually inspected. This is the CART ONLY, not a TV.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.retro_tv_cart_01 | 24 parts | scripts: 0
+  Size: 4.66 x 4.68 x 4.94
+retro_cassette_01 | Cassette Recorder | retro, 1980s
+  Look: Small flat black/grey cassette recorder with silver top panel and cassette window; visually inspected from medium distance. Creator describes a 1978 Panasonic RQ-2734.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.retro_cassette_01 | 23 parts | scripts: 0
+  Size: 1.69 x 0.25 x 1.40
+cozy_book_set_01 | Hardcover Book Collection | cozy, retro, winter
+  Look: Grouped hardcover books; exact staged arrangement not independently verified.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.cozy_book_set_01 | 50 parts | scripts: 0
+  Size: 2.50 x 1.28 x 0.94
+cozy_monstera_01 | Large Monstera Plant | cozy, retro
+  Look: Broad split-leaf green plant in a pale pot, matching the original studio screenshots.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.cozy_monstera_01 | 1 parts | scripts: 0
+  Size: 4.19 x 5.64 x 4.26
+cozy_upholstered_chair_01 | Upholstered Dining Chair | cozy, retro, 1980s
+  Look: Upholstered chair model; exact stored visual style not inspected.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.cozy_upholstered_chair_01 | 12 parts | scripts: 0
+  Size: 2.01 x 4.30 x 2.01
+future_curved_sofa_01 | Curved Lounge Sofa | futuristic
+  Look: Curving C-shaped lounge sofa; seating is decorative in the builder.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.future_curved_sofa_01 | 1 parts | scripts: 0
+  Size: 11.00 x 3.83 x 7.94
+future_glass_table_01 | Neon Glass Coffee Table | futuristic
+  Look: Glass-topped sci-fi coffee table with neon styling.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.future_glass_table_01 | 19 parts | scripts: 0
+  Size: 2.80 x 1.87 x 6.53
+future_modern_lamp_01 | Sculptural Modern Lamp | futuristic
+  Look: Sculptural modern lamp; lighting controls are not wired to this catalog prop.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.future_modern_lamp_01 | 21 parts | scripts: 0
+  Size: 3.79 x 5.53 x 3.79
+future_shelf_01 | Sci-Fi Display Shelf | futuristic
+  Look: Futuristic display shelf for room dressing.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.future_shelf_01 | 129 parts | scripts: 0
+  Size: 6.90 x 5.70 x 2.25
+modern_lounge_chair_01 | Modern Lounge Chair | cozy, futuristic
+  Look: Modern armchair with fabric, metal and plastic components; exact staged silhouette not verified.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.modern_lounge_chair_01 | 6 parts | scripts: 0
+  Size: 3.63 x 3.21 x 4.08
+retro_book_01 | Vintage Hardcover | cozy, retro
+  Look: A closed green hardcover with ornate gold cover and visible beige page block, matching table-book screenshots.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.retro_book_01 | 1 parts | scripts: 0
+  Size: 2.00 x 0.30 x 3.00
+retro_crt_tv_01 | Vintage CRT Television | retro, 1980s
+  Look: Boxy vintage CRT television; no working video playback.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.retro_crt_tv_01 | 2 parts | scripts: 0
+  Size: 2.39 x 2.17 x 1.73
+retro_meeting_table_01 | Oval Wooden Table | cozy, retro, 1980s
+  Look: Large elongated rounded dark-wood table, matching free-model After Hours screenshots.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.retro_meeting_table_01 | 1 parts | scripts: 0
+  Size: 15.67 x 3.74 x 6.77
+studio_boom_mic_01 | Boom Arm Microphone | cozy, retro, 1980s, futuristic
+  Look: Black jointed microphone boom with cylindrical mic; screenshots show silver joint details and a red indicator.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.studio_boom_mic_01 | 99 parts | scripts: 0
+  Size: 3.64 x 3.67 x 0.47
+studio_chair_01 | Director's Folding Chair | cozy, retro, 1980s
+  Look: A studio chair model; exact stored appearance not separately verified.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.studio_chair_01 | 17 parts | scripts: 0
+  Size: 3.21 x 5.84 x 2.47
+studio_desk_lamp_01 | Adjustable Desk Lamp | cozy, 1980s, futuristic
+  Look: Adjustable pale desk lamp with round base/head as seen in meeting-room screenshots; includes one actual light.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.studio_desk_lamp_01 | 12 parts | scripts: 0
+  Size: 1.41 x 2.82 x 1.73
+studio_desk_mic_01 | Desktop Microphone | cozy, retro, 1980s
+  Look: Compact desk microphone on a short round-base stand, visible in lounge screenshots.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.studio_desk_mic_01 | 8 parts | scripts: 0
+  Size: 1.16 x 1.73 x 2.61
+studio_headphones_01 | Studio Headphones | cozy, retro, 1980s, futuristic
+  Look: Black padded over-ear headphones with grey/silver outer earcups and small blue detailing.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.studio_headphones_01 | 1 parts | scripts: 0
+  Size: 2.00 x 1.00 x 1.00
+studio_mixer_01 | Studio Mixing Console | retro, 1980s, futuristic
+  Look: Light-colored analog-style mixing console with rows of multicolor controls, seen in free-model After Hours screenshots.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.studio_mixer_01 | 121 parts | scripts: 0
+  Size: 4.42 x 0.92 x 2.18
+winter_firewood_shelf_01 | Firewood Storage Shelf | winter, cozy
+  Look: Shelf containing stacked firewood.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.winter_firewood_shelf_01 | 2 parts | scripts: 0
+  Size: 4.79 x 3.31 x 2.62
+winter_folded_throw_01 | Folded Knit Throw | cozy, winter
+  Look: Single-mesh folded throw; live lounge has a rust/brown woven sofa throw, but correspondence not conclusively verified.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.winter_folded_throw_01 | 1 parts | scripts: 0
+  Size: 3.10 x 0.13 x 3.13
+winter_furry_chair_01 | Cream Furry Lounge Chair | winter, cozy
+  Look: Cream furry upholstered lounge chair.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.winter_furry_chair_01 | 1 parts | scripts: 0
+  Size: 3.80 x 3.80 x 4.75
+winter_lantern_01 | Candle Lantern | winter, cozy
+  Look: Candle-style decorative lantern.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.winter_lantern_01 | 37 parts | scripts: 0
+  Size: 1.29 x 1.61 x 1.25
+winter_log_basket_01 | Firewood Basket | winter, cozy
+  Look: Basket holding firewood logs.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.winter_log_basket_01 | 2 parts | scripts: 0
+  Size: 2.36 x 2.03 x 2.29
+winter_snow_globe_01 | Snow Globe | winter
+  Look: Small decorative snow globe.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.winter_snow_globe_01 | 12 parts | scripts: 0
+  Size: 1.32 x 1.38 x 1.32
+winter_white_rug_01 | Geometric Winter Rug | winter, cozy
+  Look: Pale rug with geometric pattern.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.winter_white_rug_01 | 138 parts | scripts: 0
+  Size: 12.00 x 0.09 x 8.00
+structure_wall_01 | Plaster Wall | cozy, retro, 1980s, winter, futuristic
+  Look: Solid rectangular plaster wall, 16 x 15 x 1 studs.
+  Does: Room structure: grid-constrained placement at its kind-specific level.
+  Template: ServerStorage.StudioBuilderTemplates.structure_wall_01 | 1 parts | scripts: 0
+  Size: 16.00 x 15.00 x 1.00
+structure_window_wall_01 | Window Wall | cozy, retro, 1980s, winter, futuristic
+  Look: 16-stud wall segment with frame and glass window.
+  Does: Room structure: grid-constrained placement at its kind-specific level.
+  Template: ServerStorage.StudioBuilderTemplates.structure_window_wall_01 | 7 parts | scripts: 0
+  Size: 16.00 x 15.00 x 1.00
+structure_doorway_01 | Open Doorway Wall | cozy, retro, 1980s, winter, futuristic
+  Look: 16-stud wall segment with an open doorway; no moving door leaf.
+  Does: Room structure: grid-constrained placement at its kind-specific level.
+  Template: ServerStorage.StudioBuilderTemplates.structure_doorway_01 | 5 parts | scripts: 0
+  Size: 16.00 x 15.00 x 1.00
+structure_floor_01 | Wood Floor Tile | cozy, retro, 1980s, winter, futuristic
+  Look: 16 x 16 wooden floor tile, 1 stud thick.
+  Does: Room structure: grid-constrained placement at its kind-specific level.
+  Template: ServerStorage.StudioBuilderTemplates.structure_floor_01 | 2 parts | scripts: 0
+  Size: 16.00 x 1.00 x 16.00
+structure_ceiling_01 | Plain Ceiling Tile | cozy, retro, 1980s, winter, futuristic
+  Look: Neutral recolour of the floor geometry, used as a ceiling tile.
+  Does: Room structure: grid-constrained placement at its kind-specific level.
+  Template: ServerStorage.StudioBuilderTemplates.structure_ceiling_01 | 2 parts | scripts: 0
+  Size: 16.00 x 1.00 x 16.00
+retro_record_player_01 | Vintage Record Player | retro, 1980s, cozy
+  Look: Open-lid vintage record player with turntable details; decorative, no audio.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.retro_record_player_01 | 26 parts | scripts: 0
+  Size: 1.95 x 2.35 x 2.10 | Credit: RushioLCO (credit requested)
+retro_radio_01 | Vintage Radio | retro, 1980s, cozy
+  Look: Compact vintage radio; decorative, no audio.
+  Does: Placeable decorative model. No functional seating, media playback, or speech behavior implied.
+  Template: ServerStorage.StudioBuilderTemplates.retro_radio_01 | 1 parts | scripts: 0
+  Size: 1.05 x 1.28 x 1.56
+
+PENDING PREPARED (NOT REGISTERED)
+structure_corner_01 | Plaster Corner | cozy, retro, 1980s, winter, futuristic | ServerStorage.StudioStructureCandidates.structure_corner_01
+structure_industrial_window_01 | Industrial Window Frame | cozy, retro, 1980s, winter, futuristic | ServerStorage.StudioStructureCandidates.structure_industrial_window_01
+cozy_shoji_divider_01 | Shoji Room Divider | cozy, retro | ServerStorage.StudioStructureCandidates.cozy_shoji_divider_01
+
+PENDING WALLS (NOT REGISTERED)
+Concrete Sci-Fi Wall | 79 parts | 34.1204833984375 x 12.81501579284668 x 3.750730514526367 | ServerStorage.NextCatalogInspection.Concrete Sci-Fi Wall | grid adaptation + visual QA pending
+White Brick Wall | 1 parts | 16 x 13 x 2 | ServerStorage.NextCatalogInspection.White Brick Wall | grid adaptation + visual QA pending
+
+NEW IMPORTS (NOT REGISTERED)
+4514902964 | Fireplace | Ashbashthesmash | proposed cozy, winter | 34 parts | no scripts found
+  ServerStorage.NextCatalogInspection.Review_4514902964 | https://create.roblox.com/store/asset/4514902964
+8136731803 | antique fireplace - eeriebun | EerieBun | proposed cozy, winter | 2 parts | no scripts found
+  ServerStorage.NextCatalogInspection.Review_8136731803 | https://create.roblox.com/store/asset/8136731803
+17525320179 | Pillow | kipischill | proposed cozy, winter | 1 parts | no scripts found
+  ServerStorage.NextCatalogInspection.Review_17525320179 | https://create.roblox.com/store/asset/17525320179
+8918744044 | Pillow Mesh | A_RandomPuppy | proposed cozy, winter | 1 parts | no scripts found
+  ServerStorage.NextCatalogInspection.Review_8918744044 | https://create.roblox.com/store/asset/8918744044
+2713840225 | Executive sci-fi desk | neovow | proposed futuristic, 1980s | 44 parts | no scripts found
+  ServerStorage.NextCatalogInspection.Review_2713840225 | https://create.roblox.com/store/asset/2713840225
+11829259774 | Realistic Rug | caductis | proposed cozy, retro, 1980s | 1 parts | no scripts found
+  ServerStorage.NextCatalogInspection.Review_11829259774 | https://create.roblox.com/store/asset/11829259774
+4128475322 | Old Floor Lamp (Mesh) | bearduckmonkey | proposed cozy, retro, 1980s | 1 parts | no scripts found
+  ServerStorage.NextCatalogInspection.Review_4128475322 | https://create.roblox.com/store/asset/4128475322
+65523456 | Wood Truss Beam | Roblox | proposed cozy, winter | 1 parts | no scripts found
+  ServerStorage.NextCatalogInspection.Review_65523456 | https://create.roblox.com/store/asset/65523456
+
+ROOMS
+After Hours | Workspace.PodcastStudio | Original dark podcast room with wood slat branding wall, green chairs/rug, long rounded wooden table and suspended lights.
+Creator Podcast | Workspace.FreeModelStudio | Compact creator set with three wall screens, wood paneling, desk, chairs, boom microphones and laptop.
+Broadcast Desk | Workspace.RoomCollection.BroadcastSet | Broadcast architecture and equipment, softbox/umbrella lights and on-air signs; exact live appearance not separately verified here.
+Executive Meeting | Workspace.RoomCollection.ConferenceRoom | Pale large meeting table, office chairs, muted panels, lamps and desk props.
+Living Room Lounge | Workspace.RoomCollection.LivingRoom | Grey sectional couch, kitchen backdrop, red pendants, warm wood, coffee table, books and greenery.
+After Hours Free Models | Workspace.RoomCollection.AfterHoursFreeSet | Dark rounded wood table, green upholstered armchairs, mixing console, speakers, boom mics, warm wood walls and three branded displays.
+
+Use the JSON files for source references, creators, dimensions, counts and dependencies. Prior source guide retained inside catalog JSON; its historic status claims do not override current installed/pending sections. Never load arbitrary asset IDs at runtime. Preserve creator credits. Do not register pending candidates automatically.
