@@ -91,6 +91,11 @@ function SeatProfiles.checkProfile(catalogId, profile, catalog)
 	if type(profile) ~= "table" or profile.Version ~= SeatProfiles.VERSION then
 		return false, "BadVersion"
 	end
+	for key in pairs(profile) do
+		if key ~= "Version" and key ~= "PoseProfile" and key ~= "Anchors" then
+			return false, "UnknownKey"
+		end
+	end
 	if SeatProfiles.PoseProfiles[profile.PoseProfile] == nil then
 		return false, "UnknownPoseProfile"
 	end

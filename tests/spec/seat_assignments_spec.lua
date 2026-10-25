@@ -157,6 +157,34 @@ return function(T, H)
 		T.eq(env.assign(1, "i1", "Seat").code, Codes.NotSeatCapable)
 	end)
 
+	T.test("profiles with unknown top-level keys are refused (strict schema) and stay decorative", function()
+		local anchors = { Seat = { X = 0, Y = 1.5, Z = 0.2, Yaw = 0 } }
+		local profiles = {
+			cozy_armchair_01 = { Version = 1, PoseProfile = "Chair", Anchors = anchors, Scale = 99 },
+			cozy_bookshelf_01 = { Version = 1, PoseProfile = "Chair", Anchors = anchors, AvatarOffset = { Y = 2 } },
+		}
+		T.deepEq(SeatProfiles.validate(profiles, Catalog), { cozy_armchair_01 = "UnknownKey", cozy_bookshelf_01 = "UnknownKey" })
+		local env = setup({ profiles = profiles })
+		T.eq(env.seats:profileFor("cozy_armchair_01"), nil)
+		T.eq(env.seats:profileProblems().cozy_armchair_01, "UnknownKey")
+		T.eq(env.assign(1, "i1", "Seat").code, Codes.NotSeatCapable)
+		-- The same profile without the extra key is accepted.
+		T.deepEq(SeatProfiles.validate({ cozy_armchair_01 = { Version = 1, PoseProfile = "Chair", Anchors = anchors } }, Catalog), {})
+	end)
+
+	T.test("a section with an unknown top-level key is refused before load, so nothing is silently dropped on re-save", function()
+		local env = setup()
+		T.eq(env.assign(1, "i1", "Seat").ok, true)
+		local before = env.seats:status()
+		local staged, code = env.seats:prepareLoad({ Version = 1, Assignments = {}, FutureMetadata = { important = true } }, function() return nil end)
+		T.eq(staged, nil)
+		T.eq(code, Codes.Corrupt)
+		T.deepEq(env.seats:status(), before, "refused load changes nothing")
+		for key in pairs(env.seats:encode()) do
+			T.ok(key == "Version" or key == "Assignments", "encode writes only the schema keys: " .. tostring(key))
+		end
+	end)
+
 	-- Assign / unassign -------------------------------------------------------------------
 
 	T.test("assign validates host, session, slot, item, profile, anchor and pose; refusals change nothing", function()
@@ -393,6 +421,8 @@ return function(T, H)
 			{ Version = 1, Assignments = { { Slot = 1, ItemId = "i1", Anchor = "" } } },
 			{ Version = 1, Assignments = { { Slot = 1, ItemId = "i1", Anchor = "Seat", Offset = 3 } } },
 			{ Version = 1, Assignments = { [2] = { Slot = 1, ItemId = "i1", Anchor = "Seat" } } },
+			{ Version = 1, Assignments = {}, FutureMetadata = { important = true } }, -- would be dropped on re-save
+			{ Version = 1, Assignments = { { Slot = 1, ItemId = "i1", Anchor = "Seat" } }, Note = "x" },
 		}
 		for i, section in ipairs(corrupt) do
 			T.eq(select(2, SeatAssignments.decode(section)), Codes.Corrupt, "corrupt case " .. i)

@@ -23,6 +23,13 @@
 	Edits take ctx = { userId, epoch } captured by the caller under its lock.
 	Every refusal leaves state and revision unchanged.
 
+	Dependency contract: every dep must be SYNCHRONOUS (no yields) and be
+	called under the caller's edit lock. The model checks authority first and
+	then reads getItem/isSlotOccupied; a dep that yields could let the host
+	or build change in between, and the model would commit on a stale check.
+	Wiring that needs a yielding read must instead re-check the host epoch and
+	build revision immediately before calling assign/unassign/commitLoad.
+
 	Save section (additive, top-level beside Build; Config.SeatSectionKey):
 		BuildSeats = { Version = 1, Assignments = {
 			{ Slot = 1, ItemId = "i3", Anchor = "Seat" }, ... } }
@@ -461,6 +468,12 @@ function SeatAssignments.decode(section)
 	end
 	if section.Version > SeatAssignments.VERSION then
 		return nil, Codes.UnsupportedVersion
+	end
+	-- Strict schema: an unknown section key would be lost on re-save.
+	for key in pairs(section) do
+		if key ~= "Version" and key ~= "Assignments" then
+			return nil, Codes.Corrupt
+		end
 	end
 	local n = Validate.sequenceLength(section.Assignments, Config.MaxSeatEntries)
 	if n == nil then

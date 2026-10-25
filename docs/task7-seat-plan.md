@@ -37,11 +37,16 @@ The model's slot numbers are those seats: 1 = Host, 2..4 = Guest 1..3.
 `SeatProfiles.Profiles[catalogId] = { Version = 1, PoseProfile = "Chair" | "Couch", Anchors = { [anchorId] = { X, Y, Z, Yaw } } }`
 
 - An anchor is the Seat part's CFrame in the template's local space, measured from its bottom-centre pivot. It's approved per anchor by Codex.
-- Validation is strict: catalog ID exists, version 1, known pose profile, 1–4 anchors, anchor ID pattern, finite bounded numbers, no extra keys. An invalid profile stays decorative and is listed by `profileProblems()`.
+- Validation is strict: catalog ID exists, version 1, only the keys `Version`, `PoseProfile` and `Anchors` (`UnknownKey` otherwise), known pose profile, 1–4 anchors, anchor ID pattern, finite bounded numbers, no extra anchor keys. An invalid profile stays decorative and is listed by `profileProblems()`.
 - `Chair` and `Couch` use only the live PodcastPoses modes (checked against the snapshot).
 - `Couch` is refused (`UnsupportedPose`) until the live Lounge-only gate is changed (`couchPosesEnabled`).
 
 `SeatAssignments` (deps are injected: `getItem`, `isHost`, `hostEpoch`, `isSlotOccupied`):
+
+**Synchronous dependency contract.** Every dependency must be synchronous (no yields) and be called under PlacementCore's edit lock.
+- The model checks authority (host and epoch) first, then reads `getItem` and `isSlotOccupied`.
+- A dependency that yields lets the host or the build change in between. Then the model commits on a stale check: a yielding `getItem` reproduces a stale-host assignment (review of 9c64fd0).
+- The wiring must keep every dependency synchronous. If a yielding read is ever unavoidable, re-check the host epoch and build revision immediately before calling `assign`, `unassign` or `commitLoad`, with no yield in between.
 
 | Operation | Rule |
 |---|---|
@@ -62,14 +67,24 @@ BuildSeats = { Version = 1, Assignments = { { Slot = 1, ItemId = "i3", Anchor = 
 
 - **Missing section** (every preset saved so far, and older builds): a legacy load. There are no assignments, every chair is decorative, and the room seats are used.
 - **Always written** while the builder is available (`Assignments = {}` when empty). So a missing section means "an older or builderless writer", never "no seats".
-- **Newer `Version`:** `UnsupportedVersion`. **Malformed** (types, slot range, ID shape, extra keys, over 16 entries): `Corrupt`. Either way the whole load must be refused before any mutation, like a newer or corrupt Build.
+- **Newer `Version`:** `UnsupportedVersion`. **Malformed** (types, slot range, ID shape, any section key other than `Version` and `Assignments`, any entry key other than `Slot`, `ItemId` and `Anchor`, over 16 entries): `Corrupt`. Either way the whole load must be refused before any mutation, like a newer or corrupt Build.
 - **Well formed but not valid now** (unknown or unconfigured profile, item missing from the loaded build, unknown anchor, pose not supported, slot or anchor conflict): the entry is kept as **preserved**, with a reason.
   - It's written back on every save, and promoted by `reconcile()` once valid.
   - It's never dropped silently. Only an explicit `unassign` of that slot, or a new assignment to it (reported as `superseded`), removes it.
 - **Older installed builders** (bb3efa6) ignore `BuildSeats` on load. Their Director snapshot is rebuilt on save without it, so an old writer would drop it.
   That's why the slot guard needs the `SeatsWouldBeLost` rule below before seat saving ships.
 
-## 3. Decisions needed before wiring
+## 3. Wiring decisions (from review of 9c64fd0; not implemented yet)
+
+- **Stage:** a normal Builder scene entry in `PodcastRooms`.
+- **Sit distance:** PodcastSeating measures from the requested seat, not Seat1.
+- **Reservations:** server-owned and exposed to the occupancy adapter. They're cleaned up on sit success, failure, Leave and disconnect.
+- **Couch profiles:** disabled until there is actual pose support and a visual check.
+- **First profile:** start with the approved chair profile only. Codex is still measuring and validating it, and **no anchor offsets are guessed**.
+- **Camera:** the free-room shot formula is the initial candidate. It isn't visually approved yet.
+- **Unassigned Builder slots are inactive** (disabled, `Active = false`), not left at their old room positions.
+
+### Original open questions (answered above)
 
 1. **What "builder stage active" means.** The sandbox isn't a SceneSet today (`Custom` or a `PodcastRooms` child; the Director validates). I recommend a new `PodcastRooms` config entry for the builder studio (Codex creates it: ModelName, `Wide`, `Entry`, `Description`), so the existing Director, StudioLayout, camera Wide/Entry, spawn and lighting paths apply. The alternative is a separate Director toggle.
 2. **The 120-stud check measures from `Seat1`.** If Host isn't assigned but guests are, guests at the sandbox are refused. Options: require slot 1 for stage activation, or patch PodcastSeating to measure from the requested seat. I recommend the patch, a one-line live change.

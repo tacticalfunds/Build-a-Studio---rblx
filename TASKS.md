@@ -247,6 +247,12 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
     - save decode refusals; load classification, round trip and revival with later profiles; commitLoad occupancy; the section bound.
   - 18 mutations caught, among them: occupancy ignored or failing open, remove allowed, move ignoring occupancy, reconcile or load dropping entries, epoch not checked, uniqueness off, couch ungated, commitLoad ignoring occupancy, resolve ignoring the stage, a newer version accepted, no bound, promotion onto an occupied seat, preserved entries never superseded, unknown keys accepted, offset aliasing, load conflicts undetected.
 - Not executed: any Roblox Instance, seat movement, occupied avatars, poses or camera shots; live wiring; real anchor metadata (Codex supplies it).
+- Schema corrections (review of 9c64fd0; 14 pure tests passed in real Studio Luau, and the 2 snapshot-file contract tests were skipped there):
+  1. `SeatAssignments.decode` now refuses any section key other than `Version` and `Assignments` (`Corrupt`). `FutureMetadata` was accepted, then dropped on re-save.
+  2. `SeatProfiles.checkProfile` now refuses any profile key other than `Version`, `PoseProfile` and `Anchors` (`UnknownKey`, and the profile stays decorative). `Scale = 99` was accepted.
+  - The synchronous-dependency contract is documented in the module header and the plan: no yields under the lock, or a final epoch and revision re-check before committing. A yielding `getItem` reproducing a stale-host assignment is outside that contract.
+  - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
+  - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
 ## 8. More collection themes: Pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
