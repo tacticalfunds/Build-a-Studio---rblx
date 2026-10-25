@@ -5,8 +5,13 @@ snapshot: same DataStore (`PodcastStudioPresets_v1`), same 5 slots, same 250000-
 top-level `Version = 1`. There's **no separate save profile and no autosave**. Done just leaves the
 builder; saving and loading stay in the existing Studio → saved studios UI.
 
-**Status:** pure logic and the patched StudioPresets module were executed against fakes
-(`lua5.4 tests/run.lua`). **No real DataStore call, Studio install or Play test has been run.**
+**Status (2026-10-25, bb3efa6):**
+- **Installed** in the working place in Studio Edit (Codex), including both Director room-mutation gates.
+- **Real Studio Luau:** the 19 Director tests plus five independent regressions pass.
+- **Play:** a Save/Load round trip and the failed-load save block worked, against Play-only memory stand-ins for StudioPresets.
+- **Not run:** real DataStore and real text filtering.
+- Current verification and the remaining checklist: [`README.md`](../README.md#verification). The checklist below is the original install list; the README supersedes it.
+- **No Discard button exists in the panel yet.** A successful Load is the way to lift the save block.
 
 ## Files
 

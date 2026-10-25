@@ -26,8 +26,8 @@ Known contracts (from Codex, 2026-10-25):
 | 2 | Define narrow adapters (catalog, host, room, camera, save) | 1 | Done (Studio pending) |
 | 3 | Server-authoritative placement and validation | 2 | Done (Studio pending) |
 | 4 | Simple drawer UI, item editing and Undo/Redo | 3 | Done (Studio pending) |
-| 5 | Save/load with failure protection | 3 | Done (Studio/DataStore pending) |
-| 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Pending |
+| 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
+| 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | Pending |
 | 8 | More collection themes | 6 | Pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
@@ -189,9 +189,27 @@ Versioned records, validated on load. A failed load keeps the current build and 
 - Not executed: real DataStore, the Director edit in the live script, Studio, Play.
 
 
-## 6. Integration README and Codex Studio playtest handoff: Pending
+## 6. Integration README and Codex Studio playtest handoff: Done (playtest pending)
 Document the Rojo mapping, adapter wiring, protocol and security model, and list what is implemented versus Studio-pending. Write a playtest checklist for Codex.
 - Acceptance: Codex can wire the adapters without reading the core code. Pending items are listed explicitly.
+- Delivered: [`README.md`](README.md), covering:
+  - status at a glance, the Rojo mapping and the install order;
+  - the live patch points in the working Studio:
+    - both Director gates (installed at bb3efa6);
+    - StudioPresets;
+    - the host panel (OPEN BUILDER, hooks, no Discard button yet, so a successful Load is the only way to lift the save block);
+    - the camera (camera and hostControls slots);
+    - streaming;
+  - protocol and security model, and a save/load summary;
+  - verification split into executed here, real Studio Luau, Play (with the memory-stand-in and no-text caveats) and **not verified** (real DataStore, text filtering, multiplayer, forced live failures, touch, StudioCustomization exclusion, room-switch gate);
+  - the remaining Codex playtest checklist, and catalog status.
+  `docs/integration-task5.md` status updated to point at it.
+- Codex evidence recorded (bb3efa6):
+  - **Install:** installed in Studio Edit; the 19 Director tests and five independent regressions pass in real Luau; nine files compile.
+  - **Play:** the server starts ready; Place, Undo, Redo and Delete work over the RemoteFunction; the Director Save/Load round trip worked (`i2` at (4, 0, -4), yaw 15, Theme Teal) and cleared history; a failed Load then Save was refused, with no second write.
+  - **Caveats:** StudioPresets was replaced by memory stand-ins (no real DataStore), the fake Load had no text fields, and UI mouse automation stalled.
+- Not documented from source: the exact panel, camera and streaming patch code lives only in the Studio checkpoint. The README describes each patch's contract and what was reported, and lists unreported items (StudioCustomization exclusion, room-switch gate, per-key hostControls suppression) as checks.
+- No code changed in this task. `lua5.4 tests/run.lua`: 243 passed, 0 failed.
 
 ## 7. Seat-anchor and camera-assignment adapter: Pending
 Turn chosen decorative chairs into seat anchors that work with StudioLayout and Seat1–Seat4. `StudioLayout.Apply` resets all four seat CFrames and the camera shots, so this needs an explicit anchor-to-seat assignment or coordinated Layout changes, occupant-safe moves, and pose-profile validation (e.g. couch poses) on both server and panel.

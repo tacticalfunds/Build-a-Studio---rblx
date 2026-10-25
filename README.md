@@ -1,0 +1,244 @@
+# Build-a-Studio: studio builder prototype
+
+A small builder for the podcast/meeting game. From **Host Panel > Studio > OPEN BUILDER**, the host places
+curated items in one separate sandbox. Each placed item can be moved, rotated, duplicated or deleted, with
+Undo and Redo. The build is saved inside the existing StudioPresets slots.
+
+- **Untouched:** the six existing rooms and the live Podcast* systems, apart from the documented patch points below.
+- **Not done:** nothing is published, merged to `main` or monetized. Every catalog item is free.
+
+This README is the integration and playtest handoff (task 6). Deeper references:
+
+| Topic | Document |
+|---|---|
+| Adapter contracts, placement, drawer, streaming | [`docs/adapters.md`](docs/adapters.md) |
+| Host-panel visual contract (exact tokens and layout) | [`docs/ui-contract.md`](docs/ui-contract.md) |
+| Save/load install details, behaviour, recovery | [`docs/integration-task5.md`](docs/integration-task5.md) |
+| Asset inventory from Studio | [`docs/assets/`](docs/assets/README.md) |
+| Task queue and per-checkpoint evidence | [`TASKS.md`](TASKS.md) |
+
+## Status at a glance (2026-10-25)
+
+| Area | Status |
+|---|---|
+| Placement, undo/redo, host authority, recovery (server) | Tested locally and in real Studio Luau; Place/Undo/Redo/Delete checked in Play |
+| Build drawer UI | Full UI flow passed in Play at 62f2f87 (latest Play run: UI mouse automation stalled, so not re-checked) |
+| Save/load through StudioPresets | Director logic tested locally and in real Studio Luau; Play round trip done **against a memory stand-in for StudioPresets** |
+| Real DataStore, real text filtering, multiplayer | **Not verified** |
+| Seat anchors (task 7), more collections (task 8), Branding (task 9) | Not started |
+
+## Repository layout and Rojo mapping
+
+`default.project.json` maps three new folders. Nothing in Workspace or the existing rooms is replaced.
+
+| Source | Studio location | Contents |
+|---|---|---|
+| `src/shared` | `ReplicatedStorage.StudioBuilder` | `Config`, `Catalog`, `Protocol`, `Transform`, `Validate` |
+| `src/server` | `ServerScriptService.StudioBuilder` | `StudioBuilderBootstrap.server` plus `Adapters/`, `Core/`, `Runtime/`, `Bootstrap/` |
+| `src/client` | `StarterPlayer.StarterPlayerScripts.StudioBuilder` | `BuilderClient` (ModuleScript) plus `Build/`, `UI/`, `Adapters/` |
+| `integration/` | not synced by Rojo | Files installed by hand into live scripts (see below) |
+| `tests/` | not synced | `lua5.4 tests/run.lua` harness and 24 specs |
+
+`BuilderClient` is a ModuleScript and doesn't start itself. The host panel requires it and calls `configure` and `open`.
+
+## Install order
+
+1. **Builder tree.** Sync the three folders.
+   The server bootstrap removes `Workspace.StudioAssetYard` (editor-only display copies) at play start, then starts `BuilderService`.
+   `BuilderService` creates:
+   - `ReplicatedStorage.StudioBuilder.Remotes.BuilderRequest` (RemoteFunction);
+   - `ReplicatedStorage.StudioBuilder.PreviewTemplates` (sanitized copies for cards and the ghost);
+   - `Workspace.StudioBuilderPlacedItems`, carrying the `BuildRevision`, `SandboxOrigin` and `SandboxSize` attributes.
+2. **Studio prerequisites (Codex, done in the working place):**
+   - `ServerStorage.StudioBuilderTemplates`: one Model per catalog ID. Each is anchored, has its pivot upright at the bottom centre, has no scripts, and has any Seats disabled.
+     The probe rejects anything else and the card shows as not installed.
+   - `Workspace.StudioBuilderSandbox`: the marker part whose volume is the build volume. Without it, the builder answers `Unavailable`.
+   - **Streaming:** make the sandbox Model and the templates persistent. Placed models are set `ModelStreamingMode = Persistent` by the runtime.
+3. **StudioPresets:** replace `ServerScriptService.StudioPresets` with `integration/StudioPresets.luau`. Only `Save` changes: it becomes a guarded, retry-safe UpdateAsync.
+4. **DirectorPersistence:** add `integration/DirectorPersistence.luau` as a ModuleScript named `DirectorPersistence`, next to PodcastDirector.
+5. **PodcastDirector:** follow `integration/PodcastDirector.persistence.luau`:
+   1. delete `snapshot`, `restoreSnapshot` and `persistentAction`;
+   2. insert the construction block, including the `roomLooks` getter/setter and the `setLayoutBusy` closure;
+   3. add the two room-mutation gates (next section).
+6. **Host panel and camera wiring** (next section).
+
+## Live patch points in the working Studio
+
+These are the patches Codex has made in the working place. Its baseline is builder commit 62f2f87, plus the
+host-panel, camera and streaming patches, plus the task 5 install at bb3efa6; a full-place and 42-script
+checkpoint is saved. The exact source of the panel, camera and streaming patches exists **only in that Studio
+checkpoint, not in this repository**. The list records what each one is for and what was reported working.
+
+### PodcastDirector (installed at bb3efa6, per Codex)
+
+- The `directorPersistence` instance is built once, and `snapshot`, `restoreSnapshot` and `persistentAction` are bound to it.
+  The same instance serves the gates below. `getRoomLook` / `setRoomLook` are closures over the Director's `roomLooks`.
+- **Entry gate**, right after the existing `if layoutBusy then feedback(...); return end`:
+  `if action ~= "Persist" and directorPersistence.roomMutationBlocked() then` refuse with `ROOM_MUTATION_MESSAGE`.
+  This refuses Fixture, Item, Set, Preset, Text, Look and Transfer while a load is running or a failed load's recovery is unresolved.
+  Persist stays open, so List works and every Persist action retries recovery first.
+- **Post-filter gate** in the Text branch, before `SetAttribute`: `if layoutBusy or directorPersistence.roomMutationBlocked() then` refuse.
+  A Text filter that was already in flight when a load or recovery began can't write when it returns.
+
+### StudioPresets (installed)
+
+- `Save` uses `PresetSlotGuard.transform`. It refuses to write over a corrupt profile, a newer or invalid record,
+  snapshot or Build, or a slot whose existing non-empty Build would be lost.
+
+### Host panel: PodcastStudioPanel (local patch, per Codex)
+
+- The **OPEN BUILDER** entry in the existing Studio tab calls `BuilderClient.open()`. There is no fifth tab and no second panel.
+- The patch calls `BuilderClient.configure({ hooks = {...}, panel = { getPosition, onClosed } })`. The contract for each slot:
+  - `hostDrawer`: the panel's open/close, keeping `Drawer.Visible`, the launcher text and `PanelOpen` in sync;
+  - `worldClickHandlers`: gates off the panel's world picker while building;
+  - `panel.getPosition` / `panel.onClosed`: open the drawer at the panel position and restore it on Back/Done.
+- Which optional slots the local patch binds isn't recorded in this repository. Done restoring the host drawer in Play suggests `hostDrawer` is bound.
+- **Reported working in Play:** the drawer matches the existing UI, and Done restores shot 0 and the host drawer.
+- **No Discard control yet.** `Persist` / `DiscardLoadBlock` exists on the server, but no panel button sends it.
+  After a failed load, the save-block message mentions discarding. Until a control is added, **a successful Load is the only way to lift the save block**.
+
+### Camera: PodcastCamera (local patch, per Codex)
+
+- `camera` slot: `PodcastCameraHook.fromLocalPlayer()`.
+  - On enter, it fires `PlayerGui.PodcastCameraUI.StudioCameraControl:Fire("FreeCamera", true)`.
+  - On exit, it restores the previous view: free stays free; seat shots 1–4 and POV are reselected; Wide, Walk and unknown views go to Wide; Walk is never re-entered.
+- `hostControls` slot (required). Per the contract, it must suppress 1–5, V, F, D-pad/Y shot controls and AutoShot while building,
+  and keep WASD, Q/E, Shift/Ctrl, right-drag look and the cursor-release safeguards.
+  Build mode refuses to open without both required slots, so OPEN BUILDER working in Play implies both are bound.
+  That each suppressed key is really ignored hasn't been reported, so it's on the checklist.
+- Isolated MCP `require` calls report `HandoffUnbound`, because they get a separate, unconfigured module instance. This is expected and not a wiring fault.
+
+### Streaming (local patch, per Codex)
+
+- `StreamingEnabled = true`. The build camera can be far from the avatar, for example avatar in the Boardroom and camera at (2024, 23, 29).
+- The sandbox Model and the 7 templates are persistent in Studio, and `PlacedItemsWorld` makes every placed model persistent before parenting.
+- Room assets keep normal streaming.
+- Verified by Codex: client replication and floor raycasts.
+
+### Still to confirm in the working place
+
+- **StudioCustomization exclusion:** skip `BuildItemId`-tagged models and `StudioBuilderPlacedItems`, so its `StudioBasePivot` reset can't move builder items.
+  This isn't reported as done.
+- **Room-switch gate** (`roomSwitchSignal` in `BuilderClient.configure`, optional; `PodcastSettings.SceneSet` changes are handled anyway): not reported either way.
+
+## Protocol and security model
+
+- **One RemoteFunction:** `Remotes.BuilderRequest`, one table per call. The ops and their exact fields are listed in `src/shared/Protocol.luau`:
+  `Place {itemId, transform}`, `Move {id, transform}`, `Rotate {id, direction?}`, `Duplicate {id}`, `Delete {id}`, `Undo {expectedRevision?}`,
+  `Redo {expectedRevision?}`, `Status {}`.
+  Any other key is rejected. Instances, paths, colours and scales are never accepted.
+- **Transforms:** local to the sandbox origin; finite; yaw on the 15° grid; positions quantized to 0.01 studs. The full yawed footprint must fit the sandbox bounds.
+- **Catalog whitelist:** stable IDs (`src/shared/Catalog.luau`) map to curated ServerStorage templates. Clones are sanitized of code, prompts, detectors, remotes and bindables.
+  There are no `LoadAsset`, `InsertService`, `require(assetId)` or HTTP loaders; a static test enforces this.
+- **Authority:** only the current host (`ReplicatedStorage.PodcastSettings.HostUserId`) edits.
+  The host is re-checked after every yield, and a host-session epoch aborts work across A → B → A. History is cleared on host change.
+- **Limits:**
+  - 150 items;
+  - builder-only rate limits: edits 12 burst at 6/s, Status 6 burst at 2/s;
+  - undo depth 50;
+  - `expectedRevision` refuses stale Undo/Redo.
+- **Fail closed:** the edit lock is taken before any yielding dependency. A failed world rollback or finalize puts the server in `recovery`.
+  Edits and saves are then refused until recovery succeeds; it is retried every 2 s.
+- **Never `LayoutRevision`:** the builder publishes its own `BuildRevision`.
+
+## Save and load (summary)
+
+- **Storage:** an additive `Build = { Version = 1, NextId, Items = { { Id, CatalogId, Transform = { X, Y, Z, Yaw } } } }` section inside the existing StudioPresets snapshot.
+  Same 5 slots, same 250000-byte cap, no autosave. Done just leaves the builder.
+- **Load:** one transaction for room and build. A corrupt or newer Build fails before any change.
+  Any failure rolls the room back without re-filtering text, and rolls the build back.
+- **Recovery:** if a rollback fails, a shared recovery blocks:
+  - builder edits, saves, loads and Discard, for every host;
+  - normal room changes, through the Director gates.
+  It stays until the room and the build are both restored.
+- **Save block:** after any failed Load or LoadCode, Save and Share are refused for that host until a successful load (or `DiscardLoadBlock`, which has no UI yet).
+
+## Verification
+
+### Executed in this repository
+
+- `lua5.4 tests/run.lua`: **243 passed, 0 failed**, across 24 specs.
+- The tests run the real modules (and the real `integration/` files) against fakes. Yields are driven by coroutines.
+- Key behaviours were also checked by mutation: each original bug, put back, makes a test fail.
+- All source is compile-checked as Lua 5.4. The Luau CLI couldn't run in this environment.
+
+### Executed by Codex in real Studio Luau
+
+- 50 server, 47 client, and Director tests: all **19** Director tests at bb3efa6, plus five independent regressions.
+- Slot-guard checks, and template probe and reconcile checks on the 7 real templates.
+- All nine installed or patched files compile.
+
+### Executed by Codex in Play (working place)
+
+- **Builder UI (at 62f2f87):** OPEN BUILDER opens the drawer, which matches the live panel.
+  Place, Move, Rotate, Duplicate, Delete, Undo and Redo work; Done restores shot 0 and the host drawer.
+- **Streaming:** the persistence fix works for client replication and floor raycasts.
+- **At bb3efa6:**
+  - the server starts in `ready`;
+  - Place, Undo, Redo and Delete work through the client RemoteFunction;
+  - the Director Save/Load round trip worked: table `i2` came back at local (4, 0, -4), yaw 15, and Theme Teal came back after deleting it and setting Theme Sand;
+  - history was cleared on load;
+  - a failed Load (a missing slot) followed by Save was refused, with no second backend write;
+  - no startup errors.
+- **Caveat on those Play checks:**
+  - The StudioPresets API was replaced by **Play-only memory stand-ins**, so there were no real DataStore reads or writes.
+  - The fake Load had **no text fields**, so live text filtering didn't run.
+  - UI mouse automation stalled in that run, so the bb3efa6 checks went through the RemoteFunction, not the drawer.
+
+### Not verified yet
+
+- Real DataStore: Save, Load, List, Share and LoadCode, UpdateAsync retries, backend errors, the size cap.
+- Real TextService filtering inside Load, including a filter that yields long enough to race a host change.
+- Multiplayer: host transfer during building and during Load, a non-host trying to edit, two clients watching the build, late joiners and streaming for other players.
+- A real forced room failure during Load (rollback and recovery in a live server), and the Director gates refusing real panel actions during it.
+- Touch input, and the drawer flow at bb3efa6.
+- The StudioCustomization exclusion and the room-switch gate (see above).
+
+## Playtest checklist for Codex (remaining)
+
+Use a test place or a private server with DataStore access. Never publish.
+
+**DataStore and text (real services):**
+- [ ] Save into an empty slot, a legacy slot (no Build) and a slot with a Build. Load each back: same item IDs, catalog IDs and transforms.
+- [ ] Load a legacy preset: the builder is left as it is and the room loads as before.
+- [ ] Hand-edit a slot to `Build.Version = 2`: Save into it is refused, and Load is refused with room and build unchanged.
+- [ ] Save, Load and Share with a real title (text filtering runs): the filtered title is applied, and Save/Load feedback is correct.
+- [ ] Share a preset with a Build, then LoadCode it: the build comes back.
+- [ ] A slot-list refresh failure after a good save still reports the save as successful (only if a failure can be forced safely).
+
+**Failure paths:**
+- [ ] Force a room failure during Load (a temporary error in `applyAll`): room settings, fixtures, items, `roomLooks` and the build are restored.
+  Save is then refused until a successful Load (there's no Discard button).
+- [ ] Force `applyAll` to fail during both Load and rollback:
+  - every non-Persist panel action is refused with the room-changes message;
+  - Persist List still works;
+  - builder edits get RecoveryNeeded.
+  Remove the failure and wait about 2 s: the room is exactly the pre-load state, and everything works again.
+- [ ] Type a Text change, then start a failing Load before the filter returns: the text isn't applied.
+
+**Multiplayer (two clients):**
+- [ ] Transfer host during building: the old host's builder closes or turns read-only, and the new host can edit every item. Undo history doesn't carry over.
+- [ ] Transfer host during Load: "Host controls changed", with room and build unchanged.
+- [ ] A non-host sending BuilderRequest edits gets `NotHost`. Status still answers.
+- [ ] The second client sees placed items (streaming) and doesn't see the ghost.
+
+**UI and place:**
+- [ ] While building, 1–5, V, F, D-pad/Y and AutoShot do nothing; WASD, Q/E, right-drag look and Escape cursor release still work. After Done, the shortcuts work again.
+- [ ] Re-run the drawer flow at bb3efa6 (Place/Move/Rotate/Duplicate/Delete/Undo/Redo/Done, R, Escape) with mouse and with touch.
+- [ ] Confirm or add the StudioCustomization exclusion. Changing room customization must not move builder items.
+- [ ] Remove one template from `StudioBuilderTemplates`, then load a build that uses it: the item is kept (not spawned) and survives a re-save.
+
+## Catalog and content status
+
+- **Installed:** 7 catalog items, all free:
+  - `cozy_armchair_01`, `cozy_coffee_table_01`, `cozy_bookshelf_01`, `cozy_plant_01`, `cozy_floor_lamp_01`;
+  - `retro_tv_cart_01`, `retro_cassette_01`.
+- **Prepared, not registered:** `retro_crt_tv_01` is in `ServerStorage.StudioBuilderPreparedAssets`. It isn't in `Catalog.luau` yet.
+- **Collections:** Cozy, 1980s, Retro, Winter and Futuristic filters exist, but the collections aren't complete; that is task 8.
+
+## Next tasks
+
+- **Task 7, seat anchors and camera assignment:** waits on the actual StudioLayout, seating and camera source contracts. Until it's done, catalog chairs are decorative only.
+- **Task 8:** more collection themes, for templates Codex has prepared.
+- **Task 9:** Studio > Branding.
+- **Discard control (small, panel side):** a button that sends `PodcastStudioControl:FireServer("Persist", "DiscardLoadBlock", {})`.
