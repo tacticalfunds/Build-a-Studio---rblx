@@ -65,4 +65,28 @@ return function(T, H)
 		T.ok(math.abs(t.z + 2.0) < 1e-9)
 		T.eq(t.yaw, 345)
 	end)
+
+	-- Review of 8f3f404: ipairs({ x, y, z }) stops at the first nil, so a missing
+	-- coordinate skipped validation and the later arithmetic threw.
+	T.test("a missing x, y or z is BadTransform, never a throw, even when a later field is bad too", function()
+		local cases = {
+			{ name = "missing x", raw = { y = 0, z = 0, yaw = 0 } },
+			{ name = "missing y", raw = { x = 0, z = 0, yaw = 0 } },
+			{ name = "missing z", raw = { x = 0, y = 0, yaw = 0 } },
+			{ name = "missing x, NaN z", raw = { y = 0, z = 0 / 0, yaw = 0 } },
+			{ name = "missing x, string y", raw = { y = "0", z = 0, yaw = 0 } },
+			{ name = "missing y, huge z", raw = { x = 0, z = math.huge, yaw = 0 } },
+			{ name = "missing x and y", raw = { z = 0, yaw = 0 } },
+			{ name = "all missing", raw = { yaw = 0 } },
+		}
+		for _, c in ipairs(cases) do
+			local ok, result, code = pcall(Transform.sanitize, c.raw, SHELF, BOUNDS, Config)
+			T.ok(ok, c.name .. " threw: " .. tostring(result))
+			T.eq(result, nil, c.name)
+			T.eq(code, "BadTransform", c.name)
+		end
+		-- Valid transforms are unchanged.
+		T.deepEq(clean(1.004, 0, -1.996, 375), { x = 1, y = 0, z = -2, yaw = 15 })
+		T.eq(select(2, clean(19, 0, 0, 0)), "OutOfBounds")
+	end)
 end

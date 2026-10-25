@@ -159,4 +159,33 @@ return function(T, H)
 		local tight = { halfX = 8, halfZ = 8.5, height = 24 } -- room for one X-axis wall at z = 8 only
 		T.eq(select(2, G.rotate("wall", t(0, 0, 8, 0), 1, WALL, tight)), Codes.OutOfBounds, "every candidate out of bounds")
 	end)
+
+	T.test("a missing x, y or z is BadTransform, never a throw (validate, rotate), even with a later bad field", function()
+		local cases = {
+			{ name = "missing x", raw = { y = 0, z = 0, yaw = 0 } },
+			{ name = "missing y", raw = { x = 0, z = 0, yaw = 0 } },
+			{ name = "missing z", raw = { x = 0, y = 0, yaw = 0 } },
+			{ name = "missing x, NaN z", raw = { y = 0, z = 0 / 0, yaw = 0 } },
+			{ name = "missing x, string y", raw = { y = "0", z = 0, yaw = 0 } },
+			{ name = "missing y, huge z", raw = { x = 0, z = math.huge, yaw = 0 } },
+			{ name = "missing x and z", raw = { y = 0, yaw = 0 } },
+		}
+		for _, kind in ipairs({ "floor", "wall" }) do
+			local size = kind == "floor" and FLOOR or WALL
+			for _, c in ipairs(cases) do
+				local ok, result, code = pcall(G.validate, kind, c.raw, size, LIVE)
+				T.ok(ok, kind .. " " .. c.name .. " threw: " .. tostring(result))
+				T.eq(result, nil, kind .. " " .. c.name)
+				T.eq(code, Codes.BadTransform, kind .. " " .. c.name)
+				local rok, rresult, rcode = pcall(G.rotate, kind, c.raw, 1, size, FUTURE)
+				T.ok(rok, "rotate " .. kind .. " " .. c.name .. " threw: " .. tostring(rresult))
+				T.eq(rcode, Codes.BadTransform, "rotate " .. kind .. " " .. c.name)
+			end
+		end
+		-- Ordinary valid and edge behaviour unchanged.
+		T.deepEq(G.validate("floor", t(0, 0, 0, 0), FLOOR, LIVE), t(0, 0, 0, 0))
+		T.deepEq(G.validate("wall", t(-16, 0, 8, 180), WALL, LIVE), t(-16, 0, 8, 180))
+		T.eq(select(2, G.validate("wall", t(0, 0, 24, 0), WALL, LIVE)), Codes.OutOfBounds)
+		T.ok(G.validate("wall", t(0, 0, 24, 0), WALL, FUTURE) ~= nil)
+	end)
 end

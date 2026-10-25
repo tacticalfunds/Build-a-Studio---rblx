@@ -60,6 +60,10 @@ local Codes = StructureGrid.Codes
 
 local PITCH, HALF = StructureGrid.PITCH, StructureGrid.HALF
 
+local function isCoordinate(v, limit)
+	return Validate.isFiniteNumber(v) and math.abs(v) <= limit
+end
+
 -- Nearest cell centre (16*i); ties toward +infinity.
 function StructureGrid.snapCentre(v)
 	return math.floor(v / PITCH + 0.5) * PITCH
@@ -124,10 +128,9 @@ function StructureGrid.validate(kind, t, size, bounds, options)
 	end
 	local limit = options.maxCoordinate or 1024
 	local x, y, z, yaw = rawget(t, "x"), rawget(t, "y"), rawget(t, "z"), rawget(t, "yaw")
-	for _, v in ipairs({ x, y, z }) do
-		if not Validate.isFiniteNumber(v) or math.abs(v) > limit then
-			return nil, Codes.BadTransform
-		end
+	-- Explicit per-field checks (ipairs over { x, y, z } stops at the first nil).
+	if not (isCoordinate(x, limit) and isCoordinate(y, limit) and isCoordinate(z, limit)) then
+		return nil, Codes.BadTransform
 	end
 	if not Validate.isFiniteNumber(yaw) or math.abs(yaw) > 3600 then
 		return nil, Codes.BadTransform

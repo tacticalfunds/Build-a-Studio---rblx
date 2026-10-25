@@ -14,6 +14,10 @@ local Validate = require(script.Parent.Validate)
 
 local Transform = {}
 
+local function isCoordinate(v, limit)
+	return Validate.isFiniteNumber(v) and math.abs(v) <= limit
+end
+
 local YAW_TOLERANCE = 1e-6
 local MAX_ABS_YAW = 3600
 
@@ -60,11 +64,11 @@ function Transform.sanitize(raw, size, bounds, config)
 		return nil, "BadTransform"
 	end
 	local x, y, z, yaw = rawget(raw, "x"), rawget(raw, "y"), rawget(raw, "z"), rawget(raw, "yaw")
+	-- Each field checked explicitly: a sequence like { x, y, z } stops at the
+	-- first nil under ipairs, so a missing coordinate would slip through.
 	local limit = config.MaxCoordinate
-	for _, v in ipairs({ x, y, z }) do
-		if not Validate.isFiniteNumber(v) or math.abs(v) > limit then
-			return nil, "BadTransform"
-		end
+	if not (isCoordinate(x, limit) and isCoordinate(y, limit) and isCoordinate(z, limit)) then
+		return nil, "BadTransform"
 	end
 	if not Validate.isFiniteNumber(yaw) or math.abs(yaw) > MAX_ABS_YAW then
 		return nil, "BadTransform"

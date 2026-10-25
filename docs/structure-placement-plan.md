@@ -107,7 +107,7 @@ Refusing every such turn would make Rotate useless for walls. `StructureGrid.rot
 
 Example: a wall along X at (0, 8), Rotate +1, becomes a wall along Z at (8, 16), hinged at the corner (8, 8).
 **Integration later:** `planners.Rotate` would call this for structure items instead of adding `RotationStep`, and the resulting move effect goes through the existing apply, rollback and history path unchanged.
-Whether this hinge behaviour feels right is a UX question for review in Studio.
+Whether this hinge behaviour feels right is a UX question. **It isn't UX-approved**, and it stays an isolated proposal until a practical preview review in Studio.
 
 ### Original open questions (as first written; superseded by the table above)
 

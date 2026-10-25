@@ -336,3 +336,11 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
   - **Not integrated:** no planners, preview, drawer, catalog, persistence, seat or theme changes. All 31 live catalog entries are unchanged.
   - **Evidence (executed 2026-10-25):** `lua5.4 tests/run.lua` gives **273 passed, 0 failed** (26 specs). `structure_grid_spec` adds 9 tests: snapping (negative cells, ties), floor and ceiling (ceiling top 16, height 15.9 vs 16), edge axes for the three edge kinds, the full outer-wall footprint (24 refused, 24.5 accepted), tolerance, yaw, bad input, projection (including a sweep), and Rotate.
     12 mutations caught: edge origin, tie direction, swapped axes, overhang allowed, no level check, ceiling at 16, OffGrid reported as bounds, 15° yaw, rotate in place, no fallback candidates, tie edge choice, corner accepted.
+- Validation repair (review of 8f3f404; the 9 grid tests passed in real Studio Luau, and 3 reproduced throws blocked):
+  - **Bug:** `StructureGrid.validate` and `Transform.sanitize` checked coordinates with `ipairs({ x, y, z })`, which stops at the first nil, so a missing x, y or z skipped validation and then threw on arithmetic.
+  - **Fix:** both now check each field explicitly (`isCoordinate`). Valid transforms, the 0.01 quantization and bounds behaviour are unchanged.
+  - **Regressions:** missing x, missing y, missing z, plus combinations where a later coordinate is also NaN, a string or infinite. They're asserted as `BadTransform` and never a throw, through `validate`, `rotate` and `Transform.sanitize`. Ordinary valid and outer-wall cases are re-checked.
+  - **Mutation check:** putting the original `ipairs` loop back fails the new test, in each module independently.
+  - **Evidence:** `lua5.4 tests/run.lua` gives **275 passed, 0 failed**.
+  - Still unintegrated. The hinge Rotate stays an isolated proposal and isn't UX-approved; it waits for a practical preview review.
+

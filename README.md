@@ -186,7 +186,7 @@ Each hook below was checked against that source.
 
 ### Executed in this repository
 
-- `lua5.4 tests/run.lua`: **273 passed, 0 failed**, across 26 specs.
+- `lua5.4 tests/run.lua`: **275 passed, 0 failed**, across 26 specs.
 - `seat_assignments_spec` also checks the seat model's contracts against the attached bb3efa6 source: seat count, seat index range, pose modes, Lounge-only couch poses, seat labels and StudioCustomization isolation.
 - The tests run the real modules (and the real `integration/` files) against fakes. Yields are driven by coroutines.
 - Key behaviours were also checked by mutation: each original bug, put back, makes a test fail.
