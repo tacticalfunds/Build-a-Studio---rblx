@@ -36,29 +36,33 @@ Commit Codex's four snapshot files under `docs/assets/` with an index README.
 - Evidence: counts confirmed by a local JSON parse on 2026-10-25.
 
 ## 2. Define narrow adapters: Done (Studio integration pending)
-Create `src/shared`, `src/server` and `src/client` with a Rojo project. Write adapter modules, each with a documented contract and a safe default. Contract table: [`docs/adapters.md`](docs/adapters.md).
-- `Catalog` (shared): the 7 stable IDs (`cozy_armchair_01`, `cozy_coffee_table_01`, `cozy_bookshelf_01`, `cozy_plant_01`, `cozy_floor_lamp_01`, `retro_tv_cart_01`, `retro_cassette_01`). Collections are tags: Cozy, 1980s, Retro, Winter, Futuristic (no items yet). Every collection has `entitlement = {kind="free"}`. Each item's `sourceRef` points at the asset guide and is documentation only.
-- `Entitlements`: future unlock hook via injected resolvers. `free` always unlocks, unknown kinds fail closed, no paywall.
-- `HostAuthority`: injected `getHostUserId`. The default reads `PodcastSettings.HostUserId` with no caching. Fails closed.
-- `TemplateCatalog`: injected probe. The default looks for a Model named `<itemId>` in `ServerStorage.StudioBuilderTemplates`. Each item is installed, not_installed (shown as a disabled card) or invalid. Fixtures are opt-in and Studio-only.
-- `RoomProvider`: injected resolver for the sandbox only, with validated bounds.
-- `SaveSnapshot` + `SaveBackends`: schema `StudioBuilder.Build` v1 with migrations. Strict decode. Newer versions are refused, unplaceable entries are preserved, 64 KB cap. Memory backend only.
-- `BuildModeHandoff` (client): the camera-mode, host-controls, drawer and click-handler slots, all injected. `camera` and `hostControls` are required. Rollback on enter failure, best-effort exit.
-- Acceptance: each adapter has a single documented entry point. No Podcast* API is guessed beyond the contracts above. Every file passes a compile check.
-- Evidence (executed 2026-10-25): `lua5.4 tests/run.lua` gives **59 passed, 0 failed** across 9 specs. A mutation check (host check disabled, schema check removed, rollback removed) made 5 tests fail as expected, then went back to green.
-- Not executed: anything needing real Instances (`podcastSettingsSource` against a live PodcastSettings, `serverStorageProbe`, `markerSource`, CFrame validation). The Luau compiler wasn't available (running its binary was blocked), so files are compile-checked as Lua 5.4 only.
-- Open for task 3/4: a server-published copy of curated templates for client cards and ghosts. Binding the real hooks waits on Codex's extracted signatures.
+Create `src/shared`, `src/server` and `src/client` with a Rojo project. Write adapter modules, each with a documented contract and a safe default. Contract table and the live-script follow-ups: [`docs/adapters.md`](docs/adapters.md).
+- `Catalog`: the 7 stable IDs. Collections are tags (Cozy, 1980s, Retro, Winter, Futuristic), all `entitlement={kind="free"}`. Each `sourceRef` is checked against the asset guide.
+- `Entitlements`: injected resolvers. `free` always unlocks, unknown kinds fail closed, no paywall.
+- `HostAuthority`: `PodcastSettings.HostUserId`, no caching, fails closed.
+- `TemplateCatalog`: curated `ServerStorage.StudioBuilderTemplates`. Each item is installed, not_installed or invalid. Fixtures are opt-in and Studio-only.
+- `RoomProvider`: sandbox only, validated bounds.
+- `SaveSnapshot`: an additive preset `Build={Version=1,NextId,Items={ {Id,CatalogId,Transform={X,Y,Z,Yaw}} }}` section. Preset Version stays 1, a missing Build means `NoBuild` (legacy), strict decode, migrations, unplaceable items preserved, 64 KB cap. `SaveBackends.memory()` only.
+- `BuildModeHandoff` + `PodcastCameraHook` (verified contract): `StudioCameraControl:Fire("FreeCamera", true)` on enter, restores the previous shot and POV on exit, never re-enters Walk, adds no second camera writer.
+- `AssetYardGuard` + `StudioBuilderBootstrap.server.luau`: removes only `Workspace.StudioAssetYard` at play or server start.
+- Acceptance: each adapter has a single documented entry point. No Podcast* API is guessed beyond the verified contracts. Every file passes a compile check.
+- Evidence (executed 2026-10-25): `lua5.4 tests/run.lua` gives **75 passed, 0 failed** across 11 specs. Mutation checks (host check, Build-section legacy path, camera restore, hook rollback) each made the targeted tests fail, then went back to green.
+- Not executed: anything that needs real Instances (live PodcastSettings, PodcastCameraUI, ServerStorage templates, the sandbox marker, the yard removal in a real Play session). The Luau compiler wasn't available, so files are compile-checked as Lua 5.4 only.
+- Needs live-script patches (Codex): a hostControls gate in PodcastCamera, the panel's shared open/close and world-picker gate, StudioCustomization skipping `BuildItemId`, and the Director restoring `Build` before overrides. Until the first two exist, build mode refuses to enter (required slots).
 
 ## 3. Server-authoritative placement and validation: Pending
 A pure core handles the catalog whitelist, finite and bounded transforms, room bounds, the item cap, per-player rate limits, an edit check against HostUserId on every request, and edits limited to the player's own build items. A thin Roblox layer applies the results inside a dedicated builder folder.
+- Also: recheck host authority after every yield before committing. Use a separate build revision (never LayoutRevision). Tag placed models with `BuildItemId` inside `StudioBuilderPlacedItems`. Publish client-visible copies of curated templates.
 - Acceptance: tests that actually run cover authorization, malformed payloads (Instances, NaN/inf, extra keys like color or scale, paths, oversized strings), cap and rate limits. Studio behavior is marked pending.
 
 ## 4. Simple drawer UI, item editing and Undo/Redo: Pending
 Cozy and 1980s filters, ViewportFrame cards, and placement on a surface. A selected item can be moved, rotated, duplicated or deleted. Undo/Redo and Done. Grid snapping is on by default, R rotates 15°, and Escape cancels placement without swallowing UI controls. Undo/redo runs on the server, restores logical item IDs and handles rejected edits.
+- Also: cancel previews and drags, and exit build mode, on host loss, room switch, respawn or disconnect. Bind the handoff slots once Codex adds the panel and camera gates.
 - Acceptance: tests run for undo/redo ID restoration and history conflicts. UI behavior is Studio-pending.
 
 ## 5. Save/load with failure protection: Pending
 Versioned records, validated on load. A failed load keeps the current build and blocks saving. A failed save is shown to the player. Empty or failed loads never autosave over real data. Records newer than the current version are never downgraded. There are no LayoutRevision writes.
+- Also: route the `Build` section through StudioPresets (`Persist` Save/Load, 5 slots, 250000-byte cap, entry Version 1). The Director must rebuild Build items before applying fixture and item overrides, and a missing Build keeps legacy loading.
 - Acceptance: tests run for backend errors, corrupt records, newer versions, the empty-autosave guard and interleaved saves. Persistence through DataStore is marked untested.
 
 ## 6. Integration README and Codex Studio playtest handoff: Pending
@@ -66,7 +70,7 @@ Document the Rojo mapping, adapter wiring, protocol and security model, and list
 - Acceptance: Codex can wire the adapters without reading the core code. Pending items are listed explicitly.
 
 ## 7. Seat-anchor and camera-assignment adapter: Pending
-Turn chosen decorative chairs into seat anchors that work with StudioLayout and Seat1–Seat4.
+Turn chosen decorative chairs into seat anchors that work with StudioLayout and Seat1–Seat4. `StudioLayout.Apply` resets all four seat CFrames and the camera shots, so this needs an explicit anchor-to-seat assignment or coordinated Layout changes, occupant-safe moves, and pose-profile validation (e.g. couch poses) on both server and panel.
 - Acceptance: none until the contracts are inspected. Until this task is Done, don't claim seating integration works. (Cassie offered help. This task is unclaimed.)
 
 ## 8. More collection themes: Pending

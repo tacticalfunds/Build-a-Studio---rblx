@@ -16,14 +16,18 @@ Config.MaxBuildIdLength = 11 -- "i" + up to 10 digits
 Config.MaxItems = 150
 Config.MaxCoordinate = 1024 -- absolute sanity bound on any stored local coordinate
 
--- Build snapshot (separate from StudioPresets, which keeps its own 5 slots / 250 KB cap)
-Config.SnapshotSchema = "StudioBuilder.Build"
-Config.SnapshotVersion = 1
-Config.MaxSnapshotBytes = 64 * 1024
+-- Build save payload: an additive `Build` section inside a StudioPresets snapshot
+-- ({Version=1, Settings, Fixtures, Items, Build}). The preset entry/top-level
+-- Version stays 1; StudioPresets keeps its 5 slots and 250000-byte JSON cap.
+Config.BuildSectionKey = "Build"
+Config.BuildSectionVersion = 1
+Config.MaxBuildSectionBytes = 64 * 1024 -- leaves room for the rest of the preset
 
 -- Instance names (builder-owned; never shared with existing Podcast* systems)
 Config.TemplateFolderName = "StudioBuilderTemplates" -- curated by Codex in ServerStorage
 Config.PlacedItemsFolderName = "StudioBuilderPlacedItems" -- excluded from StudioCustomization
+Config.BuildItemIdAttribute = "BuildItemId" -- tag on every placed model; StudioCustomization must skip it
+Config.AssetYardName = "StudioAssetYard" -- editor-only display copies in Workspace, removed at play start
 Config.SandboxMarkerName = "StudioBuilderSandbox" -- Workspace part whose volume is the build volume
 
 -- Keys the builder itself binds while open. Host keys that build mode suppresses
