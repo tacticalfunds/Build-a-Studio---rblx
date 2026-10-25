@@ -26,7 +26,7 @@ return function(T, H)
 	end
 
 	local function setup()
-		local env = { now = 0, fired = {}, feedbacks = {}, busy = {}, filterCalls = 0, applyAllCalls = 0, remembered = 0 }
+		local env = { now = 0, fired = {}, feedbacks = {}, busy = {}, filterCalls = 0, applyAllCalls = 0, remembered = 0, roomLooks = {} }
 
 		-- Room ------------------------------------------------------------------
 		env.settings = attrObject({ HostUserId = A, SceneSet = "Custom", Title = "Live show", Brightness = 1, Fog = 0.2, Ambience = "Off", Custom_Warmth = 0.5, Lounge_Warmth = 0.5, CustomLighting = false })
@@ -63,7 +63,13 @@ return function(T, H)
 				Reset = function(object) object.attrs = {} end,
 				Apply = function() end,
 			},
-			rememberLighting = function() env.remembered = env.remembered + 1 end,
+			-- Live semantics: roomLooks[scene] = current light keys.
+			rememberLighting = function(scene)
+				env.remembered = env.remembered + 1
+				env.roomLooks[scene] = { CustomLighting = env.settings:GetAttribute("CustomLighting"), Fog = env.settings:GetAttribute("Fog") }
+			end,
+			getRoomLook = function(scene) return env.roomLooks[scene] end,
+			setRoomLook = function(scene, look) env.roomLooks[scene] = look end,
 			applyAll = function()
 				env.applyAllCalls = env.applyAllCalls + 1
 				if env.onApplyAll then env.onApplyAll() end
@@ -106,7 +112,9 @@ return function(T, H)
 			if self.failRollback > 0 then self.failRollback = self.failRollback - 1 error("rollback failed") end
 			if token.kind == "replace" then self.live = token.old else self.live[token.id] = token.previous end
 		end
-		function world:commit() end
+		function world:commit()
+			if (self.failCommit or 0) > 0 then self.failCommit = self.failCommit - 1 error("finalize failed") end
+		end
 		function world:publishRevision() end
 		env.world = world
 		env.core = PlacementCore.new({
@@ -114,7 +122,10 @@ return function(T, H)
 			templates = { isInstalled = function() return true end, getSize = function() return { 2, 2, 2 } end },
 			entitlements = { isItemUnlocked = function() return true end },
 			authority = {
-				check = function(_, userId) return userId == env.settings:GetAttribute("HostUserId") end,
+				check = function(_, userId)
+					if env.yieldCheck then env.yieldCheck = nil coroutine.yield("check") end
+					return userId == env.settings:GetAttribute("HostUserId")
+				end,
 				currentHostUserId = function() return env.settings:GetAttribute("HostUserId") end,
 			},
 			bounds = { halfX = 20, halfZ = 15, height = 16 },
@@ -315,7 +326,8 @@ return function(T, H)
 		T.eq(env.core:getState(), "recovery")
 		T.eq(env.place(0).code, "RecoveryNeeded", "builder edits refused")
 		env.action("Save", { Slot = 2, Name = "x" })
-		T.ok(env.lastFeedback():find("saving is paused"))
+		T.ok(env.lastFeedback():find("still being restored"), env.lastFeedback())
+		T.eq(env.store.data["user:1001"].Slots["2"], nil)
 	end)
 
 	T.test("corrupt and newer stored builds fail before filtering, room and build untouched, and latch", function()
@@ -363,6 +375,105 @@ return function(T, H)
 		T.ok(fired.message:find("couldn't refresh"), fired.message)
 		T.eq(env.store.data["user:1001"].Slots["4"].Name, "Saved anyway")
 		T.eq(env.store.data["user:1001"].Slots["4"].Data.Build.Items[1].Id, "i1")
+	end)
+
+	-- Recovery checkpoint (review of e30e8be) --------------------------------------
+
+	T.test("room rollback failure keeps shared compound recovery: edits/saves blocked across host transfer, Discard refused, only recovery clears", function()
+		local env = setup()
+		saveLoungePreset(env)
+		local roomBefore = deepCopy(env.settings.attrs)
+		env.onApplyAll = function() error("applyAll broken") end -- fails during load AND rollback
+		env.action("Load", { Slot = 1 })
+		T.eq(env.dp.saveBlocked(A), "RollbackFailed")
+		T.eq(env.core:getState(), "recovery", "builder must stay in recovery while the room is unrestored")
+		T.eq(env.place(0).code, "RecoveryNeeded", "builder edits refused")
+		env.action("DiscardLoadBlock")
+		env.action("Save", { Slot = 2, Name = "x" })
+		T.eq(env.store.data["user:1001"].Slots["2"], nil, "Discard does not bypass compound recovery")
+		-- Host transfer: the new host is blocked too.
+		env.transfer(B)
+		local bp = { UserId = B, Parent = {} }
+		env.now = env.now + 1
+		T.eq(env.core:handle(B, { op = "Place", itemId = "cozy_plant_01", transform = { x = 1, y = 0, z = 0, yaw = 0 } }).code, "RecoveryNeeded")
+		local storedBefore = deepCopy(env.store.data)
+		env.action("Save", { Slot = 1, Name = "B's" }, bp)
+		T.deepEq(env.store.data, storedBefore, "new host cannot save during recovery")
+		-- applyAll works again: recovery restores the captured room and lifts the block.
+		env.onApplyAll = nil
+		T.eq(env.core:recover(), true)
+		T.deepEq(env.settings.attrs.Title, roomBefore.Title, "captured room restored by recovery")
+		T.eq(env.settings:GetAttribute("SceneSet"), roomBefore.SceneSet)
+		env.transfer(A)
+		T.eq(env.place(0).ok, true)
+		env.action("Save", { Slot = 2, Name = "After recovery" })
+		T.eq(env.lastFired().ok, true)
+	end)
+
+	T.test("finalize failure after a load reports incomplete loading and keeps saving paused until reconciled", function()
+		local env = setup()
+		saveLoungePreset(env)
+		env.world.failCommit = 2 -- the load's finalize and the retry during Save both fail
+		local fired = #env.fired
+		env.action("Load", { Slot = 1 })
+		T.eq(#env.fired, fired, "not reported as a successful load")
+		T.ok(env.lastFeedback():find("still being restored"), tostring(env.lastFeedback()))
+		T.eq(env.core:getState(), "recovery")
+		T.eq(env.dp.saveBlocked(A), "BuildRecovery")
+		env.action("Save", { Slot = 2, Name = "x" })
+		T.eq(env.store.data["user:1001"].Slots["2"], nil)
+		T.eq(env.core:recover(), true) -- finalize retried
+		env.action("Save", { Slot = 2, Name = "Now" })
+		T.eq(env.lastFired().ok, true)
+	end)
+
+	T.test("beginTransaction takes the lock before yielding authority checks", function()
+		local env = setup()
+		local persistence = BuildPersistence.new(function() return env.core end)
+		local staged = persistence:prepareLoad(A, { Version = 1, Settings = {} })
+		env.yieldCheck = true
+		local first, firstErr
+		local co = coroutine.create(function()
+			local ok, txn = pcall(function() return persistence:begin(A, staged) end)
+			first, firstErr = ok and txn or nil, not ok and txn or nil
+		end)
+		assert(coroutine.resume(co)) -- paused inside authority.check
+		local secondOk = pcall(function() return persistence:begin(A, staged) end)
+		T.eq(secondOk, false, "second transaction refused while the first holds the lock")
+		assert(coroutine.resume(co))
+		T.ok(first ~= nil, tostring(firstErr))
+		T.eq(env.core:getState(), "busy")
+		first:rollback()
+		T.eq(env.core:getState(), "ready")
+	end)
+
+	T.test("a refused begin after a yielding check releases the lock", function()
+		local env = setup()
+		local persistence = BuildPersistence.new(function() return env.core end)
+		local staged = persistence:prepareLoad(A, { Version = 1, Settings = {} })
+		env.yieldCheck = true
+		local ok
+		local co = coroutine.create(function() ok = pcall(function() return persistence:begin(A, staged) end) end)
+		assert(coroutine.resume(co))
+		env.transfer(B)
+		assert(coroutine.resume(co))
+		T.eq(ok, false)
+		T.eq(env.core:getState(), "ready")
+	end)
+
+	T.test("a failed load restores the previous roomLooks entry exactly, including absence", function()
+		local env = setup()
+		saveLoungePreset(env)
+		env.roomLooks.Custom = nil
+		env.onApplyAll = function() env.onApplyAll = nil error("boom") end
+		env.action("Load", { Slot = 1 })
+		T.eq(env.remembered > 0, true, "the load did call rememberLighting")
+		T.eq(env.roomLooks.Custom, nil, "absent entry restored as absent")
+		env.action("DiscardLoadBlock")
+		env.roomLooks.Custom = { CustomLighting = true, Fog = 0.9 }
+		env.onApplyAll = function() env.onApplyAll = nil error("boom") end
+		env.action("Load", { Slot = 1 })
+		T.deepEq(env.roomLooks.Custom, { CustomLighting = true, Fog = 0.9 }, "previous entry restored exactly")
 	end)
 
 	T.test("cooldown and busy handling are unchanged", function()

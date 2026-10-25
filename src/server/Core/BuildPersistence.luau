@@ -50,7 +50,33 @@ BuildPersistence.Messages = {
 
 function BuildPersistence.new(getCore)
 	assert(type(getCore) == "function", "BuildPersistence.new requires getCore")
-	return setmetatable({ getCore = getCore }, BuildPersistence)
+	return setmetatable({ getCore = getCore, pendingExternal = nil }, BuildPersistence)
+end
+
+-- True while a failed compound load still has to be restored (builder
+-- recovery, or a pending room restore when the builder is disabled). Edits,
+-- saves and loads are refused meanwhile.
+function BuildPersistence:recovering()
+	local core = self.getCore()
+	if core ~= nil then
+		return core:inRecovery()
+	end
+	return self.pendingExternal ~= nil
+end
+
+-- One recovery attempt. Returns true when nothing is pending any more.
+function BuildPersistence:recover()
+	local core = self.getCore()
+	if core ~= nil then
+		return core:recover()
+	end
+	if self.pendingExternal ~= nil then
+		local called, restored = pcall(self.pendingExternal)
+		if called and restored ~= false then
+			self.pendingExternal = nil
+		end
+	end
+	return self.pendingExternal == nil
 end
 
 local function fail(code)
@@ -103,7 +129,10 @@ LoadTransaction.__index = LoadTransaction
 function BuildPersistence:begin(userId, staged)
 	local core = self.getCore()
 	if core == nil or staged.skipped then
-		return setmetatable({ inert = true }, LoadTransaction)
+		if not self:recover() then
+			fail("RecoveryNeeded")
+		end
+		return setmetatable({ inert = true, owner = self }, LoadTransaction)
 	end
 	local txn, code = core:beginTransaction(userId, staged.binding)
 	if txn == nil then
@@ -140,12 +169,19 @@ function LoadTransaction:commit()
 	return self.txn:commit()
 end
 
--- Returns ok (false = the builder is now in recovery and refuses edits/saves).
-function LoadTransaction:rollback()
+-- external (optional): function() -> ok restoring the room, when its own
+-- rollback failed; it is retried by recovery until it succeeds.
+-- Returns true only when nothing is pending (false = recovery: edits and saves
+-- refused for every host until it completes).
+function LoadTransaction:rollback(external)
 	if self.inert then
+		if external ~= nil then
+			self.owner.pendingExternal = external
+			return false
+		end
 		return true
 	end
-	return self.txn:rollback()
+	return self.txn:rollback(external)
 end
 
 return BuildPersistence

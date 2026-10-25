@@ -11,7 +11,7 @@
 	    defined (after every local it references exists: settings, defaults,
 	    groupKeys, textLengths, bounds, layoutBounds, atmosphereBounds,
 	    atmosphereKeys, fixtureAttributes, itemAttributes, itemBounds,
-	    finite, lighting, customization, rememberLighting, applyAll,
+	    finite, roomLooks, lighting, customization, rememberLighting, applyAll,
 	    applyDecor, getState, studio, presets, remote, feedback, layoutBusy).
 	    The names snapshot / restoreSnapshot / persistentAction stay bound, so
 	    the existing remote handler ("Persist" -> persistentAction) and any
@@ -52,6 +52,13 @@ local directorPersistence = require(script.Parent:WaitForChild("DirectorPersiste
 	builderPersistence = require(game:GetService("ServerScriptService"):WaitForChild("StudioBuilder"):WaitForChild("Runtime"):WaitForChild("BuilderService")).getPersistence(),
 	clock = os.clock,
 	warn = warn,
+	-- rememberLighting's cache (live: local roomLooks = {}), so a failed load restores it exactly.
+	getRoomLook = function(scene)
+		return roomLooks[scene]
+	end,
+	setRoomLook = function(scene, look)
+		roomLooks[scene] = look
+	end,
 })
 local snapshot = directorPersistence.snapshot
 local restoreSnapshot = directorPersistence.restoreSnapshot

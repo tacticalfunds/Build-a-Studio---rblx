@@ -25,7 +25,7 @@
 	Room code below is the live Director code (2026-10-25) with `for k in t`
 	written as `for k in pairs(t)` and math.clamp as a local clamp; no other
 	behaviour change. rememberLighting is NOT called during rollback (its
-	semantics weren't provided; see docs/integration-task5.md).
+	semantics were provided later; the cache entry is restored instead).
 
 	deps (all existing Director locals, passed in): settings, defaults,
 	groupKeys, textLengths, bounds, layoutBounds, atmosphereBounds,
@@ -34,11 +34,21 @@
 	getState, studio, RS, TextService, presets, remote, feedback,
 	setLayoutBusy(bool) (closure over the Director's layoutBusy),
 	builderPersistence (BuilderService.getPersistence()), clock (os.clock),
-	warn.
+	warn, getRoomLook(scene) / setRoomLook(scene, look) (closures over the
+	Director's roomLooks cache, so a failed load restores the entry exactly).
+
+	Recovery checkpoint (review of e30e8be):
+	* a room rollback that fails joins the builder's shared compound recovery
+	  (captured room + build): edits, saves, loads and Discard are refused for
+	  every host until recovery restores both; nothing else clears it;
+	* a build finalize failure after the room loaded is reported as an
+	  incomplete load (latched) until reconciliation succeeds;
+	* rememberLighting's roomLooks entry is captured and restored exactly.
 ]]
 
 local DirectorPersistence = {}
 
+local RECOVERY_MESSAGE = "The studio is still being restored after a failed load. Saving and loading are paused until that finishes."
 local LATCH_MESSAGE = "Your last load didn't complete, so saving is paused to protect your saved studios. Load a studio again, or discard to save the current room anyway."
 
 local function clamp(v, lo, hi)
@@ -117,7 +127,18 @@ function DirectorPersistence.new(d)
 				scenes[scene] = { Fixtures = fixtures, Items = items }
 			end
 		end
-		return { scene = currentScene(), Settings = settingsValues, scenes = scenes }
+		-- rememberLighting's cache entry for the current scene (nil = absent).
+		local look = nil
+		if d.getRoomLook then
+			local entry = d.getRoomLook(currentScene())
+			if type(entry) == "table" then
+				look = {}
+				for k, v in pairs(entry) do
+					look[k] = v
+				end
+			end
+		end
+		return { scene = currentScene(), Settings = settingsValues, scenes = scenes, look = look, hasLookApi = d.setRoomLook ~= nil }
 	end
 
 	-- Live restore body: settings, applyAll, fixture and item overrides.
@@ -188,6 +209,17 @@ function DirectorPersistence.new(d)
 	local function rollbackRoom(captured)
 		local current = captured.scenes[captured.scene]
 		applyRoom(captured.Settings, captured.Settings, current.Fixtures, current.Items, captured.scene, false)
+		-- Restore rememberLighting's cache entry exactly, including absence.
+		if captured.hasLookApi then
+			local look = nil
+			if captured.look ~= nil then
+				look = {}
+				for k, v in pairs(captured.look) do
+					look[k] = v
+				end
+			end
+			d.setRoomLook(captured.scene, look)
+		end
 		-- The load's target scene (if different) also had its overrides reset.
 		for scene, state in pairs(captured.scenes) do
 			if scene ~= captured.scene then
@@ -244,13 +276,23 @@ function DirectorPersistence.new(d)
 		if ok then
 			local result = txn:commit()
 			if result.recoveryNeeded then
+				-- The room loaded but the build's finalize failed: not a successful load.
 				latched[p.UserId] = "BuildRecovery"
+				error("The room loaded, but the build is still being restored. Saving is paused until that finishes.")
 			end
 			return
 		end
 		local roomRestored = pcall(rollbackRoom, captured)
-		local buildRestored = txn:rollback()
-		if not (roomRestored and buildRestored) then
+		-- A failed room rollback becomes part of the shared compound recovery,
+		-- retried (with the build) until both are restored.
+		local external = nil
+		if not roomRestored then
+			external = function()
+				rollbackRoom(captured)
+				return true
+			end
+		end
+		if not txn:rollback(external) then
 			latched[p.UserId] = "RollbackFailed"
 			error("The studio couldn't be fully restored after a failed load. Saving is paused until a studio loads successfully.")
 		end
@@ -270,6 +312,22 @@ function DirectorPersistence.new(d)
 		if not ({ List = true, Save = true, Load = true, Share = true, LoadCode = true, DiscardLoadBlock = true })[action] then
 			return
 		end
+		-- BUILDER: a failed compound load that is still unrestored blocks every
+		-- host's Save, Share, Load and Discard until recovery really succeeds.
+		local persistence = d.builderPersistence
+		if persistence:recovering() then
+			persistence:recover()
+		end
+		local recovering = persistence:recovering()
+		local reason = latched[p.UserId]
+		if (reason == "RollbackFailed" or reason == "BuildRecovery") and not recovering then
+			latched[p.UserId] = nil -- cleared only by successful recovery
+			reason = nil
+		end
+		if recovering and action ~= "List" then
+			d.feedback(p, false, RECOVERY_MESSAGE)
+			return
+		end
 		-- BUILDER: explicit discard of the save block.
 		if action == "DiscardLoadBlock" then
 			latched[p.UserId] = nil
@@ -277,7 +335,7 @@ function DirectorPersistence.new(d)
 			return
 		end
 		-- BUILDER: no Save/Share of unrelated or empty state after a failed load.
-		if (action == "Save" or action == "Share") and latched[p.UserId] then
+		if (action == "Save" or action == "Share") and reason then
 			d.feedback(p, false, LATCH_MESSAGE)
 			return
 		end

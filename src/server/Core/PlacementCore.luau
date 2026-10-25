@@ -516,6 +516,9 @@ function PlacementCore:recover()
 	end
 	self.recovering = true
 	local r = self.recovery
+	if r.kind == "compound" then
+		return self:_recoverCompound(r)
+	end
 	local method = r.kind == "finalize" and self.world.commit or self.world.rollback
 	local ok = pcall(method, self.world, r.token)
 	if not ok and self.world.reconcile then
@@ -534,6 +537,43 @@ function PlacementCore:recover()
 	pcall(self.world.publishRevision, self.world, self.revision)
 	self:_log("recovered")
 	return true
+end
+
+-- Compound recovery: retry the outside restore (room) and the world rollback
+-- (falling back to reconcile from the unchanged model). Each part is cleared
+-- once it succeeds; the state lifts only when both are done.
+function PlacementCore:_recoverCompound(r)
+	if r.external ~= nil then
+		local called, restored = pcall(r.external)
+		if called and restored ~= false then
+			r.external = nil
+		else
+			self:_log("compound recovery: outside restore still failing")
+		end
+	end
+	if r.token ~= nil then
+		local rolledBack = pcall(self.world.rollback, self.world, r.token)
+		if not rolledBack and self.world.reconcile then
+			rolledBack = pcall(self.world.reconcile, self.world, self.model:list())
+		end
+		if rolledBack then
+			r.token = nil
+		end
+	end
+	self.recovering = false
+	if r.external ~= nil or r.token ~= nil then
+		return false
+	end
+	self.recovery = nil
+	self.state = READY
+	pcall(self.world.publishRevision, self.world, self.revision)
+	self:_log("compound recovery complete")
+	return true
+end
+
+-- True while edits and saves are refused until reconciliation.
+function PlacementCore:inRecovery()
+	return self.state == RECOVERY
 end
 
 -- Entry point for one BuilderRequest. Never throws for any payload.
@@ -710,23 +750,32 @@ local Transaction = {}
 Transaction.__index = Transaction
 
 function PlacementCore:beginTransaction(userId, binding)
-	self:_observeHost()
 	if self.state == RECOVERY and not self:recover() then
 		return nil, Codes.RecoveryNeeded
 	end
 	if self.state ~= READY then
 		return nil, Codes.Busy
 	end
-	if not self:_isHost(userId) then
-		return nil, Codes.NotHost
-	end
-	if type(binding) ~= "table" or binding.epoch ~= self.hostEpoch then
-		return nil, Codes.AuthorityLost
-	end
-	if binding.revision ~= nil and binding.revision ~= self.revision then
-		return nil, Codes.StaleRevision
-	end
+	-- Take the lock BEFORE any possibly-yielding authority read; release it on
+	-- every refusal or error.
 	self.state = BUSY
+	local ok, code = pcall(function()
+		self:_observeHost()
+		if not self:_isHost(userId) then
+			return Codes.NotHost
+		end
+		if type(binding) ~= "table" or binding.epoch ~= self.hostEpoch then
+			return Codes.AuthorityLost
+		end
+		if binding.revision ~= nil and binding.revision ~= self.revision then
+			return Codes.StaleRevision
+		end
+		return nil
+	end)
+	if not ok or code ~= nil then
+		self.state = self.recovery ~= nil and RECOVERY or READY
+		return nil, ok and code or Codes.Internal
+	end
 	return setmetatable({ core = self, userId = userId, epoch = self.hostEpoch, done = false }, Transaction)
 end
 
@@ -788,22 +837,29 @@ function Transaction:commit()
 end
 
 -- Restores the world to the previous build (the model was never changed) and
--- releases the lock. A failed world rollback fails closed: recovery state,
--- edits and saves refused until reconciled. Returns ok.
-function Transaction:rollback()
+-- releases the lock. external (optional): function() -> ok that still has to
+-- restore something outside the builder (the room, when its rollback failed).
+-- If the world rollback fails or external is given, the core enters a
+-- "compound" recovery: edits and saves stay refused for every host until
+-- recover() completes BOTH parts. Returns true only when nothing is pending.
+function Transaction:rollback(external)
 	assert(not self.done, "transaction already ended")
 	local core = self.core
-	local ok = true
+	local pendingToken = nil
 	if self.token ~= nil then
 		local rolledBack, err = pcall(core.world.rollback, core.world, self.token)
 		if not rolledBack then
 			core:_log("world rollback failed: " .. tostring(err))
-			core:_enterRecovery("rollback", self.token, self.effect)
-			ok = false
+			pendingToken = self.token
 		end
 	end
+	if pendingToken ~= nil or external ~= nil then
+		core.recovery = { kind = "compound", token = pendingToken, effect = self.effect, external = external }
+		core.history:clear(core.revision)
+		core:_log("entering compound recovery (world=" .. tostring(pendingToken ~= nil) .. ", external=" .. tostring(external ~= nil) .. ")")
+	end
 	self:_release()
-	return ok
+	return core.recovery == nil
 end
 
 return PlacementCore

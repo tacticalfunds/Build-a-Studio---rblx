@@ -66,10 +66,15 @@ builder; saving and loading stay in the existing Studio → saved studios UI.
    - the build world swap is rolled back;
    - if either rollback fails, saving is latched (`RollbackFailed`) and the builder stays in recovery, refusing edits and saves.
 
-### Open question for Codex
+### Recovery (review of e30e8be)
 
-- **`rememberLighting` during rollback:** its source wasn't provided, so the rollback deliberately skips it. If it caches per-room lighting
-  that the failed load overwrote, please send its source (and anything it writes) so rollback can restore that cache too.
+- **Room rollback fails:** the failed restore joins the builder's **compound recovery**, which holds the captured room and the build.
+  - Builder edits, saves, loads and Discard are refused **for every host**, across host transfer, until recovery restores both parts.
+  - Recovery runs every 2 s in BuilderService, and each Persist action also attempts it first. Nothing else clears it.
+- **Build finalize fails after the room loaded:** the Load is reported as **incomplete**, not successful. Saving stays paused until the finalize is reconciled.
+- **`rememberLighting`:** the current scene's `roomLooks` entry is captured before the load and restored exactly on rollback, including absence.
+  The Director passes `getRoomLook` / `setRoomLook` closures over its existing `roomLooks` table (see the patch file).
+- **Locking:** `beginTransaction` takes the edit lock before any possibly-yielding authority read and releases it on every refusal or error.
 
 ### Builder unavailable in a server
 
