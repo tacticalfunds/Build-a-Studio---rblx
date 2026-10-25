@@ -29,6 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Pending |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | Pending |
 | 8 | More collection themes | 6 | Pending |
+| 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 
 ## 1. Index the current Studio assets: Done
 Commit Codex's four snapshot files under `docs/assets/` with an index README.
@@ -48,10 +49,15 @@ Create `src/shared`, `src/server` and `src/client` with a Rojo project. Write ad
 - Acceptance: each adapter has a single documented entry point. No Podcast* API is guessed beyond the verified contracts. Every file passes a compile check.
 - Evidence (executed 2026-10-25): `lua5.4 tests/run.lua` gives **75 passed, 0 failed** across 11 specs. Mutation checks (host check, Build-section legacy path, camera restore, hook rollback) each made the targeted tests fail, then went back to green.
 - Not executed: anything that needs real Instances (live PodcastSettings, PodcastCameraUI, ServerStorage templates, the sandbox marker, the yard removal in a real Play session). The Luau compiler wasn't available, so files are compile-checked as Lua 5.4 only.
+- Review fixes (code review of f279ac3, reproduced by Codex in Studio with real Luau):
+  1. A hook that applied part of its change and then errored was never exited. Each attempted hook is now recorded as a cleanup handle before its `enter` runs.
+  2. `exit()` during a yielded `enter()` returned done, and the resumed enter then went active and kept the camera. There is now an explicit state machine (inactive, entering, active, exiting) with a generation counter. Cancellation is checked after every hook, and `exit()` during entering returns `pending=true` while the entering thread rolls back. A second enter or exit while busy is refused or a no-op. A failed exit keeps its handle (`hasPendingCleanup()`), enter refuses until a retried `exit()` succeeds, and the retry uses the hook objects that were entered.
+  Regression tests: `tests/spec/build_mode_handoff_regression_spec.lua` (8 tests; they failed on the old code and pass now). Putting each bug back makes its regression tests fail. Suite: **83 passed, 0 failed**.
 - Needs live-script patches (Codex): a hostControls gate in PodcastCamera, the panel's shared open/close and world-picker gate, StudioCustomization skipping `BuildItemId`, and the Director restoring `Build` before overrides. Until the first two exist, build mode refuses to enter (required slots).
 
 ## 3. Server-authoritative placement and validation: Pending
 A pure core handles the catalog whitelist, finite and bounded transforms, room bounds, the item cap, per-player rate limits, an edit check against HostUserId on every request, and edits limited to the player's own build items. A thin Roblox layer applies the results inside a dedicated builder folder.
+- Status from Codex (2026-10-25): all seven catalog templates now exist in `ServerStorage.StudioBuilderTemplates` under the catalog IDs. They're anchored, have bottom-center pivots and no code, and any embedded Seats are disabled. `Workspace.StudioAssetYard` holds 49 labeled `EditorOnly=true` display copies (no scripts, Seats disabled). It's never a template source and is removed at play start by the bootstrap guard.
 - Also: recheck host authority after every yield before committing. Use a separate build revision (never LayoutRevision). Tag placed models with `BuildItemId` inside `StudioBuilderPlacedItems`. Publish client-visible copies of curated templates.
 - Acceptance: tests that actually run cover authorization, malformed payloads (Instances, NaN/inf, extra keys like color or scale, paths, oversized strings), cap and rate limits. Studio behavior is marked pending.
 
@@ -76,3 +82,10 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
 ## 8. More collection themes: Pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
+
+## 9. Studio > Branding: Pending
+Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
+- UX: a Branding section on the Studio page. The host enters a Roblox image asset ID and sees a preview. They then apply it either to the whole active room's branding, or by clicking or selecting eligible individual surfaces (wall signs, screens, mugs, laptop lids). Apply and Reset per room and per surface.
+- Rules: host-authoritative, checked on the server for every apply or reset. Targets come from an allowlist of stable surface IDs, never arbitrary Instances or paths. Only image/decal content is set: never model or script loaders, `LoadAsset`, `require(id)` or arbitrary URLs. The asset ID must be a positive integer, turned into image content server-side. If an image is invalid or unavailable, the prior branding stays. Per-surface overrides are saved with the studio as an additive, versioned preset section, so older presets load unchanged.
+- Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
+- Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.

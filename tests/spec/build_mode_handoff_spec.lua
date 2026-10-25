@@ -60,7 +60,7 @@ return function(T, H)
 		T.eq(#log, 8, "each hook ran exactly once per direction")
 	end)
 
-	T.test("a failing enter hook rolls back the hooks already entered", function()
+	T.test("a failing enter hook is exited too, then the hooks already entered", function()
 		local log = {}
 		local h = BuildModeHandoff.new({ hooks = recorder(log, "hostDrawer:enter") })
 		local ok, failures = h:enter({})
@@ -68,7 +68,7 @@ return function(T, H)
 		T.eq(h:isActive(), false)
 		T.eq(failures[1].slot, "hostDrawer")
 		T.eq(failures[1].reason, "EnterFailed")
-		T.eq(table.concat(log, ","), "camera:enter,hostControls:enter,hostDrawer:enter,hostControls:exit,camera:exit")
+		T.eq(table.concat(log, ","), "camera:enter,hostControls:enter,hostDrawer:enter,hostDrawer:exit,hostControls:exit,camera:exit")
 	end)
 
 	T.test("exit runs every hook even when one fails, and reports it", function()
