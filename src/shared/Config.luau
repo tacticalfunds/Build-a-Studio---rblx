@@ -16,6 +16,17 @@ Config.MaxBuildIdLength = 11 -- "i" + up to 10 digits
 Config.MaxItems = 150
 Config.MaxCoordinate = 1024 -- absolute sanity bound on any stored local coordinate
 
+-- Placement (server enforces; client preview mirrors via shared Transform)
+Config.GridSize = 1 -- studs; client snapping step, also the duplicate offset step
+Config.RotationStep = 15 -- degrees; yaw must be a multiple of this
+Config.PositionPrecision = 0.01 -- server quantizes positions to this step
+Config.BoundsEpsilon = 0.001
+
+-- Per-player token buckets
+Config.RateLimits = {
+	edit = { capacity = 12, refillPerSecond = 6 },
+}
+
 -- Build save payload: an additive `Build` section inside a StudioPresets snapshot
 -- ({Version=1, Settings, Fixtures, Items, Build}). The preset entry/top-level
 -- Version stays 1; StudioPresets keeps its 5 slots and 250000-byte JSON cap.
@@ -29,6 +40,10 @@ Config.PlacedItemsFolderName = "StudioBuilderPlacedItems" -- excluded from Studi
 Config.BuildItemIdAttribute = "BuildItemId" -- tag on every placed model; StudioCustomization must skip it
 Config.AssetYardName = "StudioAssetYard" -- editor-only display copies in Workspace, removed at play start
 Config.SandboxMarkerName = "StudioBuilderSandbox" -- Workspace part whose volume is the build volume
+Config.BuildRevisionAttribute = "BuildRevision" -- on the placed-items folder; never LayoutRevision
+Config.PreviewTemplatesFolderName = "PreviewTemplates" -- sanitized copies under ReplicatedStorage.StudioBuilder
+Config.RemotesFolderName = "Remotes"
+Config.RequestRemoteName = "BuilderRequest"
 
 -- Keys the builder itself binds while open. Host keys that build mode suppresses
 -- or must leave working live in client/Adapters/BuildModeHandoff.

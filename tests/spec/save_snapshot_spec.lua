@@ -198,7 +198,7 @@ return function(T, H)
 		local seed = 12345
 		local function rand(n)
 			seed = (seed * 1103515245 + 12345) % 2147483648
-			return seed % n
+			return math.floor(seed / 65536) % n -- high bits; low LCG bits alternate
 		end
 		local keys = { "Version", "NextId", "Items", "Id", "CatalogId", "Transform", "X", "Y", "Z", "Yaw", 1, 2, 3 }
 		local function garbage(depth)

@@ -129,7 +129,16 @@ function TemplateCatalog.serverStorageProbe()
 				error("template contains scripts")
 			end
 		end
-		local _, size = template:GetBoundingBox()
+		-- Placement assumes an upright template whose pivot is its bottom centre.
+		local boxCFrame, size = template:GetBoundingBox()
+		local pivot = template:GetPivot()
+		if pivot.UpVector:Dot(Vector3.new(0, 1, 0)) < 0.999 then
+			error("template pivot is not upright")
+		end
+		local bottomCentre = boxCFrame * CFrame.new(0, -size.Y / 2, 0)
+		if (pivot.Position - bottomCentre.Position).Magnitude > 0.05 then
+			error("template pivot is not at the bottom centre")
+		end
 		return { size = { size.X, size.Y, size.Z } }
 	end
 end

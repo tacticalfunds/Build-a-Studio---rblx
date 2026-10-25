@@ -6,5 +6,7 @@ local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage:WaitForChild("StudioBuilder"):WaitForChild("Config"))
 local AssetYardGuard = require(script.Parent:WaitForChild("Bootstrap"):WaitForChild("AssetYardGuard"))
+local BuilderService = require(script.Parent:WaitForChild("Runtime"):WaitForChild("BuilderService"))
 
 AssetYardGuard.run(Workspace, Config.AssetYardName)
+BuilderService.start()

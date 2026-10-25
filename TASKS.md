@@ -23,7 +23,7 @@ Known contracts (from Codex, 2026-10-25):
 |---|---|---|---|
 | 1 | Index the current Studio assets | none | Done |
 | 2 | Define narrow adapters (catalog, host, room, camera, save) | 1 | Done (Studio pending) |
-| 3 | Server-authoritative placement and validation | 2 | Pending |
+| 3 | Server-authoritative placement and validation | 2 | Done (Studio pending) |
 | 4 | Simple drawer UI, item editing and Undo/Redo | 3 | Pending |
 | 5 | Save/load with failure protection | 3 | Pending |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Pending |
@@ -55,11 +55,20 @@ Create `src/shared`, `src/server` and `src/client` with a Rojo project. Write ad
   Regression tests: `tests/spec/build_mode_handoff_regression_spec.lua` (8 tests; they failed on the old code and pass now). Putting each bug back makes its regression tests fail. Suite: **83 passed, 0 failed**.
 - Needs live-script patches (Codex): a hostControls gate in PodcastCamera, the panel's shared open/close and world-picker gate, StudioCustomization skipping `BuildItemId`, and the Director restoring `Build` before overrides. Until the first two exist, build mode refuses to enter (required slots).
 
-## 3. Server-authoritative placement and validation: Pending
+## 3. Server-authoritative placement and validation: Done (Studio integration pending)
 A pure core handles the catalog whitelist, finite and bounded transforms, room bounds, the item cap, per-player rate limits, an edit check against HostUserId on every request, and edits limited to the player's own build items. A thin Roblox layer applies the results inside a dedicated builder folder.
 - Status from Codex (2026-10-25): all seven catalog templates now exist in `ServerStorage.StudioBuilderTemplates` under the catalog IDs. They're anchored, have bottom-center pivots and no code, and any embedded Seats are disabled. `Workspace.StudioAssetYard` holds 49 labeled `EditorOnly=true` display copies (no scripts, Seats disabled). It's never a template source and is removed at play start by the bootstrap guard.
 - Also: recheck host authority after every yield before committing. Use a separate build revision (never LayoutRevision). Tag placed models with `BuildItemId` inside `StudioBuilderPlacedItems`. Publish client-visible copies of curated templates.
 - Acceptance: tests that actually run cover authorization, malformed payloads (Instances, NaN/inf, extra keys like color or scale, paths, oversized strings), cap and rate limits. Studio behavior is marked pending.
+- Delivered: `src/shared/Protocol.luau`, `src/shared/Transform.luau`, `src/server/Core/{PlacementCore,RequestValidator,BuildModel,RateLimiter}.luau`, `src/server/Runtime/{PlacedItemsWorld,TemplateSanitizer,BuilderService}.luau`, and the bootstrap now starts BuilderService. The template probe checks for upright, bottom-centre pivots. Details: [`docs/adapters.md`](docs/adapters.md#placement-task-3).
+- Evidence (executed 2026-10-25): `lua5.4 tests/run.lua` gives **108 passed, 0 failed** across 14 specs. New specs: `transform_spec` (yawed bounds, yaw grid, quantizing), `placement_core_spec` (17 tests), `template_sanitizer_spec` (fake instances).
+  - Every rejection is checked to leave model, world, revision and world calls unchanged: non-host, malformed payloads (~33 kinds), unknown, uninstalled or locked items, out of bounds, cap, not found, not owner.
+  - Host change during apply rolls back spawn, move and remove. World apply failures are transactional. A concurrent request during apply gets Busy. Rate-limit burst and refill, per player.
+  - Fuzz: 3000 mixed requests, 1229 committed, none threw. Bounds, cap, ownership and model-world agreement hold at the end.
+  - Mutation checks: removing the host recheck, ignoring yaw in the footprint, mutating the model before apply, and dropping the ownership check each made tests fail. Dropping the installed check did not, because a missing template has no size and is still rejected as `NotInstalled`.
+  - Test-quality fix: the fuzz initially committed 0 edits (low LCG bits alternate), so its invariants were vacuous. It now uses high bits, biases toward well-formed requests and asserts at least 300 commits. The SaveSnapshot fuzz got the same RNG fix.
+- Not executed: everything touching Instances (PlacedItemsWorld cloning and pivots, BuilderService remotes and folders, preview publishing, the probe's pivot check, the bootstrap in Play). Lua 5.4 compile check only.
+- Open contract questions (not guessed): host transfer vs item ownership, sandbox marker placement, Director `layoutBusy`/scene-switch signal, surface/collision policy, shared rate limits, the StudioCustomization exclusion. Listed in docs/adapters.md.
 
 ## 4. Simple drawer UI, item editing and Undo/Redo: Pending
 Cozy and 1980s filters, ViewportFrame cards, and placement on a surface. A selected item can be moved, rotated, duplicated or deleted. Undo/Redo and Done. Grid snapping is on by default, R rotates 15°, and Escape cancels placement without swallowing UI controls. Undo/redo runs on the server, restores logical item IDs and handles rejected edits.

@@ -61,3 +61,28 @@ won't guess them, and the matching handoff slots stay unbound until they exist.
   occupant-safe. Pose profiles (e.g. couch poses) need explicit server validation there too.
 - **Templates:** curated templates live in ServerStorage. Client cards and ghost previews need a
   server-published copy, to be designed in task 3 or 4. `Workspace.StudioAssetYard` is never a template source.
+
+## Placement (task 3)
+
+Server-authoritative placement in the single sandbox. Studio integration is pending.
+
+| Piece | File | Role |
+|---|---|---|
+| Protocol | `src/shared/Protocol.luau` | Ops `Place`, `Move`, `Rotate`, `Duplicate`, `Delete`, their exact field sets, and error codes and messages |
+| Transform | `src/shared/Transform.luau` | Strict transform check: finite numbers, yaw on the 15° grid, 0.01-stud position quantizing, and a full **yawed** footprint against room bounds. Shared with the client preview. |
+| PlacementCore | `src/server/Core/PlacementCore.luau` | Order per request: rate limit (12 burst, 6/s per player), strict payload, host check, busy lock, plan (catalog allowlist, installed template, entitlement, bounds, cap 150, ownership), `world.apply`, host re-check, commit model, `BuildRevision`, `world.commit`. Rejections never touch state, world or revision. |
+| RequestValidator / BuildModel / RateLimiter | `src/server/Core/*.luau` | Exact key sets (no Instances, colours, scales or paths), `i<n>` IDs never reused, token buckets |
+| PlacedItemsWorld | `src/server/Runtime/PlacedItemsWorld.luau` | Two-phase apply, rollback and commit on `Workspace.StudioBuilderPlacedItems`. Clones curated templates, tags `BuildItemId`, `BuildCatalogId` and `BuildOwnerUserId`, and publishes the `BuildRevision` attribute. |
+| TemplateSanitizer | `src/server/Runtime/TemplateSanitizer.luau` | Strips code, ClickDetectors, prompts, drag detectors, remotes and bindables. Disables Seats, anchors parts. Previews also lose collision, query, touch, shadows, sounds, lights and effects. |
+| BuilderService | `src/server/Runtime/BuilderService.luau` | Creates `Remotes.BuilderRequest`, the placed-items folder and `ReplicatedStorage.StudioBuilder.PreviewTemplates`. Stays disabled (`Unavailable`) until a `StudioBuilderSandbox` marker exists. |
+
+The template probe also rejects templates whose pivot isn't upright or isn't at the bottom centre of their bounding box.
+
+### Open contract questions (not guessed)
+
+1. **Host transfer vs ownership:** items are owned by the user who placed them, and edits need owner and current host. After a transfer, the new host can't edit the previous host's items (`NotOwner`). Is that intended, or should the sandbox build belong to whoever is host?
+2. **Sandbox location:** someone needs to place an anchored, invisible, `CanQuery=false` part named `StudioBuilderSandbox` at the top level of Workspace, away from the six rooms. Its volume is the build volume and its bottom face is the floor. Until then the builder is disabled.
+3. **Director `layoutBusy` / scene switches:** the builder can't see the Director's local `layoutBusy` flag. Should builder edits pause during scene switches, and if so, through which readable signal?
+4. **Surface and collision policy:** currently bounds only. Overlap is allowed, and items may rest at any height inside the box. Should the server require resting on a surface, or forbid overlaps?
+5. **Rate limits:** the builder keeps its own bucket, separate from the Director's 30-burst / 20-per-second limit. Should they be shared?
+6. **StudioCustomization:** it still needs the live-script exclusion for `BuildItemId` and `StudioBuilderPlacedItems`.

@@ -171,6 +171,11 @@ function H.setServiceChild(service, name, value)
 	extraChildren[service][name] = value
 end
 
+H.notes = {}
+function H.note(message)
+	H.notes[#H.notes + 1] = message
+end
+
 -- Assertions ---------------------------------------------------------------
 
 local T = { passed = 0, failed = 0, failures = {}, current = "" }
@@ -253,6 +258,9 @@ for _, spec in ipairs(specs) do
 	print(string.format("%-28s done", T.current))
 end
 
+for _, n in ipairs(H.notes) do
+	print("note: " .. n)
+end
 for _, f in ipairs(T.failures) do
 	print("FAIL " .. f)
 end
