@@ -129,3 +129,7 @@ Done currently closes like Back. Task 5 adds the save, and a failed save will be
 ## Save/load (task 5)
 
 The build is saved as an additive `Build` section in the existing StudioPresets slots: no separate profile and no autosave. Exact install order, behaviour and the Studio checklist: [`docs/integration-task5.md`](integration-task5.md). `SaveBackends.memory()` from task 2 is no longer on any path.
+
+## Streaming (live integration, 2026-10-25)
+
+The place runs with `StreamingEnabled = true`, and the build camera can be far from the avatar (avatar in the Boardroom, camera at the sandbox). For this **bounded 150-item prototype**, `PlacedItemsWorld` sets `ModelStreamingMode = Persistent` on every placed model after sanitizing and before parenting. That covers spawn, build-load replace and reconcile respawn, and reconcile re-applies it to models it keeps. Codex makes the small sandbox Model and the 7 ServerStorage templates persistent in Studio. Existing room assets keep normal streaming. If the item cap ever grows substantially, revisit this choice (for example, stream the sandbox around the build camera).

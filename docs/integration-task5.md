@@ -73,6 +73,12 @@ builder; saving and loading stay in the existing Studio → saved studios UI.
 Saves carry no Build, and the slot guard refuses to drop an existing non-empty Build. Loads apply the room and leave
 the Build section untouched in the preset.
 
+## Live integration notes (Codex, 2026-10-25)
+
+- Host Panel > Studio > OPEN BUILDER works in Play, and the drawer matches the existing UI.
+- StreamingEnabled: placed models are `ModelStreamingMode = Persistent` (see docs/adapters.md, "Streaming"). The sandbox Model and templates are made persistent in Studio.
+- An isolated MCP `require` reported `HandoffUnbound` while the real button worked. MCP runs `require` in a separate environment, so it gets a separate, unconfigured module instance. Its `HandoffUnbound` is the expected fail-closed answer for that instance, not a fault in the live wiring.
+
 ## Studio checklist (pending, for Codex)
 
 - [ ] Save into an empty slot, a legacy slot and a slot with a Build. Load each back: same items, IDs and transforms.

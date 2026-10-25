@@ -194,6 +194,12 @@ function H.loadIntegration(path, services)
 	return chunk()
 end
 
+-- Installs (or removes, with nil) a fake global such as CFrame or Enum for
+-- modules loaded through H.load. Resolved at call time.
+function H.setGlobal(name, value)
+	rawset(G, name, value)
+end
+
 -- Inject a fake child under a service, e.g. ReplicatedStorage.PodcastSettings.
 function H.setServiceChild(service, name, value)
 	extraChildren[service] = extraChildren[service] or {}

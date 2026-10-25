@@ -16,6 +16,14 @@
 	  leaves the world untouched), then swap; rollback restores the old set;
 	  commit destroys the old set.
 
+	Streaming: every model built here (spawn, build-load replace, reconcile
+	respawn) gets ModelStreamingMode = Persistent after sanitizing and before
+	parenting, and reconcile re-applies it to models it keeps. This is a
+	deliberate choice for the bounded 150-item sandbox prototype under
+	StreamingEnabled (the build camera can be far from the avatar); the
+	sandbox Model and the 7 ServerStorage templates are made persistent in
+	Studio by Codex. Existing room assets keep normal streaming.
+
 	Templates have bottom-centre pivots (verified by TemplateCatalog's probe),
 	so the world pivot is origin * (x, y, z) * yaw. Each model is tagged with
 	BuildItemId / BuildCatalogId / BuildPlacedByUserId. StudioCustomization must
@@ -56,6 +64,11 @@ function PlacedItemsWorld:_build(id, record)
 		model:SetAttribute(Config.BuildItemIdAttribute, id)
 		model:SetAttribute("BuildCatalogId", record.itemId)
 		model:SetAttribute("BuildPlacedByUserId", record.placedByUserId)
+		-- Bounded prototype (<= 150 items): placed models stay streamed in
+		-- regardless of avatar distance (StreamingEnabled; the build camera can
+		-- be far from the avatar). Set before parenting. Existing rooms keep
+		-- their normal streaming.
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 		model:PivotTo(self:_cframe(record))
 	end)
 	if not ok then
@@ -167,6 +180,7 @@ function PlacedItemsWorld:reconcile(entries)
 	for _, entry in ipairs(entries) do
 		local model = self.models[entry.id]
 		if model then
+			model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 			model:PivotTo(self:_cframe(entry.record))
 		else
 			self:apply({ kind = "spawn", id = entry.id, record = entry.record })
