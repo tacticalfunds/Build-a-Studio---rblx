@@ -13,8 +13,10 @@
 
 	Transforms are local to the sandbox origin: studs, yaw in degrees (a
 	multiple of Config.RotationStep). Responses:
-		{ ok = true,  id = "i12", buildRevision = n }
-		{ ok = false, code = "<Code>", buildRevision = n }
+		{ ok = true,  id = "i12", buildRevision = n, recoveryNeeded = true? }
+		{ ok = false, code = "<Code>", buildRevision = n, recoveryNeeded = true? }
+	recoveryNeeded means the world could not be reconciled yet; further edits
+	return RecoveryNeeded until the server recovers.
 ]]
 
 local Protocol = {}
@@ -51,7 +53,7 @@ Protocol.Codes = {
 	OutOfBounds = "OutOfBounds",
 	ItemCap = "ItemCap",
 	NotFound = "NotFound",
-	NotOwner = "NotOwner",
+	RecoveryNeeded = "RecoveryNeeded",
 	ApplyFailed = "ApplyFailed",
 	Internal = "Internal",
 }
@@ -71,7 +73,7 @@ Protocol.Messages = {
 	OutOfBounds = "That spot is outside the build area.",
 	ItemCap = "The item limit has been reached.",
 	NotFound = "That item no longer exists.",
-	NotOwner = "That item belongs to someone else.",
+	RecoveryNeeded = "The build area is resynchronizing; edits are paused for a moment.",
 	ApplyFailed = "The change couldn't be applied; nothing was changed.",
 	Internal = "Something went wrong.",
 }

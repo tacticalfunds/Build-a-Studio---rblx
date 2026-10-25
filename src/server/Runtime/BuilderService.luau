@@ -144,6 +144,17 @@ function BuilderService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		core.limiter:forget(player.UserId)
 	end)
+
+	-- If a rollback or finalize failed, edits stay refused (RecoveryNeeded)
+	-- until reconciliation succeeds; keep retrying in the background too.
+	task.spawn(function()
+		while true do
+			task.wait(2)
+			if core:getState() == "recovery" then
+				core:recover()
+			end
+		end
+	end)
 end
 
 -- For later tasks (save/load, UI): read-only access to the core, nil when disabled.

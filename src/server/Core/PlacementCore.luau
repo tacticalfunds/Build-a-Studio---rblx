@@ -1,7 +1,7 @@
 --[[
 	PlacementCore: server-authoritative place / move / rotate / duplicate /
 	delete for the single editable sandbox. Pure: every Roblox touch point is
-	injected.
+	injected, and any injected call may yield.
 
 	deps = {
 		config, catalog,
@@ -9,20 +9,30 @@
 		entitlements  = { isItemUnlocked(userId, item, catalog) },  -- Entitlements
 		authority     = { check(userId) -> allowed, reason },       -- HostAuthority
 		bounds        = { halfX, halfZ, height },                   -- RoomProvider sandbox
-		world         = { apply(effect) -> token, commit(token), rollback(token),
-		                  publishRevision(n) },                     -- PlacedItemsWorld
+		world         = { apply(effect) -> token, rollback(token), commit(token),
+		                  reconcile(entries)?, publishRevision(n) }, -- PlacedItemsWorld
 		clock         = function() -> seconds,
 		log           = function(message) (optional),
 	}
+	world.apply must leave no change behind when it raises.
 
-	Order for every request: rate limit -> strict payload -> host check ->
-	busy lock -> plan (all validation, no mutation) -> world.apply -> host
-	re-check -> commit model + BuildRevision -> world.commit.
-	* Any rejection before apply leaves state, world and revision untouched.
-	* If world.apply fails, or the host changed while it ran (it may yield),
-	  the world change is rolled back and the model is never touched.
-	* One edit at a time: a request arriving while another is mid-apply gets Busy.
-	* Items may only be edited by their owner, who must also be the current host.
+	States: "ready" | "busy" | "recovery".
+	Per request: rate limit -> strict payload (pure) -> recovery check ->
+	take the edit lock (Busy if held) -> host check -> plan (catalog,
+	template, entitlement, bounds, cap; no mutation) -> host re-check ->
+	world.apply -> host re-check -> commit model + BuildRevision ->
+	world.commit (finalize) -> release the lock.
+	* The lock is taken before any injected (possibly yielding) dependency and
+	  released in exactly one place, for every outcome.
+	* Rejections before world.apply leave state, world and revision untouched.
+	* After world.apply, a lost host or a model commit error rolls the world
+	  back. If that rollback fails, or finalize fails, the core fails closed:
+	  it keeps the operation and token, enters "recovery", answers
+	  recoveryNeeded=true, and refuses edits until recover() succeeds (retry
+	  the operation, then world.reconcile from the model as a fallback).
+	* Shared studio: the current host may edit any placed item, whoever placed
+	  it (placedByUserId is metadata only). Undo history from a previous host
+	  must be invalidated by the undo layer (task 4).
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -36,10 +46,11 @@ local RateLimiter = require(script.Parent.RateLimiter)
 local RequestValidator = require(script.Parent.RequestValidator)
 
 local Codes = Protocol.Codes
-local Ops = Protocol.Ops
 
 local PlacementCore = {}
 PlacementCore.__index = PlacementCore
+
+local READY, BUSY, RECOVERY = "ready", "busy", "recovery"
 
 local REQUIRED = { "config", "catalog", "templates", "entitlements", "authority", "bounds", "world", "clock" }
 
@@ -55,7 +66,10 @@ function PlacementCore.new(deps)
 	self.model = BuildModel.new(deps.config.MaxItems)
 	self.limiter = RateLimiter.new(deps.config.RateLimits, deps.clock)
 	self.revision = 0
-	self.busy = false
+	self.state = READY
+	self.pending = nil -- { token, effect } between world.apply and the model commit
+	self.recovery = nil -- { kind = "rollback" | "finalize", token, effect }
+	self.recovering = false
 	return self
 end
 
@@ -76,6 +90,14 @@ end
 
 function PlacementCore:getRevision()
 	return self.revision
+end
+
+function PlacementCore:getState()
+	return self.state
+end
+
+function PlacementCore:getRecovery()
+	return self.recovery
 end
 
 function PlacementCore:list()
@@ -105,8 +127,8 @@ function PlacementCore:_clean(itemId, raw)
 	return Transform.sanitize(raw, size, self.bounds, self.config)
 end
 
--- Resolves an existing item the user may edit. Returns id, record or nil, code.
-function PlacementCore:_owned(userId, rawId)
+-- Resolves an existing item. Returns id, record or nil, code.
+function PlacementCore:_existing(rawId)
 	local id, code = RequestValidator.buildId(rawId)
 	if id == nil then
 		return nil, code
@@ -115,14 +137,11 @@ function PlacementCore:_owned(userId, rawId)
 	if record == nil then
 		return nil, Codes.NotFound
 	end
-	if record.ownerUserId ~= userId then
-		return nil, Codes.NotOwner
-	end
 	return id, record
 end
 
 local function withTransform(record, t)
-	return { itemId = record.itemId, ownerUserId = record.ownerUserId, x = t.x, y = t.y, z = t.z, yaw = t.yaw }
+	return { itemId = record.itemId, placedByUserId = record.placedByUserId, x = t.x, y = t.y, z = t.z, yaw = t.yaw }
 end
 
 local function sameTransform(a, b)
@@ -182,11 +201,11 @@ function planners.Place(self, userId, payload)
 	if t == nil then
 		return nil, tCode
 	end
-	return self:_spawnPlan({ itemId = itemId, ownerUserId = userId, x = t.x, y = t.y, z = t.z, yaw = t.yaw })
+	return self:_spawnPlan({ itemId = itemId, placedByUserId = userId, x = t.x, y = t.y, z = t.z, yaw = t.yaw })
 end
 
-function planners.Move(self, userId, payload)
-	local id, record = self:_owned(userId, rawget(payload, "id"))
+function planners.Move(self, _, payload)
+	local id, record = self:_existing(rawget(payload, "id"))
 	if id == nil then
 		return nil, record
 	end
@@ -197,8 +216,8 @@ function planners.Move(self, userId, payload)
 	return self:_movePlan(id, record, shape)
 end
 
-function planners.Rotate(self, userId, payload)
-	local id, record = self:_owned(userId, rawget(payload, "id"))
+function planners.Rotate(self, _, payload)
+	local id, record = self:_existing(rawget(payload, "id"))
 	if id == nil then
 		return nil, record
 	end
@@ -211,7 +230,7 @@ function planners.Rotate(self, userId, payload)
 end
 
 function planners.Duplicate(self, userId, payload)
-	local id, source = self:_owned(userId, rawget(payload, "id"))
+	local id, source = self:_existing(rawget(payload, "id"))
 	if id == nil then
 		return nil, source
 	end
@@ -219,22 +238,26 @@ function planners.Duplicate(self, userId, payload)
 	if itemCode then
 		return nil, itemCode
 	end
+	local size = self.templates.getSize(source.itemId)
+	if size == nil then
+		return nil, Codes.NotInstalled
+	end
 	-- Server picks the spot: next to the source on a free side, grid-aligned.
-	local hx, hz = Transform.halfExtents(self.templates.getSize(source.itemId), source.yaw)
+	local hx, hz = Transform.halfExtents(size, source.yaw)
 	local grid = self.config.GridSize
 	local dx = math.ceil(hx * 2 / grid) * grid
 	local dz = math.ceil(hz * 2 / grid) * grid
 	for _, offset in ipairs({ { dx, 0 }, { -dx, 0 }, { 0, dz }, { 0, -dz } }) do
 		local t = self:_clean(source.itemId, { x = source.x + offset[1], y = source.y, z = source.z + offset[2], yaw = source.yaw })
 		if t then
-			return self:_spawnPlan({ itemId = source.itemId, ownerUserId = userId, x = t.x, y = t.y, z = t.z, yaw = t.yaw })
+			return self:_spawnPlan({ itemId = source.itemId, placedByUserId = userId, x = t.x, y = t.y, z = t.z, yaw = t.yaw })
 		end
 	end
 	return nil, Codes.OutOfBounds
 end
 
-function planners.Delete(self, userId, payload)
-	local id, record = self:_owned(userId, rawget(payload, "id"))
+function planners.Delete(self, _, payload)
+	local id, record = self:_existing(rawget(payload, "id"))
 	if id == nil then
 		return nil, record
 	end
@@ -248,42 +271,102 @@ function planners.Delete(self, userId, payload)
 	}
 end
 
-function PlacementCore:_execute(userId, plan)
+function PlacementCore:_enterRecovery(kind, token, effect)
+	self.recovery = { kind = kind, token = token, effect = effect }
+	self:_log("entering recovery after failed " .. kind .. " of " .. tostring(effect and effect.kind) .. " " .. tostring(effect and effect.id))
+end
+
+-- Rolls back the pending world change. Returns a response for `code`.
+function PlacementCore:_undoPending(code)
+	local pending = self.pending
+	self.pending = nil
+	local ok, err = pcall(self.world.rollback, self.world, pending.token)
+	if ok then
+		return self:_reject(code)
+	end
+	self:_log("world rollback failed: " .. tostring(err))
+	self:_enterRecovery("rollback", pending.token, pending.effect)
+	local response = self:_reject(code)
+	response.recoveryNeeded = true
+	return response
+end
+
+-- Runs with the edit lock held. Every exit returns a response.
+function PlacementCore:_locked(userId, op, payload)
+	if not self:_isHost(userId) then
+		return self:_reject(Codes.NotHost)
+	end
+	local plan, planCode = planners[op](self, userId, payload)
+	if plan == nil then
+		return self:_reject(planCode)
+	end
 	if plan.noop then
 		return { ok = true, id = plan.id, buildRevision = self.revision }
 	end
-	self.busy = true
+	-- Planning dependencies may have yielded.
+	if not self:_isHost(userId) then
+		return self:_reject(Codes.AuthorityLost)
+	end
+
 	local applied, token = pcall(self.world.apply, self.world, plan.effect)
 	if not applied then
-		self.busy = false
 		self:_log("world apply failed: " .. tostring(token))
 		return self:_reject(Codes.ApplyFailed)
 	end
-	-- world.apply may yield; the host may have changed meanwhile.
+	self.pending = { token = token, effect = plan.effect }
+
+	-- world.apply may yield.
 	if not self:_isHost(userId) then
-		local rolledBack, err = pcall(self.world.rollback, self.world, token)
-		if not rolledBack then
-			self:_log("world rollback failed: " .. tostring(err))
-		end
-		self.busy = false
-		return self:_reject(Codes.AuthorityLost)
+		return self:_undoPending(Codes.AuthorityLost)
 	end
-	local ok, commitErr = pcall(plan.commit)
-	if not ok then
-		-- Should be unreachable (plans are validated); keep world and model consistent.
-		self:_log("model commit failed: " .. tostring(commitErr))
-		pcall(self.world.rollback, self.world, token)
-		self.busy = false
-		return self:_reject(Codes.Internal)
-	end
-	self.revision = self.revision + 1
-	local committed, err = pcall(self.world.commit, self.world, token)
+	local committed, commitErr = pcall(plan.commit)
 	if not committed then
-		self:_log("world commit failed: " .. tostring(err))
+		self:_log("model commit failed: " .. tostring(commitErr))
+		return self:_undoPending(Codes.Internal)
+	end
+	self.pending = nil
+	self.revision = self.revision + 1
+
+	local response = { ok = true, id = plan.id, buildRevision = self.revision }
+	local finalized, finalizeErr = pcall(self.world.commit, self.world, token)
+	if not finalized then
+		self:_log("world finalize failed: " .. tostring(finalizeErr))
+		self:_enterRecovery("finalize", token, plan.effect)
+		response.recoveryNeeded = true
 	end
 	pcall(self.world.publishRevision, self.world, self.revision)
-	self.busy = false
-	return { ok = true, id = plan.id, buildRevision = self.revision }
+	return response
+end
+
+-- Deterministic reconciliation: retry the retained operation, then fall back
+-- to rebuilding the world from the model. Returns true when back to ready.
+function PlacementCore:recover()
+	if self.state ~= RECOVERY then
+		return true
+	end
+	if self.recovering then
+		return false
+	end
+	self.recovering = true
+	local r = self.recovery
+	local method = r.kind == "finalize" and self.world.commit or self.world.rollback
+	local ok = pcall(method, self.world, r.token)
+	if not ok and self.world.reconcile then
+		local reconciled, err = pcall(self.world.reconcile, self.world, self.model:list())
+		ok = reconciled
+		if not reconciled then
+			self:_log("world reconcile failed: " .. tostring(err))
+		end
+	end
+	self.recovering = false
+	if not ok then
+		return false
+	end
+	self.recovery = nil
+	self.state = READY
+	pcall(self.world.publishRevision, self.world, self.revision)
+	self:_log("recovered")
+	return true
 end
 
 -- Entry point for one BuilderRequest. Never throws for any payload.
@@ -298,23 +381,29 @@ function PlacementCore:handle(userId, payload)
 	if op == nil then
 		return self:_reject(code)
 	end
-	if not self:_isHost(userId) then
-		return self:_reject(Codes.NotHost)
+	if self.state == RECOVERY and not self:recover() then
+		return self:_reject(Codes.RecoveryNeeded)
 	end
-	if self.busy then
+	if self.state ~= READY then
 		return self:_reject(Codes.Busy)
 	end
-	local planned, plan, planCode = pcall(planners[op], self, userId, payload)
-	if not planned then
-		self:_log("planning failed: " .. tostring(plan))
-		return self:_reject(Codes.Internal)
-	end
-	if plan == nil then
-		return self:_reject(planCode)
-	end
-	return self:_execute(userId, plan)
-end
 
-PlacementCore.Ops = Ops
+	self.state = BUSY
+	local ok, response = pcall(self._locked, self, userId, op, payload)
+	if not ok then
+		self:_log("edit failed: " .. tostring(response))
+		if self.pending ~= nil then
+			-- Unexpected error after a world change: the world state is unknown.
+			self:_enterRecovery("rollback", self.pending.token, self.pending.effect)
+			self.pending = nil
+		end
+		response = self:_reject(Codes.Internal)
+		if self.recovery ~= nil then
+			response.recoveryNeeded = true
+		end
+	end
+	self.state = self.recovery ~= nil and RECOVERY or READY
+	return response
+end
 
 return PlacementCore

@@ -20,7 +20,7 @@ return function(T, H)
 	local function fakeWorld()
 		local w = { live = {}, calls = {}, revisions = {} }
 		local function copy(r)
-			return { itemId = r.itemId, ownerUserId = r.ownerUserId, x = r.x, y = r.y, z = r.z, yaw = r.yaw }
+			return { itemId = r.itemId, placedByUserId = r.placedByUserId, x = r.x, y = r.y, z = r.z, yaw = r.yaw }
 		end
 		function w:apply(effect)
 			self.calls[#self.calls + 1] = "apply:" .. effect.kind .. ":" .. effect.id
@@ -99,7 +99,7 @@ return function(T, H)
 		local parts = { "rev=" .. env.core:getRevision(), "worldRevs=" .. #env.world.revisions }
 		for _, entry in ipairs(env.core:list()) do
 			local r = entry.record
-			parts[#parts + 1] = string.format("%s:%s:%d:%.3f,%.3f,%.3f,%g", entry.id, r.itemId, r.ownerUserId, r.x, r.y, r.z, r.yaw)
+			parts[#parts + 1] = string.format("%s:%s:%d:%.3f,%.3f,%.3f,%g", entry.id, r.itemId, r.placedByUserId, r.x, r.y, r.z, r.yaw)
 		end
 		local live = {}
 		for id, r in pairs(env.world.live) do
@@ -145,7 +145,7 @@ return function(T, H)
 		T.eq(r.buildRevision, 1)
 		T.eq(env.world.revisions[1], 1)
 		local item = env.core:list()[1]
-		T.eq(item.record.ownerUserId, HOST)
+		T.eq(item.record.placedByUserId, HOST)
 		T.eq(item.record.yaw, 90)
 		T.eq(table.concat(env.world.calls, ","), "apply:spawn:i1,commit:spawn:i1")
 		consistent(env)
@@ -276,15 +276,19 @@ return function(T, H)
 		expectRejected(env, { op = "Duplicate", id = "i1" }, "ItemCap")
 	end)
 
-	T.test("ownership: a new host cannot edit the previous host's items", function()
+	T.test("shared studio: after a transfer the current host edits every item; the former host cannot", function()
 		local env = setup()
 		env.place("cozy_plant_01")
 		env.host = GUEST
-		expectRejected(env, { op = "Move", id = "i1", transform = { x = 3, y = 0, z = 0, yaw = 0 } }, "NotOwner", GUEST)
-		expectRejected(env, { op = "Delete", id = "i1" }, "NotOwner", GUEST)
-		expectRejected(env, { op = "Duplicate", id = "i1" }, "NotOwner", GUEST)
-		expectRejected(env, { op = "Rotate", id = "i1" }, "NotOwner", GUEST)
-		T.eq(env.req({ op = "Place", itemId = "cozy_plant_01", transform = { x = 5, y = 0, z = 0, yaw = 0 } }, GUEST).ok, true, "new host can place their own")
+		expectRejected(env, { op = "Delete", id = "i1" }, "NotHost", HOST, "former host")
+		T.eq(env.req({ op = "Move", id = "i1", transform = { x = 3, y = 0, z = 0, yaw = 0 } }, GUEST).ok, true)
+		T.eq(env.req({ op = "Rotate", id = "i1" }, GUEST).ok, true)
+		local dup = env.req({ op = "Duplicate", id = "i1" }, GUEST)
+		T.eq(dup.ok, true)
+		local list = env.core:list()
+		T.eq(list[1].record.placedByUserId, HOST, "placedBy metadata is preserved on edit")
+		T.eq(list[2].record.placedByUserId, GUEST, "the duplicate records who placed it")
+		T.eq(env.req({ op = "Delete", id = "i1" }, GUEST).ok, true)
 		expectRejected(env, { op = "Delete", id = "i42" }, "NotFound", GUEST)
 	end)
 
@@ -323,7 +327,7 @@ return function(T, H)
 		local copy = env.core:list()[2].record
 		T.eq(copy.x, 12, "placed on the left (17 - 5)")
 		T.eq(copy.yaw, 0)
-		T.eq(copy.ownerUserId, HOST)
+		T.eq(copy.placedByUserId, HOST)
 		consistent(env)
 	end)
 
@@ -433,7 +437,7 @@ return function(T, H)
 			local size = SIZES[r.itemId]
 			local Transform = H.load("src/shared/Transform")
 			T.ok(Transform.fits(r, size, { halfX = 20, halfZ = 15, height = 16 }, Config.BoundsEpsilon), entry.id .. " out of bounds")
-			T.eq(r.ownerUserId, HOST)
+			T.eq(r.placedByUserId, HOST)
 		end
 		consistent(env)
 	end)

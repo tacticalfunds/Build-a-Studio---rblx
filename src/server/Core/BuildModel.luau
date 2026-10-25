@@ -1,7 +1,8 @@
 --[[
 	BuildModel: the authoritative list of placed items in the sandbox.
 
-	Records: { itemId, ownerUserId, x, y, z, yaw }. IDs are "i<n>" (see
+	Records: { itemId, placedByUserId, x, y, z, yaw }. placedByUserId is metadata;
+	the current host may edit every item. IDs are "i<n>" (see
 	SaveSnapshot.formatBuildId), allocated monotonically and never reused.
 	Getters return copies, so callers can never mutate state by accident.
 ]]
@@ -12,7 +13,7 @@ local BuildModel = {}
 BuildModel.__index = BuildModel
 
 local function copyRecord(r)
-	return { itemId = r.itemId, ownerUserId = r.ownerUserId, x = r.x, y = r.y, z = r.z, yaw = r.yaw }
+	return { itemId = r.itemId, placedByUserId = r.placedByUserId, x = r.x, y = r.y, z = r.z, yaw = r.yaw }
 end
 BuildModel.copyRecord = copyRecord
 

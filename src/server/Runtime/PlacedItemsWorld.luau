@@ -7,6 +7,7 @@
 		apply(effect) -> token     visible change, reversible
 		rollback(token)            undo it
 		commit(token)              finalize (only removal does work here)
+		reconcile(entries)         recovery fallback: rebuild the folder from the model
 	* spawn:  clone the curated template, sanitize, tag, pivot, parent LAST.
 	          rollback destroys the clone.
 	* move:   PivotTo the new transform; rollback restores the previous pivot.
@@ -14,7 +15,7 @@
 
 	Templates have bottom-centre pivots (verified by TemplateCatalog's probe),
 	so the world pivot is origin * (x, y, z) * yaw. Each model is tagged with
-	BuildItemId / BuildCatalogId / BuildOwnerUserId. StudioCustomization must
+	BuildItemId / BuildCatalogId / BuildPlacedByUserId. StudioCustomization must
 	skip BuildItemId-tagged models (pending a live-script change, see docs/adapters.md).
 ]]
 
@@ -51,7 +52,7 @@ function PlacedItemsWorld:apply(effect)
 			model.Name = effect.id
 			model:SetAttribute(Config.BuildItemIdAttribute, effect.id)
 			model:SetAttribute("BuildCatalogId", effect.record.itemId)
-			model:SetAttribute("BuildOwnerUserId", effect.record.ownerUserId)
+			model:SetAttribute("BuildPlacedByUserId", effect.record.placedByUserId)
 			model:PivotTo(self:_cframe(effect.record))
 			model.Parent = self.folder
 		end)
@@ -95,6 +96,37 @@ function PlacedItemsWorld:commit(token)
 	if token.kind == "remove" then
 		self.models[token.id] = nil
 		token.model:Destroy()
+	end
+end
+
+-- Recovery fallback: make the folder match the model exactly. entries is
+-- PlacementCore's model:list() ({ { id, record } }). Destroys anything not in
+-- the model (including stray or detached models), respawns missing ones and
+-- re-pivots the rest. Raises if any step fails, so the core stays in recovery.
+function PlacedItemsWorld:reconcile(entries)
+	local wanted = {}
+	for _, entry in ipairs(entries) do
+		wanted[entry.id] = entry.record
+	end
+	for id, model in pairs(self.models) do
+		if wanted[id] == nil or model.Parent ~= self.folder then
+			self.models[id] = nil
+			model:Destroy()
+		end
+	end
+	for _, child in ipairs(self.folder:GetChildren()) do
+		local id = child:GetAttribute(Config.BuildItemIdAttribute)
+		if id == nil or self.models[id] ~= child then
+			child:Destroy()
+		end
+	end
+	for _, entry in ipairs(entries) do
+		local model = self.models[entry.id]
+		if model then
+			model:PivotTo(self:_cframe(entry.record))
+		else
+			self:apply({ kind = "spawn", id = entry.id, record = entry.record })
+		end
 	end
 end
 
