@@ -14,6 +14,11 @@
 	  "not installed" until they are placed there under their item IDs.
 	* Everything is decorative: chairs are not seats, lamps don't light, and
 	  microphones/mixers have no audio, until a dedicated adapter exists.
+	* Optional `structure = { kind = ... }` marks a modular structure piece
+	  (StructureGrid kinds only: floor, ceiling, wall, window_wall, doorway).
+	  The server then applies the 16-stud grid, level and cardinal-yaw rules
+	  to it. No live item carries it yet; corners and standalone window
+	  frames are not allowed until their fit is approved.
 	* Collections are tags; an item may carry several. Every collection is free
 	  today. `entitlement` is metadata for a future unlock hook
 	  (server/Adapters/Entitlements); there is no paywall.
@@ -21,6 +26,7 @@
 
 local Config = require(script.Parent.Config)
 local Validate = require(script.Parent.Validate)
+local StructureGrid = require(script.Parent.StructureGrid)
 
 local Catalog = {}
 
@@ -290,6 +296,20 @@ function Catalog.validateData(collections, items)
 						fail("item " .. item.id .. " repeats collection tag " .. tag)
 					end
 					seen[tag] = true
+				end
+			end
+			if item.structure ~= nil then
+				local s = item.structure
+				local onlyKind = type(s) == "table"
+				if onlyKind then
+					for key in pairs(s) do
+						if key ~= "kind" then
+							onlyKind = false
+						end
+					end
+				end
+				if not onlyKind or type(s.kind) ~= "string" or StructureGrid.Kinds[s.kind] == nil then
+					fail("item " .. item.id .. " has invalid structure metadata")
 				end
 			end
 		end

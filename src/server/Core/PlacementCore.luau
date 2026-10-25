@@ -40,6 +40,14 @@
 	  dropped with HistoryConflict and never touches the world. History is
 	  cleared on host transfer, on any revision change it did not make, and on
 	  entering recovery. Undo/Redo may carry expectedRevision (StaleRevision).
+	* Structure pieces (catalog `structure = { kind }`, task 10): every
+	  transform check goes through _clean, which applies StructureGrid's
+	  16-stud grid, level and cardinal-yaw rules (OffGrid, with a reason) and
+	  the same bounds (OutOfBounds, no overhang). So Place, Move, Undo/Redo
+	  and load classification all share it. Rotate steps 90 degrees with
+	  StructureGrid.rotate (hinge re-snap; provisional, not UX-approved) and
+	  Duplicate offsets by one 16-stud cell or edge. Furniture is unchanged.
+	  No support graph: deleting a piece never touches others.
 	* Host sessions: onHostChanged() (wired to PodcastSettings.HostUserId)
 	  bumps a host epoch and clears history at once, so A -> B -> A ends A's
 	  old history even with no edit in between. Every request also compares
@@ -54,6 +62,7 @@ local Shared = ReplicatedStorage:WaitForChild("StudioBuilder")
 local Protocol = require(Shared:WaitForChild("Protocol"))
 local Transform = require(Shared:WaitForChild("Transform"))
 local Validate = require(Shared:WaitForChild("Validate"))
+local StructureGrid = require(Shared:WaitForChild("StructureGrid"))
 
 local SaveSnapshot = require(script.Parent.Parent:WaitForChild("Adapters"):WaitForChild("SaveSnapshot"))
 local BuildHistory = require(script.Parent.BuildHistory)
@@ -185,12 +194,54 @@ function PlacementCore:_checkCreatable(userId, itemId)
 	return item
 end
 
+-- Structure kind of a catalog item: the kind, nil for furniture, or false
+-- when the metadata is malformed or the kind is not supported (refused).
+function PlacementCore:_structureKind(itemId)
+	local item = self.catalog.getItem(itemId)
+	local s = type(item) == "table" and item.structure or nil
+	if s == nil then
+		return nil
+	end
+	if type(s) == "table" and type(s.kind) == "string" and StructureGrid.Kinds[s.kind] ~= nil then
+		return s.kind
+	end
+	return false
+end
+
+local STRUCTURE_CODES = {
+	BadTransform = Codes.BadTransform,
+	OutOfBounds = Codes.OutOfBounds,
+	BadSize = Codes.NotInstalled,
+	BadKind = Codes.UnknownItem,
+	BadYaw = Codes.OffGrid,
+	BadLevel = Codes.OffGrid,
+	OffGrid = Codes.OffGrid,
+}
+
+function PlacementCore:_gridOptions()
+	return { maxCoordinate = self.config.MaxCoordinate, boundsEpsilon = self.config.BoundsEpsilon }
+end
+
+-- Returns a clean transform, or nil, code, reason? (reason: the StructureGrid
+-- detail for OffGrid).
 function PlacementCore:_clean(itemId, raw)
 	local size = self.templates.getSize(itemId)
 	if size == nil then
 		return nil, Codes.NotInstalled
 	end
-	return Transform.sanitize(raw, size, self.bounds, self.config)
+	local kind = self:_structureKind(itemId)
+	if kind == false then
+		return nil, Codes.UnknownItem
+	end
+	if kind == nil then
+		return Transform.sanitize(raw, size, self.bounds, self.config)
+	end
+	local t, gridCode = StructureGrid.validate(kind, raw, size, self.bounds, self:_gridOptions())
+	if t then
+		return t
+	end
+	local code = STRUCTURE_CODES[gridCode] or Codes.BadTransform
+	return nil, code, code == Codes.OffGrid and gridCode or nil
 end
 
 -- Resolves an existing item. Returns id, record or nil, code.
@@ -243,9 +294,9 @@ function PlacementCore:_spawnPlan(record, id)
 end
 
 function PlacementCore:_movePlan(id, before, raw)
-	local t, code = self:_clean(before.itemId, raw)
+	local t, code, reason = self:_clean(before.itemId, raw)
 	if t == nil then
-		return nil, code
+		return nil, code, reason
 	end
 	local after = withTransform(before, t)
 	if sameTransform(before, after) then
@@ -276,9 +327,9 @@ function planners.Place(self, userId, payload)
 	if shape == nil then
 		return nil, shapeCode
 	end
-	local t, tCode = self:_clean(itemId, shape)
+	local t, tCode, reason = self:_clean(itemId, shape)
 	if t == nil then
-		return nil, tCode
+		return nil, tCode, reason
 	end
 	return self:_spawnPlan({ itemId = itemId, placedByUserId = userId, x = t.x, y = t.y, z = t.z, yaw = t.yaw })
 end
@@ -304,6 +355,24 @@ function planners.Rotate(self, _, payload)
 	if direction == nil then
 		return nil, code
 	end
+	local kind = self:_structureKind(record.itemId)
+	if kind == false then
+		return nil, Codes.UnknownItem
+	end
+	if kind then
+		-- 90-degree step; edge pieces hinge at an end point to stay on-grid
+		-- (StructureGrid.rotate; provisional pending visual UX review).
+		local size = self.templates.getSize(record.itemId)
+		if size == nil then
+			return nil, Codes.NotInstalled
+		end
+		local t, gridCode = StructureGrid.rotate(kind, record, direction, size, self.bounds, self:_gridOptions())
+		if t == nil then
+			local mapped = STRUCTURE_CODES[gridCode] or Codes.BadTransform
+			return nil, mapped, mapped == Codes.OffGrid and gridCode or nil
+		end
+		return self:_movePlan(id, record, t)
+	end
 	local raw = { x = record.x, y = record.y, z = record.z, yaw = record.yaw + direction * self.config.RotationStep }
 	return self:_movePlan(id, record, raw)
 end
@@ -322,11 +391,27 @@ function planners.Duplicate(self, userId, payload)
 		return nil, Codes.NotInstalled
 	end
 	-- Server picks the spot: next to the source on a free side, grid-aligned.
-	local hx, hz = Transform.halfExtents(size, source.yaw)
-	local grid = self.config.GridSize
-	local dx = math.ceil(hx * 2 / grid) * grid
-	local dz = math.ceil(hz * 2 / grid) * grid
-	for _, offset in ipairs({ { dx, 0 }, { -dx, 0 }, { 0, dz }, { 0, -dz } }) do
+	local offsets
+	local kind = self:_structureKind(source.itemId)
+	if kind == false then
+		return nil, Codes.UnknownItem
+	elseif kind then
+		-- One 16-stud step keeps cells on cell centres and edges on edge lines.
+		-- Edge pieces continue along their own axis first, then step sideways.
+		local p = StructureGrid.PITCH
+		if StructureGrid.Kinds[kind].placement == "edge" and StructureGrid.edgeAxis(source.yaw) == "z" then
+			offsets = { { 0, p }, { 0, -p }, { p, 0 }, { -p, 0 } }
+		else
+			offsets = { { p, 0 }, { -p, 0 }, { 0, p }, { 0, -p } }
+		end
+	else
+		local hx, hz = Transform.halfExtents(size, source.yaw)
+		local grid = self.config.GridSize
+		local dx = math.ceil(hx * 2 / grid) * grid
+		local dz = math.ceil(hz * 2 / grid) * grid
+		offsets = { { dx, 0 }, { -dx, 0 }, { 0, dz }, { 0, -dz } }
+	end
+	for _, offset in ipairs(offsets) do
 		local t = self:_clean(source.itemId, { x = source.x + offset[1], y = source.y, z = source.z + offset[2], yaw = source.yaw })
 		if t then
 			return self:_spawnPlan({ itemId = source.itemId, placedByUserId = userId, x = t.x, y = t.y, z = t.z, yaw = t.yaw })
@@ -445,9 +530,11 @@ function PlacementCore:_locked(userId, op, payload)
 	-- History belongs to one host at one revision (host transfer, recovery or
 	-- a future load invalidate it).
 	self.history:sync(userId, self.revision, epoch)
-	local plan, planCode = planners[op](self, userId, payload)
+	local plan, planCode, planReason = planners[op](self, userId, payload)
 	if plan == nil then
-		return self:_reject(planCode)
+		local response = self:_reject(planCode)
+		response.reason = planReason
+		return response
 	end
 	if plan.conflict then
 		self.history:drop(op == "Undo" and "undo" or "redo")

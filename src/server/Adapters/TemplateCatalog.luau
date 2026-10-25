@@ -102,6 +102,7 @@ function TemplateCatalog:clientListing()
 			collections = tags,
 			status = self:status(item.id),
 			size = self:getSize(item.id),
+			structure = type(item.structure) == "table" and { kind = item.structure.kind } or nil,
 		}
 	end
 	return list

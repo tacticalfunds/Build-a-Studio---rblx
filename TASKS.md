@@ -31,7 +31,7 @@ Known contracts (from Codex, 2026-10-25):
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
 | 8 | More collection themes | 6 | Expansion installed (31 items, Play-checked); Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
-| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (pure StructureGrid foundation for review) |
+| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (server integration for review; client UI and registration next) |
 
 **User priority (2026-10-25): keep expanding the model catalog.** Codex prepares and inspects candidates. Each set is registered in its own bounded checkpoint (manifest, catalog entries, tests), then installed and Play-checked by Codex. The queue order above is otherwise unchanged.
 
@@ -303,7 +303,7 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
 
-## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (pure StructureGrid foundation for review)
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (server integration for review; client UI and registration next)
 Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
 - Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
   - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
@@ -343,4 +343,31 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
   - **Mutation check:** putting the original `ipairs` loop back fails the new test, in each module independently.
   - **Evidence:** `lua5.4 tests/run.lua` gives **275 passed, 0 failed**.
   - Still unintegrated. The hinge Rotate stays an isolated proposal and isn't UX-approved; it waits for a practical preview review.
+- Server placement integration (after review of 8b5d37a; the 10 grid tests and 6 missing-coordinate regressions passed in real Studio Luau):
+  - **Catalog and listing:** optional `structure = { kind }` metadata, validated in `Catalog.validateData` (only floor, ceiling, wall, window_wall and doorway; nothing but `kind`). Corner and window are refused. `TemplateCatalog:clientListing()` passes the kind through as a copy.
+    The live 31 entries are unchanged and carry no structure.
+  - **`PlacementCore._clean`:** for structure items, it applies `StructureGrid.validate` with the core's supplied bounds (no overhang), `MaxCoordinate` and `BoundsEpsilon`. So Place, Move, Undo/Redo (history re-validation) and load classification all share the grid, level and cardinal-yaw rules.
+    Malformed or unsupported structure metadata gives `UnknownItem`.
+  - **Codes:** new Protocol code `OffGrid`, with `reason` OffGrid, BadLevel or BadYaw, propagated by the planners. Bounds stay `OutOfBounds`.
+  - **Rotate:** structure items step 90° through `StructureGrid.rotate`. Floors and ceilings turn in place; edge pieces hinge at an end point, with a fixed candidate order. The hinge is **provisional, awaiting visual UX validation**.
+  - **Duplicate:** structure items take one 16-stud step: along their own axis first for edge pieces, then sideways. The first on-grid in-bounds candidate wins.
+    Honest note: because `_clean` refuses off-grid candidates, the old size-based offsets would converge on the same results for these sizes. The explicit 16-stud offsets make the intent clear rather than change outcomes.
+  - **Furniture:** unchanged (free positions, 15° rotation, size-based duplicate).
+  - **Unchanged:** no save schema change, no support graph, no cascade delete, no new remote, no persistence or seat change.
+  - **Doorway clearance corridor:** still pending, not implemented. No avatar clearance is claimed.
+  - **Evidence (executed 2026-10-25):** `lua5.4 tests/run.lua` gives **286 passed, 0 failed** (27 specs). `structure_placement_spec` adds 11 tests with labelled `fixture_*` structure items and sizes, on both the live 48 marker and the proposed 49 marker. They cover:
+    - catalog and listing metadata;
+    - furniture unchanged;
+    - Place for every kind, with OffGrid, BadLevel and BadYaw reasons;
+    - outer bounds (walls at ±24 refused on 48, accepted on 49; 3 × 3 floors and ceilings fit both);
+    - hostile and malformed requests (missing, non-finite and string coordinates, extra keys, unknown items, non-host);
+    - Move axis rules; Rotate (in place, hinge, boundary fallback, impossible cases refused unchanged, live-bounds fallback);
+    - Duplicate (cells, both edge axes, a bounds fallback, refusal);
+    - failed world apply leaving state and history unchanged;
+    - a mixed furniture and structure undo/redo walk with exact IDs and transforms;
+    - save/load (no new fields; outer and off-grid walls preserved on 48 and written back; the outer wall placed on 49; no ID reuse).
+
+    Every refusal is checked against a snapshot of the model, revision, world calls and undo/redo availability.
+    10 mutations were caught: `_clean` ignoring structure, malformed kinds treated as furniture, 15° Rotate, in-place 90° Rotate, OffGrid reported as bounds, reason dropped, overhang allowed, duplicate axis order, catalog validation off, listing dropping the kind.
+  - **Not executed:** anything in Studio. No candidate is registered; there's no client preview or UI.
 

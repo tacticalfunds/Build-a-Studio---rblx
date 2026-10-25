@@ -1,10 +1,19 @@
 # Structure placement plan: walls, floors, ceilings, doorways, windows
 
-**Status (review of b14edfd):** **pure foundations only, pending Studio review.**
-- `src/shared/StructureGrid.luau` (grid projection, validation, Rotate proposal) and `tests/spec/structure_grid_spec.lua` are implemented.
-- Nothing calls them: no PlacementCore planner, preview, drawer, catalog entry or runtime change.
-- The 10 candidates in [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](assets/Structure_and_Decor_Candidates_2026-10-25.json) are still **not** registered and **not** in the Build UI.
-- **Structural snapping isn't integrated.**
+**Status (server integration checkpoint, after review of 8b5d37a):** **server placement integrated in the repository; tested only with `lua5.4` and fake fixtures. Not installed in Studio.**
+- **Implemented:** `src/shared/StructureGrid.luau` plus server placement integration:
+  - `PlacementCore._clean` applies the grid to any catalog item with `structure = { kind }`. That covers Place, Move, Undo/Redo and load classification.
+  - Structure Rotate steps 90° through `StructureGrid.rotate`. The hinge re-snap is **provisional, awaiting visual UX validation**.
+  - Structure Duplicate takes one 16-stud cell or edge step.
+  - Optional, validated `structure` metadata in `Catalog.validateData`, and passed through in `TemplateCatalog:clientListing()`.
+  - A new Protocol code `OffGrid`, with `reason` OffGrid, BadLevel or BadYaw. Bounds stay `OutOfBounds`, with no overhang.
+- **Unchanged:** no save schema change, no support graph or cascade delete, no new remote. Furniture behaviour is unchanged.
+- **Not done:**
+  - the live catalog (31) has **no** structure entries, and the 10 candidates are **not** registered;
+  - no client preview, drawer Structure mode or dark/teal UI (the next checkpoint);
+  - corners and the standalone window frame are refused as `UnknownItem`;
+  - the **doorway clearance corridor is still pending**: not implemented, and avatar clearance not tested;
+  - **structural snapping isn't available in the game.**
 
 The live sandbox marker is untouched: 48 × 24 × 48 at world (2000, 12, 0).
 

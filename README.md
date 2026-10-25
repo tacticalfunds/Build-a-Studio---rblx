@@ -43,7 +43,7 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 | `src/server` | `ServerScriptService.StudioBuilder` | `StudioBuilderBootstrap.server` plus `Adapters/`, `Core/`, `Runtime/`, `Bootstrap/` |
 | `src/client` | `StarterPlayer.StarterPlayerScripts.StudioBuilder` | `BuilderClient` (ModuleScript) plus `Build/`, `UI/`, `Adapters/` |
 | `integration/` | not synced by Rojo | Files installed by hand into live scripts (see below) |
-| `tests/` | not synced | `lua5.4 tests/run.lua` harness and 26 specs |
+| `tests/` | not synced | `lua5.4 tests/run.lua` harness and 27 specs |
 | `docs/studio-reference/` | not synced | Installed bb3efa6 source snapshot (reference only, read by one spec) |
 
 `BuilderClient` is a ModuleScript and doesn't start itself. The host panel requires it and calls `configure` and `open`.
@@ -154,7 +154,7 @@ Each hook below was checked against that source.
 
 - **One RemoteFunction:** `Remotes.BuilderRequest`, one table per call. The ops and their exact fields are listed in `src/shared/Protocol.luau`:
   `Place {itemId, transform}`, `Move {id, transform}`, `Rotate {id, direction?}`, `Duplicate {id}`, `Delete {id}`, `Undo {expectedRevision?}`,
-  `Redo {expectedRevision?}`, `Status {}`.
+  `Redo {expectedRevision?}`, `Status {}`. Structure items (catalog `structure` metadata) additionally get `OffGrid` with a `reason` (OffGrid, BadLevel or BadYaw) when off the 16-stud grid.
   Any other key is rejected. Instances, paths, colours and scales are never accepted.
 - **Transforms:** local to the sandbox origin; finite; yaw on the 15° grid; positions quantized to 0.01 studs. The full yawed footprint must fit the sandbox bounds.
 - **Catalog whitelist:** stable IDs (`src/shared/Catalog.luau`) map to curated ServerStorage templates. Clones are sanitized of code, prompts, detectors, remotes and bindables.
@@ -186,7 +186,7 @@ Each hook below was checked against that source.
 
 ### Executed in this repository
 
-- `lua5.4 tests/run.lua`: **275 passed, 0 failed**, across 26 specs.
+- `lua5.4 tests/run.lua`: **286 passed, 0 failed**, across 27 specs.
 - `seat_assignments_spec` also checks the seat model's contracts against the attached bb3efa6 source: seat count, seat index range, pose modes, Lounge-only couch poses, seat labels and StudioCustomization isolation.
 - The tests run the real modules (and the real `integration/` files) against fakes. Yields are driven by coroutines.
 - Key behaviours were also checked by mutation: each original bug, put back, makes a test fail.
@@ -284,7 +284,7 @@ Use a test place or a private server with DataStore access. Never publish.
 - **Collection counts (items can carry several tags):** Cozy 22, Retro 16, 1980s 12, Winter 11, Futuristic 9. Every filter now has items.
   Executive and Broadcast (task 8) don't exist yet.
 - **Candidates, not installed (10):** 7 structure pieces (walls, doorway, corner, floor, ceiling, window frame) and 3 decor items. They're prepared in Studio and indexed in [`docs/assets/README.md`](docs/assets/README.md), but they aren't in `Catalog.luau` or the Build UI.
-  Structure placement has a pure, unit-tested grid module (`src/shared/StructureGrid.luau`) and a plan ([`docs/structure-placement-plan.md`](docs/structure-placement-plan.md), task 10). Nothing is wired: structural snapping is **not** integrated, and none of it has run in Studio.
+  Structure placement is integrated on the **server** in the repository (task 10, [`docs/structure-placement-plan.md`](docs/structure-placement-plan.md)): grid, level and cardinal-yaw validation for catalog items with `structure` metadata, 90° Rotate and on-grid Duplicate. It's tested only with fake fixtures, and isn't installed in Studio. No live item has structure metadata, and there's no client preview or UI yet, so structural snapping isn't available in the game.
 
 ## Next tasks
 

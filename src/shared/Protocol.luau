@@ -22,6 +22,9 @@
 		status = { state = "ready" | "busy" | "recovery", canUndo, canRedo, revision }
 	recoveryNeeded means the world could not be reconciled yet; further edits
 	return RecoveryNeeded until the server recovers.
+	Structure pieces (catalog items with `structure`) that are off the 16-stud
+	grid, at the wrong level or not at a cardinal yaw get OffGrid, with reason
+	OffGrid | BadLevel | BadYaw (see StructureGrid); bounds stay OutOfBounds.
 ]]
 
 local Protocol = {}
@@ -69,6 +72,7 @@ Protocol.Codes = {
 	NothingToRedo = "NothingToRedo",
 	HistoryConflict = "HistoryConflict",
 	StaleRevision = "StaleRevision",
+	OffGrid = "OffGrid",
 	ApplyFailed = "ApplyFailed",
 	Internal = "Internal",
 }
@@ -93,6 +97,7 @@ Protocol.Messages = {
 	NothingToRedo = "Nothing to redo.",
 	HistoryConflict = "That step can't be undone anymore, so it was skipped.",
 	StaleRevision = "The studio changed; check it and try again.",
+	OffGrid = "Structure pieces snap to the room grid; that spot or angle isn't on it.",
 	ApplyFailed = "The change couldn't be applied; nothing was changed.",
 	Internal = "Something went wrong.",
 }
