@@ -29,7 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | Pending |
+| 8 | More collection themes | 6 | Expansion prepared (24 items; Studio verification pending) |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 
 ## 1. Index the current Studio assets: Done
@@ -254,9 +254,25 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: Pending
+## 8. More collection themes: Expansion prepared (Studio verification pending)
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
+- Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
+  - **Delivered:** 24 templates prepared and visually reviewed by Codex.
+    - The manifest is committed as `docs/assets/Catalog_Expansion_2026-10-25.json`, and the asset index is updated.
+    - The 24 items are appended to `Catalog.luau` with the exact IDs, display names, tags and sourceRefs. The 7 originals keep their IDs and order. Total: 31.
+    - All decorative, free and without seat profiles. `sourceAssetId` stays in the manifest only.
+  - **Install note:** the templates sit in `ServerStorage.StudioBuilderExpansion`, but the probe reads `StudioBuilderTemplates`. Codex places them there under their IDs, or they show as not installed. There are no code changes beyond `Catalog.luau`, and no persistence, UI or seat changes.
+  - **Tests:** `catalog_spec` now checks:
+    - exactly the 7 + 24 IDs in order;
+    - unique IDs and display names;
+    - exact per-collection counts (Cozy 22, Retro 16, 1980s 12, Winter 11, Futuristic 9);
+    - each expansion entry against the manifest (name, tags, sourceRef, template path, zero scripts, decorative), with no asset-ID fields in the catalog;
+    - every sourceRef present in the asset guide or the manifest.
+
+    The old hard-coded 7-item and "futuristic is empty" assertions were replaced.
+  - **Evidence (executed 2026-10-25):** `lua5.4 tests/run.lua` gives **263 passed, 0 failed**. These mutations were each caught: a wrong tag, sourceRef or display name; a duplicate display name; a dropped item; a renamed original.
+  - **Pending (Codex, Studio):** install the 24 templates in `StudioBuilderTemplates`, probe acceptance, filters, placing each collection, large footprints against the sandbox bounds, the replication and drawer cost of 31 preview templates, save and load with expansion items.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.

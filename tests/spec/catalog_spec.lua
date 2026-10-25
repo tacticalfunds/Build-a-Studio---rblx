@@ -41,28 +41,87 @@ return function(T, H)
 		T.eq(count, 5, "collection count")
 	end)
 
-	T.test("catalog contains exactly the agreed stable item IDs", function()
-		local expected = {
-			"cozy_armchair_01", "cozy_coffee_table_01", "cozy_bookshelf_01", "cozy_plant_01",
-			"cozy_floor_lamp_01", "retro_tv_cart_01", "retro_cassette_01",
-		}
-		T.eq(#Catalog.Items, #expected, "item count")
-		for _, id in ipairs(expected) do
-			T.ok(Catalog.getItem(id) ~= nil, "missing " .. id)
+	local ORIGINAL = {
+		"cozy_armchair_01", "cozy_coffee_table_01", "cozy_bookshelf_01", "cozy_plant_01",
+		"cozy_floor_lamp_01", "retro_tv_cart_01", "retro_cassette_01",
+	}
+	local EXPANSION = {
+		"cozy_book_set_01", "cozy_monstera_01", "cozy_upholstered_chair_01", "future_curved_sofa_01",
+		"future_glass_table_01", "future_modern_lamp_01", "future_shelf_01", "modern_lounge_chair_01",
+		"retro_book_01", "retro_crt_tv_01", "retro_meeting_table_01", "studio_boom_mic_01",
+		"studio_chair_01", "studio_desk_lamp_01", "studio_desk_mic_01", "studio_headphones_01",
+		"studio_mixer_01", "winter_firewood_shelf_01", "winter_folded_throw_01", "winter_furry_chair_01",
+		"winter_lantern_01", "winter_log_basket_01", "winter_snow_globe_01", "winter_white_rug_01",
+	}
+
+	T.test("catalog holds exactly the 7 original and 24 expansion IDs, originals first and unchanged in order", function()
+		T.eq(#Catalog.Items, 31, "item count")
+		for i, id in ipairs(ORIGINAL) do
+			T.eq(Catalog.Items[i].id, id, "original #" .. i)
+		end
+		for i, id in ipairs(EXPANSION) do
+			T.eq(Catalog.Items[#ORIGINAL + i].id, id, "expansion #" .. i)
 		end
 	end)
 
-	T.test("collection tags filter items; futuristic has no items yet", function()
-		local cozy = Catalog.getItemsTagged("cozy")
-		T.eq(#cozy, 5, "cozy count")
-		local eighties = Catalog.getItemsTagged("1980s")
-		local ids = {}
-		for _, item in ipairs(eighties) do
-			ids[item.id] = true
+	T.test("item IDs and display names are unique", function()
+		local ids, names = {}, {}
+		for _, item in ipairs(Catalog.Items) do
+			T.eq(ids[item.id], nil, "duplicate id " .. item.id)
+			T.eq(names[item.displayName], nil, "duplicate displayName " .. item.displayName)
+			ids[item.id], names[item.displayName] = true, true
 		end
-		T.ok(ids.retro_tv_cart_01 and ids.retro_cassette_01 and ids.cozy_armchair_01, "1980s tags")
-		T.eq(#Catalog.getItemsTagged("futuristic"), 0, "futuristic")
+	end)
+
+	T.test("collection tag counts match the data, and every collection has items", function()
+		local expected = { cozy = 22, retro = 16, ["1980s"] = 12, winter = 11, futuristic = 9 }
+		for _, c in ipairs(Catalog.Collections) do
+			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id], c.id .. " count")
+		end
+		local eighties = {}
+		for _, item in ipairs(Catalog.getItemsTagged("1980s")) do
+			eighties[item.id] = true
+		end
+		T.ok(eighties.retro_tv_cart_01 and eighties.retro_cassette_01 and eighties.cozy_armchair_01 and eighties.retro_crt_tv_01, "1980s tags")
+		local future = {}
+		for _, item in ipairs(Catalog.getItemsTagged("futuristic")) do
+			future[item.id] = true
+		end
+		T.ok(future.future_curved_sofa_01 and future.studio_mixer_01 and not future.cozy_plant_01, "futuristic tags")
 		T.eq(#Catalog.getItemsTagged("nope"), 0, "unknown tag")
+	end)
+
+	T.test("expansion entries match the committed manifest exactly (id, name, tags, sourceRef; zero scripts; decorative)", function()
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json")
+		local count = 0
+		for _ in manifest:gmatch('"templatePath"') do count = count + 1 end
+		T.eq(count, #EXPANSION, "manifest item count")
+		for _, id in ipairs(EXPANSION) do
+			local item = Catalog.getItem(id)
+			T.ok(item ~= nil, "missing " .. id)
+			-- The manifest entry for this id: from its "collections" (which precede "id") to its "size".
+			local idAt = manifest:find('"id": "' .. id .. '"', 1, true)
+			T.ok(idAt, "manifest has " .. id)
+			local entryStart = 1
+			for pos in manifest:gmatch('()"collections"') do
+				if pos < idAt then entryStart = pos end
+			end
+			local entry = manifest:sub(entryStart, (manifest:find('"size"', idAt, true)))
+			T.ok(entry:find('"displayName": "' .. item.displayName .. '"', 1, true), id .. " displayName")
+			T.ok(entry:find('"sourceRef": "' .. item.sourceRef .. '"', 1, true), id .. " sourceRef")
+			T.ok(entry:find('"templatePath": "ServerStorage.StudioBuilderExpansion.' .. id .. '"', 1, true), id .. " templatePath")
+			T.ok(entry:find('"scripts": 0,', 1, true), id .. " has zero scripts")
+			T.ok(entry:find("Decorative only", 1, true), id .. " is decorative")
+			local tags = {}
+			for tag in entry:match('"collections": (%b[])'):gmatch('"([^"]+)"') do tags[tag] = true end
+			local mine = {}
+			for _, tag in ipairs(item.collections) do mine[tag] = true end
+			T.deepEq(mine, tags, id .. " collections")
+			-- Source asset IDs stay in the manifest only.
+			for key in pairs(item) do
+				T.ok(key ~= "sourceAssetId" and key ~= "templatePath", id .. " carries " .. key)
+			end
+		end
 	end)
 
 	T.test("sorted collections follow declared order", function()
@@ -82,11 +141,13 @@ return function(T, H)
 		T.eq(Catalog.getCollection(io.stdout), nil)
 	end)
 
-	T.test("every sourceRef exists in the committed asset guide (no invented sources)", function()
+	T.test("every sourceRef exists in the committed asset guide or expansion manifest (no invented sources)", function()
 		local guide = H.readFile(H.ROOT .. "/docs/assets/Studio_Asset_Guide_2026-10-25.json")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json")
 		for _, item in ipairs(Catalog.Items) do
-			T.ok(string.find(guide, '"path": "' .. item.sourceRef .. '"', 1, true) or string.find(guide, '"path":"' .. item.sourceRef .. '"', 1, true),
-				item.id .. " sourceRef not in asset guide: " .. item.sourceRef)
+			local inGuide = string.find(guide, '"path": "' .. item.sourceRef .. '"', 1, true) or string.find(guide, '"path":"' .. item.sourceRef .. '"', 1, true)
+			local inManifest = string.find(manifest, '"sourceRef": "' .. item.sourceRef .. '"', 1, true)
+			T.ok(inGuide or inManifest, item.id .. " sourceRef not in asset guide or manifest: " .. item.sourceRef)
 		end
 	end)
 

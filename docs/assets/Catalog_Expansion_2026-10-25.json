@@ -1,0 +1,462 @@
+{
+  "date": "2026-10-25",
+  "status": "24 expansion templates prepared in Studio, initial visual review passed; catalog registration pending",
+  "notes": [
+    "All decorative until functional adapters are integrated.",
+    "All final templates contain zero scripts; modern lamp README script and thumbnail camera removed.",
+    "New marketplace assets searched with free-only filter.",
+    "No seat profiles approved by this expansion."
+  ],
+  "items": [
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "winter"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.cozy_book_set_01",
+      "id": "cozy_book_set_01",
+      "displayName": "Hardcover Book Collection",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.HardcoverBookSet",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 50,
+      "size": [
+        2.499994993209839,
+        1.2800871133804321,
+        0.9437588453292847
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.cozy_monstera_01",
+      "id": "cozy_monstera_01",
+      "displayName": "Large Monstera Plant",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.Monstera",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 1,
+      "size": [
+        4.193380832672119,
+        5.642024517059326,
+        4.260310649871826
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.cozy_upholstered_chair_01",
+      "id": "cozy_upholstered_chair_01",
+      "displayName": "Upholstered Dining Chair",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.Upholstered Chair",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 12,
+      "size": [
+        2.009993076324463,
+        4.299993991851807,
+        2.0099854469299316
+      ]
+    },
+    {
+      "collections": [
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.future_curved_sofa_01",
+      "id": "future_curved_sofa_01",
+      "sourceAssetId": "13994566248",
+      "displayName": "Curved Lounge Sofa",
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Futuristic C-Shaped Sofa",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 1,
+      "size": [
+        10.999999046325684,
+        3.8304898738861084,
+        7.943655490875244
+      ]
+    },
+    {
+      "collections": [
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.future_glass_table_01",
+      "id": "future_glass_table_01",
+      "sourceAssetId": "5541521182",
+      "displayName": "Neon Glass Coffee Table",
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Sci-Fi Coffee Table",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 19,
+      "size": [
+        2.800004243850708,
+        1.8666855096817017,
+        6.533336162567139
+      ]
+    },
+    {
+      "collections": [
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.future_modern_lamp_01",
+      "id": "future_modern_lamp_01",
+      "sourceAssetId": "5673452350",
+      "displayName": "Sculptural Modern Lamp",
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Modern Lamp",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 21,
+      "size": [
+        3.7878496646881104,
+        5.534836292266846,
+        3.786896228790283
+      ]
+    },
+    {
+      "collections": [
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.future_shelf_01",
+      "id": "future_shelf_01",
+      "sourceAssetId": "13907820770",
+      "displayName": "Sci-Fi Display Shelf",
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Sci-Fi Shelf",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 129,
+      "size": [
+        6.900008678436279,
+        5.700085163116455,
+        2.250063896179199
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.modern_lounge_chair_01",
+      "id": "modern_lounge_chair_01",
+      "displayName": "Modern Lounge Chair",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.Modern armchair",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 6,
+      "size": [
+        3.6325929164886475,
+        3.214853286743164,
+        4.076424598693848
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.retro_book_01",
+      "id": "retro_book_01",
+      "displayName": "Vintage Hardcover",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.DetailedBook",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 1,
+      "size": [
+        2,
+        0.30000001192092896,
+        3
+      ]
+    },
+    {
+      "collections": [
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.retro_crt_tv_01",
+      "id": "retro_crt_tv_01",
+      "sourceAssetId": 10904527778,
+      "displayName": "Vintage CRT Television",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.retro_crt_tv_01",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 2,
+      "size": [
+        2.3926689624786377,
+        2.1688342094421387,
+        1.730144739151001
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.retro_meeting_table_01",
+      "id": "retro_meeting_table_01",
+      "displayName": "Oval Wooden Table",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.Dinner Table",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 1,
+      "size": [
+        15.671741485595703,
+        3.741966485977173,
+        6.771535396575928
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.studio_boom_mic_01",
+      "id": "studio_boom_mic_01",
+      "displayName": "Boom Arm Microphone",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.SM7B_BoomArm",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 99,
+      "size": [
+        3.637300968170166,
+        3.66524076461792,
+        0.47253718972206116
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.studio_chair_01",
+      "id": "studio_chair_01",
+      "displayName": "Director's Folding Chair",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.StudioChair",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 17,
+      "size": [
+        3.2057368755340576,
+        5.84356689453125,
+        2.4722771644592285
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "1980s",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.studio_desk_lamp_01",
+      "id": "studio_desk_lamp_01",
+      "sourceAssetId": "1744217931",
+      "displayName": "Adjustable Desk Lamp",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.DeskLamp",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 12,
+      "size": [
+        1.4063735008239746,
+        2.823174238204956,
+        1.7336349487304688
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.studio_desk_mic_01",
+      "id": "studio_desk_mic_01",
+      "displayName": "Desktop Microphone",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.PodcastMicrophone",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 8,
+      "size": [
+        1.161905288696289,
+        1.7311736345291138,
+        2.61041259765625
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.studio_headphones_01",
+      "id": "studio_headphones_01",
+      "displayName": "Studio Headphones",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.StudioHeadphones",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 1,
+      "size": [
+        2,
+        1,
+        1
+      ]
+    },
+    {
+      "collections": [
+        "retro",
+        "1980s",
+        "futuristic"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.studio_mixer_01",
+      "id": "studio_mixer_01",
+      "displayName": "Studio Mixing Console",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.Audio Mixer U-100AM",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 121,
+      "size": [
+        4.420008182525635,
+        0.9245128631591797,
+        2.184246301651001
+      ]
+    },
+    {
+      "collections": [
+        "winter",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.winter_firewood_shelf_01",
+      "id": "winter_firewood_shelf_01",
+      "sourceAssetId": "15036276417",
+      "displayName": "Firewood Storage Shelf",
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Firewood Rack Set.Prop_FirewoodLogHolderShelf",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 2,
+      "size": [
+        4.790076732635498,
+        3.314645290374756,
+        2.616426467895508
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "winter"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.winter_folded_throw_01",
+      "id": "winter_folded_throw_01",
+      "displayName": "Folded Knit Throw",
+      "sourceRef": "ServerStorage.PodcastAssetStaging.FoldedThrow",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 1,
+      "size": [
+        3.100508451461792,
+        0.12836280465126038,
+        3.1349239349365234
+      ]
+    },
+    {
+      "collections": [
+        "winter",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.winter_furry_chair_01",
+      "id": "winter_furry_chair_01",
+      "sourceAssetId": "114921837360351",
+      "displayName": "Cream Furry Lounge Chair",
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Cream Furry Lounge Chair",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 1,
+      "size": [
+        3.799999475479126,
+        3.8000001907348633,
+        4.749999523162842
+      ]
+    },
+    {
+      "collections": [
+        "winter",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.winter_lantern_01",
+      "id": "winter_lantern_01",
+      "sourceAssetId": "13990062734",
+      "displayName": "Candle Lantern",
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Candle Lantern",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 37,
+      "size": [
+        1.2891201972961426,
+        1.607383370399475,
+        1.2490379810333252
+      ]
+    },
+    {
+      "collections": [
+        "winter",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.winter_log_basket_01",
+      "id": "winter_log_basket_01",
+      "sourceAssetId": "15036276417",
+      "displayName": "Firewood Basket",
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Firewood Rack Set.Prop_FirewoodLogHolder",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 2,
+      "size": [
+        2.3633224964141846,
+        2.0348143577575684,
+        2.288613796234131
+      ]
+    },
+    {
+      "collections": [
+        "winter"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.winter_snow_globe_01",
+      "id": "winter_snow_globe_01",
+      "sourceAssetId": "15432449820",
+      "displayName": "Snow Globe",
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.Snow Globe",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 12,
+      "size": [
+        1.320068359375,
+        1.3765106201171875,
+        1.3176422119140625
+      ]
+    },
+    {
+      "collections": [
+        "winter",
+        "cozy"
+      ],
+      "templatePath": "ServerStorage.StudioBuilderExpansion.winter_white_rug_01",
+      "id": "winter_white_rug_01",
+      "sourceAssetId": "16017501070",
+      "displayName": "Geometric Winter Rug",
+      "sourceRef": "ServerStorage.BuilderCollectionExpansionImports.White Rug",
+      "scripts": 0,
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 138,
+      "size": [
+        12.00006103515625,
+        0.09020309150218964,
+        7.999902248382568
+      ]
+    }
+  ]
+}

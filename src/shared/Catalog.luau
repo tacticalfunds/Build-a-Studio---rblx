@@ -7,7 +7,13 @@
 	  ServerStorage.StudioBuilderTemplates (see server/Adapters/TemplateCatalog).
 	  Nothing here is an asset ID, and nothing is ever loaded by ID.
 	* `sourceRef` is documentation only: the staging path the template was
-	  prepared from, per docs/assets/Studio_Asset_Guide_2026-10-25.json.
+	  prepared from, per docs/assets/Studio_Asset_Guide_2026-10-25.json or, for
+	  the 24 expansion items, docs/assets/Catalog_Expansion_2026-10-25.json.
+	* The expansion templates were prepared in ServerStorage.StudioBuilderExpansion.
+	  The runtime probe only looks in StudioBuilderTemplates, so they show as
+	  "not installed" until they are placed there under their item IDs.
+	* Everything is decorative: chairs are not seats, lamps don't light, and
+	  microphones/mixers have no audio, until a dedicated adapter exists.
 	* Collections are tags; an item may carry several. Every collection is free
 	  today. `entitlement` is metadata for a future unlock hook
 	  (server/Adapters/Entitlements); there is no paywall.
@@ -75,6 +81,153 @@ Catalog.Items = {
 		collections = { "retro", "1980s" },
 		sourceRef = "ServerStorage.BuilderAssetReview.Candidate_VintageCassette",
 		-- Decorative; no playback.
+	},
+	-- Expansion (2026-10-25): 24 templates prepared and visually reviewed by Codex
+	-- (docs/assets/Catalog_Expansion_2026-10-25.json). Decorative only; Studio
+	-- verification of the registered catalog is pending.
+	{
+		id = "cozy_book_set_01",
+		displayName = "Hardcover Book Collection",
+		collections = { "cozy", "retro", "winter" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.HardcoverBookSet",
+	},
+	{
+		id = "cozy_monstera_01",
+		displayName = "Large Monstera Plant",
+		collections = { "cozy", "retro" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.Monstera",
+	},
+	{
+		id = "cozy_upholstered_chair_01",
+		displayName = "Upholstered Dining Chair",
+		collections = { "cozy", "retro", "1980s" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.Upholstered Chair",
+	},
+	{
+		id = "future_curved_sofa_01",
+		displayName = "Curved Lounge Sofa",
+		collections = { "futuristic" },
+		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Futuristic C-Shaped Sofa",
+	},
+	{
+		id = "future_glass_table_01",
+		displayName = "Neon Glass Coffee Table",
+		collections = { "futuristic" },
+		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Sci-Fi Coffee Table",
+	},
+	{
+		id = "future_modern_lamp_01",
+		displayName = "Sculptural Modern Lamp",
+		collections = { "futuristic" },
+		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Modern Lamp",
+	},
+	{
+		id = "future_shelf_01",
+		displayName = "Sci-Fi Display Shelf",
+		collections = { "futuristic" },
+		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Sci-Fi Shelf",
+	},
+	{
+		id = "modern_lounge_chair_01",
+		displayName = "Modern Lounge Chair",
+		collections = { "cozy", "futuristic" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.Modern armchair",
+	},
+	{
+		id = "retro_book_01",
+		displayName = "Vintage Hardcover",
+		collections = { "cozy", "retro" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.DetailedBook",
+	},
+	{
+		id = "retro_crt_tv_01",
+		displayName = "Vintage CRT Television",
+		collections = { "retro", "1980s" },
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.retro_crt_tv_01",
+	},
+	{
+		id = "retro_meeting_table_01",
+		displayName = "Oval Wooden Table",
+		collections = { "cozy", "retro", "1980s" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.Dinner Table",
+	},
+	{
+		id = "studio_boom_mic_01",
+		displayName = "Boom Arm Microphone",
+		collections = { "cozy", "retro", "1980s", "futuristic" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.SM7B_BoomArm",
+	},
+	{
+		id = "studio_chair_01",
+		displayName = "Director's Folding Chair",
+		collections = { "cozy", "retro", "1980s" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.StudioChair",
+	},
+	{
+		id = "studio_desk_lamp_01",
+		displayName = "Adjustable Desk Lamp",
+		collections = { "cozy", "1980s", "futuristic" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.DeskLamp",
+	},
+	{
+		id = "studio_desk_mic_01",
+		displayName = "Desktop Microphone",
+		collections = { "cozy", "retro", "1980s" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.PodcastMicrophone",
+	},
+	{
+		id = "studio_headphones_01",
+		displayName = "Studio Headphones",
+		collections = { "cozy", "retro", "1980s", "futuristic" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.StudioHeadphones",
+	},
+	{
+		id = "studio_mixer_01",
+		displayName = "Studio Mixing Console",
+		collections = { "retro", "1980s", "futuristic" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.Audio Mixer U-100AM",
+	},
+	{
+		id = "winter_firewood_shelf_01",
+		displayName = "Firewood Storage Shelf",
+		collections = { "winter", "cozy" },
+		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Firewood Rack Set.Prop_FirewoodLogHolderShelf",
+	},
+	{
+		id = "winter_folded_throw_01",
+		displayName = "Folded Knit Throw",
+		collections = { "cozy", "winter" },
+		sourceRef = "ServerStorage.PodcastAssetStaging.FoldedThrow",
+	},
+	{
+		id = "winter_furry_chair_01",
+		displayName = "Cream Furry Lounge Chair",
+		collections = { "winter", "cozy" },
+		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Cream Furry Lounge Chair",
+	},
+	{
+		id = "winter_lantern_01",
+		displayName = "Candle Lantern",
+		collections = { "winter", "cozy" },
+		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Candle Lantern",
+	},
+	{
+		id = "winter_log_basket_01",
+		displayName = "Firewood Basket",
+		collections = { "winter", "cozy" },
+		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Firewood Rack Set.Prop_FirewoodLogHolder",
+	},
+	{
+		id = "winter_snow_globe_01",
+		displayName = "Snow Globe",
+		collections = { "winter" },
+		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Snow Globe",
+	},
+	{
+		id = "winter_white_rug_01",
+		displayName = "Geometric Winter Rug",
+		collections = { "winter", "cozy" },
+		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.White Rug",
 	},
 }
 
