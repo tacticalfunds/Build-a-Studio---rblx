@@ -54,6 +54,19 @@
 	  clicks confirm, and mouse polling never overwrites a touched point.
 	* Pointer presses inside the drawer never reach the world, whatever
 	  gameProcessed says.
+
+	Structure mode (task 10):
+	* setCategory("furniture" | "structure") swaps the existing filter row
+	  between the five style collections (furniture only) and the structure
+	  filters (Floors / Walls / Doors / Ceilings / Windows). Switching
+	  cancels any placement or move preview.
+	* Structure items preview through PlacementPreview with their kind, using
+	  the shared StructureGrid and the supplied sandbox bounds, so the ghost
+	  is valid exactly where the server accepts it.
+	* lastPreview remembers the item and yaw it was computed for, and is
+	  cleared whenever it can't be recomputed. A Place or Move is only sent
+	  for a valid preview of the current item at the current yaw, so a
+	  rotate (or move) without a fresh preview never sends a stale spot.
 ]]
 
 local BuildSession = require(script.Parent.BuildSession)
@@ -265,7 +278,8 @@ function BuildController:open()
 		drawer:setPosition(x, y)
 	end
 	drawer:setInputMode(self.inputMethod)
-	self:showFilter(self.session.filter)
+	drawer:setCategory(self.session.category, self:_filterList())
+	self:showFilter(self.session.category == "structure" and self.session.structureFilter or self.session.filter)
 	self:_startRecoveryPolling(generation)
 	self:_refreshStatus()
 	return true
@@ -324,6 +338,12 @@ end
 
 -- Preview ---------------------------------------------------------------------
 
+-- Structure kind of a catalog item, or nil for furniture.
+function BuildController:_kindOf(itemId)
+	local item = itemId and self.env.catalog.getItem(itemId)
+	return type(item) == "table" and type(item.structure) == "table" and item.structure.kind or nil
+end
+
 function BuildController:_clearGhost()
 	if self.ghost then
 		self.ghost:destroy()
@@ -350,16 +370,26 @@ function BuildController:_updatePreview()
 	end
 	self:_ensureGhost()
 	if self.ghost == nil or self.pointer == nil then
+		self.lastPreview = nil -- nothing current to confirm
 		return
 	end
 	local size = self.env.itemSize(session.itemId)
 	if size == nil then
+		self.lastPreview = nil
 		return
 	end
 	local exclude = session.mode == "moving" and session.selectedId or nil
 	local hit = self.env.raycast(self.pointer, exclude)
-	local preview = PlacementPreview.compute(hit, { size = size, yaw = session.previewYaw, bounds = self.sandbox.bounds, snap = true, config = self.env.config })
+	local preview = PlacementPreview.compute(hit, {
+		size = size,
+		yaw = session.previewYaw,
+		bounds = self.sandbox.bounds,
+		snap = true,
+		config = self.env.config,
+		structureKind = session.itemKind,
+	})
 	preview.itemId = session.itemId
+	preview.yaw = session.previewYaw
 	self.lastPreview = preview
 	if preview.transform then
 		self.ghost.show(preview.transform, preview.valid)
@@ -372,8 +402,9 @@ function BuildController:confirmPlacement()
 		return nil
 	end
 	local preview = self.lastPreview
-	if preview == nil or preview.itemId ~= session.itemId or not preview.valid then
-		session.message = self.env.messageFor and self.env.messageFor(preview and preview.code == "OutOfBounds" and "OutOfBounds" or "BadTransform") or "Can't place there."
+	if preview == nil or preview.itemId ~= session.itemId or preview.yaw ~= session.previewYaw or not preview.valid then
+		local code = preview and (preview.code == "OutOfBounds" or preview.code == "OffGrid") and preview.code or "BadTransform"
+		session.message = self.env.messageFor and self.env.messageFor(code) or "Can't place there."
 		self:_refresh()
 		return nil
 	end
@@ -400,6 +431,8 @@ function BuildController:_refresh()
 	local status
 	if session.readOnly then
 		status = "Only the host can build."
+	elseif session:isPreviewing() and session.itemKind then
+		status = "Placing: snaps to the 16-stud room grid."
 	elseif session:isPreviewing() then
 		status = "Placing: snaps to floors and tabletops."
 	else
@@ -410,17 +443,9 @@ function BuildController:_refresh()
 	self.drawer:refresh(session)
 end
 
-function BuildController:showFilter(collectionId)
-	local session = self.session
-	session:setFilter(collectionId)
-	if self.drawer == nil then
-		return
-	end
-	local catalog = self.env.catalog
-	local collection = catalog.getCollection(session.filter)
-	self.drawer:setFilter(session.filter, collection and collection.displayName)
+function BuildController:_setItems(list)
 	local items = {}
-	for _, item in ipairs(catalog.getItemsTagged(session.filter)) do
+	for _, item in ipairs(list) do
 		local template = self.env.previewTemplate(item.id)
 		items[#items + 1] = { id = item.id, displayName = item.displayName, installed = template ~= nil, preview = template }
 	end
@@ -428,9 +453,71 @@ function BuildController:showFilter(collectionId)
 	self:_refresh()
 end
 
+-- The active filter row: style collections or structure filters.
+function BuildController:_filterList()
+	local catalog = self.env.catalog
+	if self.session.category == "structure" then
+		return catalog.StructureFilters
+	end
+	return catalog.getCollectionsSorted()
+end
+
+-- A filter button in the current category.
+function BuildController:showFilter(id)
+	if self.session.category == "structure" then
+		return self:showStructureFilter(id)
+	end
+	local session = self.session
+	session:setFilter(id)
+	if self.drawer == nil then
+		return
+	end
+	local catalog = self.env.catalog
+	local collection = catalog.getCollection(session.filter)
+	self.drawer:setFilter(session.filter, collection and collection.displayName)
+	self:_setItems(catalog.getFurnitureTagged(session.filter))
+end
+
+function BuildController:showStructureFilter(kind)
+	local session = self.session
+	session:setStructureFilter(kind)
+	if self.drawer == nil then
+		return
+	end
+	local name
+	for _, f in ipairs(self.env.catalog.StructureFilters) do
+		if f.id == session.structureFilter then
+			name = f.displayName
+		end
+	end
+	self.drawer:setFilter(session.structureFilter, name)
+	self:_setItems(self.env.catalog.getStructureItems(session.structureFilter))
+end
+
+-- "furniture" | "structure": swaps the filter row and cancels any preview.
+function BuildController:setCategory(category)
+	local session = self.session
+	if category == session.category or not session:isOpen() then
+		return
+	end
+	self:_bumpIntent()
+	if not session:setCategory(category) then
+		return
+	end
+	self:_clearGhost()
+	if self.drawer then
+		self.drawer:setCategory(session.category, self:_filterList())
+	end
+	if session.category == "structure" then
+		self:showStructureFilter(session.structureFilter)
+	else
+		self:showFilter(session.filter)
+	end
+end
+
 function BuildController:chooseItem(itemId)
 	self:_bumpIntent()
-	self.session:choose(itemId, self.env.previewTemplate(itemId) ~= nil)
+	self.session:choose(itemId, self.env.previewTemplate(itemId) ~= nil, self:_kindOf(itemId))
 	self:_updatePreview()
 	self:_refresh()
 end
@@ -459,7 +546,7 @@ function BuildController:beginMove()
 	local info = session.selectedId and self.env.selectedInfo(session.selectedId) or nil
 	if info then
 		self:_bumpIntent()
-		session:beginMove(info.catalogId, info.yaw)
+		session:beginMove(info.catalogId, info.yaw, self:_kindOf(info.catalogId))
 		self:_updatePreview()
 		self:_refresh()
 	end
@@ -469,6 +556,9 @@ function BuildController:_drawerCallbacks()
 	return {
 		onFilter = function(id)
 			self:showFilter(id)
+		end,
+		onCategory = function(category)
+			self:setCategory(category)
 		end,
 		onItem = function(itemId)
 			self:chooseItem(itemId)

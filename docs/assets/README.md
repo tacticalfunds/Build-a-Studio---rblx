@@ -24,7 +24,9 @@ Read them in this order:
 
 ## Structure and decor candidates (2026-10-25)
 
-None of these are registered or placeable yet. The structure plan is [`../structure-placement-plan.md`](../structure-placement-plan.md).
+**Registered (catalog only, Studio install pending):** `structure_wall_01`, `structure_window_wall_01`, `structure_doorway_01`, `structure_floor_01`, `structure_ceiling_01`, with structure kinds wall, window_wall, doorway, floor and ceiling.
+**Deferred, not registered:** `structure_corner_01`, `structure_industrial_window_01`, `retro_record_player_01`, `retro_radio_01`, `cozy_shoji_divider_01`.
+The structure plan is [`../structure-placement-plan.md`](../structure-placement-plan.md).
 The 10 templates have zero scripts and zero unanchored parts, and 319 parts in total.
 
 | ID | Name | Category | Size (studs) | Parts | Source asset | Creator / credit |

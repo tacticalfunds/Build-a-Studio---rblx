@@ -76,12 +76,17 @@ return function(T, H)
 			end
 			return nil
 		end)
-		local allowed = { id = true, displayName = true, collections = true, status = true, size = true }
+		local allowed = { id = true, displayName = true, collections = true, status = true, size = true, structure = true }
 		local listing = tc:clientListing()
 		T.eq(#listing, #Catalog.Items)
 		for _, entry in ipairs(listing) do
 			for key in pairs(entry) do
 				T.ok(allowed[key], "unexpected key " .. key)
+			end
+			if entry.structure ~= nil then
+				local keys = {}
+				for k in pairs(entry.structure) do keys[#keys + 1] = k end
+				T.eq(table.concat(keys, ","), "kind", "structure exposes only its kind")
 			end
 			if entry.id == "retro_tv_cart_01" then
 				T.eq(entry.status, S.Installed)

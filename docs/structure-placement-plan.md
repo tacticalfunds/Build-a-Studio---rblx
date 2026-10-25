@@ -1,19 +1,26 @@
 # Structure placement plan: walls, floors, ceilings, doorways, windows
 
-**Status (server integration checkpoint, after review of 8b5d37a):** **server placement integrated in the repository; tested only with `lua5.4` and fake fixtures. Not installed in Studio.**
-- **Implemented:** `src/shared/StructureGrid.luau` plus server placement integration:
-  - `PlacementCore._clean` applies the grid to any catalog item with `structure = { kind }`. That covers Place, Move, Undo/Redo and load classification.
-  - Structure Rotate steps 90° through `StructureGrid.rotate`. The hinge re-snap is **provisional, awaiting visual UX validation**.
-  - Structure Duplicate takes one 16-stud cell or edge step.
-  - Optional, validated `structure` metadata in `Catalog.validateData`, and passed through in `TemplateCatalog:clientListing()`.
-  - A new Protocol code `OffGrid`, with `reason` OffGrid, BadLevel or BadYaw. Bounds stay `OutOfBounds`, with no overhang.
+**Status (client and registration checkpoint, after review of 12068ca):** **server and client code are in the repository and tested with `lua5.4` only. Not installed in Studio, not Play-tested, and not usable by players yet.**
+- **Registered:** 5 catalog entries with `structure` metadata, for a total of 36.
+  - `structure_wall_01` (wall), `structure_window_wall_01` (window_wall), `structure_doorway_01` (doorway), `structure_floor_01` (floor), `structure_ceiling_01` (ceiling).
+  - Names, tags and sourceRefs are exact from the manifest.
+  - The ceiling is a neutral recolour of the floor geometry, with the provenance kept.
+  - The templates are still in `ServerStorage.StudioStructureCandidates`, **not** in `StudioBuilderTemplates`, so in the game they show as "not installed" until Codex installs them.
+- **Server:**
+  - `PlacementCore._clean` applies the grid to structure items: Place, Move, Undo/Redo and load classification.
+  - Rotate steps 90° with the provisional hinge (section 4); Duplicate takes one 16-stud step.
+  - Code `OffGrid`, with reason OffGrid, BadLevel or BadYaw. Bounds stay `OutOfBounds`, with no overhang.
+- **Client:**
+  - The Build drawer has a **Furniture | Structure** choice row (existing button styles; selected is teal). In Structure mode the existing filter row reads Floors / Walls / Doors / Ceilings / Windows. The style filters show furniture only.
+  - The ghost is computed by `PlacementPreview` through the same `StructureGrid` and code mapping as the server, with the supplied sandbox bounds. A floor hit places a ceiling at y = 15.
+  - R in a structure preview turns floors and ceilings 90°. On wall pieces it flips which way they face (180°), because the edge they sit on follows the pointer.
+  - Switching category cancels any placement or move preview.
+  - A Place or Move is only sent for a valid preview computed for the current item **and** yaw.
 - **Unchanged:** no save schema change, no support graph or cascade delete, no new remote. Furniture behaviour is unchanged.
 - **Not done:**
-  - the live catalog (31) has **no** structure entries, and the 10 candidates are **not** registered;
-  - no client preview, drawer Structure mode or dark/teal UI (the next checkpoint);
-  - corners and the standalone window frame are refused as `UnknownItem`;
-  - the **doorway clearance corridor is still pending**: not implemented, and avatar clearance not tested;
-  - **structural snapping isn't available in the game.**
+  - corners, the standalone window frame and the 3 decor candidates aren't registered;
+  - the **doorway clearance / obstruction policy is still pending**: not implemented, and avatar clearance not tested;
+  - nothing has run in Studio.
 
 The live sandbox marker is untouched: 48 × 24 × 48 at world (2000, 12, 0).
 
@@ -101,22 +108,26 @@ Positions within **0.01** of the grid (the server's quantization) are accepted a
 
 **`project(kind, floorHit, preferredYaw?)`:** cell kinds go to the nearest cell centre. Edge kinds go to the nearer of the nearest X-axis edge and the nearest Z-axis edge; an exact tie picks the X-axis edge. A preferred yaw of 180 or 270 keeps the flipped facing on whichever axis wins.
 
-### Rotate (proposal, not wired into the planners)
+### Rotate for structure pieces (provisional; awaiting visual UX validation)
 
-Turning an edge piece 90° in place at its old edge centre gives a perpendicular piece that is **off-grid**, because a Z-axis piece needs x on an edge line, not z.
-Refusing every such turn would make Rotate useless for walls. `StructureGrid.rotate` re-snaps deterministically instead:
+**What a developer needs to know.** `PlacementCore`'s Rotate calls `StructureGrid.rotate` for structure items. It isn't a turn on the spot for walls.
 
-1. The piece **hinges at one of its end points**. These are always grid corners (8 + 16a, 8 + 16b).
-2. It then extends 8 studs along the new axis, so the result is on-grid by construction.
-3. Candidates are tried in a fixed order, and the first that validates wins:
-   - direction +1: the end with the larger coordinate first, extending toward +new axis, then −; then the other end, + then −;
-   - direction −1: the smaller end first, − then +; then the larger end, − then +.
-4. It's `OutOfBounds` only when all four candidates are out of bounds.
-5. Cell pieces turn in place.
+- **Floors and ceilings** turn 90° where they are. Their footprint is a square cell, so nothing moves.
+- **Walls, window walls and doorways** sit on the line between two cells, and their length runs along that line.
+  If you turned one 90° about its own centre, it would end up crossing the middle of a cell, which isn't a valid wall spot. So the server swings it like a door instead:
+  1. **Pick a hinge.** The hinge is one of the wall's two ends. Ends always sit on cell corners.
+  2. **Swing it.** The wall swings 90° around that corner, so it ends up on the neighbouring edge line, still touching the same corner.
+  3. **Try four results in a fixed order.**
+     - Rotate +1 tries the end with the larger coordinate first, swinging toward the positive side, then the negative side, then the same two from the other end.
+     - Rotate −1 starts from the smaller end and the negative side.
 
-Example: a wall along X at (0, 8), Rotate +1, becomes a wall along Z at (8, 16), hinged at the corner (8, 8).
-**Integration later:** `planners.Rotate` would call this for structure items instead of adding `RotationStep`, and the resulting move effect goes through the existing apply, rollback and history path unchanged.
-Whether this hinge behaviour feels right is a UX question. **It isn't UX-approved**, and it stays an isolated proposal until a practical preview review in Studio.
+     The first result inside the build area wins. Only if all four are outside does the server refuse with `OutOfBounds`.
+- **Example:** a wall lying along X between (−8, 8) and (8, 8), Rotate +1, swings around the corner (8, 8) and ends up along Z between (8, 8) and (8, 24). Its centre is (8, 16).
+- **What players see:** pressing Rotate on a selected wall moves it to the next edge around a corner, not a turn in place.
+  The client doesn't preview this move: Rotate on a selected item is a server request, and the result shows after the response.
+- **Undo:** the rotate is an ordinary move, so Undo returns the wall to where it was.
+
+Whether this feels right in practice is a UX decision. **It isn't approved.** Codex will judge it during Play testing, and it can be replaced, for example by "rotate in place, then re-snap to the nearest edge", without touching the save format.
 
 ### Original open questions (as first written; superseded by the table above)
 

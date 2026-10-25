@@ -31,7 +31,7 @@ Known contracts (from Codex, 2026-10-25):
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
 | 8 | More collection themes | 6 | Expansion installed (31 items, Play-checked); Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
-| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (server integration for review; client UI and registration next) |
+| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (server + client + 5 registered, for review; Studio install and Play pending) |
 
 **User priority (2026-10-25): keep expanding the model catalog.** Codex prepares and inspects candidates. Each set is registered in its own bounded checkpoint (manifest, catalog entries, tests), then installed and Play-checked by Codex. The queue order above is otherwise unchanged.
 
@@ -303,7 +303,7 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
 
-## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (server integration for review; client UI and registration next)
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (server + client + 5 registered, for review; Studio install and Play pending)
 Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
 - Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
   - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
@@ -370,4 +370,31 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     Every refusal is checked against a snapshot of the model, revision, world calls and undo/redo availability.
     10 mutations were caught: `_clean` ignoring structure, malformed kinds treated as furniture, 15° Rotate, in-place 90° Rotate, OffGrid reported as bounds, reason dropped, overhang allowed, duplicate axis order, catalog validation off, listing dropping the kind.
   - **Not executed:** anything in Studio. No candidate is registered; there's no client preview or UI.
+- Client UI and registration (after review of 12068ca; 286 tests rerun independently on Windows with Lua 5.4):
+  - **Catalog:** the 5 approved candidates are registered with the exact manifest name, tags and sourceRef, and the structure kinds wall, window_wall, doorway, floor and ceiling. Total 36; the first 31 IDs and their order are unchanged.
+    The ceiling's floor-derived provenance is noted in the source.
+    The templates are still in `ServerStorage.StudioStructureCandidates`, not `StudioBuilderTemplates`, so they're not installed in the game.
+    New helpers: `Catalog.StructureFilters`, `getFurnitureTagged` (the style filters now show furniture only) and `getStructureItems`.
+  - **Shared code mapping:** `StructureGrid.toProtocol`, used by both `PlacementCore` and `PlacementPreview`.
+  - **Client:**
+    - `BuildSession` gets a category (furniture or structure), a structure filter and the item kind. Switching category cancels previews.
+      The preview rotation step is 90° for floors and ceilings, and 180° for edge pieces (R flips facing; the pointer picks the edge).
+    - `PlacementPreview` gets a structure path through `StructureGrid` (project, then validate, with the supplied bounds; any hit, using x/z only; ceiling at y = 15; server codes and reasons).
+    - `BuildController`: `setCategory`, structure filters, kind-aware choose and move.
+      `lastPreview` is tied to item and yaw and cleared when it can't be recomputed, so a stale or rotated-without-recompute preview is never sent.
+    - `BuildDrawer`: a Furniture | Structure choice row (existing styles) and the existing tab row relabelled per category.
+    - `BuilderClient` passes the structure filters.
+    - Keyboard, mouse and focus protections are unchanged.
+  - **Docs:** the plan has a plain-language explanation of the provisional hinge Rotate, and the UI contract notes the Structure mode for the visual comparison.
+  - **Still pending:** the doorway clearance / obstruction policy (not implemented, not tested).
+  - **Evidence (executed 2026-10-25):** `lua5.4 tests/run.lua` gives **297 passed, 0 failed** (28 specs).
+    - New `structure_client_spec` (10 tests):
+      - preview snapping and levels, any-hit behaviour, bad input, and furniture unchanged;
+      - live 48 vs proposed 49 marker outer walls;
+      - **preview/server parity**: 12,960 placements over both markers, all 5 kinds and 4 yaws; valid exactly when the real server accepts, with the same code and the same stored transform;
+      - session categories and rotation steps;
+      - controller: mixed filtering (furniture filters never show structure pieces; each structure filter lists its kind), a category switch cancelling a stale placement with nothing sent, a missing template not installable, grid ghost to exact Place transform (ceiling at y = 15), outer edge invalid on 48 with no request and a footer message, Rotate re-validation and stale-preview refusal, structure Move with its kind, OffGrid and BadYaw reasons and a server refusal message in the footer.
+    - Updated: the catalog tests (36 entries, furniture vs raw tag counts, the 5 registered from the manifest, the 5 deferred still blocked, rejected asset IDs still absent from source), the listing safe fields (`structure` with only `kind`), and the structure placement spec (registered kinds).
+    - 11 client mutations caught: preview ignoring the kind or skipping bounds, the controller omitting the kind, a category switch keeping the preview, no yaw check on confirm, a stale preview kept, structure leaking into style filters, a 90° edge step, choose or move dropping the kind, the OffGrid message lost.
+  - **Not executed:** Studio install, Play, the real drawer Instances (BuildDrawer isn't run outside Roblox), and avatar clearance. **Players can't use structures yet.**
 

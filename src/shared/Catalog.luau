@@ -17,8 +17,9 @@
 	* Optional `structure = { kind = ... }` marks a modular structure piece
 	  (StructureGrid kinds only: floor, ceiling, wall, window_wall, doorway).
 	  The server then applies the 16-stud grid, level and cardinal-yaw rules
-	  to it. No live item carries it yet; corners and standalone window
-	  frames are not allowed until their fit is approved.
+	  to it. Five kit pieces carry it (registered, Studio install pending);
+	  corners and standalone window frames are not allowed until their fit
+	  is approved.
 	* Collections are tags; an item may carry several. Every collection is free
 	  today. `entitlement` is metadata for a future unlock hook
 	  (server/Adapters/Entitlements); there is no paywall.
@@ -235,6 +236,47 @@ Catalog.Items = {
 		collections = { "winter", "cozy" },
 		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.White Rug",
 	},
+	-- Structure pieces (task 10): 5 candidates prepared by Codex
+	-- (docs/assets/Structure_and_Decor_Candidates_2026-10-25.json; templates in
+	-- ServerStorage.StudioStructureCandidates, not yet in StudioBuilderTemplates).
+	-- Kit by plexaruszx. Shown only in the drawer's Structure mode; the style
+	-- tags are kept for future themed variants. Studio install pending.
+	{
+		id = "structure_wall_01",
+		displayName = "Plaster Wall",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight windowless",
+		structure = { kind = "wall" },
+	},
+	{
+		id = "structure_window_wall_01",
+		displayName = "Window Wall",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight window",
+		structure = { kind = "window_wall" },
+	},
+	{
+		id = "structure_doorway_01",
+		displayName = "Open Doorway Wall",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StructureCandidateImports.Modular Room.Model.Wall straight door",
+		structure = { kind = "doorway" },
+	},
+	{
+		id = "structure_floor_01",
+		displayName = "Wood Floor Tile",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StructureCandidateImports.Modular Room.Model.Floor",
+		structure = { kind = "floor" },
+	},
+	{
+		id = "structure_ceiling_01",
+		displayName = "Plain Ceiling Tile",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StructureCandidateImports.Modular Room.Model.Floor",
+		structure = { kind = "ceiling" },
+		-- Neutral recolour of the kit floor geometry (same source as structure_floor_01), not a separate marketplace model.
+	},
 }
 
 -- Returns ok, errors (list of strings). Pure; used by tests and server startup.
@@ -357,7 +399,44 @@ function Catalog.getCollectionsSorted()
 	return list
 end
 
+-- Structure filters for the drawer's Structure mode, in display order. Each maps
+-- to exactly one StructureGrid kind (corners and standalone frames deferred).
+Catalog.StructureFilters = {
+	{ id = "floor", displayName = "Floors" },
+	{ id = "wall", displayName = "Walls" },
+	{ id = "doorway", displayName = "Doors" },
+	{ id = "ceiling", displayName = "Ceilings" },
+	{ id = "window_wall", displayName = "Windows" },
+}
+
+function Catalog.isStructure(item)
+	return type(item) == "table" and type(item.structure) == "table"
+end
+
+-- Furniture (non-structure) items tagged with collectionId: the style filters.
+function Catalog.getFurnitureTagged(collectionId)
+	local list = {}
+	for _, item in ipairs(Catalog.getItemsTagged(collectionId)) do
+		if not Catalog.isStructure(item) then
+			list[#list + 1] = item
+		end
+	end
+	return list
+end
+
+-- Structure items of one kind, in declaration order.
+function Catalog.getStructureItems(kind)
+	local list = {}
+	for _, item in ipairs(Catalog.Items) do
+		if Catalog.isStructure(item) and item.structure.kind == kind then
+			list[#list + 1] = item
+		end
+	end
+	return list
+end
+
 -- Items tagged with collectionId, in declaration order (a filter, not ownership).
+-- Includes structure items; the drawer's style filters use getFurnitureTagged.
 function Catalog.getItemsTagged(collectionId)
 	local list = {}
 	for _, item in ipairs(Catalog.Items) do

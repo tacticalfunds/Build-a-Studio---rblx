@@ -78,6 +78,13 @@ local C = {
   `PanelOpen` and the launcher text stale.
 - Codex handles the exact wiring into the existing panel and the visual comparison against it.
 
+## Structure mode (task 10; check during the visual comparison)
+
+- A **Furniture | Structure** choice row sits at the top of the drawer's scroll body. It's built with `PanelTheme.button` in the same row style as the action buttons (selected = teal background with dark text).
+- In Structure mode the **existing** tab-row filter buttons are relabelled Floors / Walls / Doors / Ceilings / Windows. There's no extra tab row and no new panel, colour or font.
+- The heading description changes to "Choose a piece, then point at the floor; it snaps to the room grid." The status line reads "Placing: snaps to the 16-stud room grid." while a structure ghost is shown.
+- The body still scrolls (AutomaticCanvasSize), and the drawer still refits and clamps as before.
+
 ## Implementation notes (task 4) to check during the visual comparison
 
 - Tokens, sizes and layout come only from `src/client/UI/PanelTheme.luau`. A test asserts the numbers above.

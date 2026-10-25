@@ -114,7 +114,7 @@ function env.isHost()
 end
 
 function env.createDrawer(callbacks)
-	return BuildDrawer.new(player:WaitForChild("PlayerGui"), Catalog.getCollectionsSorted(), callbacks)
+	return BuildDrawer.new(player:WaitForChild("PlayerGui"), Catalog.getCollectionsSorted(), callbacks, Catalog.StructureFilters)
 end
 
 function env.itemSize(itemId)

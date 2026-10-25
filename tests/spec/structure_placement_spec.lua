@@ -117,11 +117,17 @@ return function(T, H)
 
 	-- Catalog / listing interfaces --------------------------------------------------------
 
-	T.test("catalog: live 31 entries carry no structure; structure metadata is optional and strictly validated", function()
-		for _, item in ipairs(Catalog.Items) do
-			T.eq(item.structure, nil, item.id)
+	T.test("catalog: only the 5 registered kit pieces carry structure; metadata is optional and strictly validated", function()
+		local kinds = {}
+		for i, item in ipairs(Catalog.Items) do
+			if i <= 31 then
+				T.eq(item.structure, nil, item.id .. " (furniture)")
+			else
+				kinds[item.id] = item.structure.kind
+			end
 		end
-		T.eq(#Catalog.Items, 31)
+		T.eq(#Catalog.Items, 36)
+		T.deepEq(kinds, { structure_wall_01 = "wall", structure_window_wall_01 = "window_wall", structure_doorway_01 = "doorway", structure_floor_01 = "floor", structure_ceiling_01 = "ceiling" })
 		local collections = { { id = "cozy", displayName = "Cozy" } }
 		local function check(structure)
 			return Catalog.validateData(collections, { { id = "x_item", displayName = "X", collections = { "cozy" }, structure = structure } })

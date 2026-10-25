@@ -25,7 +25,7 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 
 | Area | Status |
 |---|---|
-| Catalog | **31 items installed** in the working place. Place→Delete passed in Play for all 31, and the drawer filters were checked ([`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md)). Real DataStore save/load with expansion items, multiplayer and a performance benchmark are not done. |
+| Catalog | **31 items installed** in the working place. Place→Delete passed in Play for all 31, and the drawer filters were checked ([`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md)). Real DataStore save/load with expansion items, multiplayer and a performance benchmark are not done. 5 structure pieces are also registered in the repository (36 entries), but not installed or usable yet. |
 | Placement, undo/redo, host authority, recovery (server) | Tested locally and in real Studio Luau; Place/Undo/Redo/Delete checked in Play |
 | Build drawer UI | Full UI flow passed in Play at 62f2f87 (latest Play run: UI mouse automation stalled, so not re-checked) |
 | Save/load through StudioPresets | Director logic tested locally and in real Studio Luau; Play round trip done **against a memory stand-in for StudioPresets** |
@@ -43,7 +43,7 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 | `src/server` | `ServerScriptService.StudioBuilder` | `StudioBuilderBootstrap.server` plus `Adapters/`, `Core/`, `Runtime/`, `Bootstrap/` |
 | `src/client` | `StarterPlayer.StarterPlayerScripts.StudioBuilder` | `BuilderClient` (ModuleScript) plus `Build/`, `UI/`, `Adapters/` |
 | `integration/` | not synced by Rojo | Files installed by hand into live scripts (see below) |
-| `tests/` | not synced | `lua5.4 tests/run.lua` harness and 27 specs |
+| `tests/` | not synced | `lua5.4 tests/run.lua` harness and 28 specs |
 | `docs/studio-reference/` | not synced | Installed bb3efa6 source snapshot (reference only, read by one spec) |
 
 `BuilderClient` is a ModuleScript and doesn't start itself. The host panel requires it and calls `configure` and `open`.
@@ -186,7 +186,7 @@ Each hook below was checked against that source.
 
 ### Executed in this repository
 
-- `lua5.4 tests/run.lua`: **286 passed, 0 failed**, across 27 specs.
+- `lua5.4 tests/run.lua`: **297 passed, 0 failed**, across 28 specs.
 - `seat_assignments_spec` also checks the seat model's contracts against the attached bb3efa6 source: seat count, seat index range, pose modes, Lounge-only couch poses, seat labels and StudioCustomization isolation.
 - The tests run the real modules (and the real `integration/` files) against fakes. Yields are driven by coroutines.
 - Key behaviours were also checked by mutation: each original bug, put back, makes a test fail.
@@ -267,7 +267,7 @@ Use a test place or a private server with DataStore access. Never publish.
 
 ## Catalog and content status
 
-`Catalog.luau` lists **31 items**, all free and all **decorative**. No seat, light or audio adapter exists:
+`Catalog.luau` lists **36 items**: 31 furniture items (installed) and 5 structure pieces (registered, Studio install pending). All are free and all are **decorative**. No seat, light or audio adapter exists:
 - chairs aren't seats;
 - microphones, mixers and headphones have no audio;
 - the legacy `cozy_floor_lamp_01` template still contains and emits its own light. That isn't an adapter.
@@ -283,8 +283,11 @@ Use a test place or a private server with DataStore access. Never publish.
   - The prepared originals remain in `ServerStorage.StudioBuilderExpansion`, and 24 manual-use copies are in the asset yard (`07 Builder Catalog Expansion`).
 - **Collection counts (items can carry several tags):** Cozy 22, Retro 16, 1980s 12, Winter 11, Futuristic 9. Every filter now has items.
   Executive and Broadcast (task 8) don't exist yet.
-- **Candidates, not installed (10):** 7 structure pieces (walls, doorway, corner, floor, ceiling, window frame) and 3 decor items. They're prepared in Studio and indexed in [`docs/assets/README.md`](docs/assets/README.md), but they aren't in `Catalog.luau` or the Build UI.
-  Structure placement is integrated on the **server** in the repository (task 10, [`docs/structure-placement-plan.md`](docs/structure-placement-plan.md)): grid, level and cardinal-yaw validation for catalog items with `structure` metadata, 90° Rotate and on-grid Duplicate. It's tested only with fake fixtures, and isn't installed in Studio. No live item has structure metadata, and there's no client preview or UI yet, so structural snapping isn't available in the game.
+- **Structure pieces, registered in the repository (5; not installed, not usable in the game yet):** `structure_wall_01`, `structure_window_wall_01`, `structure_doorway_01`, `structure_floor_01`, `structure_ceiling_01`. That makes **36** catalog entries; the first 31 are unchanged.
+  - Their templates are still in `ServerStorage.StudioStructureCandidates`, so they show as "not installed" until Codex places them in `StudioBuilderTemplates`.
+  - Server placement rules and the drawer's **Furniture | Structure** mode with grid ghosts are implemented and tested with `lua5.4` only (task 10, [`docs/structure-placement-plan.md`](docs/structure-placement-plan.md)).
+  - Doorway clearance is still pending, and nothing has been Play-tested.
+- **Deferred candidates (5):** corner, standalone window frame, record player, radio and divider. Indexed in [`docs/assets/README.md`](docs/assets/README.md), not registered.
 
 ## Next tasks
 

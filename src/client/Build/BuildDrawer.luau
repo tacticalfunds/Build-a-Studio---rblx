@@ -8,8 +8,11 @@
 	* DRAG TO MOVE handle top right, 30x30 close (= Back) at (right - 48, 12);
 	* the five collection filters in the tab row (x 14, y 72, h 34, gap 6),
 	  standard/selected button styles;
+	* the same tab row is relabelled in Structure mode: Floors / Walls /
+	  Doors / Ceilings / Windows (task 10). No extra tab row or panel;
 	* scroll body (x 14, y 119, w - 28, h - 177), rows with 9 px padding:
-	  actions (Undo / Redo / Back / Done), selection (Move / Rotate /
+	  a Furniture | Structure choice row (same button styles, selected =
+	  teal), actions (Undo / Redo / Back / Done), selection (Move / Rotate /
 	  Duplicate / Delete), placement row (Place here when the active input is
 	  touch / Rotate / Cancel), then catalog cards with ViewportFrames from
 	  PreviewTemplates;
@@ -66,11 +69,13 @@ local function buttonRow(parent, order, labels, callbacks)
 	return r, buttons
 end
 
--- callbacks: onFilter(id), onItem(itemId), onUndo, onRedo, onBack, onDone,
---            onMove, onRotate, onDuplicate, onDelete, onPlaceHere, onCancel
--- collections: sorted { id, displayName }
-function BuildDrawer.new(playerGui, collections, callbacks)
-	local self = setmetatable({ callbacks = callbacks, cards = {}, filterButtons = {} }, BuildDrawer)
+-- callbacks: onFilter(id), onCategory(category), onItem(itemId), onUndo,
+--            onRedo, onBack, onDone, onMove, onRotate, onDuplicate, onDelete,
+--            onPlaceHere, onCancel
+-- collections: sorted { id, displayName }; structureFilters: { id, displayName }
+-- (optional). The tab row starts with the collections; setCategory relabels it.
+function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
+	local self = setmetatable({ callbacks = callbacks, cards = {}, tabButtons = {}, tabIds = {} }, BuildDrawer)
 
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "StudioBuilderDrawer"
@@ -112,17 +117,20 @@ function BuildDrawer.new(playerGui, collections, callbacks)
 	tabLayout.Padding = UDim.new(0, L.tabsGap)
 	tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	tabLayout.Parent = tabs
-	local n = #collections
-	for i, c in ipairs(collections) do
-		local b = PanelTheme.button(c.displayName, false)
-		b.Size = UDim2.new(1 / n, -L.tabsGap * (n - 1) / n, 1, 0)
+	local n = math.max(#collections, structureFilters and #structureFilters or 0)
+	for i = 1, n do
+		local b = PanelTheme.button("", false)
 		b.LayoutOrder = i
 		b.Parent = tabs
 		b.Activated:Connect(function()
-			callbacks.onFilter(c.id)
+			local id = self.tabIds[i]
+			if id then
+				callbacks.onFilter(id)
+			end
 		end)
-		self.filterButtons[c.id] = b
+		self.tabButtons[i] = b
 	end
+	self:_labelTabs(collections)
 
 	local body = Instance.new("ScrollingFrame")
 	body.BackgroundTransparency = 1
@@ -141,6 +149,13 @@ function BuildDrawer.new(playerGui, collections, callbacks)
 	padding.PaddingBottom = UDim.new(0, L.rowPaddingBottom)
 	padding.Parent = body
 	self.body = body
+
+	local onCategory = callbacks.onCategory or function() end
+	local _, categories = buttonRow(body, 0, { "Furniture", "Structure" }, {
+		function() onCategory("furniture") end,
+		function() onCategory("structure") end,
+	})
+	self.categoryButtons = categories
 
 	local _, actions = buttonRow(body, 1, { "Undo", "Redo", "Back", "Done" }, { callbacks.onUndo, callbacks.onRedo, callbacks.onBack, callbacks.onDone })
 	self.actions = actions
@@ -174,7 +189,8 @@ function BuildDrawer.new(playerGui, collections, callbacks)
 
 	local heading = row(body, 4, 34)
 	self.collectionHeading = place(PanelTheme.label("heading", ""), heading, UDim2.new(), UDim2.new(1, 0, 0, 16))
-	place(PanelTheme.label("description", "Choose an item, then a floor or tabletop."), heading, UDim2.fromOffset(0, 18), UDim2.new(1, 0, 0, 14))
+	self.headingDescription = place(PanelTheme.label("description", "Choose an item, then a floor or tabletop."), heading, UDim2.fromOffset(0, 18), UDim2.new(1, 0, 0, 14))
+	self:setCategory("furniture", collections)
 
 	self.footer = place(PanelTheme.label("status", ""), drawer, UDim2.new(0, L.footerX, 1, -L.footerBottomInset), UDim2.new(1, -L.footerX * 2, 0, L.footerHeight))
 
@@ -259,9 +275,34 @@ function BuildDrawer:setFooter(text)
 	self.footer.Text = text or ""
 end
 
-function BuildDrawer:setFilter(collectionId, displayName)
-	for id, b in pairs(self.filterButtons) do
-		PanelTheme.setSelected(b, id == collectionId)
+-- Relabels the tab row with filters ({ id, displayName }); extra buttons hide.
+function BuildDrawer:_labelTabs(filters)
+	local n = #filters
+	for i, b in ipairs(self.tabButtons) do
+		local f = filters[i]
+		self.tabIds[i] = f and f.id or nil
+		b.Visible = f ~= nil
+		b.Text = f and f.displayName or ""
+		b.Size = UDim2.new(1 / math.max(n, 1), -L.tabsGap * (n - 1) / math.max(n, 1), 1, 0)
+		PanelTheme.setSelected(b, false)
+	end
+end
+
+-- "furniture" | "structure": relabels the tab row and marks the choice row.
+function BuildDrawer:setCategory(category, filters)
+	self:_labelTabs(filters)
+	if self.categoryButtons then
+		PanelTheme.setSelected(self.categoryButtons.Furniture, category == "furniture")
+		PanelTheme.setSelected(self.categoryButtons.Structure, category == "structure")
+	end
+	if self.headingDescription then
+		self.headingDescription.Text = category == "structure" and "Choose a piece, then point at the floor; it snaps to the room grid." or "Choose an item, then a floor or tabletop."
+	end
+end
+
+function BuildDrawer:setFilter(filterId, displayName)
+	for i, b in ipairs(self.tabButtons) do
+		PanelTheme.setSelected(b, self.tabIds[i] ~= nil and self.tabIds[i] == filterId)
 	end
 	self.collectionHeading.Text = displayName or ""
 end

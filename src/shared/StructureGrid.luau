@@ -58,6 +58,25 @@ StructureGrid.Codes = {
 }
 local Codes = StructureGrid.Codes
 
+-- Protocol code for each StructureGrid code, shared by the server
+-- (PlacementCore) and the client preview so both report the same thing.
+-- The grid detail (OffGrid, BadLevel, BadYaw) travels as `reason`.
+StructureGrid.ProtocolCodes = {
+	BadTransform = "BadTransform",
+	OutOfBounds = "OutOfBounds",
+	BadSize = "NotInstalled",
+	BadKind = "UnknownItem",
+	BadYaw = "OffGrid",
+	BadLevel = "OffGrid",
+	OffGrid = "OffGrid",
+}
+
+-- Returns protocolCode, reason? for a StructureGrid code.
+function StructureGrid.toProtocol(code)
+	local mapped = StructureGrid.ProtocolCodes[code] or "BadTransform"
+	return mapped, mapped == "OffGrid" and code or nil
+end
+
 local PITCH, HALF = StructureGrid.PITCH, StructureGrid.HALF
 
 local function isCoordinate(v, limit)

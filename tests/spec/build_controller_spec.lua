@@ -15,7 +15,8 @@ return function(T, H)
 		function d:refit(w, h) self.refits[#self.refits + 1] = w .. "x" .. h end
 		function d:cancelDrag() self.cancelDrags = self.cancelDrags + 1 end
 		function d:containsPoint() return env.overDrawer end
-		function d:setFilter() end
+		function d:setFilter(id, name) self.filter, self.filterName = id, name end
+		function d:setCategory(category, filters) self.category, self.filters = category, filters end
 		function d:setItems(items) self.items = items end
 		function d:setStatus() end
 		function d:setFooter(text) self.footer = text end

@@ -208,15 +208,6 @@ function PlacementCore:_structureKind(itemId)
 	return false
 end
 
-local STRUCTURE_CODES = {
-	BadTransform = Codes.BadTransform,
-	OutOfBounds = Codes.OutOfBounds,
-	BadSize = Codes.NotInstalled,
-	BadKind = Codes.UnknownItem,
-	BadYaw = Codes.OffGrid,
-	BadLevel = Codes.OffGrid,
-	OffGrid = Codes.OffGrid,
-}
 
 function PlacementCore:_gridOptions()
 	return { maxCoordinate = self.config.MaxCoordinate, boundsEpsilon = self.config.BoundsEpsilon }
@@ -240,8 +231,7 @@ function PlacementCore:_clean(itemId, raw)
 	if t then
 		return t
 	end
-	local code = STRUCTURE_CODES[gridCode] or Codes.BadTransform
-	return nil, code, code == Codes.OffGrid and gridCode or nil
+	return nil, StructureGrid.toProtocol(gridCode)
 end
 
 -- Resolves an existing item. Returns id, record or nil, code.
@@ -368,8 +358,7 @@ function planners.Rotate(self, _, payload)
 		end
 		local t, gridCode = StructureGrid.rotate(kind, record, direction, size, self.bounds, self:_gridOptions())
 		if t == nil then
-			local mapped = STRUCTURE_CODES[gridCode] or Codes.BadTransform
-			return nil, mapped, mapped == Codes.OffGrid and gridCode or nil
+			return nil, StructureGrid.toProtocol(gridCode)
 		end
 		return self:_movePlan(id, record, t)
 	end

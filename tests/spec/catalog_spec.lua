@@ -54,8 +54,17 @@ return function(T, H)
 		"winter_lantern_01", "winter_log_basket_01", "winter_snow_globe_01", "winter_white_rug_01",
 	}
 
-	T.test("catalog holds exactly the 7 original and 24 expansion IDs, originals first and unchanged in order", function()
-		T.eq(#Catalog.Items, 31, "item count")
+	local STRUCTURE = {
+		structure_wall_01 = "wall", structure_window_wall_01 = "window_wall", structure_doorway_01 = "doorway",
+		structure_floor_01 = "floor", structure_ceiling_01 = "ceiling",
+	}
+	local STRUCTURE_ORDER = { "structure_wall_01", "structure_window_wall_01", "structure_doorway_01", "structure_floor_01", "structure_ceiling_01" }
+
+	T.test("catalog holds the 7 original, 24 expansion and 5 structure IDs, earlier entries unchanged in order", function()
+		T.eq(#Catalog.Items, 36, "item count")
+		for i, id in ipairs(STRUCTURE_ORDER) do
+			T.eq(Catalog.Items[#ORIGINAL + #EXPANSION + i].id, id, "structure #" .. i)
+		end
 		for i, id in ipairs(ORIGINAL) do
 			T.eq(Catalog.Items[i].id, id, "original #" .. i)
 		end
@@ -74,10 +83,23 @@ return function(T, H)
 	end)
 
 	T.test("collection tag counts match the data, and every collection has items", function()
+		-- Style filters show furniture only; the 5 structure pieces carry all five tags but live in Structure mode.
 		local expected = { cozy = 22, retro = 16, ["1980s"] = 12, winter = 11, futuristic = 9 }
 		for _, c in ipairs(Catalog.Collections) do
-			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id], c.id .. " count")
+			T.eq(#Catalog.getFurnitureTagged(c.id), expected[c.id], c.id .. " furniture count")
+			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id] + 5, c.id .. " raw tag count")
+			for _, item in ipairs(Catalog.getFurnitureTagged(c.id)) do
+				T.eq(item.structure, nil, item.id)
+			end
 		end
+		for _, f in ipairs(Catalog.StructureFilters) do
+			local items = Catalog.getStructureItems(f.id)
+			T.eq(#items, 1, f.id)
+			T.eq(STRUCTURE[items[1].id], f.id)
+		end
+		local labels = {}
+		for i, f in ipairs(Catalog.StructureFilters) do labels[i] = f.displayName end
+		T.eq(table.concat(labels, ","), "Floors,Walls,Doors,Ceilings,Windows")
 		local eighties = {}
 		for _, item in ipairs(Catalog.getItemsTagged("1980s")) do
 			eighties[item.id] = true
@@ -124,7 +146,7 @@ return function(T, H)
 		end
 	end)
 
-	T.test("structure/decor candidates are indexed but not registered; rejected asset IDs never appear in source", function()
+	T.test("structure candidates: exactly the 5 approved pieces are registered from the manifest; deferred ones and rejected asset IDs stay out", function()
 		local manifest = H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json")
 		local ids = {}
 		for entry in manifest:gmatch('"templatePath": "ServerStorage%.StudioStructureCandidates%.([%w_]+)"') do
@@ -132,9 +154,30 @@ return function(T, H)
 		end
 		T.eq(#ids, 10, "candidate count")
 		local index = H.readFile(H.ROOT .. "/docs/assets/README.md")
+		local deferred = { structure_corner_01 = true, structure_industrial_window_01 = true, retro_record_player_01 = true, retro_radio_01 = true, cozy_shoji_divider_01 = true }
 		for _, id in ipairs(ids) do
-			T.eq(Catalog.getItem(id), nil, id .. " must not be registered yet")
 			T.ok(index:find("`" .. id .. "`", 1, true), id .. " is indexed in docs/assets/README.md")
+			local item = Catalog.getItem(id)
+			if deferred[id] then
+				T.eq(item, nil, id .. " is deferred and must not be registered")
+			else
+				T.ok(item ~= nil, id .. " is registered")
+				T.eq(item.structure.kind, STRUCTURE[id], id .. " kind")
+				-- Exact name, tags and sourceRef from this candidate's manifest entry.
+				local at = manifest:find('"id": "' .. id .. '"', 1, true)
+				local stop = manifest:find('"collections"', at, true)
+				local entry = manifest:sub(at, stop and select(2, manifest:find("%b[]", stop)) or #manifest)
+				T.ok(entry:find('"displayName": "' .. item.displayName .. '"', 1, true), id .. " displayName")
+				T.ok(entry:find('"sourceRef": "' .. item.sourceRef .. '"', 1, true), id .. " sourceRef")
+				local tags = {}
+				for tag in entry:match('"collections": (%b[])'):gmatch('"([^"]+)"') do tags[tag] = true end
+				local mine = {}
+				for _, tag in ipairs(item.collections) do mine[tag] = true end
+				T.deepEq(mine, tags, id .. " collections")
+				for key in pairs(item) do
+					T.ok(key ~= "sourceAssetId" and key ~= "templatePath" and key ~= "sourceUrl", id .. " carries " .. key)
+				end
+			end
 		end
 		local rejected = manifest:match('"rejected": (%b[])')
 		local rejectedIds = {}
@@ -149,6 +192,8 @@ return function(T, H)
 			end
 		end
 		T.ok(index:find("RushioLCO (credit requested; keep it)", 1, true), "record player credit kept")
+		local ceiling = H.readFile(H.ROOT .. "/src/shared/Catalog.luau")
+		T.ok(ceiling:find("Neutral recolour of the kit floor geometry", 1, true), "ceiling provenance noted in the catalog")
 	end)
 
 	T.test("sorted collections follow declared order", function()
@@ -170,7 +215,7 @@ return function(T, H)
 
 	T.test("every sourceRef exists in the committed asset guide or expansion manifest (no invented sources)", function()
 		local guide = H.readFile(H.ROOT .. "/docs/assets/Studio_Asset_Guide_2026-10-25.json")
-		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json")
 		for _, item in ipairs(Catalog.Items) do
 			local inGuide = string.find(guide, '"path": "' .. item.sourceRef .. '"', 1, true) or string.find(guide, '"path":"' .. item.sourceRef .. '"', 1, true)
 			local inManifest = string.find(manifest, '"sourceRef": "' .. item.sourceRef .. '"', 1, true)

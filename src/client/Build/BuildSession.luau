@@ -15,19 +15,34 @@
 	  server refuses stale steps.
 	* Responses are ignored once closed, and status older than the newest
 	  known revision is ignored (a Status op entirely).
+	* Categories (task 10): "furniture" shows the five style filters;
+	  "structure" shows Floors / Walls / Doors / Ceilings / Windows. Switching
+	  category cancels any preview (a stale placement or move never carries
+	  over). The chosen item's structure kind sets the preview rotation step:
+	  90 degrees for floors and ceilings; 180 for edge pieces (walls, window
+	  walls, doorways), because which edge they sit on follows the pointer,
+	  so R only flips which way the piece faces.
 ]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StructureGrid = require(ReplicatedStorage:WaitForChild("StudioBuilder"):WaitForChild("StructureGrid"))
 
 local BuildSession = {}
 BuildSession.__index = BuildSession
 
 local FILTERS = { cozy = true, ["1980s"] = true, retro = true, winter = true, futuristic = true }
+local STRUCTURE_FILTERS = { floor = true, wall = true, doorway = true, ceiling = true, window_wall = true }
+local CATEGORIES = { furniture = true, structure = true }
 
 function BuildSession.new(config)
 	return setmetatable({
 		config = config,
 		mode = "closed",
 		filter = "cozy",
+		category = "furniture",
+		structureFilter = "floor",
 		itemId = nil,
+		itemKind = nil, -- structure kind of the item being placed or moved (nil = furniture)
 		selectedId = nil,
 		previewYaw = 0,
 		readOnly = false,
@@ -65,7 +80,36 @@ end
 
 function BuildSession:closed()
 	self.mode = "closed"
-	self.itemId, self.selectedId = nil, nil
+	self.itemId, self.selectedId, self.itemKind = nil, nil, nil
+end
+
+-- "furniture" | "structure". Switching cancels any preview. Returns true when valid.
+function BuildSession:setCategory(category)
+	if not CATEGORIES[category] then
+		return false
+	end
+	if category ~= self.category then
+		self.category = category
+		self:cancelPreview()
+	end
+	return true
+end
+
+function BuildSession:setStructureFilter(kind)
+	if STRUCTURE_FILTERS[kind] then
+		self.structureFilter = kind
+		return true
+	end
+	return false
+end
+
+-- Preview rotation step for the current item (see header).
+function BuildSession:rotationStep()
+	local spec = self.itemKind and StructureGrid.Kinds[self.itemKind]
+	if spec == nil then
+		return self.config.RotationStep
+	end
+	return spec.placement == "edge" and 180 or StructureGrid.YAW_STEP
 end
 
 function BuildSession:setFilter(collectionId)
@@ -77,7 +121,8 @@ function BuildSession:setFilter(collectionId)
 end
 
 -- Starts placing a catalog item (installed = has a prepared template).
-function BuildSession:choose(itemId, installed)
+-- kind: its structure kind, or nil for furniture.
+function BuildSession:choose(itemId, installed, kind)
 	if not self:canEdit() then
 		return false
 	end
@@ -87,6 +132,7 @@ function BuildSession:choose(itemId, installed)
 	end
 	self.mode = "placing"
 	self.itemId = itemId
+	self.itemKind = kind
 	self.selectedId = nil
 	self.previewYaw = 0
 	return true
@@ -101,12 +147,13 @@ function BuildSession:select(id)
 	return true
 end
 
-function BuildSession:beginMove(itemId, currentYaw)
+function BuildSession:beginMove(itemId, currentYaw, kind)
 	if self.mode ~= "selected" or not self:canEdit() then
 		return false
 	end
 	self.mode = "moving"
 	self.itemId = itemId
+	self.itemKind = kind
 	self.previewYaw = currentYaw or 0
 	return true
 end
@@ -114,7 +161,7 @@ end
 -- R / Rotate button. Returns "preview" (local turn) or "request" (send Rotate).
 function BuildSession:rotate()
 	if self:isPreviewing() then
-		self.previewYaw = (self.previewYaw + self.config.RotationStep) % 360
+		self.previewYaw = (self.previewYaw + self:rotationStep()) % 360
 		return "preview"
 	end
 	if self.mode == "selected" and self:canEdit() then
@@ -126,10 +173,10 @@ end
 function BuildSession:cancel()
 	if self.mode == "placing" then
 		self.mode = "idle"
-		self.itemId = nil
+		self.itemId, self.itemKind = nil, nil
 	elseif self.mode == "moving" then
 		self.mode = "selected"
-		self.itemId = nil
+		self.itemId, self.itemKind = nil, nil
 	elseif self.mode == "selected" then
 		self.mode = "idle"
 		self.selectedId = nil
@@ -183,10 +230,10 @@ function BuildSession:applyResponse(op, response, statusOnly)
 	if op == "Place" or op == "Duplicate" then
 		self.mode = "selected"
 		self.selectedId = response.id
-		self.itemId = nil
+		self.itemId, self.itemKind = nil, nil
 	elseif op == "Move" then
 		self.mode = "selected"
-		self.itemId = nil
+		self.itemId, self.itemKind = nil, nil
 	elseif op == "Delete" then
 		self.mode = "idle"
 		self.selectedId = nil
@@ -194,7 +241,7 @@ function BuildSession:applyResponse(op, response, statusOnly)
 		-- The affected item may have disappeared; start from a clean selection.
 		self.mode = "idle"
 		self.selectedId = nil
-		self.itemId = nil
+		self.itemId, self.itemKind = nil, nil
 	end
 end
 
@@ -204,7 +251,7 @@ function BuildSession:cancelPreview()
 	elseif self.mode == "moving" then
 		self.mode = "selected"
 	end
-	self.itemId = nil
+	self.itemId, self.itemKind = nil, nil
 end
 
 -- Returns true when the controller must exit build mode.
