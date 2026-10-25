@@ -31,7 +31,7 @@ Known contracts (from Codex, 2026-10-25):
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
 | 8 | More collection themes | 6 | Expansion installed (31 items, Play-checked); Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
-| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | Pending (plan only) |
+| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (pure StructureGrid foundation for review) |
 
 **User priority (2026-10-25): keep expanding the model catalog.** Codex prepares and inspects candidates. Each set is registered in its own bounded checkpoint (manifest, catalog entries, tests), then installed and Play-checked by Codex. The queue order above is otherwise unchanged.
 
@@ -303,7 +303,7 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
 
-## 10. Structure pieces: walls, floors, ceilings, doorways, windows: Pending (plan only)
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (pure StructureGrid foundation for review)
 Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
 - Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
   - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
@@ -321,3 +321,18 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
 - Acceptance (draft): the tests listed in section 7 of the plan. Runtime placement, avatar clearance and window fitting are Play-tested by Codex.
 - **Not done:** any structure runtime, catalog entry or UI. Structural snapping isn't implemented.
 - Evidence for this docs checkpoint: `lua5.4 tests/run.lua` runs the catalog and static checks, including a new guard that none of the 10 candidate IDs is in `Catalog.luau` and that no rejected asset ID appears in source.
+- Pure foundation (review of b14edfd; decisions D1–D7 resolved from Codex's Studio measurements):
+  - **Delivered:** `src/shared/StructureGrid.luau`:
+    - cell centres at 16i and edges at 8 + 16i from the sandbox origin (a cell centre), with ties toward +infinity;
+    - levels: floor 0, wall 0, ceiling 15;
+    - cardinal yaw; edge pieces along X at 0/180 and along Z at 90/270;
+    - `validate` with distinct codes (BadKind, BadTransform, BadSize, BadYaw, BadLevel, OffGrid, then OutOfBounds from the shared bounds check, with no overhang) and a 0.01 tolerance that snaps exactly;
+    - `project` from a floor hit;
+    - a deterministic `rotate` re-snap proposal: hinge at an end point, fixed candidate order.
+  - Covers floor, ceiling, wall, window_wall and doorway. Corner (leg centrelines at 7.5, not 8) and the standalone window frame (axes need normalizing) are deferred and give BadKind.
+  - **Measured, recorded, not yet used:** the doorway opening (x ±2.5, y 1 to 8.5, z ±0.5; threshold y 0 to 1; corridor recommendation z ±2.5). No avatar Play claim.
+  - **Bounds:** a 49 × 24 × 49 marker is proposed for 3 × 3 cells with outer walls at ±24. The live 48 × 24 × 48 marker at (2000, 12, 0) is untouched; there, outer walls are refused and inner walls and 3 × 3 floors fit.
+  - **Plan:** `docs/structure-placement-plan.md` §4 is updated with the decisions and the Rotate proposal, and labelled pure foundations, pending Studio review.
+  - **Not integrated:** no planners, preview, drawer, catalog, persistence, seat or theme changes. All 31 live catalog entries are unchanged.
+  - **Evidence (executed 2026-10-25):** `lua5.4 tests/run.lua` gives **273 passed, 0 failed** (26 specs). `structure_grid_spec` adds 9 tests: snapping (negative cells, ties), floor and ceiling (ceiling top 16, height 15.9 vs 16), edge axes for the three edge kinds, the full outer-wall footprint (24 refused, 24.5 accepted), tolerance, yaw, bad input, projection (including a sweep), and Rotate.
+    12 mutations caught: edge origin, tie direction, swapped axes, overhang allowed, no level check, ceiling at 16, OffGrid reported as bounds, 15° yaw, rotate in place, no fallback candidates, tie edge choice, corner accepted.

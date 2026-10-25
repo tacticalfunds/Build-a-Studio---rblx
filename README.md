@@ -43,7 +43,7 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 | `src/server` | `ServerScriptService.StudioBuilder` | `StudioBuilderBootstrap.server` plus `Adapters/`, `Core/`, `Runtime/`, `Bootstrap/` |
 | `src/client` | `StarterPlayer.StarterPlayerScripts.StudioBuilder` | `BuilderClient` (ModuleScript) plus `Build/`, `UI/`, `Adapters/` |
 | `integration/` | not synced by Rojo | Files installed by hand into live scripts (see below) |
-| `tests/` | not synced | `lua5.4 tests/run.lua` harness and 25 specs |
+| `tests/` | not synced | `lua5.4 tests/run.lua` harness and 26 specs |
 | `docs/studio-reference/` | not synced | Installed bb3efa6 source snapshot (reference only, read by one spec) |
 
 `BuilderClient` is a ModuleScript and doesn't start itself. The host panel requires it and calls `configure` and `open`.
@@ -186,7 +186,7 @@ Each hook below was checked against that source.
 
 ### Executed in this repository
 
-- `lua5.4 tests/run.lua`: **263 passed, 0 failed**, across 25 specs.
+- `lua5.4 tests/run.lua`: **273 passed, 0 failed**, across 26 specs.
 - `seat_assignments_spec` also checks the seat model's contracts against the attached bb3efa6 source: seat count, seat index range, pose modes, Lounge-only couch poses, seat labels and StudioCustomization isolation.
 - The tests run the real modules (and the real `integration/` files) against fakes. Yields are driven by coroutines.
 - Key behaviours were also checked by mutation: each original bug, put back, makes a test fail.
@@ -284,7 +284,7 @@ Use a test place or a private server with DataStore access. Never publish.
 - **Collection counts (items can carry several tags):** Cozy 22, Retro 16, 1980s 12, Winter 11, Futuristic 9. Every filter now has items.
   Executive and Broadcast (task 8) don't exist yet.
 - **Candidates, not installed (10):** 7 structure pieces (walls, doorway, corner, floor, ceiling, window frame) and 3 decor items. They're prepared in Studio and indexed in [`docs/assets/README.md`](docs/assets/README.md), but they aren't in `Catalog.luau` or the Build UI.
-  Structure placement is only a plan ([`docs/structure-placement-plan.md`](docs/structure-placement-plan.md), task 10). Structural snapping is **not** implemented.
+  Structure placement has a pure, unit-tested grid module (`src/shared/StructureGrid.luau`) and a plan ([`docs/structure-placement-plan.md`](docs/structure-placement-plan.md), task 10). Nothing is wired: structural snapping is **not** integrated, and none of it has run in Studio.
 
 ## Next tasks
 

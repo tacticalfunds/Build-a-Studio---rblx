@@ -1,11 +1,12 @@
 # Structure placement plan: walls, floors, ceilings, doorways, windows
 
-**Status:** this is a plan only. **Nothing here is implemented.**
-- No structure catalog entries, snapping, server rules or UI exist yet.
-- The 10 candidates in [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](assets/Structure_and_Decor_Candidates_2026-10-25.json) are prepared in Studio (`ServerStorage.StudioStructureCandidates`), but they're **not** registered in `Catalog.luau` and **not** in the Build UI.
-- **Structural snapping is not done.**
+**Status (review of b14edfd):** **pure foundations only, pending Studio review.**
+- `src/shared/StructureGrid.luau` (grid projection, validation, Rotate proposal) and `tests/spec/structure_grid_spec.lua` are implemented.
+- Nothing calls them: no PlacementCore planner, preview, drawer, catalog entry or runtime change.
+- The 10 candidates in [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](assets/Structure_and_Decor_Candidates_2026-10-25.json) are still **not** registered and **not** in the Build UI.
+- **Structural snapping isn't integrated.**
 
-Everything below refers to the placement code as it is now. The decisions marked **D1–D7** need review before implementation.
+The live sandbox marker is untouched: 48 × 24 × 48 at world (2000, 12, 0).
 
 ## 1. What the current code does (and what that means for structures)
 
@@ -60,7 +61,56 @@ Windows aren't required to touch a wall on the server (D5), but must use a 90° 
 
 `Rotate` on a structure piece steps 90°. On a wall it swaps the edge orientation about the same edge centre; the result has to stay on the grid, or it's refused as `OutOfBounds`.
 
-## 4. Decisions needed (D1–D7)
+## 4. Decisions (resolved in review of b14edfd; Codex measured actual Studio geometry)
+
+| # | Decision | In `StructureGrid` |
+|---|---|---|
+| D1 | **The sandbox origin is a cell centre.** Cell centres are at x, z = 16i; cell edges at x, z = 8 + 16i (negative i included). | `snapCentre`, `snapEdge`. Exact ties round toward +infinity (`snapCentre(-8) = 0`, `snapEdge(0) = 8`), so results don't depend on sign. |
+| D2 | **Use the supplied bounds; never allow an unauthorized overhang.** A future marker of **49 × 24 × 49** (half 24.5) gives 3 × 3 floor cells (centres -16, 0, 16) with outer walls on edges ±24. The live **48 × 24 × 48** marker stays as it is; outer walls at ±24 are refused there, while inner walls and 3 × 3 floors fit. | `validate` uses the shared `Transform.fits` with the caller's bounds. No allowance. Outer walls give `OutOfBounds` at half 24 and fit at 24.5 (tested both ways). |
+| D3 | **Levels:** floor y = 0 (top 1), wall y = 0 (top 15), ceiling y = 15 (top 16). The current height of 24 fits. | `Kinds[*].level`. Wrong y gives `BadLevel`. A ceiling needs height at or above 16 (tested at 15.9 and 16). |
+| D4 | **Doorway opening, measured** (doorway-local): x from -2.5 to 2.5, y from 1 to 8.5, wall z from -0.5 to 0.5. The threshold occupies y 0 to 1. Recommended clearance corridor: z from -2.5 to 2.5. **This is a measurement only. No avatar Play test is claimed.** | Not in this module yet. The clearance rule comes with integration, using these numbers. |
+| D5 | **Keep floating allowed:** no support graph, no cascade delete. | Nothing to do. |
+| D6 | **The standalone industrial frame is a decorative overlay, not hole-cutting, and is deferred.** Its actual local bounds are x ±0.70916, z ±2.60326, y 0 to 7.13311. The manifest's size (5.2 × 7.13 × 1.39) has a different axis order, so the orientation must be normalized before any mount metadata. | `window` isn't a kind: it gives `BadKind`. |
+| D7 | **The corner is deferred.** Measured leg boxes: [-8, 0, 7]..[7, 15, 8] and [7, 0, -8]..[8, 15, 8]. The leg centrelines are at **+7.5, not 8**, so the legs don't line up with straight walls on edge lines. Registration waits until Codex corrects and validates the join geometry. **No offsets are guessed.** | `corner` isn't a kind: it gives `BadKind`. |
+
+**Kinds covered now:** `floor` and `ceiling` (cell kinds); `wall`, `window_wall` and `doorway` (edge kinds, with length along local X).
+- Yaw 0/180 lies along X: z on an edge line, x at a cell centre.
+- Yaw 90/270 lies along Z: x on an edge line, z at a cell centre.
+
+Yaw must be cardinal.
+
+**Validation order and codes**, all distinct from bounds:
+1. `BadKind`
+2. `BadTransform`: malformed or non-finite, or beyond the coordinate limit
+3. `BadSize`: bad template size or bounds
+4. `BadYaw`: not a multiple of 90
+5. `BadLevel`
+6. `OffGrid`
+7. `OutOfBounds`
+
+Positions within **0.01** of the grid (the server's quantization) are accepted and returned snapped exactly. Anything further is `OffGrid`.
+
+**`project(kind, floorHit, preferredYaw?)`:** cell kinds go to the nearest cell centre. Edge kinds go to the nearer of the nearest X-axis edge and the nearest Z-axis edge; an exact tie picks the X-axis edge. A preferred yaw of 180 or 270 keeps the flipped facing on whichever axis wins.
+
+### Rotate (proposal, not wired into the planners)
+
+Turning an edge piece 90° in place at its old edge centre gives a perpendicular piece that is **off-grid**, because a Z-axis piece needs x on an edge line, not z.
+Refusing every such turn would make Rotate useless for walls. `StructureGrid.rotate` re-snaps deterministically instead:
+
+1. The piece **hinges at one of its end points**. These are always grid corners (8 + 16a, 8 + 16b).
+2. It then extends 8 studs along the new axis, so the result is on-grid by construction.
+3. Candidates are tried in a fixed order, and the first that validates wins:
+   - direction +1: the end with the larger coordinate first, extending toward +new axis, then −; then the other end, + then −;
+   - direction −1: the smaller end first, − then +; then the larger end, − then +.
+4. It's `OutOfBounds` only when all four candidates are out of bounds.
+5. Cell pieces turn in place.
+
+Example: a wall along X at (0, 8), Rotate +1, becomes a wall along Z at (8, 16), hinged at the corner (8, 8).
+**Integration later:** `planners.Rotate` would call this for structure items instead of adding `RotationStep`, and the resulting move effect goes through the existing apply, rollback and history path unchanged.
+Whether this hinge behaviour feels right is a UX question for review in Studio.
+
+### Original open questions (as first written; superseded by the table above)
+
 
 1. **D1 Grid origin.** I recommend anchoring the cell grid to the sandbox origin, with cell edges at multiples of 16 from it (x = 16i), so the centre of the sandbox is a cell corner.
    The alternative is the sandbox centre as a cell centre.
@@ -119,6 +169,8 @@ Windows aren't required to touch a wall on the server (D5), but must use a 90° 
 - Drawer: Structure mode reuses the filter row and theme tokens (`client_ui_spec` style).
 
 ## 8. Not executed / still needed from Codex
+
+- Any runtime use of `StructureGrid`: Place/Move/Rotate/Duplicate integration, the preview modes, the drawer Structure mode, catalog `structure` metadata. Only the pure module and its unit tests ran (`lua5.4`); none of it has run in Studio.
 
 - Runtime placement of any structure piece (manifest: "runtime placement not tested").
 - Measurements for D3, D4, D6 and D7, and the live sandbox marker size for D2.
