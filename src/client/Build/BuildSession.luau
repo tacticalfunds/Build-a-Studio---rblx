@@ -137,8 +137,9 @@ function BuildSession:cancel()
 end
 
 -- Applies a server response to op. Failed placements keep the preview so the
--- user can try another spot.
-function BuildSession:applyResponse(op, response)
+-- user can try another spot. statusOnly: the user's intent changed while the
+-- request was in flight, so apply status but not mode/selection changes.
+function BuildSession:applyResponse(op, response, statusOnly)
 	if self.mode == "closed" then
 		return -- a late response must never revive a closed session
 	end
@@ -176,7 +177,7 @@ function BuildSession:applyResponse(op, response)
 		self.readOnly = true
 		self:cancelPreview()
 	end
-	if not response.ok then
+	if not response.ok or statusOnly then
 		return
 	end
 	if op == "Place" or op == "Duplicate" then

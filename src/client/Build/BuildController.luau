@@ -40,6 +40,15 @@
 	  nothing is open or opening before touching the handoff.
 	* The ghost tracks its catalog ID and is replaced when the chosen item
 	  changes; a placement only uses a preview computed for the current item.
+	* intent: bumped by every same-session change of intent (choose, move,
+	  cancel, preview rotate, select). An edit response that arrives after
+	  the intent changed still updates status/undo/redo/revision/pause, but
+	  never mode, selection or the chosen item (a pending Place of A cannot
+	  wipe a newer choice of B).
+	* open() stays "opening" until every yield is over (handoff enter,
+	  createDrawer, panel.getPosition) and keeps the drawer local until the
+	  generation check passes; a cancelled open destroys only its own drawer
+	  and never touches a newer session.
 	* The active input method (mouse or touch) is tracked per input, not by
 	  device capability: touch taps preview and confirm with Place here, mouse
 	  clicks confirm, and mouse polling never overwrites a touched point.
@@ -68,6 +77,7 @@ function BuildController.new(env)
 		pointer = nil,
 		inputMethod = "mouse",
 		lastPreview = nil,
+		intent = 0,
 		cleanupGeneration = 0,
 		lastCloseInfo = nil,
 	}, BuildController)
@@ -84,9 +94,14 @@ end
 
 -- Requests ------------------------------------------------------------------
 
+function BuildController:_bumpIntent()
+	self.intent = self.intent + 1
+end
+
 -- One yielding request bound to the current generation. Returns the response,
 -- or nil when it was discarded because the session closed/reopened meanwhile.
-function BuildController:_request(payload)
+-- intent (optional): when the user's intent changed meanwhile, only status is applied.
+function BuildController:_request(payload, intent)
 	local generation = self.generation
 	local response = self.env.request(payload)
 	if generation ~= self.generation then
@@ -95,7 +110,8 @@ function BuildController:_request(payload)
 	if type(response) ~= "table" then
 		response = { ok = false, code = "Internal" }
 	end
-	self.session:applyResponse(payload.op, response)
+	local statusOnly = intent ~= nil and intent ~= self.intent
+	self.session:applyResponse(payload.op, response, statusOnly)
 	return response
 end
 
@@ -106,7 +122,7 @@ function BuildController:_send(payload)
 	end
 	self.sending = true
 	local generation = self.generation
-	local response = self:_request(payload)
+	local response = self:_request(payload, self.intent)
 	if generation ~= self.generation then
 		return nil -- a newer session owns `sending` now
 	end
@@ -214,24 +230,41 @@ function BuildController:open()
 		end
 		return false, "Cancelled"
 	end
-	self.opening = false
 	if not entered then
+		self.opening = false
 		local reason = failures and failures[1] and failures[1].reason == "Unbound" and "HandoffUnbound" or "HandoffFailed"
 		return false, reason
 	end
 
+	-- Still "opening": createDrawer (WaitForChild) and getPosition may yield.
+	-- Keep the drawer local until no cancellation happened meanwhile.
+	local drawer = self.env.createDrawer(self:_drawerCallbacks())
+	if generation ~= self.generation then
+		drawer:destroy() -- _cancelOpening already exited the handoff
+		return false, "Cancelled"
+	end
+	local x, y = nil, nil
+	local panel = self.env.panel
+	if panel and panel.getPosition then
+		local ok, px, py = pcall(panel.getPosition)
+		if ok and type(px) == "number" and type(py) == "number" then
+			x, y = px, py
+		end
+	end
+	if generation ~= self.generation then
+		drawer:destroy()
+		return false, "Cancelled"
+	end
+
+	self.opening = false
 	self.sandbox = sandbox
 	self.sending = false
 	self.session:opened(self.env.isHost())
-	self.drawer = self.env.createDrawer(self:_drawerCallbacks())
-	local panel = self.env.panel
-	if panel and panel.getPosition then
-		local ok, x, y = pcall(panel.getPosition)
-		if ok and type(x) == "number" and type(y) == "number" then
-			self.drawer:setPosition(x, y)
-		end
+	self.drawer = drawer
+	if x then
+		drawer:setPosition(x, y)
 	end
-	self.drawer:setInputMode(self.inputMethod)
+	drawer:setInputMode(self.inputMethod)
 	self:showFilter(self.session.filter)
 	self:_startRecoveryPolling(generation)
 	self:_refreshStatus()
@@ -396,6 +429,7 @@ function BuildController:showFilter(collectionId)
 end
 
 function BuildController:chooseItem(itemId)
+	self:_bumpIntent()
 	self.session:choose(itemId, self.env.previewTemplate(itemId) ~= nil)
 	self:_updatePreview()
 	self:_refresh()
@@ -406,12 +440,16 @@ function BuildController:rotate()
 	if action == "request" then
 		return self:_send({ op = "Rotate", id = self.session.selectedId })
 	end
+	if action == "preview" then
+		self:_bumpIntent()
+	end
 	self:_updatePreview()
 	self:_refresh()
 	return nil
 end
 
 function BuildController:cancel()
+	self:_bumpIntent()
 	self.session:cancel()
 	self:_refresh()
 end
@@ -420,6 +458,7 @@ function BuildController:beginMove()
 	local session = self.session
 	local info = session.selectedId and self.env.selectedInfo(session.selectedId) or nil
 	if info then
+		self:_bumpIntent()
 		session:beginMove(info.catalogId, info.yaw)
 		self:_updatePreview()
 		self:_refresh()
@@ -508,6 +547,7 @@ function BuildController:onPointerPressed(pointer, method, screenX, screenY)
 		end
 		return
 	end
+	self:_bumpIntent()
 	self.session:select(self.env.pickPlaced(pointer))
 	self:_refresh()
 end

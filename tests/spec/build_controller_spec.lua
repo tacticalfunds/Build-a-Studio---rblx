@@ -71,6 +71,10 @@ return function(T, H)
 		function env.createDrawer(callbacks)
 			local d = fakeDrawer(env, callbacks)
 			env.drawers[#env.drawers + 1] = d
+			if env.yieldCreateDrawer then
+				env.yieldCreateDrawer = nil
+				coroutine.yield("createDrawer") -- e.g. WaitForChild("PlayerGui")
+			end
 			return d
 		end
 		function env.previewTemplate(id) return { name = id } end
@@ -87,7 +91,17 @@ return function(T, H)
 		function env.selectedInfo() return { catalogId = "cozy_plant_01", yaw = 0 } end
 		function env.mouseLocation() return env.mouse end
 		function env.setSelectionHighlight(id) env.highlight = id end
-		env.panel = { getPosition = function() return 50, 60 end, onClosed = function(info) env.closed[#env.closed + 1] = info end }
+		env.panel = {
+			getPosition = function()
+				env.getPositionCalls = (env.getPositionCalls or 0) + 1
+				if env.yieldGetPosition then
+					env.yieldGetPosition = nil
+					coroutine.yield("getPosition")
+				end
+				return 50, 60
+			end,
+			onClosed = function(info) env.closed[#env.closed + 1] = info end,
+		}
 		function env.spawn(fn)
 			local co = coroutine.create(fn)
 			env.spawned[#env.spawned + 1] = co
@@ -360,6 +374,85 @@ return function(T, H)
 		T.eq(env.handoff:hasPendingCleanup(), true)
 		env.c:close()
 		T.eq(env.handoff:hasPendingCleanup(), false)
+	end)
+
+	-- Follow-up regressions (review of f6facd3) -----------------------------------------
+
+	T.test("a pending Place for item A does not overwrite a newer choice of item B", function()
+		local env = setup()
+		env.c:open()
+		env.mouse = at(1, 1)
+		env.c:chooseItem("cozy_plant_01")
+		env.c:tick()
+		env.hold.Place = true
+		local co = run(function() env.c:onPointerPressed(at(1, 1), "mouse", 999, 999) end)
+		T.eq(lastRequest(env).itemId, "cozy_plant_01")
+		env.c:chooseItem("cozy_armchair_01") -- user picks B while A's Place is in flight
+		assert(coroutine.resume(co)) -- A succeeds
+		local session = env.c.session
+		T.eq(session.itemId, "cozy_armchair_01", "B is still being placed")
+		T.eq(session.mode, "placing")
+		T.eq(session.canUndo, true, "status from A's response still applied")
+		T.eq(session.revision, 1)
+		env.c:tick()
+		T.eq(env.ghosts[#env.ghosts].catalogId, "cozy_armchair_01", "B's preview kept")
+		T.eq(env.ghosts[#env.ghosts].destroyed, false)
+		env.c:onPointerPressed(at(4, 4), "mouse", 999, 999)
+		T.eq(lastRequest(env).itemId, "cozy_armchair_01", "B can be placed next")
+	end)
+
+	T.test("without a newer choice, a Place response still selects the placed item", function()
+		local env = setup()
+		env.c:open()
+		env.c:chooseItem("cozy_plant_01")
+		env.c:onPointerPressed(at(1, 1), "mouse", 999, 999)
+		T.eq(env.c.session.mode, "selected")
+		T.eq(env.c.session.selectedId, "i1")
+	end)
+
+	T.test("close during a yielding createDrawer destroys the returned drawer", function()
+		local env = setup()
+		env.yieldCreateDrawer = true
+		local co, results = run(function() return env.c:open() end)
+		T.eq(#env.drawers, 1, "creation started")
+		env.c:close()
+		T.eq(env.handoff:getState(), "inactive", "handoff exited by close")
+		assert(coroutine.resume(co))
+		T.eq(results()[1], false)
+		T.eq(results()[2], "Cancelled")
+		T.eq(env.drawers[1].destroyed, true, "returned UI destroyed")
+		T.eq(env.getPositionCalls, nil, "a cancelled open never calls into the panel")
+		T.eq(env.c:isOpen(), false)
+		T.eq(env.c.drawer, nil)
+		T.eq(env.handoff:getState(), "inactive", "stale open did not re-enter anything")
+	end)
+
+	T.test("close + reopen while the first drawer creation is pending", function()
+		local env = setup()
+		env.yieldCreateDrawer = true
+		local co, results = run(function() return env.c:open() end)
+		env.c:close()
+		T.eq(env.c:open(), true, "second open completes")
+		local second = env.drawers[2]
+		assert(coroutine.resume(co)) -- the first creation finishes late
+		T.eq(results()[2], "Cancelled")
+		T.eq(env.drawers[1].destroyed, true, "stale drawer destroyed")
+		T.eq(second.destroyed, false, "new session's drawer untouched")
+		T.eq(env.c.drawer, second)
+		T.eq(env.c:isOpen(), true)
+		T.eq(env.handoff:isActive(), true, "new handoff still active")
+	end)
+
+	T.test("close during a yielding panel.getPosition destroys the drawer", function()
+		local env = setup()
+		env.yieldGetPosition = true
+		local co, results = run(function() return env.c:open() end)
+		env.c:close()
+		assert(coroutine.resume(co))
+		T.eq(results()[2], "Cancelled")
+		T.eq(env.drawers[1].destroyed, true)
+		T.eq(env.c:isOpen(), false)
+		T.eq(env.handoff:getState(), "inactive")
 	end)
 
 	-- UI findings --------------------------------------------------------------------
