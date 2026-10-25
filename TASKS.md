@@ -10,6 +10,7 @@ Standing constraints for every task:
 - Use only stable catalog IDs mapped to prepared templates. No `LoadAsset`, no `require(assetId)`, no HTTP loaders, no arbitrary asset IDs.
 - "Studio-tested" status needs evidence from Codex. Until then, mark Studio behavior **pending**.
 - Keep the code small enough to review. No framework.
+- **UI must match the current in-game host panel** (user requirement, 2026-10-25): no redesign and no different visual style. Exact tokens, layout and UX rules are in [`docs/ui-contract.md`](docs/ui-contract.md).
 
 Known contracts (from Codex, 2026-10-25):
 - Host check: `ReplicatedStorage.PodcastSettings:GetAttribute("HostUserId")`, checked server-side on every edit.
@@ -77,6 +78,8 @@ A pure core handles the catalog whitelist, finite and bounded transforms, room b
 - Decisions (2026-10-25): separate builder rate limit; overlaps and floating placement allowed in the sandbox prototype, with UI surface snapping by default; shared studio editable by the current host. Codex supplies the sandbox marker and live room-switch gate during integration. Details in docs/adapters.md.
 
 ## 4. Simple drawer UI, item editing and Undo/Redo: Pending
+- **Visual contract:** follow [`docs/ui-contract.md`](docs/ui-contract.md) exactly. That means the live panel tokens (`C.bg`, `card`, `teal`, `white`, `muted`, GothamMedium, 8 px buttons, selected = teal on `C.bg`), its layout and responsive fit, and its drag and touch behaviour. Add a Build entry inside the existing Studio tab; no fifth tab and no second host panel. The catalog drawer uses the same conventions, with Back/Done returning to the panel at its kept position. Theme filters Retro, 1980s, Futuristic, Cozy and Winter all share one button style. Add a shared theme/helper module for new builder UI only; don't rewrite the existing panel source.
+- **Integration:** explicit callbacks and adapters only. The live `toggleOpen` is local (it updates `Drawer.Visible`, `launch.Text` and `PanelOpen`), so the `hostDrawer` hook waits for Codex to expose a callable open/close. Codex does the panel wiring and visual comparison.
 Cozy and 1980s filters, ViewportFrame cards, and placement on a surface. A selected item can be moved, rotated, duplicated or deleted. Undo/Redo and Done. Grid snapping is on by default, R rotates 15°, and Escape cancels placement without swallowing UI controls. Undo/redo runs on the server, restores logical item IDs and handles rejected edits.
 - Also: invalidate undo/redo history on host transfer (shared studio, current host edits everything). Snap placement to surfaces by default; the server allows overlap and floating. Handle `RecoveryNeeded` and `recoveryNeeded` responses by pausing edits with a visible message.
 - Also: cancel previews and drags, and exit build mode, on host loss, room switch, respawn or disconnect. Bind the handoff slots once Codex adds the panel and camera gates.
@@ -103,5 +106,6 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
 - UX: a Branding section on the Studio page. The host enters a Roblox image asset ID and sees a preview. They then apply it either to the whole active room's branding, or by clicking or selecting eligible individual surfaces (wall signs, screens, mugs, laptop lids). Apply and Reset per room and per surface.
 - Rules: host-authoritative, checked on the server for every apply or reset. Targets come from an allowlist of stable surface IDs, never arbitrary Instances or paths. Only image/decal content is set: never model or script loaders, `LoadAsset`, `require(id)` or arbitrary URLs. The asset ID must be a positive integer, turned into image content server-side. If an image is invalid or unavailable, the prior branding stays. Per-surface overrides are saved with the studio as an additive, versioned preset section, so older presets load unchanged.
+- **Visual contract:** Branding sits inside the existing Studio tab, in the same row, heading and input style as the live panel ([`docs/ui-contract.md`](docs/ui-contract.md)). No new visual style.
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
