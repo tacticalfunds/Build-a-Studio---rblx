@@ -587,6 +587,18 @@ Catalog.Items = {
 		type = "decor",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_coffee_mug_01",
 	},
+	-- Studio presentation board (2026-10-26): extracted by Codex from the
+	-- current, project-branded Conference Room board
+	-- (docs/assets/Presentation_Board_Registration_2026-10-26.json). Install
+	-- source: ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install
+	-- pending. A static decorative screen: no drawing, video or clickable UI.
+	{
+		id = "studio_presentation_board_01",
+		displayName = "Studio Presentation Board",
+		collections = { "cozy", "1980s", "futuristic" },
+		type = "screens",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_presentation_board_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

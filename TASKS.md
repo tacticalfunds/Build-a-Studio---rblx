@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 63 installed in total (45 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 63 installed in total (45 furniture, 18 structure; 1 more registered, repository 64, integration pending: the studio presentation board; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (6 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair and the coffee mug; 7 original gap-audit entries remaining)
+## 11. Existing room assets in Build (user request): In progress (6 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair and the coffee mug; 7 original gap-audit entries remaining, one of them, the presentation board, prepared and registered with integration pending)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1122,3 +1122,30 @@ Make the assets already used in the six existing rooms available in the Build dr
     - The Roblox header is verified; restore is untested.
     - Previous backups are kept. It is local only and not uploaded.
   - The historical registration manifest is unchanged.
+- Studio presentation board registration (repository; prepared and registered, integration pending):
+  - **Registered (1):** `studio_presentation_board_01` (Studio Presentation Board; existing screens type; cozy, 1980s and futuristic), appended last.
+    - **Counts:** repository 64 (46 furniture, 18 structure). Installed stays **63** (45 furniture, 18 structure).
+  - **Source:** cloned from `Workspace.RoomCollection.ConferenceRoom.WhiteBoard` (the original is untouched); this is the gap audit's "Presentation board".
+    - It is the **current project-modified version** with StudioDisplay branding, **not** an unchanged free model.
+    - The parent room model is 4993294691, per the asset guide. The creator is unverified, so there's no individual board ID and no credit.
+  - **Prepared copy (Codex):** `ServerStorage.StudioBuilderPreparedAssets.studio_presentation_board_01`; review copy `Workspace.StudioAssetYard.Presentation Board Review` at (4204, 1, 3538), yaw 180.
+    - **Changes:** 1 ManualWeld removed. The StudioTextRole attributes were removed from the two copied TextLabels, so placed copies can't receive unintended global title updates.
+    - **Orientation:** the source was rotated 180° so the front faces −Z (visible face world normal about [0, 0, −1]), and bottom-centred with an identity pivot (error 0.000000533).
+    - **Measured bounds** (GetBoundingBox): 9.502521514892579 × 6.674383163452148 × 0.2432195395231247.
+    - **Contents:** 9 anchored Parts and 4 CylinderMeshes, CanTouch false; 0 scripts, Lights, Seats and joints; 1 SurfaceGui.
+    - **Look:** a thin dark rounded panel with white AFTER HOURS, turquoise PODCAST STUDIO / 01, a white Roblox mark and a CONVERSATIONS / IDEAS / COMMUNITY footer. Native visual review passed.
+  - **Sanitizer:** the existing TemplateSanitizer was checked on disposable Edit clones. `forPlacement` and `forPreview` both keep 9 parts and 1 SurfaceGui, with 0 removals; no code change.
+  - **Static decorative screen only:** no drawing, video, clickable UI, per-item branding adapter or new wall snapping. It uses existing furniture placement.
+  - **Pending:** live Place, Rotate and Delete, and elevated placement.
+  - **Provenance:** `docs/assets/Presentation_Board_Registration_2026-10-26.json`. The asset guide and the gap audit are unchanged.
+  - **Backup:** the latest is still the 63-item backup. The prepared and review copies postdate it; the original source is in it.
+  - **Tallies:**
+    - task 11: 6 installed, 7 remaining (the board prepared and registered among them);
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Index corrections (same commit):**
+    - The candidate line no longer says all 13 gap-audit objects are unextracted.
+    - The "no visual check has been done since" statement now records that later per-item native reviews happened. Physical mouse and R-key checks remain unverified.
+  - **Tests:**
+    - counts updated: 64 items, 46 furniture; cozy 34, 1980s 24, futuristic 16; Futuristic now lists a Screens group; cozy All items 34; futuristic drawer 16;
+    - one compact test covers: the catalog fields only; the key manifest facts (including the StudioTextRole removal and the modified version); source and size against the gap audit; the thin footprint flat against the Z and X edges versus overhanging side-on; raised onto a tabletop and up to the ceiling limit; and the exact Screens lists per collection.
+    - No UI or runtime code changed.

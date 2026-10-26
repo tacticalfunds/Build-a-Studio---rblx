@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually reviewed by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates; live Place/Rotate/Delete and elevated placement pending. Installed Build count remains 63 (45 furniture, 18 structure); repository count 64.",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of a51e654 (not an export file)",
+  "kind": "Existing-room extraction (task 11); not a batch 02 or batch 03 candidate",
+  "source": {
+    "extractedFrom": "Workspace.RoomCollection.ConferenceRoom.WhiteBoard (cloned; the original is untouched)",
+    "gapAuditEntry": "Presentation board (docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json)",
+    "parentModel": "ConferenceRoom",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, ConferenceRoom (path ServerStorage.PodcastAssetStaging.ConferenceRoom), preparation 'Source4993294691'",
+    "parentFreeModelAssetId": "4993294691",
+    "creator": "Not independently verified; not recorded (no credit)",
+    "boardModelAssetId": "None claimed: 4993294691 is the parent room model, not an individual board model",
+    "modifiedVersion": "This is the CURRENT PROJECT-MODIFIED version with StudioDisplay branding. It is NOT an unchanged free model.",
+    "originalRoomSource": "Untouched"
+  },
+  "items": [
+    {
+      "id": "studio_presentation_board_01",
+      "displayName": "Studio Presentation Board",
+      "collections": ["cozy", "1980s", "futuristic"],
+      "type": "screens",
+      "placement": "Existing furniture placement; no new wall snapping and no new placement metadata",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.studio_presentation_board_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.studio_presentation_board_01",
+      "reviewCopy": "Workspace.StudioAssetYard.Presentation Board Review at (4204, 1, 3538), yaw 180",
+      "baseParts": 9,
+      "partClass": "Part",
+      "meshes": { "CylinderMesh": 4 },
+      "scripts": 0,
+      "lights": 0,
+      "seats": 0,
+      "joints": 0,
+      "surfaceGuis": 1,
+      "anchored": true,
+      "canTouch": false,
+      "adaptation": "Cloned from the original. Removed 1 ManualWeld. Removed the StudioTextRole attributes from the two copied TextLabels, so placed copies can't receive unintended global title updates. Rotated the source 180 degrees so the front faces -Z, and bottom-centred it with an identity pivot.",
+      "rotation": "Identity",
+      "pivot": "Identity bottom-centre pivot; error 0.000000533",
+      "front": "-Z (visible face world normal approximately [0, 0, -1])",
+      "size": [9.502521514892579, 6.674383163452148, 0.2432195395231247],
+      "sizeSource": "GetBoundingBox",
+      "look": "Thin dark rounded presentation panel: white AFTER HOURS, turquoise PODCAST STUDIO / 01, a white Roblox mark and a CONVERSATIONS / IDEAS / COMMUNITY footer",
+      "sanitizer": "Existing TemplateSanitizer verified by Codex on disposable Edit clones: forPlacement and forPreview both keep 9 parts and 1 SurfaceGui, with 0 removals. No sanitizer code change.",
+      "functionality": "Static decorative screen only: no drawing, video, clickable UI, per-item branding adapter or new wall snapping.",
+      "visualReview": "Native visual review passed (Codex)"
+    }
+  ],
+  "pendingVerification": ["Live Place, Rotate and Delete", "Elevated placement"],
+  "task11Tally": "6 installed (studio_water_dispenser_01, studio_tall_floor_plant_01, studio_conference_table_01, studio_flower_pot_01, studio_office_chair_01, studio_coffee_mug_01); 7 original gap-audit entries remaining, including the presentation board (prepared and registered, integration pending).",
+  "backup": "The prepared and review copies postdate the latest full-place backup (StudioBuilder-FullBackup-63Items-2026-10-26-0320.rbxl); the original source is in that backup.",
+  "historicalRecords": "docs/assets/Studio_Asset_Guide_2026-10-25.json and docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json are unchanged."
+}
