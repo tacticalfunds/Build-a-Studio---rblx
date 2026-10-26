@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 64 installed in total (46 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 64 installed in total (46 furniture, 18 structure; 1 more registered, repository 65, installation pending: the studio softbox; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (7 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug and the presentation board; 6 original gap-audit entries remaining)
+## 11. Existing room assets in Build (user request): In progress (7 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug and the presentation board; 6 original gap-audit entries remaining, one of them, the studio softbox, prepared and registered with installation pending)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1171,3 +1171,31 @@ Make the assets already used in the six existing rooms available in the Build dr
     - The `<roblox!` header is verified; restore is untested.
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical registration manifest is unchanged.
+- Studio softbox registration (repository; prepared and registered, installation pending):
+  - **Registered (1):** `studio_softbox_01` (Studio Softbox; existing lighting type; cozy, 1980s and futuristic; floor placement), appended last.
+    - **Counts:** repository 65 (47 furniture, 18 structure). Live stays **64** (46 furniture, 18 structure).
+    - **Size:** the catalog has no size fields. The footprint and height come from the template at install, and the manifest records the measured size.
+  - **Source:** `Workspace.RoomCollection.BroadcastSet.Softbox1`; this is the gap audit's "Studio softbox". The original is untouched.
+    - It is the project-modified room version, further adapted for Build, **not** an unchanged free model.
+    - The parent room asset is 136839605425322, per the asset guide's BroadcastSet record. The creator is unverified, so there's no separate softbox ID and no credit.
+  - **Prepared copy (Codex):** `ServerStorage.StudioBuilderPreparedAssets.studio_softbox_01`; review copy `Workspace.StudioAssetYard.Studio Softbox Review` at (4248, 1, 3538), yaw 180.
+    - **Orientation normalization:** the source pivot axes were sideways although the geometry stood upright; the gap audit size [2.6022839546, 3.6576573849, 7.9109272957] has the height in Z. The new bottom-centred identity pivot gives [2.602280378341675, 7.910927295684815, 3.657658576965332]: upright along +Y, with the diffuser and light facing −Z, and a measured bottom-centre error of zero.
+    - **Contents:** 25 BaseParts (23 Parts and 2 UnionOperations), all anchored, CanTouch false; 0 scripts, Seats and joints; no tags.
+    - **Removed:** 2 ManualWelds and 27 Studio*/Podcast* descendant attributes, which isolates it from the old room's fixture IDs and groups.
+    - **Diffuser:** changed from dark SmoothPlastic to matte off-white Fabric RGB 225, 223, 214. No geometry was added.
+    - **Look:** a tall rectangular off-white fabric diffuser in a dark gray housing, on a vertical pole with four spread support legs. Native visual review complete.
+  - **Light:** 1 SpotLight, intentionally **disabled**.
+    - Settings: Enabled = false, Brightness 0.4472135901451111, Range 14, Angle 90, Color [1, 0.9194186925888062, 0.8544370532035828], Face Bottom, world direction [0, 0, −1].
+    - It's a decorative prop only, pending a separate builder lighting adapter. The original room's controls must not operate it. It isn't to be enabled, and no adjustable lighting is promised.
+  - **Sanitizer:** the existing TemplateSanitizer was checked on disposable Edit clones. `forPlacement` keeps the 25 parts and the 1 disabled light; `forPreview` keeps the 25 parts and removes the light. No sanitizer change.
+  - **Local evidence:** Codex's `outputs/Studio Softbox Preparation.json` and `outputs/Review Studio Softbox.png` are local and not in this repository.
+  - **Provenance:** `docs/assets/Studio_Softbox_Registration_2026-10-26.json`. The asset guide and the gap audit are unchanged.
+  - **Pending after review:** live installation, real Place, Rotate and Delete checks, verifying the placed light stays disabled, and a fresh full-place backup. The prepared and review copies postdate the 64-item backup; the original source is in it.
+  - **Tallies:**
+    - task 11: 7 installed, 6 remaining (the softbox prepared and registered among them, installation pending);
+    - batch 02 unchanged: 6 installed, 16 pending.
+    - The wider queue isn't finished.
+  - **Tests:**
+    - counts updated: 65 items, 47 furniture; cozy 35, 1980s 25, futuristic 17; futuristic lighting 3; cozy All items 35; futuristic drawer 17;
+    - one compact test covers: the catalog fields only (no light settings or adapter hooks); the key manifest facts (light disabled, room attributes removed, modified version, parent asset per the guide); the size tallest along Y, with the sideways-source normalization documented rather than the old and new axes compared; floor placement in a corner, the Z overhang unless turned, and the height limit; and last in Cozy, 1980s and Futuristic > Lighting.
+    - No UI or runtime code changed.

@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually reviewed by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates; live Place/Rotate/Delete and the placed light's disabled state not yet verified. Installed Build count remains 64 (46 furniture, 18 structure); repository count 65.",
+  "recordedFrom": "Codex verified preparation manifest relayed in the checkpoint request after the review of 61690e0 (local evidence outputs/Studio Softbox Preparation.json and outputs/Review Studio Softbox.png are not in this repository)",
+  "kind": "Existing-room extraction (task 11); not a batch 02 or batch 03 candidate",
+  "source": {
+    "extractedFrom": "Workspace.RoomCollection.BroadcastSet.Softbox1 (the original is untouched)",
+    "gapAuditEntry": "Studio softbox (docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json)",
+    "parentModel": "BroadcastSet",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, BroadcastSet (path ServerStorage.PodcastAssetStaging.BroadcastSet), preparation 'Source136839605425322'",
+    "parentRoomAssetId": "136839605425322",
+    "creator": "Not independently verified; not recorded (no credit)",
+    "softboxModelAssetId": "None claimed: 136839605425322 is the parent room asset, not a separate softbox model",
+    "modifiedVersion": "The project-modified room version, further adapted for Build. It is NOT an unchanged free model."
+  },
+  "items": [
+    {
+      "id": "studio_softbox_01",
+      "displayName": "Studio Softbox",
+      "collections": ["cozy", "1980s", "futuristic"],
+      "type": "lighting",
+      "placement": "floor (existing furniture placement; no new placement metadata)",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.studio_softbox_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.studio_softbox_01",
+      "reviewCopy": "Workspace.StudioAssetYard.Studio Softbox Review at (4248, 1, 3538), yaw 180",
+      "baseParts": 25,
+      "partBreakdown": "23 Parts + 2 UnionOperations",
+      "scripts": 0,
+      "seats": 0,
+      "joints": 0,
+      "lights": 1,
+      "anchored": true,
+      "canTouch": false,
+      "tags": 0,
+      "light": {
+        "class": "SpotLight",
+        "enabled": false,
+        "brightness": 0.4472135901451111,
+        "range": 14,
+        "angle": 90,
+        "color": [1, 0.9194186925888062, 0.8544370532035828],
+        "face": "Bottom",
+        "worldDirection": [0, 0, -1],
+        "note": "Intentionally DISABLED. Decorative prop only, pending a separate builder lighting adapter. The original room's lighting controls must not operate it. It must not be enabled, and adjustable lighting is not promised."
+      },
+      "adaptation": "Removed 2 ManualWelds and 27 Studio*/Podcast* descendant attributes, which isolates it from the old room's fixture IDs and groups (no tags present). The diffuser was changed from dark SmoothPlastic to matte off-white Fabric RGB 225, 223, 214. No geometry added.",
+      "orientationNormalization": {
+        "problem": "The source pivot axes were sideways although the geometry stood upright: the gap audit size [2.6022839546, 3.6576573849, 7.9109272957] has the HEIGHT IN Z.",
+        "result": "New identity pivot, bottom-centred: upright along +Y, with the diffuser and light facing -Z. Measured bottom-centre error is zero.",
+        "auditSize": [2.6022839546203613, 3.6576573848724365, 7.9109272956848145]
+      },
+      "rotation": "Identity",
+      "pivot": "Identity bottom-centre pivot; error zero",
+      "front": "-Z",
+      "size": [2.602280378341675, 7.910927295684815, 3.657658576965332],
+      "look": "Tall rectangular off-white fabric diffuser in a dark gray housing, on a vertical pole with four spread support legs",
+      "sanitizer": "Existing TemplateSanitizer verified by Codex on disposable Edit clones: forPlacement keeps 25 parts and the 1 disabled light; forPreview keeps 25 parts and removes the light. No sanitizer change needed.",
+      "functionality": "Decorative prop only: the light is disabled and has no builder control.",
+      "visualReview": "Native visual review complete (Codex)"
+    }
+  ],
+  "pendingAfterReview": [
+    "Live installation",
+    "Real Place, Rotate and Delete checks",
+    "Verify the placed light stays disabled",
+    "A fresh full-place backup"
+  ],
+  "task11Tally": "7 installed (water dispenser, tall floor plant, conference table, flower pot, office chair, coffee mug, presentation board); 6 original gap-audit entries remaining, including the softbox (prepared and registered, installation pending).",
+  "backup": "The prepared and review copies postdate the latest full-place backup (StudioBuilder-FullBackup-64Items-2026-10-26-0337.rbxl); the original source is in that backup.",
+  "historicalRecords": "docs/assets/Studio_Asset_Guide_2026-10-25.json and docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json are unchanged."
+}

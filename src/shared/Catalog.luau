@@ -599,6 +599,19 @@ Catalog.Items = {
 		type = "screens",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_presentation_board_01",
 	},
+	-- Studio softbox (2026-10-26): extracted by Codex from the project-modified
+	-- Broadcast Set and re-oriented upright
+	-- (docs/assets/Studio_Softbox_Registration_2026-10-26.json). Install source:
+	-- ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- Decorative only: its SpotLight is disabled and nothing in the builder
+	-- turns it on.
+	{
+		id = "studio_softbox_01",
+		displayName = "Studio Softbox",
+		collections = { "cozy", "1980s", "futuristic" },
+		type = "lighting",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_softbox_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.
