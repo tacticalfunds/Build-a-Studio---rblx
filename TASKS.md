@@ -31,7 +31,7 @@ Known contracts (from Codex, 2026-10-25):
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
 | 8 | More collection themes | 6 | **49 installed**; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
-| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (14 pieces and R rotation installed; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending) |
+| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (20 pieces and R rotation installed; 18 remote-tested in Play, the panel door wall and arched window wall static Edit checks only; physical R-key/UI, visual QA and doorway clearance pending) |
 | 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | In progress (11 installed, including the panel door wall: static Edit checks only, auto-open disabled; the laptop and the metal door remaining) |
 
 **User priority (2026-10-25): keep expanding the model catalog.** Codex prepares and inspects candidates. Each set is registered in its own bounded checkpoint (manifest, catalog entries, tests), then installed and Play-checked by Codex. The queue order above is otherwise unchanged.
@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 68 installed in total (49 furniture, 19 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 69 installed in total (49 furniture, 20 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the first 6 batch 02 pieces passed remote Place→Rotate→Delete, the arched window wall has static Edit checks only); batch 02: 7 installed, 15 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -568,7 +568,7 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
 
-## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (18 pieces and R rotation installed; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (20 pieces and R rotation installed; 18 remote-tested in Play; the panel door wall and the arched window wall have static Edit Place/Rotate/Delete checks only; physical R-key/UI, visual QA and doorway clearance pending)
 Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
 - Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
   - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
@@ -1575,3 +1575,18 @@ Make the assets already used in the six existing rooms available in the Build dr
     - **418 passed, 0 failed**.
   - **Wording fixes from ce726a4:** the task 11 heading now says 11 installed. The panel door plan's last limitation no longer says placement was tested only in Lua: it now names the static Edit Place/Rotate/Delete checks and keeps the Play, remote, UI, physics and avatar limits explicit.
   - **Counts:** repository **69** (49 furniture, 20 structure); live **68** (49 furniture, 19 structure) until Codex installs it. Batch 02 stays at 6 installed and 16 pending; this window becomes the seventh installed piece only after integration. Task 11 unchanged at 11 installed, 2 remaining.
+- 69-item installation checkpoint: arched window wall installed in Studio Edit (Codex, Studio Experience place `132242140555698`, 2026-10-26). This is installation evidence. It supersedes the "prepared, NOT installed" and "live 68" notes in the arched window wall registration entry above, which stay as written as history; the registration manifest and tests are unchanged.
+  - **Accepted:** c6bbd41, after Codex's independent clean Windows archive run (418 passed, 0 failed).
+  - **Installed:** ONLY the reviewed `Catalog.luau` and the prepared `structure_window_arch_01` template. **Live and repository both 69** (49 furniture, 20 structure).
+  - **Backup first:** the live Catalog matched its parent exactly before the write. It was backed up as `ServerStorage.BuilderIntegrationBackups.ArchedWindow69_Beforec6bbd41_20261026_1204`. The original source, the prepared copies and the review model are retained.
+  - **Audit (fresh, isolated Luau):** 69 of 69 templates installed and valid; catalog 69 (49 furniture, 20 structure) with 4 Windows pieces; the arched window measures 16 × 15 × 1; `Config.Doors.Enabled` still false.
+  - **Static Edit probe** (the real PlacementCore and PlacedItemsWorld, isolated, with an injected authority and clock):
+    - Place, Rotate and Delete pass at four yaws;
+    - outer-edge Place is refused with OutOfBounds;
+    - no logs and no temporary models left behind.
+  - **Not checked:** Play, the UI, remote requests, avatars, physics and save/load.
+  - **Full-place backup (new latest, local, not uploaded):** `StudioBuilder-FullBackup-69Items-2026-10-26.rbxl`, 4,190,746 bytes, SHA256 `5FD3A92904C917146C6CFDC4B10E2B57F0A6C54327FE4D6B06A4F64AF8F48140`; restore not tested.
+  - **Evidence:** Codex's local `outputs/Catalog 69 Installation Checkpoint.json` is not in this repository.
+  - **Counts:** live 69 = repository 69; batch 02 at 7 installed (H02_09 now installed), 15 pending; task 11 unchanged at 11 installed, 2 remaining. The task 8 and task 10 headings and the task 10 queue row now reflect 20 installed structure pieces, with the two static-only pieces named.
+  - **Deferred to later code work:** stale source comments in `Catalog.luau` (the panel door and arched window entries still say "prepared only").
+  - Documentation only: no code, runtime or UI change.
