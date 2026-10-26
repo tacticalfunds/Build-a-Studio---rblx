@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 65 installed in total (47 furniture, 18 structure; 1 more registered, repository 66, installation pending: the studio umbrella light; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 66 installed in total (48 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (8 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board and the studio softbox; 5 original gap-audit entries remaining, one of them, the umbrella light, prepared and registered with installation pending)
+## 11. Existing room assets in Build (user request): In progress (9 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox and the umbrella light; 4 remaining: the laptop, the panel door, the On Air sign and the metal door)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1249,3 +1249,23 @@ Make the assets already used in the six existing rooms available in the Build dr
     - one compact test covers: the catalog fields only; the key manifest facts (44 parts, disabled light, no attributes, no fabricated geometry, the head-only audit warning); the parent asset per the guide; that it is the complete fixture (more parts and over twice the height of the audited head) and stands upright; floor placement (corner, the Z overhang unless turned, the height limit); and last in Cozy, 1980s and Futuristic > Lighting;
     - the softbox's "last in Lighting" check now allows the umbrella after it.
     - No UI, adapter or runtime code changed.
+- 66-item verified installation checkpoint (Codex, Studio Experience `132242140555698`, 2026-10-26). This is installation evidence. It supersedes the "installation pending" and "pending" notes in the umbrella registration entry above, which stay as written as history:
+  - **Review:** Codex ran the suite of 499ce49 independently: 326 passed, 0 failed.
+  - **Installed:** the reviewed Catalog and the `studio_umbrella_light_01` template. **Installed total: 66** (48 furniture, 18 structure).
+  - **Catalog backup:** `ServerStorage.BuilderIntegrationBackups.Catalog_Before66_20261026_0415`.
+  - **Checks:**
+    - fresh probes before and after Play: 66 catalog entries, 66 templates, 66 valid, 0 invalid or not installed;
+    - real BuilderRequest calls all succeeded: Status (revision 0), Place `i1` (revision 1), Rotate `i1` (revision 2), Delete `i1` (revision 3);
+    - server measurements: 44 parts, one disabled PointLight, zero Studio/Podcast descendant attributes, minimum Y 0, size [2.1505026817321779, 6.569082260131836, 2.8773441314697267];
+    - **the light stayed disabled after rotation;**
+    - back in Edit, zero test items remain.
+  - **Evidence:** Codex's local `Catalog 66 Installation Checkpoint.json` is not in this repository.
+  - **Scope:** these are remote/server checks, not physical mouse or R-key UI tests. The umbrella is decorative only; a lighting adapter is still pending.
+  - **No registered-but-uninstalled items:** repository 66 = live 66. The wider queue isn't finished.
+  - **Tallies:**
+    - task 11: 9 installed, 4 remaining (the guest laptop, the panel door, the On Air sign and the metal door);
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Backup (new latest):** `StudioBuilder-FullBackup-66Items-2026-10-26-0417.rbxl`, 4,156,676 bytes, SHA256 `7DCAC30F3BBA42629687528EC9ED4CE70ABCCDDB33ABBA08A28B92EE1874F740`.
+    - The `<roblox!` header is verified; restore is not tested.
+    - Earlier backups are kept. It is local only.
+  - The historical registration manifest and the gap audit are unchanged.
