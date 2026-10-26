@@ -21,16 +21,19 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 | Seat assignment model and wiring plan (task 7) | [`docs/task7-seat-plan.md`](docs/task7-seat-plan.md) |
 | Task queue and per-checkpoint evidence | [`TASKS.md`](TASKS.md) |
 
-## Status at a glance (2026-10-25)
+## Status at a glance (2026-10-26)
 
 | Area | Status |
 |---|---|
 | Catalog | **31 items installed** in the working place. Place→Delete passed in Play for all 31, and the drawer filters were checked ([`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md)). Real DataStore save/load with expansion items, multiplayer and a performance benchmark are not done. The 5 structure pieces are installed too, and their placement was checked over the real remote in Play (24e8047); **visual QA is pending** (see the catalog section). The 2 decor items are installed too (46d55cb: Play Place/Rotate/Delete passed), for **38 installed**. Full current asset list: [`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md). |
 | Placement, undo/redo, host authority, recovery (server) | Tested locally and in real Studio Luau; Place/Undo/Redo/Delete checked in Play |
-| Build drawer UI | Full UI flow passed in Play at 62f2f87 (latest Play run: UI mouse automation stalled, so not re-checked) |
+| Build drawer UI | **Installed at 4c7087d and checked in Play** (Codex). Collection → type chooser → type cards, "< Types" back without exiting, Structure filters, and a placement through the category UI confirmed on the server. Screenshot: matching dark/teal panel and grid; no console errors. Earlier: the full edit flow passed at 62f2f87. |
+| Structure pieces (task 10) | Installed; placement, move, rotate, duplicate, undo/redo, delete and refusals checked over the real remote in Play. **Builder-specific visual QA and doorway clearance are pending.** |
+| Full-place backup | **Pending**: only source backups exist (the full-place RBXL is still the 62f2f87 baseline) |
 | Save/load through StudioPresets | Director logic tested locally and in real Studio Luau; Play round trip done **against a memory stand-in for StudioPresets** |
 | Real DataStore, real text filtering, multiplayer | **Not verified** |
-| Seat assignment (task 7) | Pure model and integration plan only ([`docs/task7-seat-plan.md`](docs/task7-seat-plan.md)); no runtime wiring, no real anchor metadata |
+| Seat assignment (task 7) | Pure model and integration plan only ([`docs/task7-seat-plan.md`](docs/task7-seat-plan.md)); **no runtime seating wiring**, no approved anchor metadata. Catalog chairs are decorative. |
+| Remaining model candidates | 13 tracked, not registered ([`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md)) |
 | Executive/Broadcast collections (task 8), Branding (task 9) | Not started |
 
 ## Repository layout and Rojo mapping
@@ -210,6 +213,17 @@ Each hook below was checked against that source.
   - history was cleared on load;
   - a failed Load (a missing slot) followed by Save was refused, with no second backend write;
   - no startup errors.
+- **At 4c7087d (furniture by type; Codex, 2026-10-26):**
+  - the full suite was rerun independently: 304 passed, 0 failed;
+  - all four changed modules matched the prior installed sources, were backed up, and were then installed in place 132242140555698;
+  - Play UI:
+    - the Cozy type counts are correct;
+    - Tables shows the two Cozy tables, and Microphones shows the two microphones;
+    - "< Types" returns to the chooser without exiting build mode;
+    - switching to Futuristic updates to nine items;
+    - Structure → Doors shows the doorway;
+  - a coffee table placed through the category UI was confirmed on the server, then deleted, and no test objects remain;
+  - the screenshot confirms the matching dark/teal panel and grid, and the console had no errors.
 - **Caveat on those Play checks:**
   - The StudioPresets API was replaced by **Play-only memory stand-ins**, so there were no real DataStore reads or writes.
   - The fake Load had **no text fields**, so live text filtering didn't run.
@@ -221,7 +235,9 @@ Each hook below was checked against that source.
 - Real TextService filtering inside Load, including a filter that yields long enough to race a host change.
 - Multiplayer: host transfer during building and during Load, a non-host trying to edit, two clients watching the build, late joiners and streaming for other players.
 - A real forced room failure during Load (rollback and recovery in a live server), and the Director gates refusing real panel actions during it.
-- Touch input, and the drawer flow at bb3efa6.
+- Touch input on the drawer.
+- Builder-specific visual QA of structure pieces, and doorway clearance.
+- A full-place backup (only source backups exist).
 - Anything about seats with the builder: task 7 is a pure model so far.
 
 ## Playtest checklist for Codex (remaining)
@@ -301,7 +317,7 @@ All are free and all are **decorative**. No seat, light or audio adapter exists:
   - They're tagged Retro, 1980s and Cozy, and they're decorative with no audio.
   - Real Play Place, Rotate and Delete passed.
   - Style counts: Cozy 24, Retro 18, 1980s 14, Winter 11, Futuristic 9.
-- **Furniture types (repository; install pending):** each of the 33 furniture items has one explicit `type` by function: Seating 6, Tables 3, Storage 5, Microphones 2, Audio 5, Lighting 4, Screens 1, Plants 2, Decor 5.
+- **Furniture types (installed at 4c7087d; Play-checked):** each of the 33 furniture items has one explicit `type` by function: Seating 6, Tables 3, Storage 5, Microphones 2, Audio 5, Lighting 4, Screens 1, Plants 2, Decor 5.
   - In the drawer, a collection opens a two-column type chooser (counts, empty types hidden, All items), then that type's cards, with "< Types" to go back. Exit leaves build mode.
   - Structure pieces have no type and keep their own filters.
 - **Lights in templates (checked by Codex):** the original cork floor lamp's light is enabled (brightness 1, range 10). The modern lamp, desk lamp and lantern lights are disabled, as intended.

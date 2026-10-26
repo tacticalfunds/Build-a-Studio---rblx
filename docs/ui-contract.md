@@ -78,7 +78,9 @@ local C = {
   `PanelOpen` and the launcher text stale.
 - Codex handles the exact wiring into the existing panel and the visual comparison against it.
 
-## Furniture by type (check during the visual comparison)
+## Furniture by type (installed at 4c7087d; checked in Play)
+
+Codex compared it with a screenshot in Play: it matches the dark/teal panel, and the two-column grid renders as specified. The type counts, type cards, "< Types" and Structure → Doors behaved as described below.
 
 - **Flow:** pick a collection in the tab row (Cozy, 1980s, Retro, Winter, Futuristic). In Furniture mode, the body shows that collection's **type chooser**: a compact **two-column grid** (UIGridLayout, cells half-width minus the 6 px gap, 34 px high, 6 px padding) of standard `PanelTheme.button` buttons.
   - The buttons read like "Seating (4)".

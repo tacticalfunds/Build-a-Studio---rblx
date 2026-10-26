@@ -29,7 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | 38 installed; furniture-by-type drawer in repo for review; 13 candidates tracked; Executive/Broadcast pending |
+| 8 | More collection themes | 6 | 38 installed; furniture-by-type drawer installed and Play-checked (4c7087d); 13 candidates tracked, not registered; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (installed and remote-tested in Play; visual QA and doorway clearance pending) |
 
@@ -257,7 +257,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 38 installed; furniture-by-type drawer in repo for review; 13 candidates tracked; Executive/Broadcast pending
+## 8. More collection themes: 38 installed; furniture-by-type drawer installed and Play-checked (4c7087d); 13 candidates tracked, not registered; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -322,7 +322,7 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
     - 8 new imports: two fireplaces, two pillows, executive sci-fi desk, realistic rug, old floor lamp, wood truss beam. Zero embedded scripts, but scaling, effects and visual QA remain, and they're **not approved**.
   - **Observation from the refresh:** four installed templates (cork floor lamp, modern lamp, desk lamp, lantern) each contain one light object. Whether those are enabled isn't stated. The builder doesn't control them.
 
-- Furniture organized by type (user priority, 2026-10-26; repository only, Studio install pending):
+- Furniture organized by type (user priority, 2026-10-26). Delivered at 4c7087d; **installed and Play-checked since** (evidence below):
   - **Catalog:** `Catalog.FurnitureTypes`: Seating, Tables, Storage, Microphones, Audio, Lighting, Screens, Plants, Decor.
     - Each of the 33 furniture items has exactly one explicit primary `type` by function, set in data and never derived from names. The AV cart is Storage, not Screens.
     - Totals: Seating 6, Tables 3, Storage 5, Microphones 2, Audio 5, Lighting 4, Screens 1, Plants 2, Decor 5.
@@ -347,6 +347,24 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
 
     Updated fakes and one structure test (style filters now open the chooser). 10 mutations caught.
   - **Not executed:** the real drawer Instances (BuildDrawer isn't run outside Roblox), Studio and Play.
+- Integration evidence for 4c7087d (Codex, 2026-10-26):
+  - **Install:** all 304 tests rerun independently, 0 failures. All four changed modules matched the prior installed sources, were backed up, and were then installed in place 132242140555698.
+  - **Verified in Play:**
+    - the Cozy type counts;
+    - Tables lists two tables, and Microphones lists two microphones;
+    - "< Types" returns to the chooser without exiting build mode;
+    - switching to Futuristic updates to nine items;
+    - Structure → Doors shows the doorway;
+    - a coffee table placed through the category UI was confirmed on the server, then deleted, and no test objects remain;
+    - the screenshot confirms the matching dark/teal panel and grid;
+    - no console errors.
+  - **Still pending:**
+    - builder-specific visual QA of structure pieces, and doorway clearance (task 10);
+    - seating wiring (task 7 is a pure model, with no approved anchor metadata);
+    - the 13 tracked model candidates (not registered);
+    - real persistence checks (real DataStore save/load, text filtering, multiplayer);
+    - a full-place backup (source backups only).
+
 - Status corrections (Codex, 2026-10-26):
   - The blank (white) world captures have recovered, and the user sees models normally. **Builder-specific visual QA is still pending.**
   - The four-light check: the cork floor lamp is enabled (brightness 1, range 10; original). The sculptural modern lamp, desk lamp and lantern are disabled, as intended.
