@@ -406,6 +406,14 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
     - Updated: 40 entries; furniture counts Cozy 26, Retro 20, 1980s 16, Winter 12, Futuristic 9; types (35 furniture, Lighting 5); the Winter type snapshot (lighting = 2); Cozy "All items (26)"; structure placement (item 40 is furniture).
     - 5 mutations caught: lamp as decor, a missing Winter tag, a wrong name, a wrong sourceRef, a fireplace sneaked in.
 
+- Catalog hunt batch 02 (2026-10-26; **inventory only**: documentation, nothing registered, no runtime change):
+  - **Archived:** `docs/assets/Catalog_Hunt_Batch02_2026-10-26.json`, verbatim, and indexed in `docs/assets/README.md`.
+  - **Contents:** 8 inspected free sources gave 22 candidate pieces: 7 walls/trims, 4 seating, 3 storage, 2 tables, 2 audio, 2 decor, 1 door, 1 window. The Modular Wall Pack and the Modular Wall Trim Pack, previously deferred, are now inspected.
+  - **Copies:** the prepared copies in `ServerStorage.CatalogHuntPrepared02` are anchored and script-free. The originals are preserved in `ServerStorage.CatalogHuntBatch02` with their scripts disabled. The Futuristic Furniture pack's welding, vehicle-movement, text-banner and unpacker scripts never ran.
+  - **Pending:** geometry, orientation, visual and placement review (sideways acoustic panels, unusually oriented industrial walls, walls and trims not on the 16-stud module). **No review gallery yet:** Studio entered Play before staging.
+  - Not registered, not Build-ready. This entry doesn't start any other implementation, and the queue order is unchanged.
+  - **Still pending Studio integration:** the 9 structure variants (caf7115) and the rotation change (14933b6).
+
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
 - UX: a Branding section on the Studio page. The host enters a Roblox image asset ID and sees a preview. They then apply it either to the whole active room's branding, or by clicking or selecting eligible individual surfaces (wall signs, screens, mugs, laptop lids). Apply and Reset per room and per surface.
