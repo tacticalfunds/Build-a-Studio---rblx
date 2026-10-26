@@ -626,6 +626,20 @@ Catalog.Items = {
 		type = "lighting",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_umbrella_light_01",
 	},
+	-- Broadcast indicator lamp (2026-10-26): the Broadcast Set "On Air" fixture,
+	-- which is a round glass indicator on a plate, not a text sign. Prepared by
+	-- Codex from the project-modified room
+	-- (docs/assets/Broadcast_Indicator_Registration_2026-10-26.json). Install
+	-- source: ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install
+	-- pending. Decorative only: its PointLight is disabled and it doesn't react
+	-- to recording.
+	{
+		id = "studio_broadcast_indicator_01",
+		displayName = "Broadcast Indicator Lamp",
+		collections = { "retro", "1980s", "futuristic" },
+		type = "lighting",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_broadcast_indicator_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

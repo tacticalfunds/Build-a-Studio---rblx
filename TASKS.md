@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 66 installed in total (48 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 66 installed in total (48 furniture, 18 structure; 1 more registered, repository 67, installation pending: the broadcast indicator lamp; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (9 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox and the umbrella light; 4 remaining: the laptop, the panel door, the On Air sign and the metal door)
+## 11. Existing room assets in Build (user request): In progress (9 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox and the umbrella light; 4 remaining: the laptop, the panel door, the On Air sign and the metal door; the On Air sign is now prepared and registered as the broadcast indicator lamp, installation pending)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1269,3 +1269,31 @@ Make the assets already used in the six existing rooms available in the Build dr
     - The `<roblox!` header is verified; restore is not tested.
     - Earlier backups are kept. It is local only.
   - The historical registration manifest and the gap audit are unchanged.
+- Broadcast indicator lamp registration (repository; prepared and registered, installation pending):
+  - **Registered (1):** `studio_broadcast_indicator_01` (Broadcast Indicator Lamp; existing lighting type; retro, 1980s and futuristic), appended last.
+    - **Counts:** repository 67 (49 furniture, 18 structure). Live stays **66** (48 furniture, 18 structure).
+  - **Source:** `Workspace.RoomCollection.BroadcastSet["On Air ausen"]`, corresponding to the gap audit's "On air sign". The original is unchanged.
+    - **Native review finding:** it is a **round indicator fixture, not a text sign**: a square gray diamond-plate backing with a green-tinted transparent glass sphere over a dark core, and no lettering, decals, screens or imported meshes.
+    - **Type:** the audit proposed decor; it's registered as the existing lighting type, as specified.
+    - The parent room asset is 136839605425322, per the asset guide. The creator is unverified, so there's no separate fixture ID and no credit.
+    - It is the current project-modified version, further adapted.
+  - **Prepared copy (Codex):** `ServerStorage.StudioBuilderPreparedAssets.studio_broadcast_indicator_01`; review copy `Workspace.StudioAssetYard.Broadcast Indicator Review` at (4336, 1, 3538), yaw 180.
+    - **Changes:** 3 Parts cloned (one Block, two Balls) and 27 room attributes removed; 0 scripts and joints were found.
+    - **Orientation:** a tiny source yaw was normalized and it was rotated Y −90°, so the globe faces −Z with the plate behind at +Z. Identity bottom-centre pivot, error 0; all anchored, CanTouch false.
+    - No fabricated geometry and no material, colour or transparency changes.
+    - **Final size:** [1.7549996376037598, 1.7549996376037598, 1.3650007247924805]; 0 Lua, Seats, joints, attributes, tags and unanchored parts. The −90° turn swaps the audited X and Z extents.
+  - **Light:** one PointLight, intentionally **disabled** (brightness 0.0872066542506218, range 14, color [0.9137254953384399, 0.9372549057006836, 0.9176470637321472]).
+  - **Sanitizer:** placement keeps 3 parts and 1 disabled light (removes 0); preview keeps 3 parts and 0 lights (removes 1).
+  - **Decorative only:** no recording-status reaction, switch, active lighting, wall snapping, functional wall mount or lighting adapter. It uses existing generic furniture placement only.
+  - **Local evidence:** `Broadcast Indicator Preparation.json` and `Review Broadcast Indicator.png` are local and not in this repository.
+  - **Provenance:** `docs/assets/Broadcast_Indicator_Registration_2026-10-26.json`. The asset guide and the gap audit are unchanged.
+  - **Pending (Codex review and integration):** live installation, real Place, Rotate and Delete, and a new full-place backup. The prepared and review copies postdate the 66-item backup; the original source is in it.
+  - **Tallies:**
+    - task 11: 9 installed, 4 remaining (the On Air sign among them, now prepared and registered);
+    - batch 02 unchanged: 6 installed, 16 pending.
+    - The wider queue isn't finished.
+  - **Tests:**
+    - counts updated: 67 items, 49 furniture; retro 25, 1980s 27, futuristic 19; futuristic lighting 5; futuristic drawer 19;
+    - one compact test covers: the catalog fields only (no light, recording or wall-mount hooks); the key manifest facts (3 parts, disabled light, no attributes, "not a text sign", no recording reaction); the parent asset per the guide; the same 3-part source as the gap audit, with the audited X and Z swapped by the turn; placement against an edge versus side-on, on a tabletop, and the height limit; and last in Retro, 1980s and Futuristic > Lighting, never in Cozy or Winter;
+    - the softbox and umbrella ordering checks now allow later registrations after them.
+    - No UI, adapter or runtime code changed.

@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually reviewed by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates; real Place/Rotate/Delete and a new full-place backup pending Codex review and integration. Installed Build count remains 66 (48 furniture, 18 structure); repository count 67.",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of 925cbd1 (local evidence Broadcast Indicator Preparation.json and Review Broadcast Indicator.png are not in this repository)",
+  "kind": "Existing-room extraction (task 11); not a batch 02 or batch 03 candidate",
+  "source": {
+    "extractedFrom": "Workspace.RoomCollection.BroadcastSet[\"On Air ausen\"] (the original is unchanged)",
+    "gapAuditEntry": "On air sign (docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json), proposed type decor",
+    "nativeReviewFinding": "The native review found a round indicator fixture, NOT a text sign: a square gray diamond-plate backing with a green-tinted transparent glass sphere over a dark core. No lettering, decals, screens or imported meshes.",
+    "typeNote": "Registered as the existing lighting type (as specified in the checkpoint request) rather than the audit's proposed decor; the fixture's light stays disabled.",
+    "parentModel": "BroadcastSet",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, BroadcastSet (path ServerStorage.PodcastAssetStaging.BroadcastSet), preparation 'Source136839605425322'",
+    "parentRoomAssetId": "136839605425322",
+    "creator": "Not independently verified; not recorded (no credit)",
+    "fixtureModelAssetId": "None claimed: 136839605425322 is the parent room asset, not a separate fixture model",
+    "modifiedVersion": "The current project-modified room version, further adapted. It is NOT an unchanged free model."
+  },
+  "items": [
+    {
+      "id": "studio_broadcast_indicator_01",
+      "displayName": "Broadcast Indicator Lamp",
+      "collections": ["retro", "1980s", "futuristic"],
+      "type": "lighting",
+      "placement": "Existing generic furniture placement only; no wall snapping and no functional wall mount",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.studio_broadcast_indicator_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.studio_broadcast_indicator_01",
+      "reviewCopy": "Workspace.StudioAssetYard.Broadcast Indicator Review at (4336, 1, 3538), yaw 180",
+      "baseParts": 3,
+      "partBreakdown": "3 Parts: one Block and two Balls",
+      "scripts": 0,
+      "seats": 0,
+      "joints": 0,
+      "remainingAttributes": 0,
+      "tags": 0,
+      "unanchored": 0,
+      "lights": 1,
+      "anchored": true,
+      "canTouch": false,
+      "light": {
+        "class": "PointLight",
+        "enabled": false,
+        "brightness": 0.0872066542506218,
+        "range": 14,
+        "color": [0.9137254953384399, 0.9372549057006836, 0.9176470637321472],
+        "note": "Intentionally DISABLED. No recording-status reaction, no switch, no active lighting and no lighting adapter."
+      },
+      "adaptation": "Cloned 3 Parts; removed 27 room attributes; 0 scripts and 0 joints found. Normalized a tiny source yaw and rotated Y -90 so the globe faces -Z with the plate behind at +Z. No fabricated geometry and no material, colour or transparency changes.",
+      "rotation": "Identity",
+      "pivot": "Identity bottom-centre pivot; error 0",
+      "front": "-Z (globe), backing plate at +Z",
+      "size": [1.7549996376037598, 1.7549996376037598, 1.3650007247924805],
+      "sizeNote": "The gap audit's size lists the same extents in the source's unrotated axes; the -90 degree turn swaps X and Z.",
+      "look": "Square gray diamond-plate backing with a green-tinted transparent glass sphere over a dark core; no lettering",
+      "sanitizer": "Existing TemplateSanitizer: placement keeps 3 parts and 1 disabled light (removes 0); preview keeps 3 parts and 0 lights (removes 1). No sanitizer change.",
+      "functionality": "Decorative only: no recording-status reaction, switch, active lighting, wall snapping, functional wall mount or lighting adapter.",
+      "visualReview": "Native visual review complete (Codex)"
+    }
+  ],
+  "pendingAfterReview": [
+    "Live installation",
+    "Real Place, Rotate and Delete checks",
+    "A new full-place backup"
+  ],
+  "task11Tally": "9 installed (water dispenser, tall floor plant, conference table, flower pot, office chair, coffee mug, presentation board, studio softbox, umbrella light); 4 remaining (guest laptop, panel door, On Air sign, metal door), of which this indicator (the On Air sign entry) is now prepared and registered, installation pending.",
+  "backup": "The prepared and review copies postdate the latest full-place backup (StudioBuilder-FullBackup-66Items-2026-10-26-0417.rbxl); the original source is in that backup.",
+  "historicalRecords": "docs/assets/Studio_Asset_Guide_2026-10-25.json and docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json are unchanged."
+}
