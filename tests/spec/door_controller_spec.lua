@@ -300,13 +300,20 @@ return function(T, H)
 		env.failDriver.setCollision = true
 		env.tick(3.6) -- closed and clear: restore fails
 		T.eq(reg.faulted, true)
+		T.eq(env.core:state(reg.coreId).collidable, false, "the core no longer believes collision is on")
 		env.failDriver.setCollision = false
 		env.tick(3.9)
 		T.eq(reg.faulted, false)
-		T.eq(env.last("setCollision").value, true, "resync applies the core's desired collision (closed, collidable)")
+		T.eq(env.last("setCollision").value, false, "resync never restores collision: it re-establishes the safe state")
+		env.tick(4.0)
+		T.eq(env.last("setCollision").value, false, "no fresh scan yet (the 3.9 scan ran while it was faulted)")
+		env.tick(4.15) -- fresh clear scan: held at 0 -> closing (0 s) ...
+		env.tick(4.2) -- ... closed, closed pose already confirmed: restore
+		T.eq(env.last("setCollision").value, true, "restored through the normal path once closed and clear")
 		-- beginEdit: a failed snap raises; the door is not frozen and keeps its record.
 		env.input = function() return NEAR end
-		env.tick(4.2); env.tick(4.5)
+		env.tick(4.45); env.tick(4.7)
+		T.ok(reg.angle > 0, "opening before the failed edit")
 		env.failDriver.pose = true
 		T.eq(pcall(env.controller.beginEdit, env.controller, model), false, "edit-critical failure raises")
 		T.eq(reg.frozen, false)
@@ -406,5 +413,112 @@ return function(T, H)
 		T.eq(seen, nil, "no rescan inside the interval")
 		env.tick(0.3)
 		T.ok(seen ~= nil)
+	end)
+
+	-- Review of 4e61869, probe 1: the final close must not enable collision before the closed pose succeeds.
+	T.test("final close: a failed closed pose keeps collision off; the core is rebased to the real angle; repeated failures stay conservative", function()
+		local env = setup()
+		local reg = env.controller:attach({}, "i1", record(), false)
+		env.input = function() return NEAR end
+		env.tick(0); env.tick(0.6)
+		env.input = function() return CLEAR end
+		env.tick(1); env.tick(3); env.tick(3.3)
+		T.ok(near(reg.angle, 45))
+		env.failDriver.pose = true
+		env.tick(3.6) -- the core finishes closed, but the leaf can't be posed to 0
+		T.ok(near(reg.angle, 45), "physical angle unchanged")
+		T.eq(env.last("setCollision").value, false, "collision is NOT restored while the leaf is still at 45 degrees")
+		T.eq(reg.faulted, true)
+		local st = env.core:state(reg.coreId)
+		T.eq(st.phase, "held"); T.ok(near(st.progress, 0.5), "core rebased to the applied 45 degrees"); T.eq(st.collidable, false)
+		-- Retry fails again: still faulted, still no collision, still at 45.
+		env.tick(3.9)
+		T.eq(reg.faulted, true)
+		local restores = 0
+		for _, c in ipairs(env.calls) do
+			if c.method == "setCollision" and c.value == true then restores = restores + 1 end
+		end
+		T.eq(restores, 0, "collision has never been restored while the leaf is open")
+		env.failDriver.pose = false
+		env.tick(4.2) -- resync: collision off, re-pose to the applied 45 (no motion)
+		T.eq(reg.faulted, false)
+		T.ok(near(env.last("pose").value, 45), "recovery re-applies the real angle, not the core's earlier target of 0")
+		-- A fresh clear scan closes it from 45, and only then is collision restored.
+		env.tick(4.5)
+		T.eq(env.core:state(reg.coreId).phase, "closing")
+		env.tick(4.6); env.tick(4.9)
+		T.ok(near(env.last("pose").value, 0))
+		T.eq(env.last("setCollision").value, true, "restored after the confirmed closed pose")
+	end)
+
+	-- Review of 4e61869, probe 2: recovery must not advance the leaf along an unscanned or blocked path.
+	T.test("recovery never advances: a pose fault at 22.5 recovers at 22.5 even though the core had targeted 45; a blocked path keeps it there", function()
+		local env = setup()
+		local reg = env.controller:attach({}, "i1", record(), false)
+		env.input = function() return NEAR end
+		env.tick(0); env.tick(0.15)
+		T.ok(near(reg.angle, 22.5))
+		env.failDriver.pose = true
+		env.tick(0.3) -- intended 45, applied 22.5
+		T.ok(near(reg.angle, 22.5))
+		T.ok(near(env.core:state(reg.coreId).progress, 0.25), "core rebased to 22.5, not the theoretical 45")
+		env.input = function() return BLOCKED_NEAR end
+		env.failDriver.pose = false
+		env.tick(0.4) -- recovery tick
+		T.ok(near(env.last("pose").value, 22.5), "no advance from 22.5 on recovery")
+		T.eq(reg.faulted, false)
+		for t = 1, 6 do env.tick(0.4 + t * 0.25) end
+		T.ok(near(env.last("pose").value, 22.5), "blocked at its new scan: stays at 22.5")
+		T.eq(env.core:state(reg.coreId).phase, "held")
+		env.input = function() return NEAR end
+		env.tick(2.25); env.tick(2.75)
+		T.ok(near(env.last("pose").value, 90), "opens from 22.5 once a fresh scan shows the path clear")
+	end)
+
+	T.test("ordering within a tick: collision off before the first pose of a motion; restore after the confirmed closed pose", function()
+		local env = setup()
+		local reg = env.controller:attach({}, "i1", record(), false)
+		env.input = function() return NEAR end
+		env.tick(0)
+		env.tick(0.15)
+		local firstOff, firstPose
+		for i, c in ipairs(env.calls) do
+			if c.method == "setCollision" and c.value == false and not firstOff then firstOff = i end
+			if c.method == "pose" and not firstPose then firstPose = i end
+		end
+		T.ok(firstOff and firstPose and firstOff < firstPose, "collision disabled before the leaf moves")
+		env.tick(0.6)
+		env.input = function() return CLEAR end
+		env.tick(1); env.tick(3)
+		local mark = #env.calls
+		env.tick(3.6) -- closing finishes: pose 0, then restore, in that order
+		local seq = {}
+		for i = mark + 1, #env.calls do seq[#seq + 1] = env.calls[i].method .. "=" .. tostring(env.calls[i].value) end
+		T.deepEq(seq, { "pose=0", "setCollision=true" })
+		T.eq(reg.faulted, nil)
+	end)
+
+	T.test("collision restore retries fail repeatedly: collision never reported on, door stays faulted and closed until a full recovery", function()
+		local env = setup()
+		local reg = env.controller:attach({}, "i1", record(), false)
+		env.input = function() return NEAR end
+		env.tick(0); env.tick(0.6)
+		env.input = function() return CLEAR end
+		env.tick(1); env.tick(3)
+		local failTrue = true
+		env.driver.setCollision = function(_, r, on)
+			if on and failTrue then error("restore failed") end
+			env.calls[#env.calls + 1] = { method = "setCollision", id = r.id, coreId = r.coreId, value = on }
+		end
+		env.tick(3.6)
+		T.eq(reg.faulted, true)
+		T.eq(env.core:state(reg.coreId).collidable, false)
+		for t = 1, 8 do env.tick(3.6 + t * 0.25) end -- resyncs succeed (collision off), restores keep failing
+		T.eq(env.last("setCollision").value, false, "never reported on")
+		T.ok(near(reg.angle, 0))
+		failTrue = false
+		for t = 9, 12 do env.tick(3.6 + t * 0.25) end
+		T.eq(env.last("setCollision").value, true, "restored once the driver works")
+		T.eq(reg.faulted, false)
 	end)
 end

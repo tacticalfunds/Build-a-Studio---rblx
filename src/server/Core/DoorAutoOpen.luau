@@ -291,19 +291,25 @@ function DoorAutoOpen:complete(id, token, now)
 	return self:_finish(id, door, false)
 end
 
--- Stop a moving leaf where it is (for example when the runtime could not
--- apply a prerequisite such as disabling collision). Returns the "held"
--- event, or nil when nothing was moving or the clock is unknown.
-function DoorAutoOpen:hold(id, now)
+-- Rebase a door onto the leaf position the runtime last APPLIED (progress
+-- 0..1) and hold it there, with collision off. Used when a driver step
+-- failed: the core then never believes the leaf is somewhere it isn't, and
+-- any later motion starts from the real position and needs fresh input.
+-- Works without a valid clock (nothing is timed). Returns the "held" event,
+-- or nil for an unknown door or a non-finite progress.
+function DoorAutoOpen:holdAt(id, progress, now)
 	local door = self.doors[id]
-	if door == nil or door.motion == nil then
+	if door == nil or not isFinite(progress) then
 		return nil
 	end
-	now = self:_clock(now) or self.now
-	if now == nil then
-		return nil
-	end
-	return self:_hold(id, door, now)
+	self:_clock(now)
+	door.progress = math.max(0, math.min(1, progress))
+	door.motion = nil
+	door.token = self:_token()
+	door.phase = "held"
+	door.collidable = false
+	door.clearSince = nil
+	return { kind = "held", id = id, token = door.token, progress = door.progress }
 end
 
 -- Snap closed now (before any edit to the door: move, rotate, delete,

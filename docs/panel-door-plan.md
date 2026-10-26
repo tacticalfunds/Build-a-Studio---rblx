@@ -3,6 +3,7 @@
 **Status:**
 - The design checkpoint (85025c9) was accepted with corrections.
 - The foundation (8275097) wasn't accepted; its corrections (a65d89c) were accepted.
+- The runtime corrections (4e61869) were reviewed and **not accepted**: two probes failed (collision restored before the closed pose was confirmed, and recovery advancing the leaf without a scan). Both are corrected in the following commit.
 - The first runtime (e49842c) was reviewed and **not accepted for activation**. Three regressions failed (replacement capacity, cached scans reused after an edit, driver faults ignored), plus an adapter finding (non-solid parts blocking, axis-aligned floor top). All are corrected in the following commit.
 - **The runtime layer is now implemented, tested and DORMANT:**
   - `src/server/Runtime/DoorSensing.luau`;
@@ -116,12 +117,17 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
   - rollback keeps the old set intact.
 - **Poses:** each tick, the pose is `openDegrees` × the core's linear progress at `now`. There are no tweens and no completion callbacks. `reg.angle` is the last angle the driver **accepted**, so a failed pose is retried rather than hidden.
 - **Scans:** sensing runs at `scanInterval` over doors that are neither frozen nor faulted. Results older than `maxInputAge` count as unknown. **A door's cached input is discarded on `beginEdit`, `moved`, `cancelEdit` and `thaw`**, so after any edit it holds still until a fresh scan at its new pose. Scan results are filtered to the doors actually scanned.
-- **Collision:** off on every motion, hold or reset event. The template's original states come back only on `collision` or `closed` with `collide = true`, i.e. closed and clear.
+- **Collision:** turned off on every motion, hold or reset event. Each tick runs in a fixed order:
+  1. core events, applying collision **disables**;
+  2. poses;
+  3. collision **restores**, carried out only when the leaf's closed pose (angle 0) has been **confirmed** by a successful pose, the core is closed, and the doorway is clear.
+  A failed final pose therefore leaves collision off.
 - **Faults:**
   - If the driver fails to disable collision, pose the leaf or restore collision, the door is **faulted**:
-    - its motion is held at once (via `DoorAutoOpen:hold`), so no pose is sent for a motion whose collision couldn't be disabled;
+    - the core is **rebased onto the last ACCEPTED angle** (`DoorAutoOpen:holdAt`), not its theoretical progress, and held there with collision off. So no pose is sent for a motion whose collision couldn't be disabled, and the core never believes the leaf is somewhere it isn't;
     - it gets no sensing input;
-    - every `scanInterval` the controller tries to resync it (the core's desired collision, then the desired pose). Only a fully successful resync clears the fault, and motion then needs fresh input.
+    - every `scanInterval` the controller tries to resync it **without moving it**: collision off, then re-apply the last accepted angle. A retry that fails again leaves it faulted, with collision off.
+  - Only a fully successful resync clears the fault. The door then stays held at that real angle until a fresh scan of its sweep allows motion. **Recovery never jumps along an unscanned or blocked path, and never restores collision itself**: that happens only through the normal path, after a confirmed closed pose and a clear scan.
   - **`beginEdit` is edit-critical.** If the snap closed fails, the door is faulted, its previous edit state is kept and the error is raised. The world's move or remove apply then fails before it touches the model. A build load cancels the freezes already made and destroys its new models. A reconcile fails, so the core stays in recovery.
 - **Edits:**
   - `attach` (frozen and staged), `beginEdit`, `moved`, `cancelEdit` (restore the record, thaw), `thaw` (commit; staged doors become committed) and `detach`.

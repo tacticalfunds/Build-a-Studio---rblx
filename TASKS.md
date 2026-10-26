@@ -1450,3 +1450,19 @@ Make the assets already used in the six existing rooms available in the Build dr
     - **382 passed, 0 failed** in total.
     - Mutations reverting each fix fail tests. A test that depended on `pairs` order was made deterministic after its mutation survived.
   - **Still not exercised:** Studio itself, including real overlap false positives from solid touching parts, collision groups, mesh collision shapes, real CFrame poses, physics, replication and avatar walk-through. Counts unchanged (live and repository 67).
+- Panel door runtime: collision ordering and recovery corrections (still **DORMANT**). The review of 4e61869 accepted the capacity, cache and solid-hit changes, but two added probes failed (382/2). Fixed:
+  1. **Final close:** collision is restored only after a successful closed pose. Each tick now runs disables, then poses, then restores, and a restore requires a confirmed angle of 0 with the core closed and the doorway clear. A failed closed pose faults the door and leaves collision off.
+  2. **Recovery:**
+     - on any fault, the core is rebased onto the last ACCEPTED angle with a new pure-core call, `DoorAutoOpen:holdAt`, which replaces `hold`;
+     - resync never moves the leaf: it turns collision off and re-applies that angle;
+     - the door then stays held until a fresh scan of its sweep allows motion, so it never advances along an unscanned or blocked path;
+     - resync never restores collision.
+  - **Repeated failures stay conservative:** a retry that fails again keeps the door faulted, with collision off and the leaf where it was.
+  - **Tests:** 5 new, with one existing test revised to the new rule:
+    - both review probes (a failed final close keeps collision off and recovers at 45 degrees; a pose fault at 22.5 recovers at 22.5 and stays there while blocked);
+    - ordering within a tick (collision off before the first pose; pose 0, then restore);
+    - repeated restore failures;
+    - core `holdAt`.
+    - **387 passed, 0 failed** in total.
+    - Mutations reverting each fix fail tests. One defensive guard (a restore requested without a confirmed closed pose) is unreachable through public paths, so its mutation survives by design.
+  - Counts unchanged (live and repository 67).

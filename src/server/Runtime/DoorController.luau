@@ -43,12 +43,22 @@
 	to the template's original states only on "collision" or "closed" with
 	collide = true (closed and clear).
 
+	Tick order: (1) core events, applying collision disables (prerequisites
+	for motion); (2) poses; (3) collision restores, carried out only when the
+	leaf's closed pose (angle 0) is CONFIRMED by a successful pose and the
+	core is closed and clear. A failed final pose therefore leaves collision
+	off.
+
 	Faults: if the driver fails to disable collision, pose the leaf or restore
-	collision, the registration is FAULTED: its motion is held at once (no
-	pose is sent for a motion whose collision could not be disabled), it gets
-	no sensing input, and every scanInterval the controller tries to resync
-	(the core's desired collision, then the desired pose). Only a fully
-	successful resync clears the fault. beginEdit is edit-critical: if the
+	collision, the registration is FAULTED. The core is rebased onto the last
+	ACCEPTED angle (DoorAutoOpen:holdAt) and held there with collision off, so
+	no pose is sent for a motion whose collision could not be disabled and the
+	core never believes the leaf is somewhere it isn't. A faulted door gets
+	no sensing input. Every scanInterval the controller tries to resync it
+	WITHOUT moving it: collision off, then re-apply the last accepted angle.
+	Only a fully successful resync clears the fault; the door then stays held
+	at that angle until a fresh scan of its sweep allows motion, so recovery
+	never jumps along an unscanned or blocked path. beginEdit is edit-critical: if the
 	snap closed fails, the door is faulted, its previous edit state is kept
 	and the error is raised, so the world's apply fails before it touches the
 	model and the existing transaction / reconcile handling takes over.
@@ -143,15 +153,19 @@ function DoorController:_forgetInput(reg)
 	self.inputs[reg.coreId] = nil
 end
 
--- Marks a registration faulted and stops any motion where it is.
+-- Marks a registration faulted and rebases the core onto the leaf angle the
+-- driver last ACCEPTED (not the core's theoretical progress), held there
+-- with collision off. Any later motion starts from that real position and
+-- needs a fresh scan.
 function DoorController:_fault(reg, reason)
 	if not reg.faulted then
 		self.log("door " .. tostring(reg.id) .. " faulted: " .. reason)
 	end
 	reg.faulted = true
 	reg.nextResync = nil
+	reg.pendingRestore = false
 	self:_forgetInput(reg)
-	self.core:hold(reg.coreId, self:_now())
+	self.core:holdAt(reg.coreId, reg.angle / reg.spec.openDegrees, self:_now())
 end
 
 -- Sets reg.record and the derived room-space sweep box and doorway centre.
@@ -306,7 +320,9 @@ function DoorController:thaw(model)
 	return true
 end
 
--- Applies one core event to the driver. A failed prerequisite faults the door.
+-- Applies one core event BEFORE poses. Collision disables happen now (a
+-- failure faults the door, so no pose follows); collision restores are only
+-- recorded and carried out after the closed pose is confirmed (see tick).
 function DoorController:_apply(event)
 	local reg = self.byCore[event.id]
 	if reg == nil then
@@ -314,32 +330,29 @@ function DoorController:_apply(event)
 	end
 	local kind = event.kind
 	if kind == "collision" or (kind == "closed" and event.collide == true) then
-		if not self:_call(reg, "setCollision", true) then
-			self:_fault(reg, "could not restore collision")
-		end
+		reg.pendingRestore = true
 	elseif kind == "opening" or kind == "closing" or kind == "held" or kind == "snapClosed" then
+		reg.pendingRestore = false
 		if not self:_call(reg, "setCollision", false) then
 			self:_fault(reg, "could not disable collision")
 		end
 	end
 end
 
--- Faulted doors: try to bring the driver back in line with the core.
+-- Faulted doors: re-establish a safe, known state WITHOUT moving the leaf:
+-- collision off, then re-apply the last accepted angle (the core is already
+-- rebased there). Never poses toward the core's theoretical target, so
+-- recovery can't sweep an unscanned or blocked path. A failed attempt leaves
+-- it faulted until the next attempt (one per scanInterval).
 function DoorController:_resync(reg, now)
 	if reg.nextResync ~= nil and now < reg.nextResync then
 		return
 	end
 	reg.nextResync = now + self.scanInterval
-	local state = self.core:state(reg.coreId, now)
-	if state == nil then
-		return
-	end
-	local angle = reg.spec.openDegrees * state.progress
-	if self:_call(reg, "setCollision", state.collidable and state.phase == "closed") and self:_call(reg, "pose", angle) then
-		reg.angle = angle
+	if self:_call(reg, "setCollision", false) and self:_call(reg, "pose", reg.angle) then
 		reg.faulted = false
 		reg.nextResync = nil
-		self.log("door " .. tostring(reg.id) .. " recovered")
+		self.log("door " .. tostring(reg.id) .. " recovered at " .. tostring(reg.angle) .. " degrees")
 	end
 end
 
@@ -377,9 +390,11 @@ function DoorController:tick()
 			coreInputs[reg.coreId] = self.inputs[reg.coreId]
 		end
 	end
+	-- 1. Events: collision disables (prerequisites for motion).
 	for _, event in ipairs(self.core:update(now, coreInputs)) do
 		self:_apply(event)
 	end
+	-- 2. Poses, then 3. collision restores only once closed is confirmed.
 	for _, reg in ipairs(self.order) do
 		if reg.faulted then
 			self:_resync(reg, now)
@@ -393,6 +408,18 @@ function DoorController:tick()
 					else
 						self:_fault(reg, "could not pose the leaf")
 					end
+				end
+			end
+			if reg.pendingRestore and not reg.faulted then
+				if reg.angle == 0 and state and state.phase == "closed" then
+					if self:_call(reg, "setCollision", true) then
+						reg.pendingRestore = false
+					else
+						self:_fault(reg, "could not restore collision")
+					end
+				else
+					reg.pendingRestore = false
+					self:_fault(reg, "collision restore requested while the leaf is not confirmed closed")
 				end
 			end
 		end
