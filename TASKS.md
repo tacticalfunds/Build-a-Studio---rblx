@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 61 installed in total (43 furniture, 18 structure; 1 more registered, repository 62, integration pending: the black office chair; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 62 installed in total (44 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (4 installed: the water dispenser, the tall floor plant, the conference table and the flower pot; 9 gap-audit entries remaining, one of them, the office chair, prepared and registered with integration pending)
+## 11. Existing room assets in Build (user request): In progress (5 installed: the water dispenser, the tall floor plant, the conference table, the flower pot and the office chair; 8 original gap-audit entries remaining)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1051,3 +1051,25 @@ Make the assets already used in the six existing rooms available in the Build dr
     - floor placement with the measured bounds: corner, the X edge facing forward versus turned 90°, the Z edge, and the 24-stud height limit;
     - it's listed last in Cozy, 1980s and Futuristic > Seating, and never in Retro, Winter or Structure mode.
     - No UI or runtime code changed.
+- 62-item verified installation checkpoint (Codex, Studio Experience, 2026-10-26; supersedes the "integration pending, not installed" notes in the office chair entry above, which are left as written as history):
+  - **Review:** Codex reviewed 7bbd018 (the existing seating type confirmed as correct) and ran the archived commit independently: 322 passed, 0 failed.
+  - **Installed:** 62 Catalog entries and 62 templates (44 furniture, 18 structure). The live `studio_office_chair_01` template is installed.
+  - **Prior Catalog source:** verified against the last-reviewed version and backed up as `ServerStorage.BuilderIntegrationBackups.Catalog_Before62_20261026_0254`.
+  - **Checks:**
+    - a fresh probe: 62 valid, 0 invalid, 0 not installed;
+    - real BuilderRequest calls in Play all succeeded:
+      1. Status, revision 0;
+      2. Place `studio_office_chair_01` at (0, 0, 0, yaw 0) → `i1`, revision 1, with a server-measured pivot of (2000, 0, 0) and a bounding minimum Y of 0;
+      3. Rotate direction 1, revision 2;
+      4. Delete, revision 3.
+    - back in Edit, the 62-entry catalog and the template persisted, and the test layout was absent.
+  - **Scope:** these are server request checks, not physical mouse, R-key or visual UI checks. The chair is decorative only (no sitting, rolling or swivel), and the original room is untouched.
+  - **No registered-but-uninstalled items:** repository 62, live 62.
+  - **Tallies:**
+    - task 11: 5 installed (the water dispenser, the tall floor plant, the conference table, the flower pot and the office chair), 8 original gap-audit entries remaining;
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Backup (new latest):** `StudioBuilder-FullBackup-62Items-2026-10-26-0256.rbxl`, 4,147,271 bytes, SHA256 `C5217F564C31D98F89197137C2210A21860FD200B4EC24614831B70B50AA2220`.
+    - The `<roblox!` header is valid; restore is not tested.
+    - It includes the chair's prepared, template and review copies.
+    - Previous backups are kept. It is local only and not uploaded.
+  - The historical registration manifest is unchanged.
