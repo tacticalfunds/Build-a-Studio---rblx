@@ -358,6 +358,75 @@ Catalog.Items = {
 		type = "lighting",
 		sourceRef = "ServerStorage.NextCatalogInspection.Review_4128475322",
 	},
+	-- Structure variants (2026-10-26): 9 prepared by Codex
+	-- (docs/assets/Structure_Expansion_2026-10-26.json). Adapted free assets and
+	-- material variants of the modular kit (plus the tracked White Brick Wall
+	-- resized to the grid), not independent models. Install source:
+	-- ServerStorage.StructureExpansionCandidates.<id>; sourceRef is provenance.
+	-- Studio install pending.
+	{
+		id = "structure_floor_oak_01",
+		displayName = "Light Oak Floor",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderTemplates.structure_floor_01",
+		structure = { kind = "floor" },
+	},
+	{
+		id = "structure_floor_walnut_01",
+		displayName = "Dark Walnut Floor",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderTemplates.structure_floor_01",
+		structure = { kind = "floor" },
+	},
+	{
+		id = "structure_floor_concrete_01",
+		displayName = "Concrete Floor",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderTemplates.structure_floor_01",
+		structure = { kind = "floor" },
+	},
+	{
+		id = "structure_floor_slate_01",
+		displayName = "Slate Floor",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderTemplates.structure_floor_01",
+		structure = { kind = "floor" },
+	},
+	{
+		id = "structure_wall_wood_01",
+		displayName = "Wood Panel Wall",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderTemplates.structure_wall_01",
+		structure = { kind = "wall" },
+	},
+	{
+		id = "structure_wall_brick_01",
+		displayName = "White Brick Wall",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.NextCatalogInspection.White Brick Wall",
+		structure = { kind = "wall" },
+	},
+	{
+		id = "structure_ceiling_dark_01",
+		displayName = "Dark Studio Ceiling",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderTemplates.structure_ceiling_01",
+		structure = { kind = "ceiling" },
+	},
+	{
+		id = "structure_window_black_01",
+		displayName = "Black Frame Window Wall",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderTemplates.structure_window_wall_01",
+		structure = { kind = "window_wall" },
+	},
+	{
+		id = "structure_doorway_wide_01",
+		displayName = "Wide Open Doorway",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderTemplates.structure_doorway_01",
+		structure = { kind = "doorway" },
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

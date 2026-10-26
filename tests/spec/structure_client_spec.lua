@@ -258,16 +258,21 @@ return function(T, H)
 		for i, f in ipairs(env.drawer.filters) do labels[i] = f.displayName end
 		T.eq(table.concat(labels, ","), "Floors,Walls,Doors,Ceilings,Windows")
 		T.eq(env.drawer.filter, "floor")
-		T.deepEq(ids(env.drawer.items), { "structure_floor_01" })
-		local expected = { { "wall", "structure_wall_01" }, { "doorway", "structure_doorway_01" }, { "ceiling", "structure_ceiling_01" }, { "window_wall", "structure_window_wall_01" } }
+		T.deepEq(ids(env.drawer.items), { "structure_floor_01", "structure_floor_oak_01", "structure_floor_walnut_01", "structure_floor_concrete_01", "structure_floor_slate_01" })
+		local expected = {
+			{ "wall", { "structure_wall_01", "structure_wall_wood_01", "structure_wall_brick_01" } },
+			{ "doorway", { "structure_doorway_01", "structure_doorway_wide_01" } },
+			{ "ceiling", { "structure_ceiling_01", "structure_ceiling_dark_01" } },
+			{ "window_wall", { "structure_window_wall_01", "structure_window_black_01" } },
+		}
 		for _, pair in ipairs(expected) do
-			local kind, id = pair[1], pair[2]
+			local kind, list = pair[1], pair[2]
 			env.drawer.callbacks.onFilter(kind)
-			T.deepEq(ids(env.drawer.items), { id }, kind)
+			T.deepEq(ids(env.drawer.items), list, kind)
 			T.eq(env.drawer.filter, kind)
 		end
 		env.drawer.callbacks.onFilter("cozy")
-		T.deepEq(ids(env.drawer.items), { "structure_window_wall_01" }, "a style id in Structure mode is ignored")
+		T.deepEq(ids(env.drawer.items), { "structure_window_wall_01", "structure_window_black_01" }, "a style id in Structure mode is ignored")
 		env.drawer.callbacks.onCategory("furniture")
 		T.eq(env.drawer.filter, "futuristic", "furniture filter remembered")
 		T.eq(env.drawer.typeView, "chooser", "back in furniture: the type chooser")

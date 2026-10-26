@@ -62,8 +62,22 @@ return function(T, H)
 
 	local DECOR = { "retro_record_player_01", "retro_radio_01", "retro_patterned_rug_01", "retro_classic_floor_lamp_01" }
 
-	T.test("catalog holds the 7 original, 24 expansion, 5 structure and 4 later furniture IDs, earlier entries unchanged in order", function()
-		T.eq(#Catalog.Items, 40, "item count")
+	local STRUCTURE_VARIANTS = {
+		structure_floor_oak_01 = "floor", structure_floor_walnut_01 = "floor", structure_floor_concrete_01 = "floor",
+		structure_floor_slate_01 = "floor", structure_wall_wood_01 = "wall", structure_wall_brick_01 = "wall",
+		structure_ceiling_dark_01 = "ceiling", structure_window_black_01 = "window_wall", structure_doorway_wide_01 = "doorway",
+	}
+	local VARIANT_ORDER = {
+		"structure_floor_oak_01", "structure_floor_walnut_01", "structure_floor_concrete_01", "structure_floor_slate_01",
+		"structure_wall_wood_01", "structure_wall_brick_01", "structure_ceiling_dark_01", "structure_window_black_01",
+		"structure_doorway_wide_01",
+	}
+
+	T.test("catalog holds 7 original, 24 expansion, 5 structure, 4 later furniture and 9 structure variant IDs, earlier entries unchanged in order", function()
+		T.eq(#Catalog.Items, 49, "item count")
+		for i, id in ipairs(VARIANT_ORDER) do
+			T.eq(Catalog.Items[#ORIGINAL + #EXPANSION + #STRUCTURE_ORDER + #DECOR + i].id, id, "variant #" .. i)
+		end
 		for i, id in ipairs(STRUCTURE_ORDER) do
 			T.eq(Catalog.Items[#ORIGINAL + #EXPANSION + i].id, id, "structure #" .. i)
 		end
@@ -93,16 +107,22 @@ return function(T, H)
 		local expected = { cozy = 26, retro = 20, ["1980s"] = 16, winter = 12, futuristic = 9 }
 		for _, c in ipairs(Catalog.Collections) do
 			T.eq(#Catalog.getFurnitureTagged(c.id), expected[c.id], c.id .. " furniture count")
-			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id] + 5, c.id .. " raw tag count")
+			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id] + 14, c.id .. " raw tag count (14 structure pieces carry all five tags)")
 			for _, item in ipairs(Catalog.getFurnitureTagged(c.id)) do
 				T.eq(item.structure, nil, item.id)
 			end
 		end
+		local perKind = { floor = 5, wall = 3, doorway = 2, ceiling = 2, window_wall = 2 }
+		local structureTotal = 0
 		for _, f in ipairs(Catalog.StructureFilters) do
 			local items = Catalog.getStructureItems(f.id)
-			T.eq(#items, 1, f.id)
-			T.eq(STRUCTURE[items[1].id], f.id)
+			T.eq(#items, perKind[f.id], f.id)
+			for _, item in ipairs(items) do
+				T.eq(STRUCTURE[item.id] or STRUCTURE_VARIANTS[item.id], f.id, item.id)
+			end
+			structureTotal = structureTotal + #items
 		end
+		T.eq(structureTotal, 14)
 		local labels = {}
 		for i, f in ipairs(Catalog.StructureFilters) do labels[i] = f.displayName end
 		T.eq(table.concat(labels, ","), "Floors,Walls,Doors,Ceilings,Windows")
@@ -243,7 +263,8 @@ return function(T, H)
 			end
 			expectedInspected[#expectedInspected + 1] = a.id
 		end
-		T.eq(#Catalog.Items, base + #APPROVED_TRACKED, "nothing after the approved tracked items")
+		T.eq(#Catalog.Items, base + #APPROVED_TRACKED + #VARIANT_ORDER, "only the structure variants follow the approved tracked items")
+		expectedInspected[#expectedInspected + 1] = "structure_wall_brick_01" -- the tracked White Brick Wall, resized (structure manifest)
 		local inspected = {}
 		for _, item in ipairs(Catalog.Items) do
 			if item.sourceRef:find("NextCatalogInspection", 1, true) then
@@ -258,6 +279,49 @@ return function(T, H)
 		local lamp = H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json")
 		T.ok(lamp:find('"lights": 0,', 1, true))
 		T.ok(lamp:find("no illumination", 1, true))
+	end)
+
+	T.test("structure variants: registered exactly from their manifest, on the grid module, provenance kept out of the catalog", function()
+		local StructureGrid = H.load("src/shared/StructureGrid")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Structure_Expansion_2026-10-26.json")
+		local count = 0
+		for _ in manifest:gmatch('"preparedPath"') do count = count + 1 end
+		T.eq(count, 9, "manifest items")
+		local bounds = { halfX = 24.5, halfZ = 24.5, height = 24 }
+		local spot = { floor = { 0, 0, 0, 0 }, ceiling = { 0, 15, 0, 90 }, wall = { 0, 0, 8, 0 }, window_wall = { 8, 0, 0, 90 }, doorway = { 0, 0, -8, 180 } }
+		for _, id in ipairs(VARIANT_ORDER) do
+			local item = Catalog.getItem(id)
+			T.ok(item ~= nil, id)
+			T.eq(item.structure.kind, STRUCTURE_VARIANTS[id], id .. " kind")
+			T.eq(item.type, nil, id .. " has no furniture type")
+			local at = manifest:find('"id": "' .. id .. '"', 1, true)
+			T.ok(at, id .. " in manifest")
+			-- The manifest entry for this id: from the preceding "collections" to its "size".
+			local start = 1
+			for pos in manifest:gmatch('()"collections"') do if pos < at then start = pos end end
+			local entry = manifest:sub(start, manifest:find('"size"', at, true))
+			T.ok(entry:find('"displayName": "' .. item.displayName .. '"', 1, true), id .. " displayName")
+			T.ok(entry:find('"sourceRef": "' .. item.sourceRef .. '"', 1, true), id .. " sourceRef")
+			T.ok(entry:find('"kind": "' .. item.structure.kind .. '"', 1, true), id .. " kind in manifest")
+			T.ok(entry:find('"preparedPath": "ServerStorage.StructureExpansionCandidates.' .. id .. '"', 1, true), id .. " install source")
+			T.ok(entry:find('"scripts": 0', 1, true), id .. " zero scripts")
+			local tags = {}
+			for tag in entry:match('"collections": (%b[])'):gmatch('"([^"]+)"') do tags[tag] = true end
+			local mine = {}
+			for _, tag in ipairs(item.collections) do mine[tag] = true end
+			T.deepEq(mine, tags, id .. " collections")
+			for key in pairs(item) do
+				T.ok(key ~= "sourceAssetId" and key ~= "preparedPath" and key ~= "adaptation", id .. " carries " .. key)
+			end
+			-- The manifest size fits the grid module for its kind.
+			local sx, sy, sz = manifest:sub(at):match('"size": %[%s*([%d%.]+),%s*([%d%.]+),%s*([%d%.]+)')
+			local size = { tonumber(sx), tonumber(sy), tonumber(sz) }
+			local p = spot[item.structure.kind]
+			T.ok(StructureGrid.validate(item.structure.kind, { x = p[1], y = p[2], z = p[3], yaw = p[4] }, size, bounds) ~= nil, id .. " validates on the grid")
+		end
+		T.ok(manifest:find("8 studs wide and 9 studs high above a 1-stud threshold", 1, true), "wide doorway opening recorded")
+		T.ok(manifest:find("Avatar walkthrough not tested", 1, true))
+		T.ok(manifest:find("not nine independent marketplace models", 1, true))
 	end)
 
 	T.test("sorted collections follow declared order", function()
@@ -279,7 +343,7 @@ return function(T, H)
 
 	T.test("every sourceRef exists in the committed asset guide or expansion manifest (no invented sources)", function()
 		local guide = H.readFile(H.ROOT .. "/docs/assets/Studio_Asset_Guide_2026-10-25.json")
-		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_Expansion_2026-10-26.json")
 		for _, item in ipairs(Catalog.Items) do
 			local inGuide = string.find(guide, '"path": "' .. item.sourceRef .. '"', 1, true) or string.find(guide, '"path":"' .. item.sourceRef .. '"', 1, true)
 			local inManifest = string.find(manifest, '"sourceRef": "' .. item.sourceRef .. '"', 1, true)

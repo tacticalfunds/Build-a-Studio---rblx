@@ -25,15 +25,15 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 
 | Area | Status |
 |---|---|
-| Catalog | **31 items installed** in the working place. Place→Delete passed in Play for all 31, and the drawer filters were checked ([`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md)). Real DataStore save/load with expansion items, multiplayer and a performance benchmark are not done. The 5 structure pieces are installed too, and their placement was checked over the real remote in Play (24e8047); **visual QA is pending** (see the catalog section). The 2 decor items are installed too (46d55cb: Play Place/Rotate/Delete passed), for **38 installed**. The patterned rug was installed and Play-checked after a9bf5ba, for **39 installed**. `retro_classic_floor_lamp_01` is registered in the repository (40 entries) but not yet installed. Full current asset list: [`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md). |
+| Catalog | **31 items installed** in the working place. Place→Delete passed in Play for all 31, and the drawer filters were checked ([`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md)). Real DataStore save/load with expansion items, multiplayer and a performance benchmark are not done. The 5 structure pieces are installed too, and their placement was checked over the real remote in Play (24e8047); **visual QA is pending** (see the catalog section). The 2 decor items are installed too (46d55cb: Play Place/Rotate/Delete passed), for **38 installed**. The patterned rug was installed and Play-checked after a9bf5ba, for **39 installed**. In the repository, `retro_classic_floor_lamp_01` and 9 structure variants are registered (**49 entries, 14 of them structure pieces**) but not yet installed. Full current asset list: [`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md). |
 | Placement, undo/redo, host authority, recovery (server) | Tested locally and in real Studio Luau; Place/Undo/Redo/Delete checked in Play |
 | Build drawer UI | **Installed at 4c7087d and checked in Play** (Codex). Collection → type chooser → type cards, "< Types" back without exiting, Structure filters, and a placement through the category UI confirmed on the server. Screenshot: matching dark/teal panel and grid; no console errors. Earlier: the full edit flow passed at 62f2f87. |
-| Structure pieces (task 10) | Installed; placement, move, rotate, duplicate, undo/redo, delete and refusals checked over the real remote in Play. **Builder-specific visual QA and doorway clearance are pending.** |
+| Structure pieces (task 10) | Installed; placement, move, rotate, duplicate, undo/redo, delete and refusals checked over the real remote in Play. **Builder-specific visual QA and doorway clearance are pending.** 9 more structure variants (floors, walls, a ceiling, a window wall, a wide doorway) are registered in the repository only; install pending. |
 | Full-place backup | **Pending**: only source backups exist (the full-place RBXL is still the 62f2f87 baseline) |
 | Save/load through StudioPresets | Director logic tested locally and in real Studio Luau; Play round trip done **against a memory stand-in for StudioPresets** |
 | Real DataStore, real text filtering, multiplayer | **Not verified** |
 | Seat assignment (task 7) | Pure model and integration plan only ([`docs/task7-seat-plan.md`](docs/task7-seat-plan.md)); **no runtime seating wiring**, no approved anchor metadata. Catalog chairs are decorative. |
-| Remaining model candidates | 13 tracked in the refresh: the patterned rug is installed, the classic floor lamp is registered in the repo (install pending), and **11 are not registered** ([`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md)) |
+| Remaining model candidates | 13 tracked in the refresh: the rug is installed; the classic floor lamp and the White Brick Wall (as `structure_wall_brick_01`) are registered in the repo, install pending; **10 are not registered** ([`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md)) |
 | Executive/Broadcast collections (task 8), Branding (task 9) | Not started |
 
 ## Repository layout and Rojo mapping
@@ -189,7 +189,7 @@ Each hook below was checked against that source.
 
 ### Executed in this repository
 
-- `lua5.4 tests/run.lua`: **310 passed, 0 failed**, across 30 specs.
+- `lua5.4 tests/run.lua`: **311 passed, 0 failed**, across 30 specs.
 - `seat_assignments_spec` also checks the seat model's contracts against the attached bb3efa6 source: seat count, seat index range, pose modes, Lounge-only couch poses, seat labels and StudioCustomization isolation.
 - The tests run the real modules (and the real `integration/` files) against fakes. Yields are driven by coroutines.
 - Key behaviours were also checked by mutation: each original bug, put back, makes a test fail.
@@ -330,9 +330,14 @@ All are free and all are **decorative**. No seat, light or audio adapter exists:
   - **Decorative only:** it has no Light object, gives no light and has no on/off.
   - Provenance: [`docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json`](docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json).
   - Style counts once installed: Cozy 26, Retro 20, 1980s 16, Winter 12, Futuristic 9.
-- **Tracked, not registered (11 of the 13):** see the current refresh, [`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md).
+- **Structure variants (9), registered in the repository, Studio install pending:** Light Oak, Dark Walnut, Concrete and Slate floors; Wood Panel Wall; White Brick Wall; Dark Studio Ceiling; Black Frame Window Wall; Wide Open Doorway.
+  - These are adapted free assets and material variants of the modular kit (plus the tracked White Brick Wall resized to the grid), not nine independent models.
+  - Install source: `ServerStorage.StructureExpansionCandidates.<id>`. Provenance: [`docs/assets/Structure_Expansion_2026-10-26.json`](docs/assets/Structure_Expansion_2026-10-26.json).
+  - The wide doorway's opening is 8 wide and 9 high above a 1-stud threshold. **Avatar walkthrough not tested.**
+  - Structure filters once installed: Floors 5, Walls 3, Doors 2, Ceilings 2, Windows 2.
+- **Tracked, not registered (10 of the 13):** see the current refresh, [`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md).
   - **Earlier prepared (3):** the corner, the standalone window frame and the 272-part shoji divider.
-  - **New walls (2):** Concrete Sci-Fi Wall and White Brick Wall. They need grid adaptation.
+  - **New wall (1):** Concrete Sci-Fi Wall. It needs grid adaptation. (The White Brick Wall is now registered as `structure_wall_brick_01`.)
   - **New imports (6):** two fireplaces, two pillows, an executive sci-fi desk and a wood truss beam. The two pillow derivatives have been normalized but are **not approved**.
 
 ## Next tasks

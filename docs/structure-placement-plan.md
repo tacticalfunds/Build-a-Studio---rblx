@@ -1,5 +1,10 @@
 # Structure placement plan: walls, floors, ceilings, doorways, windows
 
+**Structure variants (2026-10-26; repository only, install pending):**
+- 9 more structure entries are registered, for 14 structure pieces in total: 4 floors, 2 walls, 1 ceiling, 1 window wall and 1 wide doorway.
+- They're material and size variants on the same 16-stud module, so the grid rules, levels and rotation apply unchanged.
+- `structure_doorway_wide_01`'s opening is 8 studs wide and 9 high above a 1-stud threshold (Codex measurement). Doorway clearance policy and avatar walkthrough are still pending.
+
 **Integration (Codex, after 24e8047):**
 - **Installed:** the 11 changed modules and 5 structure templates. The marker is now **49 × 24 × 49**.
 - **Checked in Play:** the Structure mode UI with five filters; placement of all five pieces over the real remote; a floor move, a wall rotate, a duplicate, undo/redo and deletions; BadYaw, OffGrid and OutOfBounds refusals; no console errors.

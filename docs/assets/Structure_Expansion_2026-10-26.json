@@ -1,0 +1,238 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually reviewed by Codex in Edit; registered in Catalog.luau (repository). Studio install and Play check pending; live catalog stays 39.",
+  "recordedFrom": "Manifest relayed in the review of 14933b6 (items array reproduced verbatim)",
+  "notes": [
+    "These are adapted free assets / material variants, not nine independent marketplace models: eight are recolours or resizes of the free modular kit (source asset 12219944662, creator plexaruszx) and one is the tracked White Brick Wall (source asset 12782716872) resized to the 16 x 15 x 1 grid module.",
+    "Install from preparedPath (ServerStorage.StructureExpansionCandidates.<id>) into StudioBuilderTemplates; sourceRef and sourceAssetId are provenance only and are never loaded.",
+    "All nine: anchored, bottom-centre pivots, zero scripts.",
+    "structure_doorway_wide_01: opening 8 studs wide and 9 studs high above a 1-stud threshold (Codex measurement). Avatar walkthrough not tested; doorway clearance policy still pending."
+  ],
+  "items": [
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "id": "structure_floor_oak_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Light Oak Floor",
+      "preparedPath": "ServerStorage.StructureExpansionCandidates.structure_floor_oak_01",
+      "sourceRef": "ServerStorage.StudioBuilderTemplates.structure_floor_01",
+      "scripts": 0,
+      "parts": 2,
+      "adaptation": "Material/color variant of free modular kit",
+      "structure": {
+        "kind": "floor"
+      },
+      "size": [
+        16,
+        1,
+        16
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "id": "structure_floor_walnut_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Dark Walnut Floor",
+      "preparedPath": "ServerStorage.StructureExpansionCandidates.structure_floor_walnut_01",
+      "sourceRef": "ServerStorage.StudioBuilderTemplates.structure_floor_01",
+      "scripts": 0,
+      "parts": 2,
+      "adaptation": "Material/color variant of free modular kit",
+      "structure": {
+        "kind": "floor"
+      },
+      "size": [
+        16,
+        1,
+        16
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "id": "structure_floor_concrete_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Concrete Floor",
+      "preparedPath": "ServerStorage.StructureExpansionCandidates.structure_floor_concrete_01",
+      "sourceRef": "ServerStorage.StudioBuilderTemplates.structure_floor_01",
+      "scripts": 0,
+      "parts": 2,
+      "adaptation": "Material/color variant of free modular kit",
+      "structure": {
+        "kind": "floor"
+      },
+      "size": [
+        16,
+        1,
+        16
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "id": "structure_floor_slate_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Slate Floor",
+      "preparedPath": "ServerStorage.StructureExpansionCandidates.structure_floor_slate_01",
+      "sourceRef": "ServerStorage.StudioBuilderTemplates.structure_floor_01",
+      "scripts": 0,
+      "parts": 2,
+      "adaptation": "Material/color variant of free modular kit",
+      "structure": {
+        "kind": "floor"
+      },
+      "size": [
+        16,
+        1,
+        16
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "id": "structure_wall_wood_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Wood Panel Wall",
+      "preparedPath": "ServerStorage.StructureExpansionCandidates.structure_wall_wood_01",
+      "sourceRef": "ServerStorage.StudioBuilderTemplates.structure_wall_01",
+      "scripts": 0,
+      "parts": 1,
+      "adaptation": "Material/color variant of free modular kit",
+      "structure": {
+        "kind": "wall"
+      },
+      "size": [
+        16,
+        15,
+        1
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "id": "structure_wall_brick_01",
+      "sourceAssetId": "12782716872",
+      "displayName": "White Brick Wall",
+      "preparedPath": "ServerStorage.StructureExpansionCandidates.structure_wall_brick_01",
+      "sourceRef": "ServerStorage.NextCatalogInspection.White Brick Wall",
+      "scripts": 0,
+      "parts": 1,
+      "adaptation": "Brick source resized to grid",
+      "structure": {
+        "kind": "wall"
+      },
+      "size": [
+        16,
+        15,
+        1
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "id": "structure_ceiling_dark_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Dark Studio Ceiling",
+      "preparedPath": "ServerStorage.StructureExpansionCandidates.structure_ceiling_dark_01",
+      "sourceRef": "ServerStorage.StudioBuilderTemplates.structure_ceiling_01",
+      "scripts": 0,
+      "parts": 2,
+      "adaptation": "Material/color variant of free modular kit",
+      "structure": {
+        "kind": "ceiling"
+      },
+      "size": [
+        16,
+        1,
+        16
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "id": "structure_window_black_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Black Frame Window Wall",
+      "preparedPath": "ServerStorage.StructureExpansionCandidates.structure_window_black_01",
+      "sourceRef": "ServerStorage.StudioBuilderTemplates.structure_window_wall_01",
+      "scripts": 0,
+      "parts": 7,
+      "adaptation": "Material/color variant of free modular kit",
+      "structure": {
+        "kind": "window_wall"
+      },
+      "size": [
+        16.00006103515625,
+        14.999996185302734,
+        1
+      ]
+    },
+    {
+      "collections": [
+        "cozy",
+        "retro",
+        "1980s",
+        "winter",
+        "futuristic"
+      ],
+      "id": "structure_doorway_wide_01",
+      "sourceAssetId": "12219944662",
+      "displayName": "Wide Open Doorway",
+      "preparedPath": "ServerStorage.StructureExpansionCandidates.structure_doorway_wide_01",
+      "sourceRef": "ServerStorage.StudioBuilderTemplates.structure_doorway_01",
+      "scripts": 0,
+      "parts": 5,
+      "adaptation": "Widened kit doorway; eight wide nine high above one-stud floor",
+      "structure": {
+        "kind": "doorway"
+      },
+      "size": [
+        16,
+        15,
+        1
+      ]
+    }
+  ]
+}

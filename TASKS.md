@@ -29,9 +29,10 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | 39 installed (rug Play-checked) + 1 registered in repo (classic floor lamp, install pending); 11 candidates tracked, not registered; Executive/Broadcast pending |
+| 8 | More collection themes | 6 | 39 installed (live); repo 49 (adds classic floor lamp + 9 structure variants, install pending); 10 candidates tracked, not registered; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (installed and remote-tested in Play; visual QA and doorway clearance pending) |
+| 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | Pending: awaiting an inspected manifest |
 
 **User priority (2026-10-25): keep expanding the model catalog.** Codex prepares and inspects candidates. Each set is registered in its own bounded checkpoint (manifest, catalog entries, tests), then installed and Play-checked by Codex. The queue order above is otherwise unchanged.
 
@@ -257,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 39 installed (rug Play-checked) + 1 registered in repo (classic floor lamp, install pending); 11 candidates tracked, not registered; Executive/Broadcast pending
+## 8. More collection themes: 39 installed (live); repo 49 (adds classic floor lamp + 9 structure variants, install pending); 10 candidates tracked, not registered; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -536,4 +537,28 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
 
     `structure_client_spec` was updated to the locked semantics. 6 mutations caught.
   - **Live status note (Codex, 2026-10-26):** the latest live Play snapshot reports **39 templates** and a user layout of 12 pieces. The classic floor lamp (e5d524d) is registered in the repository only and **not claimed installed**. User builds were not touched.
+- Structure variants registration (after review of 14933b6; repository only, Studio install and Play check pending):
+  - **Registered:** 9 entries from the manifest, appended after the classic floor lamp. The earlier IDs and order are unchanged.
+    - Floors: `structure_floor_oak_01`, `structure_floor_walnut_01`, `structure_floor_concrete_01`, `structure_floor_slate_01`.
+    - Walls: `structure_wall_wood_01`, `structure_wall_brick_01`.
+    - Ceiling: `structure_ceiling_dark_01`. Window wall: `structure_window_black_01`. Doorway: `structure_doorway_wide_01`.
+  - All are tagged with the five collections and carry `structure = { kind }`; no furniture type.
+  - **Counts:** the repo catalog is **49**, including the not-yet-installed lamp, with **14 structure items**. The **live catalog stays 39**.
+  - **Provenance:** `docs/assets/Structure_Expansion_2026-10-26.json` reproduces the items array verbatim, with notes. These are adapted free assets and material variants: 8 from the modular kit (12219944662) and the tracked White Brick Wall (12782716872) resized to the grid. They aren't independent marketplace models.
+    The install source is `preparedPath` (`ServerStorage.StructureExpansionCandidates.<id>`). sourceRef and sourceAssetId are kept as provenance, and the catalog carries no asset ID or prepared path.
+  - **Wide doorway:** the opening is 8 wide and 9 high above a 1-stud threshold (Codex measurement). **Avatar walkthrough not tested**; the doorway clearance policy is still pending.
+  - **Tracked candidates:** the White Brick Wall was one of the 13, so **10 remain unregistered**.
+  - No UI or grid contract change. Structure filters (once installed): Floors 5, Walls 3, Doors 2, Ceilings 2, Windows 2.
+  - **Evidence (executed 2026-10-26):** `lua5.4 tests/run.lua` gives **311 passed, 0 failed**.
+    - New catalog test: the variants match the manifest exactly (name, tags, kind, sourceRef, install path, zero scripts); there's no provenance field in the catalog; and each manifest size validates on the grid at its kind's level.
+    - Updated: 49 entries in order; raw tag counts +14; per-kind structure counts; the approved-tracked list includes the brick wall; the structure filter lists in the controller test; the structure placement kinds.
+    - 5 mutations caught: the wide doorway as a wall, a wrong name, a missing tag, a dropped variant, a changed sourceRef.
+  - **Rotation (14933b6):** still not installed. The live key test is pending.
+
+## 11. Existing room assets in Build (user request): Pending
+Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
+- **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
+- The live rooms themselves stay untouched; the builder only gets prepared copies.
+- The user is browsing in Edit, so there are no Play or camera changes.
+- Acceptance (draft): the same per-manifest catalog tests as earlier registrations, with type and count updates and provenance kept out of the catalog. Studio install and Play check by Codex.
 
