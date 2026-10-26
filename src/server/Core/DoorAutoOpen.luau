@@ -43,6 +43,12 @@
 	Clock: nothing happens until the first finite `now`. A non-finite `now`
 	makes update() a no-op; an earlier finite `now` is clamped to the last one.
 
+	Held progress contract: a "held" event (from update) reports the
+	THEORETICAL progress at the given `now`, i.e. where a continuous leaf would
+	be. A runtime that poses the leaf in discrete steps must rebase with
+	holdAt(id, appliedProgress) when it receives "held", because the input
+	that caused the hold forbids any movement past what it actually applied.
+
 	Tokens are drawn from one counter shared by every door and never reused,
 	not even when an id is removed and added again. complete(id, token, now)
 	accepts only the current motion's token, so an old callback can never move

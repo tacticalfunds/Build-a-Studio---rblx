@@ -43,8 +43,15 @@
 	to the template's original states only on "collision" or "closed" with
 	collide = true (closed and clear).
 
+	Held events: DoorAutoOpen's "held" (blocked or unknown input mid-motion)
+	samples its theoretical progress at `now`. The physical leaf is at the
+	last applied angle, and the tick that reported the blockage authorises no
+	further movement, so the controller immediately rebases the core onto
+	that applied angle (DoorAutoOpen:holdAt) before posing: the leaf stops
+	exactly where it was, even after a long frame gap, and resumes from there.
+
 	Tick order: (1) core events, applying collision disables (prerequisites
-	for motion); (2) poses; (3) collision restores, carried out only when the
+	for motion) and held rebases; (2) poses; (3) collision restores, carried out only when the
 	leaf's closed pose (angle 0) is CONFIRMED by a successful pose and the
 	core is closed and clear. A failed final pose therefore leaves collision
 	off.
@@ -323,7 +330,7 @@ end
 -- Applies one core event BEFORE poses. Collision disables happen now (a
 -- failure faults the door, so no pose follows); collision restores are only
 -- recorded and carried out after the closed pose is confirmed (see tick).
-function DoorController:_apply(event)
+function DoorController:_apply(event, now)
 	local reg = self.byCore[event.id]
 	if reg == nil then
 		return
@@ -335,6 +342,12 @@ function DoorController:_apply(event)
 		reg.pendingRestore = false
 		if not self:_call(reg, "setCollision", false) then
 			self:_fault(reg, "could not disable collision")
+		elseif kind == "held" then
+			-- The core holds at its THEORETICAL progress for `now`; the leaf is
+			-- physically at the last applied angle, and this tick's blocked or
+			-- unknown scan authorises no further movement. Rebase the core
+			-- onto the applied angle before any pose, so the leaf stays put.
+			self.core:holdAt(reg.coreId, reg.angle / reg.spec.openDegrees, now)
 		end
 	end
 end
@@ -392,7 +405,7 @@ function DoorController:tick()
 	end
 	-- 1. Events: collision disables (prerequisites for motion).
 	for _, event in ipairs(self.core:update(now, coreInputs)) do
-		self:_apply(event)
+		self:_apply(event, now)
 	end
 	-- 2. Poses, then 3. collision restores only once closed is confirmed.
 	for _, reg in ipairs(self.order) do

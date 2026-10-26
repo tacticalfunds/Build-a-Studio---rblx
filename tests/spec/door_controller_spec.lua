@@ -521,4 +521,108 @@ return function(T, H)
 		T.eq(env.last("setCollision").value, true, "restored once the driver works")
 		T.eq(reg.faulted, false)
 	end)
+
+	-- Review of a02d970: a newly blocked or unknown scan must not advance the physical leaf before holding.
+	local STOPPERS = {
+		{ name = "blocked", set = function(env) env.input = function() return BLOCKED_NEAR end end },
+		{ name = "scan raises", set = function(env) env.input = function() error("scan unavailable") end end },
+		{ name = "sensing call fails", set = function(env) env.scanError = true end },
+		{ name = "missing entry", set = function(env) env.input = function() return nil end end },
+		{ name = "malformed entry", set = function(env) env.input = function() return { nearby = true } end end },
+		{ name = "extra key", set = function(env) env.input = function() return { nearby = true, occupied = false, blocked = false, x = 1 } end end },
+	}
+	local function clearAll(env, value)
+		env.scanError = false
+		env.input = function() return value end
+	end
+
+	T.test("opening: a blocked or unknown scan stops the leaf at its last APPLIED angle (no advance), then clear resumes from there", function()
+		for _, stopper in ipairs(STOPPERS) do
+			local env = setup()
+			local reg = env.controller:attach({}, "i1", record(), false)
+			env.input = function() return NEAR end
+			env.tick(0); env.tick(0.15)
+			T.ok(near(reg.angle, 22.5), stopper.name)
+			local poses = env.count("pose")
+			stopper.set(env)
+			env.tick(0.3) -- fresh scan: blocked / unknown
+			T.ok(near(reg.angle, 22.5), stopper.name .. ": applied angle stays 22.5, not 45")
+			T.eq(env.count("pose"), poses, stopper.name .. ": no pose sent")
+			local st = env.core:state(reg.coreId, 0.3)
+			T.eq(st.phase, "held", stopper.name)
+			T.ok(near(st.progress, 0.25), stopper.name .. ": core rebased to the applied angle")
+			for t = 1, 4 do env.tick(0.3 + t * 0.25) end
+			T.ok(near(reg.angle, 22.5), stopper.name .. ": stays put while blocked/unknown")
+			clearAll(env, NEAR)
+			env.tick(1.55)
+			local resume = env.core:state(reg.coreId, 1.55)
+			T.eq(resume.phase, "opening", stopper.name)
+			env.tick(1.7) -- 0.15 s of travel from 0.25 progress
+			T.ok(near(reg.angle, 45), stopper.name .. ": resumes from 22.5 (22.5 + 22.5), not from a phantom 45")
+			env.tick(2.3)
+			T.ok(near(reg.angle, 90), stopper.name .. ": then completes")
+		end
+	end)
+
+	T.test("closing: a blocked or unknown scan stops the leaf at its last applied angle; clear resumes closing from there", function()
+		for _, stopper in ipairs(STOPPERS) do
+			local env = setup()
+			local reg = env.controller:attach({}, "i1", record(), false)
+			env.input = function() return NEAR end
+			env.tick(0); env.tick(0.6)
+			env.input = function() return CLEAR end
+			env.tick(1); env.tick(3) -- closing starts
+			env.tick(3.15)
+			T.ok(near(reg.angle, 67.5), stopper.name)
+			stopper.set(env)
+			env.tick(3.3)
+			T.ok(near(reg.angle, 67.5), stopper.name .. ": applied angle stays 67.5, not 45")
+			T.ok(near(env.core:state(reg.coreId, 3.3).progress, 0.75), stopper.name .. ": core rebased")
+			T.eq(env.last("setCollision").value, false, stopper.name .. ": collision stays off")
+			clearAll(env, CLEAR)
+			env.tick(3.55)
+			T.eq(env.core:state(reg.coreId, 3.55).phase, "closing", stopper.name)
+			env.tick(3.7)
+			T.ok(near(reg.angle, 45), stopper.name .. ": resumes from 67.5")
+			env.tick(4.1)
+			T.ok(near(reg.angle, 0), stopper.name .. ": closes")
+			T.eq(env.last("setCollision").value, true, stopper.name .. ": collision restored after the confirmed close")
+		end
+	end)
+
+	T.test("long frame gap: a stopper seen after a long gap still leaves the leaf at its last applied angle", function()
+		for _, phase in ipairs({ "opening", "closing" }) do
+			for _, stopper in ipairs(STOPPERS) do
+				local env = setup({ core = { maxDoors = 300, openSeconds = 4, closeSeconds = 4 } })
+				local reg = env.controller:attach({}, "i1", record(), false)
+				env.input = function() return NEAR end
+				env.tick(0)
+				local base = 0
+				if phase == "closing" then
+					env.tick(4)
+					env.input = function() return CLEAR end
+					env.tick(5); env.tick(7)
+					base = 7
+				end
+				env.tick(base + 0.5)
+				local applied = reg.angle
+				T.ok(applied > 0 and applied < 90, phase .. "/" .. stopper.name)
+				stopper.set(env)
+				env.tick(base + 3) -- a 2.5 s frame gap: theoretical progress moved a lot
+				T.ok(near(reg.angle, applied), phase .. "/" .. stopper.name .. ": no jump across the gap")
+				T.ok(near(env.core:state(reg.coreId).progress * 90, applied), phase .. "/" .. stopper.name .. ": core agrees with the applied angle")
+			end
+		end
+	end)
+
+	T.test("clear paths still move normally, including across a frame gap", function()
+		local env = setup()
+		local reg = env.controller:attach({}, "i1", record(), false)
+		env.input = function() return NEAR end
+		env.tick(0)
+		env.tick(0.45) -- one long gap with clear input: motion was authorised
+		T.ok(near(reg.angle, 67.5))
+		env.tick(0.6)
+		T.ok(near(reg.angle, 90))
+	end)
 end

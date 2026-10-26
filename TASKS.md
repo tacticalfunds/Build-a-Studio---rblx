@@ -1466,3 +1466,12 @@ Make the assets already used in the six existing rooms available in the Build dr
     - **387 passed, 0 failed** in total.
     - Mutations reverting each fix fail tests. One defensive guard (a restore requested without a confirmed closed pose) is unreachable through public paths, so its mutation survives by design.
   - Counts unchanged (live and repository 67).
+- Panel door runtime: held events stop at the applied angle (still **DORMANT**). The review of a02d970 accepted the final-close and recovery fixes, but two more probes failed (389/2): a newly blocked or unknown scan still advanced the leaf once (22.5 to 45) before holding, because the core's `held` samples its theoretical progress at `now`.
+  - **Fix:** on a `held` event the controller rebases the core onto the last applied angle (`DoorAutoOpen:holdAt`) before any pose, so the leaf stays exactly where it was and resumes from there. The pure core now documents that runtimes posing in discrete steps must do this rebase.
+  - **Tests:** 4 new, checking the applied angle and the core's rebased progress, not just phase:
+    - opening and closing, each with blocked, a raising scan, a failing sensing call, a missing entry, a malformed entry and an extra-key entry, then clear resumption from the real angle;
+    - long frame gaps (2.5 s at a 4 s travel) for every one of those, while opening and while closing;
+    - clear motion across a frame gap still moving normally.
+    - **391 passed, 0 failed** in total.
+    - Removing the rebase fails all three stopper tests.
+  - Counts unchanged (live and repository 67).

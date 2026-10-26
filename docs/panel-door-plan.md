@@ -3,6 +3,7 @@
 **Status:**
 - The design checkpoint (85025c9) was accepted with corrections.
 - The foundation (8275097) wasn't accepted; its corrections (a65d89c) were accepted.
+- The collision-ordering and recovery fix (a02d970) was accepted for those cases. Two more probes then failed: a newly blocked or unknown scan still advanced the leaf once before holding. This is corrected in the following commit.
 - The runtime corrections (4e61869) were reviewed and **not accepted**: two probes failed (collision restored before the closed pose was confirmed, and recovery advancing the leaf without a scan). Both are corrected in the following commit.
 - The first runtime (e49842c) was reviewed and **not accepted for activation**. Three regressions failed (replacement capacity, cached scans reused after an edit, driver faults ignored), plus an adapter finding (non-solid parts blocking, axis-aligned floor top). All are corrected in the following commit.
 - **The runtime layer is now implemented, tested and DORMANT:**
@@ -117,6 +118,7 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
   - rollback keeps the old set intact.
 - **Poses:** each tick, the pose is `openDegrees` × the core's linear progress at `now`. There are no tweens and no completion callbacks. `reg.angle` is the last angle the driver **accepted**, so a failed pose is retried rather than hidden.
 - **Scans:** sensing runs at `scanInterval` over doors that are neither frozen nor faulted. Results older than `maxInputAge` count as unknown. **A door's cached input is discarded on `beginEdit`, `moved`, `cancelEdit` and `thaw`**, so after any edit it holds still until a fresh scan at its new pose. Scan results are filtered to the doors actually scanned.
+- **Held events:** the core's `held` (from blocked or unknown input mid-motion) reports its **theoretical** progress at `now`. The controller immediately rebases the core onto the **last applied** angle (`DoorAutoOpen:holdAt`) before posing. So a newly blocked, failed, missing or malformed scan never advances the leaf, even after a long frame gap, and clear motion resumes from the real angle. This runtime-rebase contract is documented in the pure core.
 - **Collision:** turned off on every motion, hold or reset event. Each tick runs in a fixed order:
   1. core events, applying collision **disables**;
   2. poses;
