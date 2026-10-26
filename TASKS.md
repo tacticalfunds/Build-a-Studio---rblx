@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 58 installed in total (40 furniture, 18 structure; see task 11 for the water dispenser; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 59 installed in total (41 furniture, 18 structure; see task 11 for the water dispenser and the tall floor plant; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (1 installed: the water dispenser; 1 more registered with integration pending: the tall floor plant; 12 gap-audit entries pending in all)
+## 11. Existing room assets in Build (user request): In progress (2 installed: the water dispenser and the tall floor plant; 11 gap-audit entries remaining)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -905,3 +905,19 @@ Make the assets already used in the six existing rooms available in the Build dr
     - floor placement with the measured bounds: in a corner, the X overhang unless turned 90°, and the 24-stud height limit;
     - it's listed last in Cozy, Retro and 1980s > Plants, and never in Winter, Futuristic or Structure mode.
     - No UI or runtime code changed.
+- 59-item verified installation checkpoint (Codex, 2026-10-26; supersedes the "integration pending" notes in the tall floor plant entry above, which are left as written as history):
+  - **Review:** Codex reran the archive of 30e58c1 independently: 319 tests passed, 0 failed.
+  - **Installed:** `studio_tall_floor_plant_01` is in `StudioBuilderTemplates` and the live Catalog. **Installed total: 59** (41 furniture, 18 structure).
+  - **Checks:**
+    - a fresh Catalog/TemplateCatalog probe: 59 entries, 59 templates, 59 valid, 0 invalid;
+    - real Play client BuilderRequest Place, Rotate and Delete all succeeded; the test copy was removed, and Studio returned to Edit.
+  - **Not done:** physical UI clicks and the R key. The original room is unchanged.
+  - **No registered-but-uninstalled items:** the repository and the live install both hold 59.
+  - **Tallies:**
+    - task 11: 2 installed (the water dispenser and the plant), 11 gap-audit entries remaining;
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Backup:** `StudioBuilder-FullBackup-59Items-2026-10-26-0156.rbxl`, 4,143,330 bytes, SHA256 `96D1A865DD301CA79F0C1F7C8BC92621EA1E0529BBA21EA8DD9123469D6EA605`.
+    - The `<roblox!` header is valid; restore is not tested.
+    - It includes the plant's new prepared, template and review copies.
+    - Earlier backups are kept. It is local only and not uploaded.
+  - The historical registration manifest is unchanged.
