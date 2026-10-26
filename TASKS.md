@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 59 installed in total (41 furniture, 18 structure; 1 more registered, repository 60, integration pending: the conference table; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 60 installed in total (42 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (2 installed: the water dispenser and the tall floor plant; 11 gap-audit entries remaining, one of them, the conference table, registered with integration pending)
+## 11. Existing room assets in Build (user request): In progress (3 installed: the water dispenser, the tall floor plant and the conference table; 10 gap-audit entries remaining)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -951,3 +951,20 @@ Make the assets already used in the six existing rooms available in the Build dr
       - a refused off-step yaw;
     - it's listed last in Cozy, 1980s and Futuristic > Tables, and never in Retro, Winter or Structure mode.
     - No UI or runtime code changed.
+- 60-item verified installation checkpoint (Codex, 2026-10-26; supersedes the "integration pending" notes in the conference table entry above, which are left as written as history):
+  - **Review:** Codex reviewed dbb5ef2 and ran its archive independently: 320 passed, 0 failed.
+  - **Installed:** `studio_conference_table_01` is in the live Catalog and `StudioBuilderTemplates`. **Installed total: 60** (42 furniture, 18 structure).
+  - **Checks:**
+    - a fresh probe: 60 entries, 60 templates, 60 valid, 0 invalid;
+    - real Play client BuilderRequest Place at local (0, 0, 0, yaw 0), Rotate direction 1, and Delete succeeded (revisions 1, 2 and 3), and the test copy was removed;
+    - back in Edit, persistence was verified.
+  - **Not done:** a physical UI-click or R-key test. The original room is untouched, and the table is decorative, with no seats included.
+  - **No registered-but-uninstalled items:** the repository and the live install both hold 60.
+  - **Tallies:**
+    - task 11: 3 installed (the water dispenser, the tall floor plant and the conference table), 10 gap-audit entries remaining;
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Backup:** `StudioBuilder-FullBackup-60Items-2026-10-26-0216.rbxl`, 4,143,957 bytes, SHA256 `4325F4E1C910E27715BFA054ACE452959BAAC4AB5EA382548D617B0EEC2DC234`.
+    - The `<roblox!` header is valid; restore is untested.
+    - It includes the table's new prepared, template and review copies.
+    - Older backups are kept. It is local only and not uploaded.
+  - The historical registration manifest is unchanged.
