@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 57 installed in total (39 furniture, 18 structure; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 58 installed in total (40 furniture, 18 structure; see task 11 for the water dispenser; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (1 registered, integration pending)
+## 11. Existing room assets in Build (user request): In progress (1 installed: the water dispenser; the other 12 gap-audit entries are pending)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -864,3 +864,18 @@ Make the assets already used in the six existing rooms available in the Build dr
     - floor placement with the measured bounds: in a corner, the Z overhang unless turned 90°, and the 24-stud height limit;
     - it's listed last in Cozy > Decor and 1980s > Decor, and never in other styles or Structure mode.
     - No UI or runtime code changed.
+- 58-item install checkpoint (Codex, 2026-10-26; supersedes the "integration pending" notes in the water dispenser entry above, which are left as written):
+  - **Review:** Codex reviewed cfe56ad and ran the suite independently: 318 tests, all passing.
+  - **Installed:** live Edit now has 58 catalog entries and 58 templates (40 furniture, 18 structure); `studio_water_dispenser_01` is installed.
+  - **Checks:**
+    - all 58 probes are valid, 0 invalid;
+    - real client BuilderRequest Place at (0, 0, 0, yaw 0), Rotate direction 1, and Delete were all ok (revisions 1, 2 and 3), and the test copy was removed;
+    - Edit persistence was verified.
+  - **Not done:** a physical UI-click or R-key test. It is decorative only.
+  - **Task 11 status:** 1 installed (the water dispenser). The other 12 entries from the original gap audit are still pending, and there's no claim that all rooms are covered.
+  - **Not affected:** batch 02 stays at 6 installed, 16 pending.
+  - **Backup:** a new full-place backup, `StudioBuilder-FullBackup-58Items-2026-10-26-0136.rbxl`, 4,142,820 bytes, SHA256 `7005A6253149CD60D2926153EEA787EF0989A592AD6C731F3D09E786A688D8A3`.
+    - The file and its `<roblox!` header are verified; restore is untested.
+    - It includes the dispenser's prepared, template and review copies.
+    - Earlier backups are kept. It is local only and not uploaded.
+  - The historical manifests are unchanged.
