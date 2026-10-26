@@ -416,6 +416,15 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
   - Not registered, not Build-ready. This entry doesn't start any other implementation, and the queue order is unchanged.
   - **Still pending Studio integration:** the 9 structure variants (caf7115) and the rotation change (14933b6).
 
+- Catalog hunt batch 03 (2026-10-26; **inventory only**: documentation, nothing imported or registered, no runtime change):
+  - **Archived:** `docs/assets/Catalog_Hunt_Batch03_2026-10-26.json`, verbatim, and indexed in `docs/assets/README.md`.
+  - **Review:** 48 search results, 16 previews visually reviewed, 12 shortlisted, 4 rejected.
+  - **Shortlist by proposed type:** 3 walls (2 glass partitions, a wood-slat feature wall), 3 decor (curtains, 2 radiators), 2 storage (sideboards), 1 audio (road cases), 1 seating (wingback armchair), 1 ceiling (tiles), 1 door.
+  - **Status:** thumbnail review only. Not imported, not script-audited, not placement-tested, not registered, not Build-ready.
+  - **Checked on archive:** the JSON parses; the IDs are unique; the links match the IDs; none of the 16 IDs appears elsewhere in the repository docs, source or status files.
+  - **Batch 02** keeps its status: candidates only, with prepared-copy persistence unverified until Studio is back in Edit.
+  - **Install pending:** the runtime changes through 5fcf60b (311 tests passed, independently reviewed) are still not installed. Studio stays in Play and wasn't interrupted. The queue order is unchanged.
+
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
 - UX: a Branding section on the Studio page. The host enters a Roblox image asset ID and sees a preview. They then apply it either to the whole active room's branding, or by clicking or selecting eligible individual surfaces (wall signs, screens, mugs, laptop lids). Apply and Reset per room and per surface.
