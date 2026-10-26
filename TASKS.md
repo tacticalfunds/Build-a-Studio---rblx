@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 51 installed (both new futuristic pieces passed remote Place→Rotate→Delete), 1 more registered (repository 52, install pending); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 52 installed (the 3 batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 3 installed, 19 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -511,6 +511,19 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
     - counts updated for 52 items: 38 furniture; cozy 27, retro 21, 1980s 17, winter 13; winter seating 2;
     - a new consistency test covering the manifest fields, the decorative facts, and that the prepared name matches the id for the three batch 02 pieces.
     - No UI or runtime code changed.
+- 52-item install checkpoint (Codex, 2026-10-26; supersedes the "install pending" notes in the sofa registration entry above, which are left as written):
+  - **Review:** Codex reviewed 06adb12 and ran its tests independently: 313 passed, 0 failed.
+  - **Installed:** the reviewed `Catalog` and `cozy_tufted_leather_sofa_01` in `StudioBuilderTemplates`. **Installed total: 52** (38 furniture, 14 structure).
+  - **Checks:**
+    - all 52 template probes are valid, none invalid;
+    - real client BuilderRequest Place → Rotate → Delete all succeeded in Play, and the test copy was removed;
+    - back in Edit, the 52 templates and the sofa persist.
+  - **Not done:** a physical UI-click or R-key test. The sofa is decorative only, with no Seat adapter.
+  - **Backup:** a new full local place backup via Download a Copy, `StudioBuilder-FullBackup-52Items-2026-10-25-2353.rbxl`, 4,136,547 bytes, SHA256 `50119431B1DEACB33F8514F251D8390B3503CF4FF8DC84B82DBF3BF0EF262148`.
+    - The file exists and its binary Roblox header is verified; restore is not tested.
+    - It contains the sofa's prepared copy, its template and its axis-review copies.
+    - The previous backups are kept. It is local only and not uploaded.
+  - **Batch 02:** 3 installed (speaker, layered coffee table, sofa), 19 pending. The historical manifests are unchanged.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
