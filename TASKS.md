@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 64 installed in total (46 furniture, 18 structure; 1 more registered, repository 65, installation pending: the studio softbox; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 65 installed in total (47 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (7 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug and the presentation board; 6 original gap-audit entries remaining, one of them, the studio softbox, prepared and registered with installation pending)
+## 11. Existing room assets in Build (user request): In progress (8 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board and the studio softbox; 5 original gap-audit entries remaining)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1199,3 +1199,24 @@ Make the assets already used in the six existing rooms available in the Build dr
     - counts updated: 65 items, 47 furniture; cozy 35, 1980s 25, futuristic 17; futuristic lighting 3; cozy All items 35; futuristic drawer 17;
     - one compact test covers: the catalog fields only (no light settings or adapter hooks); the key manifest facts (light disabled, room attributes removed, modified version, parent asset per the guide); the size tallest along Y, with the sideways-source normalization documented rather than the old and new axes compared; floor placement in a corner, the Z overhang unless turned, and the height limit; and last in Cozy, 1980s and Futuristic > Lighting.
     - No UI or runtime code changed.
+- 65-item verified installation checkpoint (Codex, Studio Experience `132242140555698`, 2026-10-26). This is installation evidence. It supersedes the "installation pending" and "pending after review" notes in the softbox registration entry above, which stay as written as history:
+  - **Review:** Codex reviewed a64eb15 and ran all tests independently: 325 passed, 0 failed.
+  - **Installed:** `studio_softbox_01` was installed in Edit, with the Catalog guarded against the previous 64-item source. **Installed total: 65** (47 furniture, 18 structure).
+  - **Catalog backup:** `ServerStorage.BuilderIntegrationBackups.Catalog_Before65_20261026_0355`.
+  - **Checks:**
+    - fresh probes before and after Play: 65 catalog entries, 65 templates, 65 valid, 0 invalid, 0 not installed;
+    - real BuilderRequest Play checks all succeeded: Status (revision 0), Place `i1` (revision 1), Rotate `i1` (revision 2), Delete `i1` (revision 3);
+    - server measurements: 25 parts, 1 disabled light, 0 Studio/Podcast descendant attributes, minimum Y 0, size [2.6021881103515627, 7.910927295684815, 3.657658576965332];
+    - **the light was still disabled after rotation;**
+    - back in Edit, persistence was verified and zero test items remain.
+  - **Scope:** these are remote/server checks, not physical mouse or R-key UI tests. The softbox is decorative only; a builder lighting adapter is still pending.
+  - **No registered-but-uninstalled items:** repository 65 = live 65. The wider queue isn't finished.
+  - **Tallies:**
+    - task 11: 8 installed (the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board and the studio softbox), 5 original gap-audit entries remaining;
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Backup (new latest):** `StudioBuilder-FullBackup-65Items-2026-10-26-0357.rbxl`, 4,152,323 bytes, SHA256 `DCD1A49520B4529154F1ECCA4FBAA17BCD9F5FBBAA7D07DF33B32EA7D64CFA0C`.
+    - The `<roblox!` header is verified; restore is untested.
+    - It includes the softbox's prepared, review and installed copies.
+    - Earlier backups are kept. It is local only.
+  - **Index correction:** the gap-audit file row no longer makes the blanket "not extracted" claim about all 13 objects. It now points to the current tally of 8 installed and 5 unextracted, and the audit JSON is unchanged.
+  - The historical registration manifest is unchanged.
