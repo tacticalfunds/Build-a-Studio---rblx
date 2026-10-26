@@ -2,6 +2,7 @@
 
 **Status:**
 - The design checkpoint (85025c9) was accepted with corrections.
+- The foundation (8275097) was reviewed and **not accepted for integration**. Four state-machine defects were found (token reuse, invalid first clock, lenient input, the reopen bypass); they are fixed in the following commit.
 - The **pure foundation** is now implemented and tested: `src/shared/DoorGeometry.luau` and `src/server/Core/DoorAutoOpen.luau`.
 - **No live entry point, catalog entry, template, runtime, UI or save-schema change references them yet**, and a test enforces that.
 - Nothing here is claimed to work in Studio.
@@ -42,30 +43,35 @@
   - So even an inward-swinging door on an outer edge needs bounds about 0.015 larger than a 49 marker. That's recorded as a finding for the module build: recessing the leaf or the frame would remove it.
 - **Tests:** the corners are sampled every 0.25° across 0..90° and checked inside the box, which is also tight to within 1e-3. The 45°, 120° and 180° arcs and a mirrored hinge are sampled too. All four cardinal yaws are checked against an independent CFrame-convention transform. A mutation that drops the arc extremes fails 5 tests, and one that ignores thickness fails 3.
 
-## Auto-open state machine (corrections 2 and 3)
+## Auto-open state machine (corrections 2 and 3, revised after the review of 8275097)
 
 `DoorAutoOpen` is pure, with a fake clock. Per door it tracks a phase (`closed`, `opening`, `open`, `closing`, `held`), a progress value (0 = closed, 1 = open), whether it's collidable, and a motion token.
 
-**Inputs per door, supplied by the runtime adapters:**
+**Inputs per door, supplied by the runtime adapters:** a table with **exactly** these three booleans:
 - `nearby`: a living player is close enough to want it open.
 - `occupied`: an avatar is in the doorway or the leaf's sweep.
-- `blocked`: a solid obstruction is in the sweep. The door's own Frame and Leaf and the floor don't count.
+- `blocked`: a solid obstruction is anywhere in the sweep, other than the door's own parts and its supporting floor.
 
-A missing or malformed input counts as **blocked**: the door holds still and nothing moves on unsupplied data.
+Anything else is **unknown**: a missing input, wrong types, missing keys or extra keys.
 
-**Rules:**
-- **Closed:** blocked → stay shut, even if someone is near (no slicing through furniture). Otherwise nearby → open. Closed collision comes back **only** when the doorway is neither occupied nor blocked.
-- **Opening:** collision is off. A fresh opening **holds** where it is when blocked. A reopen that reverses a closing retraces space the leaf just swept, so it keeps going.
-- **Open:** nearby, occupied or blocked → stay open, however long. Otherwise it closes after `exitDelay` seconds of being clear (2 s by default).
-- **Closing:** collision is off. Nearby, occupied or blocked → **reopen from the current progress**, with a proportional duration. Otherwise it finishes closed, with collision on (it's clear).
-- **Held:** blocked → stay. Otherwise it resumes toward open (if nearby or occupied) or toward closed.
+**Safety rule:** the leaf only moves when the whole sweep is known clear, which means a valid input with `blocked = false`.
+- **Unknown or blocked input never starts, continues or reverses a motion.** A moving leaf stops where it is (`held`, collision off). A closed, open or held leaf stays put, and an open leaf's exit timer restarts. Closed collision is never restored on unknown input.
+- The whole-sweep `blocked` flag can't tell the opening path from the closing path, so a blocked door holds rather than guessing. The earlier "reverse retraces space it just swept" bypass was **removed**: "clear earlier" doesn't prove the return path is clear now.
+
+**With valid, unblocked input:**
+- **Closed:** nearby → open. Otherwise closed collision is restored once the doorway isn't occupied.
+- **Opening:** finish at full travel. Avatars aren't solid, and collision is off.
+- **Open:** nearby or occupied → stay open. Otherwise close after `exitDelay` seconds of being clear (2 s by default).
+- **Closing:** nearby or occupied → reopen from the current progress (the return path is known clear). Otherwise finish closed, with collision on.
+- **Held:** nearby or occupied → open. Otherwise close. Either way it resumes from where it stopped.
 
 **Guarantees:**
-- `update()` returns **at most one event per door**, in insertion order, with at most 150 doors.
-- Motions finish by the clock (with a 1e-9 tolerance) or via `complete(id, token)` from a runtime tween.
-- **Stale tokens are ignored** after a reversal, hold, reset or remove, so an old callback can't move a door.
-- `reset(id)` snaps it closed and invalidates in-flight motions. Collision then waits for a clear update. `remove(id)` drops all its state.
-- The clock ignores non-finite or backwards time.
+- **Tokens** come from one counter shared by every door and are **never reused, even across remove and re-add of the same id**. So an old tween callback can't complete a replacement registration (undo, reconcile).
+- `complete(id, token)` accepts only the current motion's token. Reversal, hold, reset and remove all invalidate earlier tokens.
+- **Clock:** nothing happens before the first finite `now`. A nil, NaN or infinite `now` makes `update` a no-op and stores no motion; an earlier finite time is clamped.
+- At most one event per door per update, in insertion order, with at most 150 doors.
+- Motions finish by the clock (with a 1e-9 tolerance) or via `complete`.
+- `reset(id)` snaps it closed with collision waiting for a clear update. `remove(id)` drops its state.
 
 **This is not a security lock.** Auto doors open for any living player nearby.
 
@@ -74,7 +80,7 @@ A missing or malformed input counts as **blocked**: the door holds still and not
 | Adapter | Contract |
 |---|---|
 | **Nearby scan** (server) | Each tick, scan only **live characters in the current sandbox**: a Humanoid with Health > 0, a root part present, and its position **finite** and inside the sandbox bounds plus a small margin. Measure room-space distance to each door's opening centre; `nearby` means within about 6 studs. Bound the scan: players × doors, at most 150 doors, at 4 Hz. No client input is involved, but positions are still validated. |
-| **Occupancy and obstruction** (server, later) | Query the room-space `sweptBox` (plus the doorway opening box) for overlapping parts. Exclude the door's own `Frame` and `Leaf`, the floor and structure pieces. Parts of a living character's model count as `occupied`; other solid parts (placed furniture, other structure) count as `blocked`. Until this adapter exists, the runtime must pass `blocked = true` for a door it can't check, which holds it still. |
+| **Occupancy and obstruction** (server, later) | Query the room-space `sweptBox` (plus the doorway opening box) for overlapping parts. Exclude **only** the owning door model (its own surround, `Frame` and `Leaf`) and the floor piece directly supporting it, where it merely touches at the sill. **Adjacent walls and any other structure are not globally ignored:** anything that actually intrudes into the sweep counts. Parts of a living character's model count as `occupied`; every other solid part (placed furniture, other structure) counts as `blocked`. If the scan can't run or returns bad data, the runtime must pass an **unknown** input (for example, omit it), which holds the door still. |
 | **Leaf driver** (server) | Handles each event. **opening / closing / held:** tween the Leaf's pivot about the hinge from the event's progress, with collision off. **opened / closed:** final pose. **collision** and **closed with collide = true:** restore the leaf's closed collision. **snapClosed:** cancel the tween, then pivot to closed. Report tween completion with `complete(id, token)`. Always compute poses from the stored module pivot and hinge. |
 | **Lifecycle hook** (PlacedItemsWorld) | Before a door-affecting `apply` (move, remove, replace) and on `rollback` and `reconcile`, cancel its tween and call `reset(id)`, so the edit works on a closed leaf at the stored pivot. On a spawn `commit`, `add(id)` (it starts closed); on a remove `commit`, `remove(id)`. A rolled-back spawn never `add`s; a rolled-back remove keeps the door, already reset. Duplicate and load spawn closed. |
 | **Persistence** | Nothing. Door state never enters SaveSnapshot, BuildModel, history or revisions. |

@@ -8,34 +8,45 @@
 		opening  moving toward 1 (collision off)
 		open     at rest open (collision off)
 		closing  moving toward 0 (collision off)
-		held     stopped part-way by a solid obstruction (collision off)
+		held     stopped part-way because motion could not be proven safe (collision off)
 
 	update(now, inputs) reads one input per door, inputs[id] = {
-		nearby   = true when a living player is close enough to want it open,
-		occupied = true when an avatar is in the doorway or the leaf's sweep,
-		blocked  = true when a solid obstruction (not the door's own parts or
-		           the floor) is in the leaf's sweep,
-	}. A missing or malformed input is treated as blocked (hold still):
-	nothing moves on data the adapter did not supply.
+		nearby   = boolean: a living player is close enough to want it open,
+		occupied = boolean: an avatar is in the doorway or the leaf's sweep,
+		blocked  = boolean: a solid obstruction (not the door's own parts or its
+		           supporting floor) is anywhere in the leaf's sweep,
+	}. The input is VALID only when it is a table holding exactly these three
+	booleans. Anything else (missing, wrong types, extra keys) is UNKNOWN.
 
-	Rules:
-	* closed: blocked -> stay closed; else nearby -> open. Closed collision
-	  comes back only when neither occupied nor blocked.
-	* opening: a fresh opening (from closed or held-closing) holds where it
-	  is when blocked; a reopen that reverses a closing retraces space the
-	  leaf has just swept, so it keeps going. Either finishes at full travel.
-	* open: nearby, occupied or blocked -> stay open; else close after
-	  exitDelay seconds of being clear.
-	* closing: nearby, occupied or blocked -> reopen from where it is; else
-	  finish closed (with collision, since it is clear).
-	* held: blocked -> stay; else reopen if nearby or occupied, otherwise close.
+	Safety rule: the leaf only moves when the whole sweep is known clear of
+	solid obstructions, i.e. a valid input with blocked = false. Unknown or
+	blocked input never starts, continues or reverses a motion:
+	* a moving leaf stops where it is (held, collision off);
+	* a closed, open or held leaf stays put; an open leaf's exit timer restarts;
+	* closed collision is never restored on unknown input.
+	The whole-sweep `blocked` flag cannot tell the opening path from the
+	closing path, so a blocked door holds rather than guessing which way is
+	clear.
+
+	With valid, unblocked input:
+	* closed: nearby -> open; otherwise restore closed collision once the
+	  doorway is not occupied.
+	* opening: finish at full travel (avatars are not solid; collision is off).
+	* open: nearby or occupied -> stay open; otherwise close after exitDelay
+	  seconds of being clear.
+	* closing: nearby or occupied -> reopen from where it is (the return path
+	  is known clear); otherwise finish closed, with collision.
+	* held: nearby or occupied -> open; otherwise close.
 	Motions finish by the clock at t0 + duration (within TOLERANCE), so float
 	rounding never leaves a leaf a hair short of its end.
 
-	Each motion has a token. complete(id, token, now) lets a runtime tween
-	report it finished; stale tokens (after a reversal, hold, reset or remove)
-	are ignored, so an old callback can never move a door. update() also
-	finishes motions by the clock. Every call returns at most one event per
+	Clock: nothing happens until the first finite `now`. A non-finite `now`
+	makes update() a no-op; an earlier finite `now` is clamped to the last one.
+
+	Tokens are drawn from one counter shared by every door and never reused,
+	not even when an id is removed and added again. complete(id, token, now)
+	accepts only the current motion's token, so an old callback can never move
+	a door or its replacement. Every update returns at most one event per
 	door, in insertion order: { kind, id, token, ... } with kind one of
 	"opening", "opened", "closing", "closed", "held", "collision", "snapClosed".
 ]]
@@ -60,6 +71,8 @@ DoorAutoOpen.Codes = {
 }
 local Codes = DoorAutoOpen.Codes
 
+local INPUT_KEYS = { nearby = true, occupied = true, blocked = true }
+
 local function isFinite(v)
 	return type(v) == "number" and v == v and v ~= math.huge and v ~= -math.huge
 end
@@ -77,13 +90,23 @@ function DoorAutoOpen.new(config)
 	end
 	self.doors = {}
 	self.order = {}
-	self.now = -math.huge
+	self.now = nil -- no valid clock yet
+	self.lastToken = 0
 	return self
 end
 
--- Clock: finite and never moving backwards.
+-- A fresh token, unique across every door and registration.
+function DoorAutoOpen:_token()
+	self.lastToken = self.lastToken + 1
+	return self.lastToken
+end
+
+-- Returns the clock to use, or nil when no valid time is known.
 function DoorAutoOpen:_clock(now)
-	if isFinite(now) and now > self.now then
+	if not isFinite(now) then
+		return nil
+	end
+	if self.now == nil or now > self.now then
 		self.now = now
 	end
 	return self.now
@@ -99,7 +122,7 @@ function DoorAutoOpen:add(id)
 	if #self.order >= self.maxDoors then
 		return nil, Codes.TooMany
 	end
-	self.doors[id] = { phase = "closed", progress = 0, token = 0, collidable = true }
+	self.doors[id] = { phase = "closed", progress = 0, token = self:_token(), collidable = true }
 	self.order[#self.order + 1] = id
 	return true
 end
@@ -120,23 +143,27 @@ end
 
 function DoorAutoOpen:_progress(door, now)
 	local m = door.motion
-	if m == nil then
+	if m == nil or now == nil then
 		return door.progress
 	end
 	local seconds = (m.to > m.from) and self.openSeconds or self.closeSeconds
-	local moved = (now - m.t0) / seconds
+	local moved = math.max(0, now - m.t0) / seconds
 	if m.to > m.from then
 		return math.min(m.to, m.from + moved)
 	end
 	return math.max(m.to, m.from - moved)
 end
 
-function DoorAutoOpen:_start(id, door, to, now, retreat)
+function DoorAutoOpen:_done(door, now)
+	return now >= door.motion.t0 + door.motion.duration - DoorAutoOpen.TOLERANCE
+end
+
+function DoorAutoOpen:_start(id, door, to, now)
 	local from = self:_progress(door, now)
 	local seconds = (to == 1) and self.openSeconds or self.closeSeconds
 	local duration = math.abs(to - from) * seconds
-	door.token = door.token + 1
-	door.motion = { from = from, to = to, t0 = now, duration = duration, retreat = retreat == true }
+	door.token = self:_token()
+	door.motion = { from = from, to = to, t0 = now, duration = duration }
 	door.progress = from
 	door.phase = (to == 1) and "opening" or "closing"
 	door.collidable = false
@@ -157,35 +184,45 @@ function DoorAutoOpen:_finish(id, door, collide)
 	return { kind = "closed", id = id, token = door.token, collide = collide }
 end
 
-function DoorAutoOpen:_done(door, now)
-	return now >= door.motion.t0 + door.motion.duration - DoorAutoOpen.TOLERANCE
-end
-
 function DoorAutoOpen:_hold(id, door, now)
 	door.progress = self:_progress(door, now)
 	door.motion = nil
-	door.token = door.token + 1
+	door.token = self:_token()
 	door.phase = "held"
+	door.collidable = false
 	return { kind = "held", id = id, token = door.token, progress = door.progress }
 end
 
+-- Returns valid, nearby, occupied, blocked.
 local function readInput(input)
 	if type(input) ~= "table" then
-		return false, false, true
+		return false
 	end
-	local nearby = input.nearby == true
-	local occupied = input.occupied == true
-	local blocked = input.blocked ~= false
-	return nearby, occupied, blocked
+	for key in pairs(input) do
+		if not INPUT_KEYS[key] then
+			return false
+		end
+	end
+	if type(input.nearby) ~= "boolean" or type(input.occupied) ~= "boolean" or type(input.blocked) ~= "boolean" then
+		return false
+	end
+	return true, input.nearby, input.occupied, input.blocked
 end
 
 function DoorAutoOpen:_step(id, door, now, input)
-	local nearby, occupied, blocked = readInput(input)
+	local valid, nearby, occupied, blocked = readInput(input)
 	local phase = door.phase
-	if phase == "closed" then
-		if blocked then
-			return nil
+	-- Unknown or blocked: no motion may start, continue or reverse.
+	if not valid or blocked then
+		if phase == "opening" or phase == "closing" then
+			return self:_hold(id, door, now)
 		end
+		if phase == "open" then
+			door.clearSince = nil
+		end
+		return nil
+	end
+	if phase == "closed" then
 		if nearby then
 			return self:_start(id, door, 1, now)
 		end
@@ -195,15 +232,12 @@ function DoorAutoOpen:_step(id, door, now, input)
 		end
 		return nil
 	elseif phase == "opening" then
-		if blocked and not door.motion.retreat then
-			return self:_hold(id, door, now)
-		end
 		if self:_done(door, now) then
 			return self:_finish(id, door, false)
 		end
 		return nil
 	elseif phase == "open" then
-		if nearby or occupied or blocked then
+		if nearby or occupied then
 			door.clearSince = nil
 			return nil
 		end
@@ -213,26 +247,26 @@ function DoorAutoOpen:_step(id, door, now, input)
 		end
 		return nil
 	elseif phase == "closing" then
-		if nearby or occupied or blocked then
-			return self:_start(id, door, 1, now, true)
+		if nearby or occupied then
+			return self:_start(id, door, 1, now)
 		end
 		if self:_done(door, now) then
 			return self:_finish(id, door, true)
 		end
 		return nil
 	elseif phase == "held" then
-		if blocked then
-			return nil
-		end
 		return self:_start(id, door, (nearby or occupied) and 1 or 0, now)
 	end
 	return nil
 end
 
 -- Advances every door. inputs: { [id] = { nearby, occupied, blocked } }.
--- Returns a list with at most one event per door.
+-- Returns a list with at most one event per door; empty until a valid clock.
 function DoorAutoOpen:update(now, inputs)
 	now = self:_clock(now)
+	if now == nil then
+		return {}
+	end
 	if type(inputs) ~= "table" then
 		inputs = {}
 	end
@@ -247,7 +281,7 @@ function DoorAutoOpen:update(now, inputs)
 end
 
 -- A runtime tween finished. Only the current motion's token is accepted.
--- Collision is not restored here (no inputs); the next update does that.
+-- Collision is not restored here (no inputs); the next valid update does that.
 function DoorAutoOpen:complete(id, token, now)
 	local door = self.doors[id]
 	if door == nil or door.motion == nil or token ~= door.token then
@@ -258,15 +292,15 @@ function DoorAutoOpen:complete(id, token, now)
 end
 
 -- Snap closed now (before any edit to the door: move, rotate, delete,
--- rollback, reload). Invalidates in-flight motions. Collision returns only
--- once a later update sees the doorway clear.
+-- rollback, reconcile, reload). Invalidates in-flight motions. Collision
+-- returns only once a later valid update sees the doorway clear.
 function DoorAutoOpen:reset(id, now)
 	local door = self.doors[id]
 	if door == nil then
 		return nil, Codes.Unknown
 	end
 	self:_clock(now)
-	door.token = door.token + 1
+	door.token = self:_token()
 	door.motion = nil
 	door.progress = 0
 	door.phase = "closed"
@@ -281,7 +315,10 @@ function DoorAutoOpen:state(id, now)
 	if door == nil then
 		return nil
 	end
-	local t = isFinite(now) and math.max(now, self.now) or self.now
+	local t = self.now
+	if isFinite(now) and (t == nil or now > t) then
+		t = now
+	end
 	return {
 		phase = door.phase,
 		progress = self:_progress(door, t),

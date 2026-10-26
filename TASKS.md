@@ -1380,3 +1380,18 @@ Make the assets already used in the six existing rooms available in the Build dr
   - **Not exercised:** anything in Studio (tweens, pivots, physics, collision), the character and overlap adapters, the module itself, catalog registration, the placement integration, the PlacedItemsWorld hook, and avatar walk-through.
   - **Asset index fix:** the remaining-objects lines now say the panel door is extracted and prepared but not registered, rather than "unextracted".
   - **Counts unchanged:** live and repository 67; task 11 at 10 installed, 3 remaining; batch 02 at 6 installed, 16 pending.
+- Panel door foundation corrections (repository code; still **not wired, not registered, not installed**). The review of 8275097 confirmed the geometry and the no-live-reference guard, but found 4 state-machine defects, so the foundation was not accepted for integration. Fixed in `DoorAutoOpen`:
+  1. **Token reuse across remove and re-add:** tokens now come from one counter shared by every door and are never reused, so an old callback can't complete a replacement registration.
+  2. **Invalid first clock:** nil, NaN or infinite time makes `update` a no-op with no stored motion until the first finite time. `reset` and `complete` store no clock either.
+  3. **Malformed input:** a valid input is a table with exactly three booleans. Anything else is unknown and holds: a moving leaf stops (held, collision off), an open door never starts closing, and collision is never restored.
+  4. **Reopen bypass removed:** a solid obstruction during closing (or opening) now holds the leaf part-way for as long as it persists. Once clear it resumes the safe direction: open if someone is near or occupying, otherwise close. Avatars and returning players still reverse a closing, because the sweep is then known clear.
+  - **Plan:** the state-machine section is rewritten to match. The overlap-adapter row now excludes only the owning door model and its supporting floor at the sill; adjacent walls and other structure that intrude still count as blocking.
+  - **Tests:**
+    - 13 state-machine tests (2 more than before), with regressions for each defect;
+    - malformed and missing input checked in all five phases, 9 malformed shapes each;
+    - remove/re-add, reset and reconcile-like token sequences, and cross-door tokens;
+    - nil, NaN, ±infinity and string first clocks, with recovery;
+    - persistent blockage while closing or opening;
+    - **347 passed, 0 failed** in total;
+    - mutations that restore each defect (per-registration tokens, an accepted invalid clock, lenient input, the reopen bypass) each fail tests.
+  - **Unchanged:** DoorGeometry, StructureGrid, live code, catalog, UI and save schema. Counts unchanged (live and repository 67; task 11 at 10 installed, 3 remaining).
