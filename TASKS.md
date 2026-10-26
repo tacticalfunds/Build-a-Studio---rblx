@@ -29,9 +29,9 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | **49 installed** (Edit-mode install after 5fcf60b; Play/UI placement of the 10 new items pending); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
+| 8 | More collection themes | 6 | **49 installed**; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
-| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (installed and remote-tested in Play; visual QA and doorway clearance pending) |
+| 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (14 pieces and R rotation installed; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending) |
 | 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | Pending: awaiting an inspected manifest |
 
 **User priority (2026-10-25): keep expanding the model catalog.** Codex prepares and inspects candidates. Each set is registered in its own bounded checkpoint (manifest, catalog entries, tests), then installed and Play-checked by Codex. The queue order above is otherwise unchanged.
@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 49 installed (Play/UI placement of the 10 new items pending); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 49 installed; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -461,7 +461,7 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
 
-## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (installed and remote-tested in Play; visual QA and doorway clearance pending)
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (14 pieces and R rotation installed; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
 Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
 - Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
   - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
@@ -565,7 +565,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - no console errors.
   - **Visual QA pending:** all world captures render white, including the original room in Edit mode. Rendering is Automatic, ViewMode None, with sane lighting; there's no confirmed cause. The GUI works and raycasts hit the correct geometry. **Visual placement, the hinge Rotate feel and doorway clearance are not approved.**
   - **Backups and place state:** Studio was returned to Edit, with no publish or merge. The full-place backup is still pending; there's a source-only backup.
-- Rotation usability (user priority, 2026-10-26; repository only, **still not installed** as of the 49-item Edit install):
+- Rotation usability (user priority, 2026-10-26). Delivered at 14933b6; **installed since** (see the rotation install entry below). Physical R-key/UI checks unverified:
   - **What changed:**
     - R and the Rotate button now turn **every** structure preview 90° (floors, ceilings, walls, window walls, doorways), and the chosen angle holds while the pointer moves. Furniture keeps 15°.
     - `StructureGrid.project` gets a backward-compatible `options.lockYaw`: the yaw picks the edge axis (0/180 X-axis, 90/270 Z-axis, same grid origin) and is kept exactly. The default nearest-edge behaviour and all server validation are unchanged.
@@ -608,4 +608,16 @@ Make the assets already used in the six existing rooms available in the Build dr
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
 - The user is browsing in Edit, so there are no Play or camera changes.
 - Acceptance (draft): the same per-manifest catalog tests as earlier registrations, with type and count updates and provenance kept out of the catalog. Studio install and Play check by Codex.
+- Rotation install and remote Play check (Codex, 2026-10-26):
+  - **Installed:** the five reviewed R-rotation files from 5fcf60b (change 14933b6): `StructureGrid`, `BuildSession`, `BuildController`, `BuildDrawer`, `PlacementPreview`.
+    - Before installing, each live source was checked against the a9bf5ba baseline, and all matched.
+    - Backups: `outputs/Rotation Backup` (local) and `ServerStorage.BuilderIntegrationBackups.Rotation_20261025_2243`.
+    - After returning to Edit, all five installed sources were verified to match staging.
+  - **Brief Play check:**
+    - the installed `BuildSession` turned a structure preview 90°, then 180°; furniture turned 15°;
+    - **all ten newly installed assets** (the classic floor lamp and the nine structure variants) passed Place → Rotate → Delete through the real client/server `BuilderRequest` remote, with every operation ok;
+    - the test copies were deleted, and Studio was returned to Edit.
+  - **Limitation:** the camera ViewportSize was 1 × 1, and automated mouse input stalled and was cancelled. So the **physical R key, the drawer UI and visual checks remain unverified**, as does **doorway avatar clearance**. No UI success is claimed.
+  - **Code:** no changes beyond the reviewed sources. The previous independent pure suite was 311/0.
+  - **Still pending:** batch 02 and batch 03 candidates, and the full-place backup.
 

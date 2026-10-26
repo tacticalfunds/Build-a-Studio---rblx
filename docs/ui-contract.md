@@ -96,6 +96,7 @@ Codex compared it with a screenshot in Play: it matches the dark/teal panel, and
 - A **Furniture | Structure** choice row sits at the top of the drawer's scroll body. It's built with `PanelTheme.button` in the same row style as the action buttons (selected = teal background with dark text).
 - In Structure mode the **existing** tab-row filter buttons are relabelled Floors / Walls / Doors / Ceilings / Windows. There's no extra tab row and no new panel, colour or font.
 - The heading description changes to "Choose a piece, then point at the floor; it snaps to the room grid." While a ghost is shown, the status line reads "Placing: snaps to the 16-stud room grid. Angle 90° [R]" for structure, or "Placing: snaps to floors and tabletops. Angle 15° [R]" for furniture.
+- **Installed (Codex, 2026-10-26):** the visual comparison of the labels and angle text is **still pending**; the Play camera viewport was 1 × 1, so no UI was seen.
 - **Rotate buttons:** the selection-row and placement-row Rotate buttons are labelled **"Rotate [R]"**, with the same button style. R turns structure previews 90° and furniture 15°.
 - The body still scrolls (AutomaticCanvasSize), and the drawer still refits and clamps as before.
 

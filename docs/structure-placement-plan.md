@@ -25,6 +25,7 @@
   - The Build drawer has a **Furniture | Structure** choice row (existing button styles; selected is teal). In Structure mode the existing filter row reads Floors / Walls / Doors / Ceilings / Windows. The style filters show furniture only.
   - The ghost is computed by `PlacementPreview` through the same `StructureGrid` and code mapping as the server, with the supplied sandbox bounds. A floor hit places a ceiling at y = 15.
   - **R or "Rotate [R]" turns every structure preview 90°** (floors, ceilings, walls, window walls and doorways). The turn holds while pointing.
+    - **Installed** (Codex, 2026-10-26): the installed BuildSession turned a structure preview 90° then 180° and furniture 15° in Play. The physical R key, the UI and visual checks are unverified.
     - The preview uses `StructureGrid.project(..., { lockYaw = true })`: yaw 0/180 snaps to the nearest X-axis edge, and 90/270 to the nearest Z-axis edge.
     - The status line shows the angle ("Angle 90° [R]") so square floors and ceilings give visible feedback.
     - Earlier, edge pieces flipped 180° and the pointer chose the edge, so symmetric walls looked unchanged.
