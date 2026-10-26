@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 56 installed in total (38 furniture, 18 structure; 1 more registered, repository 57, integration pending; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 5 installed, 17 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 57 installed in total (39 furniture, 18 structure; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -545,6 +545,20 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
     - floor placement with the measured bounds: at the centre, against the X edge, overhanging at x = 21 unless turned 90°, the Z overhang when turned, and not below the floor;
     - it's listed under Futuristic > Storage after the shelf, and never in Structure mode or cozy storage.
     - No UI or runtime code changed.
+- 57-item install checkpoint (Codex, 2026-10-26; supersedes the "integration pending" notes in the drawer cabinet entry above, which are left as written):
+  - **Review:** Codex reviewed ae798e4 and ran the full suite independently: 317 passed, 0 failed.
+  - **Installed:** live Edit now has 57 catalog entries and 57 templates (39 furniture, 18 structure); `future_drawer_cabinet_01` is installed.
+  - **Checks:**
+    - all 57 probes are valid, 0 invalid;
+    - real client BuilderRequest Place at (0, 0, 0, yaw 0), Rotate direction 1, and Delete were all ok (revisions 1, 2 and 3), and the test copy was removed;
+    - Edit persistence was verified.
+  - **Not done:** a physical UI-click or R-key test. The cabinet is decorative only.
+  - **Batch 02:** 6 installed (H02_18 among them), 16 pending. No registered item is pending from this checkpoint.
+  - **Backup:** a new full-place backup, `StudioBuilder-FullBackup-57Items-2026-10-26-0116.rbxl`, 4,141,758 bytes, SHA256 `383785EC6115EC04623A659974D6AE4AC644CCE4634DEEB6DFBAD510D9D8F73F`.
+    - The file and its `<roblox!` header are verified; restore is untested.
+    - It includes the cabinet's prepared, template and review copies.
+    - Earlier backups are kept. It is local only and not uploaded.
+  - The historical manifests are unchanged.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
