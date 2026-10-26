@@ -1,8 +1,9 @@
 --[[
 	DoorController: runtime orchestration for auto-opening doors (panel door
-	plan, docs/panel-door-plan.md). DORMANT: the production bootstrap does not
-	create one and BuilderService does not pass one to PlacedItemsWorld, so
-	no door behaviour is live.
+	plan, docs/panel-door-plan.md). DISABLED BY DEFAULT: only DoorRuntime
+	creates one, and BuilderService calls DoorRuntime only when
+	Config.Doors.Enabled is true (false as shipped), so by default no door
+	behaviour is live.
 
 	Injected:
 		core      DoorAutoOpen instance (the single timing authority). Its

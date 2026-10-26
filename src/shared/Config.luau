@@ -62,6 +62,16 @@ Config.RequestRemoteName = "BuilderRequest"
 -- or must leave working live in client/Adapters/BuildModeHandoff.
 Config.BuilderKeys = { "R", "Escape" }
 
+-- Auto-opening doors (panel door plan, docs/panel-door-plan.md). OFF by
+-- default: with Enabled = false the server builds no door runtime and placed
+-- door models stay static and closed. Only the server's copy is read (by
+-- BuilderService); a client's copy of this module changes nothing. Turning
+-- it on is a deliberate edit to this file after Studio validation.
+Config.Doors = {
+	Enabled = false,
+	ScanInterval = 0.25, -- seconds between sensing passes
+}
+
 -- Studio-only conveniences. Off by default: production-looking placeholders are
 -- not allowed, so missing templates show as "not installed" unless a test fixture
 -- folder is explicitly opted into.

@@ -1,8 +1,9 @@
 --[[
 	DoorRuntimeAdapters: the Roblox-facing pieces behind DoorSensing and
-	DoorController (panel door plan). DORMANT: nothing in the production
-	bootstrap builds these yet. Roblox types are injected (deps.CFrame,
-	deps.Vector3, deps.OverlapParams, deps.workspace, deps.Players), so tests
+	DoorController (panel door plan). Built only by DoorRuntime, which
+	BuilderService calls only when Config.Doors.Enabled is true (false by
+	default). Roblox types are injected (deps.CFrame, deps.Vector3,
+	deps.OverlapParams, deps.workspace, deps.Players, deps.Enum), so tests
 	can drive them with fakes; defaults use the real globals when present.
 
 	characters(): every Player's Character with a Humanoid of Health > 0 and
@@ -14,7 +15,9 @@
 	hits and truncated = (#parts >= maxHits). Each hit names its top-level
 	model: a placed item (direct child of the placed-items folder) or a
 	character model, so DoorSensing can ignore the owning door and count
-	avatars. solid = part.CanCollide. supportingFloor comes from
+	avatars. deps.exclude (optional list of Instances, e.g. the sandbox
+	marker part, which is a build volume and never an obstruction) is left
+	out of the query with an Exclude filter. solid = part.CanCollide. supportingFloor comes from
 	deps.isSupportingFloor(part, model). maxY is the top of the part's
 	ORIENTED box in room space: centre y + the half-extents projected onto the
 	room's up axis (|R10| sx + |R11| sy + |R12| sz) / 2 from the part's
@@ -40,6 +43,7 @@ local function defaults(deps)
 		OverlapParams = deps.OverlapParams or OverlapParams,
 		workspace = deps.workspace or workspace,
 		Players = deps.Players or game:GetService("Players"),
+		Enum = deps.Enum or Enum,
 	}
 end
 
@@ -94,6 +98,10 @@ function DoorRuntimeAdapters.queryBox(deps)
 		local size = lib.Vector3.new(box.maxX - box.minX, box.maxY - box.minY, box.maxZ - box.minZ)
 		local params = lib.OverlapParams.new()
 		params.MaxParts = maxHits
+		if deps.exclude ~= nil then
+			params.FilterType = lib.Enum.RaycastFilterType.Exclude
+			params.FilterDescendantsInstances = deps.exclude
+		end
 		local parts = lib.workspace:GetPartBoundsInBox(origin * lib.CFrame.new(cx, cy, cz), size, params)
 		local hits = {}
 		for _, part in ipairs(parts) do

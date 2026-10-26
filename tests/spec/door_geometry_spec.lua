@@ -175,8 +175,8 @@ return function(T, H)
 		end
 	end)
 
-	T.test("dormant: only door modules reference the runtime door modules; placement uses only the pure geometry; nothing in production activates doors", function()
-		local DOOR_MODULES = { "DoorGeometry", "DoorAutoOpen", "DoorSensing", "DoorController", "DoorRuntimeAdapters" }
+	T.test("gated: only door modules reference the runtime door modules; placement uses only the pure geometry; BuilderService reaches the runtime only through DoorRuntime", function()
+		local DOOR_MODULES = { "DoorGeometry", "DoorAutoOpen", "DoorSensing", "DoorController", "DoorRuntimeAdapters", "DoorRuntime" }
 		-- Catalog validation, server placement and the client preview may use the
 		-- pure swept-box geometry; nothing outside the door modules may name the
 		-- state machine or the runtime layer.
@@ -185,6 +185,8 @@ return function(T, H)
 			["src/server/Core/PlacementCore.luau"] = true,
 			["src/client/Build/PlacementPreview.luau"] = true,
 		}
+		-- BuilderService may name DoorRuntime (the disabled-by-default factory) only.
+		local RUNTIME_USERS = { ["src/server/Runtime/BuilderService.luau"] = true }
 		local geometryUsers = {}
 		for _, rel in ipairs(H.sourceList) do
 			local isDoorModule = false
@@ -197,6 +199,8 @@ return function(T, H)
 					if name == "DoorGeometry" and GEOMETRY_USERS[rel] then
 						T.ok(src:find(name, 1, true), rel .. " uses DoorGeometry")
 						geometryUsers[#geometryUsers + 1] = rel
+					elseif name == "DoorRuntime" and RUNTIME_USERS[rel] then
+						T.ok(src:find("require(script.Parent:WaitForChild(\"DoorRuntime\"))", 1, true), rel .. " requires DoorRuntime")
 					else
 						T.eq(src:find(name, 1, true), nil, rel .. " references " .. name)
 					end
@@ -204,15 +208,11 @@ return function(T, H)
 			end
 		end
 		T.eq(#geometryUsers, 3, "every allowed geometry user is in the source list")
-		-- The world's optional hook stays unused: BuilderService builds it with exactly three arguments.
+		-- The world's door hook is the flag-gated runtime (nil by default); see door_runtime_spec.
 		local service = H.readFile(H.ROOT .. "/src/server/Runtime/BuilderService.luau")
-		local args = service:match("PlacedItemsWorld%.new(%b())")
-		T.ok(args ~= nil, "BuilderService builds the world")
-		local depth, commas = 0, 0
-		for ch in args:sub(2, -2):gmatch(".") do
-			if ch == "(" then depth = depth + 1 elseif ch == ")" then depth = depth - 1 elseif ch == "," and depth == 0 then commas = commas + 1 end
-		end
-		T.eq(commas, 2, "no door hook passed to PlacedItemsWorld")
+		T.eq(service:match("PlacedItemsWorld%.new(%b())"), "(placedFolder, sandbox.origin, curatedTemplate, doors)")
+		local config = H.load("src/shared/Config")
+		T.eq(config.Doors.Enabled, false, "shipped disabled")
 		-- Door state is transient: no door module touches saves, revisions or the build model.
 		for _, name in ipairs(DOOR_MODULES) do
 			for _, rel in ipairs(H.sourceList) do

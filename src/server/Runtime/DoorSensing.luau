@@ -3,7 +3,7 @@
 	{ nearby, occupied, blocked } for each registered door (panel door plan,
 	docs/panel-door-plan.md). Pure logic over two injected queries, so it is
 	fully testable with fakes; the Roblox versions live in DoorRuntimeAdapters.
-	DORMANT: nothing in the production bootstrap creates it yet.
+	Built only by DoorRuntime, behind Config.Doors.Enabled (false by default).
 
 	Injected:
 		getCharacters() -> list of { alive = bool, position = { x, y, z } (room

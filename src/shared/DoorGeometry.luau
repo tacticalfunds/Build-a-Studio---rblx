@@ -3,7 +3,7 @@
 	plan, docs/panel-door-plan.md). No Roblox types. Used by the Catalog
 	validator (door metadata), PlacementCore and the client preview (swept
 	box must fit the bounds: SwingOutOfBounds). The auto-open runtime that
-	would move a leaf stays dormant.
+	would move a leaf is disabled by default (Config.Doors.Enabled).
 
 	Metadata (template-local studs, module pivot at the bottom centre of the
 	CLOSED module; the leaf is described closed):

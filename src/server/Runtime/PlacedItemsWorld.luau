@@ -29,9 +29,11 @@
 	BuildItemId / BuildCatalogId / BuildPlacedByUserId. StudioCustomization must
 	skip BuildItemId-tagged models (pending a live-script change, see docs/adapters.md).
 
-	Optional door lifecycle hook (panel door plan; DORMANT, BuilderService
-	passes none): `doors` is an injected door lifecycle object. Without it every
-	call below is skipped, so existing behaviour is unchanged. With it:
+	Optional door lifecycle hook (panel door plan; BuilderService passes the
+	door runtime controller only when Config.Doors.Enabled is true, which is
+	false by default, and nil otherwise): `doors` is an injected door
+	lifecycle object. Without it every call below is skipped, so existing
+	behaviour is unchanged. With it:
 	* spawn:   apply -> attach(frozen); commit -> thaw; rollback -> detach.
 	* move:    apply -> beginEdit BEFORE PivotTo, then moved(to);
 	           commit -> thaw; rollback -> PivotTo previous, then cancelEdit.

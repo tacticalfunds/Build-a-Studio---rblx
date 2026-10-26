@@ -1505,3 +1505,23 @@ Make the assets already used in the six existing rooms available in the Build dr
     - mutations that drop the server swing check, let rotate keep a swing-out candidate, drop the preview check or skip the Frame/Leaf probe each fail tests.
   - **Not done:** installing the template, runtime activation of auto-open, real Place/Move/Rotate/Delete in Studio, a restore test of the backup, main merge, publishing and monetization.
   - **Counts:** live **67** (49 furniture, 18 structure); repository **68** (49 furniture, 19 structure); task 11 at 10 installed, 3 remaining (the panel door is registered but not installed).
+- Panel door runtime: server bootstrap wiring, **DISABLED BY DEFAULT** (repository code; not installed, not enabled, nothing run in Studio). The review of 0aa23de accepted the catalog and placement integration as code only (404/404 run independently).
+  - **Flag:** `Config.Doors = { Enabled = false, ScanInterval = 0.25 }` in the shared Config, next to `Config.Dev`. Only the server's copy matters: BuilderService reads it, and no client code reads it.
+  - **`src/server/Runtime/DoorRuntime.luau` (new):** builds the real parts and starts them only when the flag is exactly `true`.
+    - `DoorAutoOpen` with `maxDoors = 2 × Config.MaxItems` (300 staging slots for a 150-for-150 load).
+    - `DoorSensing` over the sandbox bounds, with the real character and overlap adapters.
+    - The real leaf driver.
+    - `DoorController` with `activeCap = 150`, the configured scan interval, `os.clock` and one `RunService.Heartbeat` connection.
+    - Door metadata comes from the server Catalog by catalog id only; door fields on a record are ignored.
+    - Supporting floor means a placed floor structure piece: a direct child of the placed-items folder whose `BuildCatalogId` is a floor item.
+    - The sandbox marker is excluded from overlap queries (new optional `exclude` in `DoorRuntimeAdapters.queryBox`).
+  - **Lifecycle:** one runtime at a time. `start` destroys the runtime it started earlier, and a disabled `start` also stops it. `stop` is idempotent, and a start that can't connect raises and leaves nothing active. A rebind can't leave two controllers or two ticks.
+  - **BuilderService:** with the flag on, it calls `pcall(DoorRuntime.start, …)` after the sandbox and folder exist and passes the controller as PlacedItemsWorld's 4th argument. A failed start is logged, stopped, and the builder runs with static doors. With the flag off (as shipped), `doors` stays nil, so nothing is built or connected and behaviour is unchanged.
+  - **Guard (renamed from "dormant" to "gated"):** BuilderService names only `DoorRuntime`. Nothing else outside the door modules names a runtime door module, and only Catalog, PlacementCore and PlacementPreview use `DoorGeometry`. The world's 4th argument is `doors` and the flag ships false.
+  - **Tests:**
+    - new `door_runtime_spec` (7 tests, fakes only): default off; BuilderService wiring; real parts with 2 × 150 capacity and one connection; catalog-only metadata; query frame, marker exclusion and supporting floor; rebind, stop and failed start; and an end-to-end run through `PlacedItemsWorld` (a nearby fake player opens the panel door, it closes after they leave with original collision restored, and `stop` closes and releases it);
+    - **411 passed, 0 failed** in total;
+    - mutations (no stop on rebind, a looser flag check, a wrong floor predicate, no marker exclusion, a wrong scan interval, floors outside the folder) each fail tests.
+  - **Docs:** the plan has a new "Runtime wiring" section and activation steps; the door module headers now say "disabled by default" instead of "dormant".
+  - **Still requires Studio validation before anyone enables the flag:** physical hinge and frame contact, real sensing, player interaction, adjacent-wall overlap and real overlap false positives, whether the sandbox marker or room parts collide, and a build load at the limit. The template is not installed.
+  - **Counts unchanged:** live 67; repository 68 (49 furniture, 19 structure); task 11 at 10 installed, 3 remaining.

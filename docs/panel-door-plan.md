@@ -1,22 +1,24 @@
 # Panel door: implementation plan
 
 **Status:**
-- **Catalog and placement integration (prepared-only):** the final module is prepared in Studio Edit ([`assets/Panel_Door_Wall_Module_Preparation_2026-10-26.json`](assets/Panel_Door_Wall_Module_Preparation_2026-10-26.json)). `structure_doorway_panel_01` is registered in the repository (item 68) with its measured door metadata. The template probe requires `Frame` and `Leaf`, and server placement plus the client preview refuse a spot whose swept box leaves the bounds (`SwingOutOfBounds`). The template is **not installed** (live stays 67) and the runtime stays **dormant**.
+- **Catalog and placement integration (prepared-only):** the final module is prepared in Studio Edit ([`assets/Panel_Door_Wall_Module_Preparation_2026-10-26.json`](assets/Panel_Door_Wall_Module_Preparation_2026-10-26.json)). `structure_doorway_panel_01` is registered in the repository (item 68) with its measured door metadata. The template probe requires `Frame` and `Leaf`, and server placement plus the client preview refuse a spot whose swept box leaves the bounds (`SwingOutOfBounds`). The template is **not installed** (live stays 67).
+- **Runtime wiring (disabled by default):** BuilderService can now start the runtime through `src/server/Runtime/DoorRuntime.luau`, but only when `Config.Doors.Enabled` is true, and it ships **false**. With the flag off nothing is built, nothing connects to Heartbeat, and PlacedItemsWorld gets no hook (`doors` is nil), so behaviour is unchanged. Nothing has been enabled or run in Studio.
 - The design checkpoint (85025c9) was accepted with corrections.
 - The foundation (8275097) wasn't accepted; its corrections (a65d89c) were accepted.
 - The collision-ordering and recovery fix (a02d970) was accepted for those cases. Two more probes then failed: a newly blocked or unknown scan still advanced the leaf once before holding. This is corrected in the following commit.
 - The runtime corrections (4e61869) were reviewed and **not accepted**: two probes failed (collision restored before the closed pose was confirmed, and recovery advancing the leaf without a scan). Both are corrected in the following commit.
 - The first runtime (e49842c) was reviewed and **not accepted for activation**. Three regressions failed (replacement capacity, cached scans reused after an edit, driver faults ignored), plus an adapter finding (non-solid parts blocking, axis-aligned floor top). All are corrected in the following commit.
-- **The runtime layer is now implemented, tested and DORMANT:**
+- **The runtime layer is implemented and tested, and wired behind a flag that is off:**
   - `src/server/Runtime/DoorSensing.luau`;
   - `src/server/Runtime/DoorController.luau`;
   - `src/server/Runtime/DoorRuntimeAdapters.luau`;
-  - an optional lifecycle hook in `PlacedItemsWorld`.
-- **Nothing activates doors:**
-  - the production bootstrap and BuilderService don't create a controller;
-  - BuilderService builds the world with no hook (exactly three arguments);
-  - no source outside the door modules names `DoorAutoOpen`, `DoorSensing`, `DoorController` or `DoorRuntimeAdapters`; only the Catalog validator, PlacementCore and the client preview use the pure `DoorGeometry`.
-  - A test enforces all three.
+  - an optional lifecycle hook in `PlacedItemsWorld`;
+  - `src/server/Runtime/DoorRuntime.luau`, the factory BuilderService calls behind the flag.
+- **Nothing activates doors by default:**
+  - `Config.Doors.Enabled = false`; `DoorRuntime.start` returns nil unless the flag is exactly `true`, and BuilderService calls it only inside that check;
+  - BuilderService passes `doors` as the world's 4th argument, which stays nil unless the runtime started;
+  - BuilderService names only `DoorRuntime`; no other source outside the door modules names `DoorAutoOpen`, `DoorSensing`, `DoorController`, `DoorRuntimeAdapters` or `DoorRuntime`; only the Catalog validator, PlacementCore and the client preview use the pure `DoorGeometry`; no client code reads `Config.Doors`.
+  - Tests enforce all of this.
 - **Also unchanged:** there's no installed template, and no remote or save-schema change. The only UI change is the new `SwingOutOfBounds` footer message.
 - Nothing here is claimed to work in Studio.
 - The prepared candidate is recorded in [`assets/Panel_Door_Candidate_Preparation_2026-10-26.json`](assets/Panel_Door_Candidate_Preparation_2026-10-26.json).
@@ -90,7 +92,7 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
 
 **This is not a security lock.** Auto doors open for any living player nearby.
 
-## Runtime layer (implemented, dormant)
+## Runtime layer (implemented; wired, disabled by default)
 
 | Piece | What it does |
 |---|---|
@@ -154,9 +156,11 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
 1. **Done (prepared, not installed):** Codex built and measured the 16 × 15 × 1 module (frame raised +0.8, leaf recessed) in Studio Edit and backed it up. Installing it in StudioBuilderTemplates is still to do.
 2. **Done in the repository:** `structure_doorway_panel_01` is registered with its door metadata (validated by `DoorGeometry`; door metadata only on doorways, fail closed). Placement runs `DoorGeometry.check` for door items in `_clean` (place, move, duplicate, undo/redo, load) and as a rotate candidate filter, giving `SwingOutOfBounds`; the client preview matches. The probe requires `Frame` and `Leaf`.
    - On the live 48 marker this removes no spot: interior edges always fit and outer edges are already `OutOfBounds`.
-3. Wire it up (not started): the bootstrap creates a `DoorAutoOpen` with `maxDoors = 2 × activeCap` (staging room) and a DoorController with the real adapters (supplying the origin, the folder, a supporting-floor predicate and `RunService.Heartbeat`) and passes it to PlacedItemsWorld. That changes the dormant guard deliberately.
-4. Studio Play checks:
+3. **Done in the repository, disabled by default:** the wiring below exists behind `Config.Doors.Enabled` (false). Details in "Runtime wiring" further down. Originally planned as: the bootstrap creates a `DoorAutoOpen` with `maxDoors = 2 × activeCap` (staging room) and a DoorController with the real adapters (supplying the origin, the folder, a supporting-floor predicate and `RunService.Heartbeat`) and passes it to PlacedItemsWorld. That changes the dormant guard deliberately.
+4. **Activation (not started; needs review first):** install the template in StudioBuilderTemplates, set `Config.Doors.Enabled = true` only for a Studio validation session, then run these Play checks:
    - probe;
+   - physical hinge and frame contact (the leaf must not clip the frame or surround at any angle);
+   - real sensing: players near, in the doorway, leaving; dead characters; the server log for door faults;
    - Place, Rotate, Move, Duplicate, Delete, Undo and Redo;
    - Save/load (it loads closed);
    - walk-through and auto-open;
@@ -164,11 +168,28 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
    - furniture in the sweep holding it;
    - **real overlap false positives** (for example adjacent walls touching the sweep box);
    - collision states;
+   - a build load at the 150-item limit with doors, then undo/redo;
    - a fresh backup.
+   The flag stays false in the repository until these pass and are reviewed.
+
+## Runtime wiring (`DoorRuntime`, disabled by default)
+
+- **Gate:** `Config.Doors = { Enabled = false, ScanInterval = 0.25 }` in the shared Config, consistent with `Config.Dev`. Only the server's copy matters: BuilderService reads it, and no client code reads it. Turning it on is a deliberate edit after Studio validation.
+- **What BuilderService does when enabled** (after the sandbox and placed-items folder exist, before PlacementCore): `pcall(DoorRuntime.start, { config, catalog, origin = sandbox.origin, folder = placedFolder, bounds = sandbox.bounds, heartbeat = RunService.Heartbeat, clock = os.clock, log, exclude = { sandbox marker } })`, then passes the controller to `PlacedItemsWorld.new` as `doors`. A failed start is logged, any partial runtime is stopped, and the builder runs with static doors.
+- **What `DoorRuntime.start` builds:**
+  - `DoorAutoOpen` with `maxDoors = 2 × Config.MaxItems` (300), so a full 150-for-150 build load can stage its new set;
+  - `DoorSensing` over the sandbox bounds, with the real `characters()` and `queryBox()` adapters;
+  - the real leaf driver;
+  - `DoorController` with `activeCap = Config.MaxItems` (150), `scanInterval = Config.Doors.ScanInterval`, the clock and Heartbeat, started with **one** connection.
+- **Metadata and assets:** `specFor(itemId)` reads `door` from the server's Catalog by id only; door fields on a record are ignored. Models still come only from `ServerStorage.StudioBuilderTemplates` through the existing curated-template path, and no request field reaches the runtime except through PlacementCore's validated catalog ids.
+- **Supporting floor:** a hit counts as supporting floor only if its top-level model is a direct child of the placed-items folder whose `BuildCatalogId` is a floor structure item. DoorSensing still blocks a floor that rises into the sweep above the contact tolerance.
+- **Sandbox marker:** excluded from overlap queries (an `Exclude` filter, new optional `exclude` in `queryBox`), since it is the build volume, not an obstruction.
+- **Lifecycle:** one runtime at a time. `start` first destroys any runtime it started before (disconnecting its Heartbeat and returning its doors closed with their original collision), and a disabled `start` also stops an earlier one. `stop` is idempotent. A start that can't connect raises, leaving nothing active. BuilderService itself starts only once.
+- **Tests (`door_runtime_spec`, fakes only):** default off (flag values, no connection, no runtime, a disabled rebind stopping an earlier runtime); the BuilderService wiring (static); real parts, the 2 × 150 capacity, one connection; catalog-only metadata; the query frame, marker exclusion and supporting-floor predicate; rebind, stop and failed-start lifecycle; and an end-to-end run through `PlacedItemsWorld` with fake players (open when near, close after leaving, closed and released on stop).
 
 ## What is NOT exercised (still unverified)
 
 - **Studio:** nothing runs there, including real CFrame maths, actual leaf poses, physics, collision and replication.
 - **Real overlap queries:** `GetPartBoundsInBox` behaviour is unverified: false positives from solid parts merely touching the box (adjacent walls could still hold a door), whether `CanCollide` alone is the right solidity test (for example parts using collision groups), meshes whose collision shape differs from their box, and characters' accessories. The oriented top is checked only against fake CFrame components.
 - **Real Players and Humanoids:** the adapters are tested only against fakes.
-- **The door module and activation:** the module is prepared and measured (Edit poses only: 91 sampled angles) but not installed. Catalog registration and placement integration are tested only in the Lua harness. There's no bootstrap wiring, no runtime test of frame contact, sensing or adjacent-wall overlaps, and no avatar walk-through.
+- **The door module and activation:** the module is prepared and measured (Edit poses only: 91 sampled angles) but not installed. Catalog registration and placement integration are tested only in the Lua harness. The bootstrap wiring exists but is disabled and has never run in Studio. There's no runtime test of hinge/frame contact, real sensing, player interaction or adjacent-wall overlaps, and no avatar walk-through.

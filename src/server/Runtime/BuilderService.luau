@@ -11,12 +11,18 @@
 	4. publishes sanitized preview copies of installed templates to
 	   ReplicatedStorage.StudioBuilder.PreviewTemplates for the client ghost and cards;
 	5. creates Remotes.BuilderRequest (RemoteFunction) -> PlacementCore:handle.
+	6. door auto-open: ONLY when Config.Doors.Enabled is true (false by
+	   default) it starts DoorRuntime and passes the controller to
+	   PlacedItemsWorld as its optional door hook. Otherwise the world gets
+	   no hook and placed door models stay static. A failed door start is
+	   logged and the builder runs without doors.
 
 	Host authority comes from PodcastSettings.HostUserId, checked on every edit
 	and again after the world change. Never touches LayoutRevision.
 ]]
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 local Workspace = game:GetService("Workspace")
@@ -35,6 +41,7 @@ local TemplateCatalog = require(Adapters:WaitForChild("TemplateCatalog"))
 local RoomProvider = require(Adapters:WaitForChild("RoomProvider"))
 local PlacedItemsWorld = require(script.Parent:WaitForChild("PlacedItemsWorld"))
 local TemplateSanitizer = require(script.Parent:WaitForChild("TemplateSanitizer"))
+local DoorRuntime = require(script.Parent:WaitForChild("DoorRuntime"))
 
 local BuildPersistence = require(Server:WaitForChild("Core"):WaitForChild("BuildPersistence"))
 
@@ -119,6 +126,29 @@ function BuilderService.start()
 	placedFolder:SetAttribute("SandboxSize", Vector3.new(sandbox.bounds.halfX * 2, sandbox.bounds.height, sandbox.bounds.halfZ * 2))
 	publishPreviews(templates)
 
+	-- Disabled by default: no runtime, no hook, no Heartbeat connection.
+	local doors = nil
+	if DoorRuntime.isEnabled(Config) then
+		local ok, result = pcall(DoorRuntime.start, {
+			config = Config,
+			catalog = Catalog,
+			origin = sandbox.origin,
+			folder = placedFolder,
+			bounds = sandbox.bounds,
+			heartbeat = RunService.Heartbeat,
+			clock = os.clock,
+			log = log,
+			exclude = { Workspace:FindFirstChild(Config.SandboxMarkerName) },
+		})
+		if ok then
+			doors = result
+			log("door auto-open runtime enabled (Config.Doors.Enabled)")
+		else
+			DoorRuntime.stop()
+			log("door runtime failed to start, doors stay static: " .. tostring(result))
+		end
+	end
+
 	core = PlacementCore.new({
 		config = Config,
 		catalog = Catalog,
@@ -133,7 +163,7 @@ function BuilderService.start()
 		entitlements = Entitlements.new(),
 		authority = HostAuthority.new({ getHostUserId = HostAuthority.podcastSettingsSource() }),
 		bounds = sandbox.bounds,
-		world = PlacedItemsWorld.new(placedFolder, sandbox.origin, curatedTemplate),
+		world = PlacedItemsWorld.new(placedFolder, sandbox.origin, curatedTemplate, doors),
 		clock = os.clock,
 		log = log,
 	})
