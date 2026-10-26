@@ -29,7 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | **50 installed** (repository 51: the capsule TV stand is registered, Studio integration pending; the record console has static Edit checks only); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
+| 8 | More collection themes | 6 | **51 installed** (repository 51; the record console and the capsule TV stand have static Edit checks only); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (20 pieces and R rotation installed; 18 remote-tested in Play, the panel door wall and arched window wall static Edit checks only; physical R-key/UI, visual QA and doorway clearance pending) |
 | 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | In progress (11 installed, including the panel door wall: static Edit checks only, auto-open disabled; the laptop and the metal door remaining) |
@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 70 installed in total (50 furniture, 20 structure; repository 71 with the capsule TV stand registered and pending integration; see task 11 for the room extractions; see task 10 for the structure pieces; the first 6 batch 02 pieces passed remote Place→Rotate→Delete, the arched window wall and the record console have static Edit checks only); batch 02: 8 installed, 14 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 71 installed in total (51 furniture, 20 structure; live = repository 71; see task 11 for the room extractions; see task 10 for the structure pieces; the first 6 batch 02 pieces passed remote Place→Rotate→Delete, the arched window wall, the record console and the capsule TV stand have static Edit checks only); batch 02: 9 installed, 13 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -1637,3 +1637,16 @@ Make the assets already used in the six existing rooms available in the Build dr
     - updated: item count 71, furniture 51, futuristic furniture 20, the reviewed type map, the futuristic type summary (storage 3), the futuristic storage list in the drawer cabinet test, the futuristic-prefix check in the batch 02 test, the prepared-copy list and the provenance list;
     - **420 passed, 0 failed**; classifying it as a screen or adding a second collection fails tests.
   - **Counts:** repository **71** (51 furniture, 20 structure); live **70** (50 furniture, 20 structure; 4 Windows; doors disabled) until Codex installs it. Batch 02 stays at 8 installed and 14 pending; this stand becomes the ninth installed piece only after integration. Task 11 unchanged at 11 installed, 2 remaining.
+- 71-item installation checkpoint: capsule TV stand installed in Studio Edit (Codex, Studio Experience place `132242140555698`, 2026-10-26). This is installation evidence. It supersedes the "prepared, NOT installed" and "live 70" notes in the capsule TV stand registration entry above, which stay as written as history; the preparation manifest and tests are unchanged.
+  - **Accepted:** 20f13ea, after Codex reviewed all 8 changed files and ran the archived revision independently: 420 passed, 0 failed.
+  - **Installed:** ONLY the Catalog and the inspected `future_capsule_tv_stand_01` template. **Live and repository both 71** (51 furniture, 20 structure).
+  - **Backup first:** the previous live Catalog matched fab302c. Rollback copy: `ServerStorage.BuilderIntegrationBackups.Capsule71_Before20f13ea_20261026_1304.Catalog`.
+  - **Audit (fresh):** 71 catalog entries, 71 valid templates, 51 furniture and 20 structure, 4 Windows pieces, `Config.Doors.Enabled` false.
+  - **Static Edit checks** (the real PlacementCore and PlacedItemsWorld, isolated, with an injected authority and clock):
+    - Place, Rotate and Delete pass at yaw 0, 90, 180 and 270;
+    - outer-edge placement is rejected with OutOfBounds;
+    - no logs; temporary fixtures cleaned up.
+  - **Not checked:** Play, the UI, remote requests, avatars, physics and save/load.
+  - **Full-place backup (new latest, local, not uploaded; saved with Download a Copy):** `StudioBuilder-FullBackup-71Items-2026-10-26.rbxl`, 4,192,968 bytes, SHA256 `2215DA91CCEA816CDE191562165B26895A5A81EA0F4690F80944F53BBD065F9B`; file and hash verified; restore not tested. Older backups preserved.
+  - **Counts:** live 71 = repository 71 (51 furniture, 20 structure); batch 02 at 9 installed (H02_16 newly installed), 13 pending; task 11 unchanged at 11 installed, 2 remaining.
+  - Documentation only: no runtime, UI, test or marketing change.
