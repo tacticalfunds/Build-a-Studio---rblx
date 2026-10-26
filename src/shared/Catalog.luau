@@ -446,6 +446,18 @@ Catalog.Items = {
 		type = "tables",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.future_layered_coffee_table_01",
 	},
+	-- Tufted leather sofa (2026-10-26): batch 02 H02_11, visually reviewed and
+	-- static-checked by Codex (docs/assets/Tufted_Leather_Sofa_Registration_2026-10-26.json).
+	-- Source: free Creator Store model by leutxiz; mesh yaw corrected to identity.
+	-- Install source: ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- Decorative only: it has no Seat, so nobody can sit on it.
+	{
+		id = "cozy_tufted_leather_sofa_01",
+		displayName = "Tufted Leather Sofa",
+		collections = { "cozy", "retro", "1980s", "winter" },
+		type = "seating",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.cozy_tufted_leather_sofa_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

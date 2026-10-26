@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-26",
+  "status": "Visual and static preparation approved by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates: Codex install, probe and Play placement tests pending. Installed Build count remains 51; repository count 52.",
+  "recordedFrom": "Codex native Studio front and rear inspection and measurements of the prepared copy, relayed in the checkpoint request after the review of 5c8059d (not an export file)",
+  "source": {
+    "name": "Leather Sofa",
+    "creator": "leutxiz",
+    "creatorStoreAssetId": "10026927662",
+    "free": true,
+    "batch02Candidate": "H02_11 (Leather Sofa)"
+  },
+  "items": [
+    {
+      "id": "cozy_tufted_leather_sofa_01",
+      "displayName": "Tufted Leather Sofa",
+      "collections": ["cozy", "retro", "1980s", "winter"],
+      "type": "seating",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.cozy_tufted_leather_sofa_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.cozy_tufted_leather_sofa_01",
+      "baseParts": 1,
+      "partClass": "MeshPart",
+      "scripts": 0,
+      "lights": 0,
+      "seats": 0,
+      "anchored": true,
+      "orientation": "The original local mesh yaw of about -101 degrees was corrected to identity; canonical front faces -Z",
+      "pivot": "Identity bottom-centre pivot",
+      "size": [10.9743766785, 3.9982066154, 6.0234160423],
+      "look": "Dark charcoal tufted two-cushion leather sofa with rolled arms",
+      "functionality": "Decorative only: zero Seat objects and no participant-seat adapter. No sitting or seating-clearance claim.",
+      "visualReview": "Front and rear inspected by Codex in the native Studio viewport"
+    }
+  ],
+  "notApproved": [
+    "The other 19 batch 02 candidates remain pending (fit, orientation, visual and placement approval) and must not be registered. Batch 02 tally: 2 installed (future_speaker_01, future_layered_coffee_table_01), this 1 prepared and registered, 19 pending."
+  ],
+  "backup": "NOT included in the latest full-place backup (StudioBuilder-FullBackup-51Items-2026-10-25-2333.rbxl).",
+  "historicalRecords": "docs/assets/Catalog_Hunt_Batch02_2026-10-26.json and docs/assets/Futuristic_Furniture_Registration_2026-10-26.json are unchanged."
+}

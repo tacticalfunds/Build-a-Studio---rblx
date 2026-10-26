@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 51 installed (both new futuristic pieces passed remote Place→Rotate→Delete); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 51 installed (both new futuristic pieces passed remote Place→Rotate→Delete), 1 more registered (repository 52, install pending); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -495,6 +495,22 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
   - **Not done:** a physical UI-click or R-key test.
   - **Backup:** a fresh full local place backup via Download a Copy, which includes the new prepared and template names. `StudioBuilder-FullBackup-51Items-2026-10-25-2333.rbxl`, 4,133,184 bytes, SHA256 `DB17E6BF29BD16C285A8A1B4C18705EEC928CD4F6964B495B3486C5ECEFA1CCC`. The header and existence are verified; restoration is not tested. It is local only and not uploaded.
   - **Still pending:** the other 20 batch 02 candidates, including the held Leather Sofa (H02_11). The registration manifest and the batch 02 manifest are unchanged.
+- Tufted leather sofa registration (repository; Codex install pending):
+  - **Registered (1):** `cozy_tufted_leather_sofa_01` (Tufted Leather Sofa; seating; cozy, retro, 1980s, winter), appended after the futuristic pieces. **Repository count: 52; installed count stays 51.**
+  - **Source:** batch 02 H02_11, the free Creator Store model Leather Sofa by leutxiz. Install source: `ServerStorage.StudioBuilderPreparedAssets.cozy_tufted_leather_sofa_01` (the prepared copy's name matches the id).
+  - **Codex checks:**
+    - native Studio front and rear inspection: a dark charcoal tufted two-cushion leather sofa with rolled arms;
+    - the about −101° local mesh yaw was corrected to identity, with the canonical front facing −Z and an identity bottom-centre pivot;
+    - bounds 10.9743766785 × 3.9982066154 × 6.0234160423 studs;
+    - one anchored MeshPart, with zero scripts, zero Lights and zero Seats.
+  - **Decorative only:** there's no participant-seat adapter, and no sitting or seating-clearance claim.
+  - **Provenance:** `docs/assets/Tufted_Leather_Sofa_Registration_2026-10-26.json`. The historical manifests are unchanged.
+  - **Pending (Codex):** install into `StudioBuilderTemplates`, the TemplateCatalog probe, Play placement tests, and a backup refresh (it isn't in the 51-item RBXL).
+  - **Batch 02 tally:** 2 installed, this 1 prepared and registered, 19 pending.
+  - **Tests:**
+    - counts updated for 52 items: 38 furniture; cozy 27, retro 21, 1980s 17, winter 13; winter seating 2;
+    - a new consistency test covering the manifest fields, the decorative facts, and that the prepared name matches the id for the three batch 02 pieces.
+    - No UI or runtime code changed.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.

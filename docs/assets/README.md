@@ -17,6 +17,11 @@ No binary models or place files are stored in this repository.
   - Both new items passed real client BuilderRequest Place → Rotate → Delete in Play (all six operations ok), and the test items were removed.
   - Back in Edit, both templates were verified to persist.
   - No physical UI-click or R-key test was done at this checkpoint.
+- **Registered in the repository, not installed: 1** (repository count **52**; installed stays **51**). `cozy_tufted_leather_sofa_01` (Tufted Leather Sofa; seating; cozy, retro, 1980s, winter) is batch 02 H02_11, with its mesh yaw corrected. Manifest: [`Tufted_Leather_Sofa_Registration_2026-10-26.json`](Tufted_Leather_Sofa_Registration_2026-10-26.json).
+  - Codex approved its visual and static preparation. Install source: `ServerStorage.StudioBuilderPreparedAssets.cozy_tufted_leather_sofa_01`.
+  - **Not in `StudioBuilderTemplates` yet:** install, probe and Play placement tests are pending.
+  - It is decorative only: zero Seat objects and no participant-seat adapter, so there is no sitting or clearance claim.
+  - It is not in the latest 51-item backup.
 - **Earlier 49-item checkpoint** (superseded by the 51 above; the earlier 39 plus the classic floor lamp and the 9 structure variants, `Structure_Expansion_2026-10-26.json`):
   - Only `Catalog.luau` from the reviewed 5fcf60b was installed, along with those ten templates.
   - A fresh require and the TemplateCatalog probe passed for all 49.
@@ -24,7 +29,7 @@ No binary models or place files are stored in this repository.
   - **Remote check passed:** all ten new items passed Place → Rotate → Delete through the real BuilderRequest remote in Play, and the test copies were deleted.
 - **Rotation installed:** the R-rotation change (14933b6, five modules) is now installed (see TASKS).
 - **Not verified yet:** physical mouse/R-key UI, visual checks and doorway avatar clearance. The Play camera viewport was 1 × 1 and automated mouse input stalled. Codex reports the native Studio window renders normally; the capture limitation is specific to automated capture, and no visual check has been done since.
-- **Candidates only:** batch 02 (the other 20 of 22; the Leather Sofa H02_11 is held for a local yaw correction of about −101° and a front and seating-clearance review; prepared copies recreated and re-read in Edit; review gallery staged; fit, orientation, visual and placement approval pending), batch 03 (3 of 12 sources imported into `ServerStorage.CatalogHuntBatch03` quarantine with zero scripts, none Build-ready; the other 9 thumbnail-only; no visual approval), the existing-room gap audit (13 room objects, not extracted), and 10 tracked candidates from the refresh.
+- **Candidates only:** batch 02 (the other 19 of 22; 2 are installed and the sofa H02_11 is registered with install pending; prepared copies recreated and re-read in Edit; review gallery staged; fit, orientation, visual and placement approval pending), batch 03 (3 of 12 sources imported into `ServerStorage.CatalogHuntBatch03` quarantine with zero scripts, none Build-ready; the other 9 thumbnail-only; no visual approval), the existing-room gap audit (13 room objects, not extracted), and 10 tracked candidates from the refresh.
 - **Full-place backup (latest):** saved locally by Codex after the 51-item install (Edit mode, File > Download a Copy). It is not stored in this repository.
   - File: `StudioBuilder-FullBackup-51Items-2026-10-25-2333.rbxl`, 4,133,184 bytes, SHA256 `DB17E6BF29BD16C285A8A1B4C18705EEC928CD4F6964B495B3486C5ECEFA1CCC`.
   - Verified: the file exists and has a binary Roblox header. **Not reopened for restoration testing.**
@@ -63,6 +68,7 @@ Read them in this order:
 | [`Studio_Asset_Inventory_2026-10-25.json`](Studio_Asset_Inventory_2026-10-25.json) | Exhaustive index. `ModelRecords` (2594 **nested** models, not distinct products), `LooseParts` (4), `ContentReferences` (448 distinct content URLs/IDs with use paths), `ScriptRecords` (13), `Services`. | 2.3 MB |
 | [`Catalog_Expansion_2026-10-25.json`](Catalog_Expansion_2026-10-25.json) | The catalog expansion manifest: 24 templates prepared in `ServerStorage.StudioBuilderExpansion`, each with id, displayName, collections, sourceRef, an optional `sourceAssetId` (provenance only, never loaded), scripts (0), parts, size and functionality (decorative only). Original provenance, kept unchanged: its `status` and `templatePath` describe the pre-install state. The items were later installed into `StudioBuilderTemplates` and checked in Play (see [`../integration-catalog-expansion.md`](../integration-catalog-expansion.md)). | 16 KB |
 | [`Existing_Room_Catalog_Gap_Audit_2026-10-26.json`](Existing_Room_Catalog_Gap_Audit_2026-10-26.json) | Read-only Play audit of **13 existing room objects or groups** (Conference Room and Broadcast Set) as possible Build additions. **These aren't imported, extracted, registered or Build-ready assets.** Flags: the **Guest laptop has 611 parts** and needs optimizing or a lower-part replacement; the **Office chairs** entry is a 12-seat group, so a single chair must be extracted; the **two doors** need grid and clearance adaptation (opening not verified); the **softbox, umbrella and On Air sign** each contain a light and need orientation and light-control review. No scripts were found in these 13 (not a whole-place audit). Template extraction is pending Edit mode. | 7 KB |
+| [`Tufted_Leather_Sofa_Registration_2026-10-26.json`](Tufted_Leather_Sofa_Registration_2026-10-26.json) | Provenance for batch 02 H02_11 Leather Sofa (free, leutxiz), prepared as `cozy_tufted_leather_sofa_01`. Codex inspected the front and rear in the native viewport. The about −101° mesh yaw was corrected to identity, with the front facing −Z and a bottom-centre pivot. It is one anchored MeshPart, 10.97 × 4.00 × 6.02 studs, with zero scripts, Lights and Seats; decorative only. **Registered (repository 52); not installed** (installed 51), and not in the 51-item backup. | 2 KB |
 | [`Futuristic_Furniture_Registration_2026-10-26.json`](Futuristic_Furniture_Registration_2026-10-26.json) | Provenance for 2 batch 02 pieces from the free Futuristic Furniture pack (SebbyTheGODKid), visually reviewed in the native Studio viewport and re-read in Edit by Codex: zero scripts, all parts anchored, bottom-centre pivots, zero Light objects. **Registered in `Catalog.luau` (repository count 51); not yet installed in `StudioBuilderTemplates`** (installed Build count 49). Also records the held Leather Sofa and that the new prepared names are not yet in a refreshed RBXL backup. The manifest is left as written at registration. **Since installed** (51 live, probe and remote Place/Rotate/Delete passed; new names in the 51-item RBXL backup): see the status block. | 3 KB |
 | [`Batch03_Structure_Import_Checkpoint_2026-10-26.json`](Batch03_Structure_Import_Checkpoint_2026-10-26.json) | Batch 03 structure import checkpoint: 3 of the 12 shortlisted sources (Glass Partition, Scaleable Ceiling Tiles, Modern wood block) imported into `ServerStorage.CatalogHuntBatch03` quarantine, zero scripts, zero meshes. **Not prepared, approved, registered or installed in Build.** Gallery capture stalled; no visual approval. | 2 KB |
 | [`Catalog_Hunt_Batch03_2026-10-26.json`](Catalog_Hunt_Batch03_2026-10-26.json) | Catalog hunt batch 03: 48 search results, 16 previews reviewed, 12 shortlisted, 4 rejected. **Thumbnail review only: not imported, not script-audited, not tested, not registered.** | 9 KB |
@@ -124,7 +130,7 @@ Inventory: [`Catalog_Hunt_Batch03_2026-10-26.json`](Catalog_Hunt_Batch03_2026-10
 | 13121115362 | Preview shows material sphere rather than ready ceiling geometry. |
 | 96888576123141 | Branded floor wedge speaker; not intended neutral studio monitor. |
 
-## Catalog hunt batch 02 (2026-10-26): 2 of 22 registered and installed; 20 candidates only
+## Catalog hunt batch 02 (2026-10-26): 2 of 22 installed, 1 registered (install pending); 19 candidates only
 
 Inventory: [`Catalog_Hunt_Batch02_2026-10-26.json`](Catalog_Hunt_Batch02_2026-10-26.json), archived exactly as provided and left unchanged.
 
@@ -132,8 +138,12 @@ Inventory: [`Catalog_Hunt_Batch02_2026-10-26.json`](Catalog_Hunt_Batch02_2026-10
 - `future_speaker_01` (Neon Studio Speaker) = H02_13 Future Speaker (**confirmed by Codex**).
 - `future_layered_coffee_table_01` (Layered Neon Coffee Table) = H02_20 Future Coffee Table (**confirmed by Codex**).
 - **Installed (superseding checkpoint):** both are now in `StudioBuilderTemplates`. They passed the live probe and real BuilderRequest Place → Rotate → Delete in Play, and they persist in Edit. Physical UI-click and R-key tests weren't done.
-- **The other 20 remain pending.** The Leather Sofa (H02_11) was inspected from a rear three-quarter angle and is **held** for a local yaw correction (about −101°) and a front and seating-clearance review.
-- The original H02 copies are in the earlier RBXL backup, and the new prepared and template names are in the 51-item backup (`StudioBuilder-FullBackup-51Items-2026-10-25-2333.rbxl`).
+- **Leather Sofa (H02_11), later checkpoint:** after being held from a rear three-quarter inspection, the sofa was inspected from the front and rear in the native viewport. Its mesh yaw (about −101°) was corrected to identity, with the front facing −Z.
+  - It is registered in the repository as `cozy_tufted_leather_sofa_01` (Tufted Leather Sofa) from `ServerStorage.StudioBuilderPreparedAssets.cozy_tufted_leather_sofa_01`, per [`Tufted_Leather_Sofa_Registration_2026-10-26.json`](Tufted_Leather_Sofa_Registration_2026-10-26.json).
+  - **Not installed:** install, probe and Play placement tests are pending.
+  - It is decorative only, with zero Seats, so there is no sitting or clearance claim.
+- **The other 19 remain pending.**
+- The original H02 copies are in the earlier RBXL backup, and the new prepared and template names are in the 51-item backup (`StudioBuilder-FullBackup-51Items-2026-10-25-2333.rbxl`). The sofa's prepared copy is **not** in that backup.
 
 The notes below describe the batch as first inventoried.
 
