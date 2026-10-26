@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 49 installed, 2 more registered (repository 51, install pending); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 51 installed (both new futuristic pieces passed remote Place→Rotate→Delete); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -483,6 +483,18 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
   - **Pending (Codex):** install the two prepared copies from `ServerStorage.StudioBuilderPreparedAssets` into `StudioBuilderTemplates`, run the TemplateCatalog probe, and do real placement tests. Also refresh the RBXL backup: the new prepared names aren't in it yet.
   - **Not approved:** the other 20 batch 02 candidates. The Leather Sofa (H02_11) is held for a local yaw correction (about −101°) and a front and seating-clearance review.
   - Tests: the catalog, type-count and drawer-count specs are updated for 51 items (futuristic furniture 11). There's a new manifest cross-check, and a guard that no other batch 02 candidate is registered. No UI or runtime code changed.
+- 51-item install checkpoint (Codex, 2026-10-26; supersedes the "install pending" notes in the registration entry above, which are left as written):
+  - **Review:** Codex reviewed 48b055c and ran its test suite independently: 312 passed, 0 failed.
+  - **Mapping confirmed:** H02_13 = `future_speaker_01`; H02_20 = `future_layered_coffee_table_01`.
+  - **Installed:** both are in `StudioBuilderTemplates` and Catalog in Edit. **Installed total: 51** (37 furniture, 14 structure).
+  - **Checks:**
+    - all 51 catalog entries passed the TemplateCatalog live probe;
+    - there were 51 client previews in Play;
+    - both new items passed real client BuilderRequest Place → Rotate → Delete (all six operations ok), and the test items were removed;
+    - back in Edit, both templates persist.
+  - **Not done:** a physical UI-click or R-key test.
+  - **Backup:** a fresh full local place backup via Download a Copy, which includes the new prepared and template names. `StudioBuilder-FullBackup-51Items-2026-10-25-2333.rbxl`, 4,133,184 bytes, SHA256 `DB17E6BF29BD16C285A8A1B4C18705EEC928CD4F6964B495B3486C5ECEFA1CCC`. The header and existence are verified; restoration is not tested. It is local only and not uploaded.
+  - **Still pending:** the other 20 batch 02 candidates, including the held Leather Sofa (H02_11). The registration manifest and the batch 02 manifest are unchanged.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
