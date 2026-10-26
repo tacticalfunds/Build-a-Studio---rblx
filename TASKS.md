@@ -422,7 +422,7 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
   - **Shortlist by proposed type:** 3 walls (2 glass partitions, a wood-slat feature wall), 3 decor (curtains, 2 radiators), 2 storage (sideboards), 1 audio (road cases), 1 seating (wingback armchair), 1 ceiling (tiles), 1 door.
   - **Status:** thumbnail review only. Not imported, not script-audited, not placement-tested, not registered, not Build-ready.
   - **Checked on archive:** the JSON parses; the IDs are unique; the links match the IDs; none of the 16 IDs appears elsewhere in the repository docs, source or status files.
-  - **Batch 02** keeps its status: candidates only, with prepared-copy persistence unverified until Studio is back in Edit.
+  - **Batch 02** keeps its status at the time: candidates only, with prepared-copy persistence unverified (resolved later in Edit; see the batch 02 recreation checkpoint).
   - **Install pending:** the runtime changes through 5fcf60b (311 tests passed, independently reviewed) are still not installed. Studio stays in Play and wasn't interrupted. The queue order is unchanged.
 
 - Existing-room gap audit (2026-10-26; **documentation only**; feeds task 11, which still waits on an inspected manifest):
@@ -452,6 +452,16 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
   - **Still candidates only:** batch 02 and batch 03. The full-place backup is still pending.
   - Codex independently verified that the 718e39e gap-audit JSON matches the supplied file exactly.
   - Earlier "install pending" notes for the lamp and the structure variants are kept as history; this entry supersedes them.
+
+- Batch 02 recreation checkpoint (Codex, 2026-10-26, Edit mode; documentation only):
+  - **Recreated:** Codex confirmed `ServerStorage.CatalogHuntPrepared02` was absent, recreated all 22 sanitized candidates from the 8 originals, and independently re-read the folder: **22 models, 353 BaseParts, zero LuaSourceContainers, zero unanchored parts**. This resolves the earlier missing prepared-copy issue for the current Edit DataModel.
+  - **Review gallery:** 22 labelled display copies at `Workspace.StudioAssetYard.09 New Asset Review`, by type on a 6-column grid (about x 3500–3720, z 3370–3502).
+    - Each is marked CANDIDATE / NOT IN BUILD and keeps its source, type and collection metadata.
+    - A `CandidateIndexJSON` is stored in that folder, and the display copies have zero scripts.
+  - Build templates stay **49**.
+  - **Still pending:** fit, orientation, visual and placement approval of all 22, so none is registered; and the full-place disk backup.
+  - The historical batch 02 manifest and the earlier "unverified" notes are unchanged.
+  - Housekeeping: the rotation install entry was moved from the end of task 11 to task 10, where it belongs. Its wording is unchanged and the queue order is unchanged.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
@@ -601,13 +611,6 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Updated: 49 entries in order; raw tag counts +14; per-kind structure counts; the approved-tracked list includes the brick wall; the structure filter lists in the controller test; the structure placement kinds.
     - 5 mutations caught: the wide doorway as a wall, a wrong name, a missing tag, a dropped variant, a changed sourceRef.
   - **Rotation (14933b6):** still not installed. The live key test is pending.
-
-## 11. Existing room assets in Build (user request): Pending
-Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
-- **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
-- The live rooms themselves stay untouched; the builder only gets prepared copies.
-- The user is browsing in Edit, so there are no Play or camera changes.
-- Acceptance (draft): the same per-manifest catalog tests as earlier registrations, with type and count updates and provenance kept out of the catalog. Studio install and Play check by Codex.
 - Rotation install and remote Play check (Codex, 2026-10-26):
   - **Installed:** the five reviewed R-rotation files from 5fcf60b (change 14933b6): `StructureGrid`, `BuildSession`, `BuildController`, `BuildDrawer`, `PlacementPreview`.
     - Before installing, each live source was checked against the a9bf5ba baseline, and all matched.
@@ -621,3 +624,9 @@ Make the assets already used in the six existing rooms available in the Build dr
   - **Code:** no changes beyond the reviewed sources. The previous independent pure suite was 311/0.
   - **Still pending:** batch 02 and batch 03 candidates, and the full-place backup.
 
+## 11. Existing room assets in Build (user request): Pending
+Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
+- **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
+- The live rooms themselves stay untouched; the builder only gets prepared copies.
+- The user is browsing in Edit, so there are no Play or camera changes.
+- Acceptance (draft): the same per-manifest catalog tests as earlier registrations, with type and count updates and provenance kept out of the catalog. Studio install and Play check by Codex.
