@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 56 installed in total (38 furniture, 18 structure; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 5 installed, 17 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 56 installed in total (38 furniture, 18 structure; 1 more registered, repository 57, integration pending; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 5 installed, 17 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -524,6 +524,27 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
     - It contains the sofa's prepared copy, its template and its axis-review copies.
     - The previous backups are kept. It is local only and not uploaded.
   - **Batch 02:** 3 installed (speaker, layered coffee table, sofa), 19 pending. The historical manifests are unchanged.
+- Drawer cabinet registration (repository; Codex integration pending):
+  - **Registered (1):** `future_drawer_cabinet_01` (Three-Drawer Cabinet; furniture type storage; futuristic; floor placement), appended last.
+    - **Counts:** repository 57 (39 furniture, 18 structure). Installed stays **56** (38 furniture, 18 structure).
+  - **Source:** free Creator Store asset 1375085945, Futuristic Furniture by SebbyTheGODKid; batch 02 H02_18 Future Dresser (the original is retained).
+  - **Prepared copy (Codex, Edit):** `ServerStorage.StudioBuilderPreparedAssets.future_drawer_cabinet_01`.
+    - Bounds X 6.430999755859375, Y 4.2000017166137695, Z 3.27987003326416, with an identity bottom-centre pivot and the front facing −Z.
+    - 6 anchored BaseParts, zero LuaSourceContainers, zero Lights, zero Seats.
+    - The near-identity rotations and the pivot were normalized; no geometry was added.
+    - The noisy, overscaled woodgrain was replaced with a neutral gray SmoothPlastic body, lighter drawer faces, a dark top and dark Metal round knobs.
+    - It was inspected in native Studio.
+  - **Decorative only:** the drawers don't open, and there's no storage behaviour.
+  - **Provenance:** `docs/assets/Drawer_Cabinet_Registration_2026-10-26.json`. The historical manifests are unchanged.
+  - **Not done yet:** it isn't installed or runtime tested, and it isn't backed up (the latest 56-item backup predates it).
+  - **Pending (Codex):** install, the probe, Play Place → Rotate → Delete, then a backup.
+  - **Batch 02 tally:** 5 installed, 17 pending (H02_18 among them until integration).
+  - **Tests:**
+    - counts updated: 57 items, 39 furniture; futuristic furniture 12 (storage 2); futuristic drawer count 12;
+    - a new test checks the manifest fields and facts, that the prepared name matches the id, and that no provenance-only keys end up in the catalog;
+    - floor placement with the measured bounds: at the centre, against the X edge, overhanging at x = 21 unless turned 90°, the Z overhang when turned, and not below the floor;
+    - it's listed under Futuristic > Storage after the shelf, and never in Structure mode or cozy storage.
+    - No UI or runtime code changed.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.

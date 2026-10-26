@@ -16,7 +16,7 @@ return function(T, H)
 		cozy_tufted_leather_sofa_01 = "seating",
 		cozy_coffee_table_01 = "tables", future_glass_table_01 = "tables", retro_meeting_table_01 = "tables",
 		cozy_bookshelf_01 = "storage", retro_tv_cart_01 = "storage", future_shelf_01 = "storage",
-		winter_firewood_shelf_01 = "storage", winter_log_basket_01 = "storage",
+		winter_firewood_shelf_01 = "storage", winter_log_basket_01 = "storage", future_drawer_cabinet_01 = "storage",
 		studio_boom_mic_01 = "microphones", studio_desk_mic_01 = "microphones",
 		retro_cassette_01 = "audio", studio_headphones_01 = "audio", studio_mixer_01 = "audio",
 		retro_record_player_01 = "audio", retro_radio_01 = "audio", future_speaker_01 = "audio",
@@ -45,7 +45,7 @@ return function(T, H)
 				seen[item.id] = true
 			end
 		end
-		T.eq(furniture, 38)
+		T.eq(furniture, 39)
 		for id in pairs(EXPECTED) do T.ok(seen[id], "assigned item exists: " .. id) end
 		T.eq(Catalog.getFurnitureType("doors"), nil, "no empty Doors type in furniture")
 		T.eq(Catalog.getFurnitureType("seating").displayName, "Seating")
@@ -113,7 +113,7 @@ return function(T, H)
 			for _, e in ipairs(Catalog.getFurnitureTypeCounts(id)) do out[#out + 1] = e.id .. "=" .. e.count end
 			return table.concat(out, ",")
 		end
-		T.eq(summary("futuristic"), "seating=2,tables=2,storage=1,microphones=1,audio=3,lighting=2")
+		T.eq(summary("futuristic"), "seating=2,tables=2,storage=2,microphones=1,audio=3,lighting=2")
 		T.eq(summary("winter"), "seating=2,tables=1,storage=3,lighting=2,plants=1,decor=4")
 		T.eq(#Catalog.getFurnitureByType("winter", "screens"), 0)
 	end)

@@ -501,6 +501,18 @@ Catalog.Items = {
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.structure_acoustic_wall_01",
 		structure = { kind = "wall" },
 	},
+	-- Drawer cabinet (2026-10-26): batch 02 H02_18 Future Dresser from the free
+	-- Futuristic Furniture pack, normalized and re-coloured by Codex
+	-- (docs/assets/Drawer_Cabinet_Registration_2026-10-26.json).
+	-- Install source: ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- Decorative only: the drawers do not open and it stores nothing.
+	{
+		id = "future_drawer_cabinet_01",
+		displayName = "Three-Drawer Cabinet",
+		collections = { "futuristic" },
+		type = "storage",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.future_drawer_cabinet_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.
