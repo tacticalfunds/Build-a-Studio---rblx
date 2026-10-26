@@ -707,6 +707,18 @@ Catalog.Items = {
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.future_capsule_tv_stand_01",
 		type = "storage",
 	},
+	-- Console desk (2026-10-26): batch 02 H02_19, only the five-part desk
+	-- from the free Futuristic Furniture by SebbyTheGODKid (its computer and
+	-- chair left out), rotation normalized and given a muted finish by Codex
+	-- (docs/assets/Console_Desk_Registration_2026-10-26.json). Static
+	-- decorative desk. Prepared only: not in StudioBuilderTemplates, not live.
+	{
+		id = "future_console_desk_01",
+		displayName = "Console Desk",
+		collections = { "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.future_console_desk_01",
+		type = "tables",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared, inspected and visually reviewed by Codex in Studio Edit; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates, NOT runtime tested and NOT in a refreshed backup. Live Build count remains 71 (51 furniture, 20 structure); repository count 72 (52 furniture, 20 structure).",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of 0ed5de6 (not an export file); the facts below are recorded as supplied. Codex's local reconstruction scripts (work/prepare-console-desk.luau, work/finish-console-desk.luau) and manifest (outputs/Console Desk Preparation Checkpoint.json) are not in this repository.",
+  "source": {
+    "name": "Futuristic Furniture",
+    "creator": "SebbyTheGODKid",
+    "creatorStoreAssetId": "1375085945",
+    "free": true,
+    "batch02Candidate": "H02_19 (Future Desk), a 20-part composite; the original is preserved at ServerStorage.CatalogHuntPrepared02.H02_19 and is in the 71-item backup",
+    "extracted": "ONLY the five-part Model under H02_19.Desk, disambiguated from the other Model (six children, the chair)",
+    "excluded": "The nine-part Computer and the six-part chair (including its Seat) were deliberately left out, so users choose independent equipment and seating. The rest of the composite is not included."
+  },
+  "items": [
+    {
+      "id": "future_console_desk_01",
+      "displayName": "Console Desk",
+      "collections": ["futuristic"],
+      "type": "tables",
+      "placement": "floor",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.future_console_desk_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.future_console_desk_01",
+      "reviewCopy": "Workspace.StudioAssetYard.Console Desk Prepared Review",
+      "baseParts": 5,
+      "nestedModels": 0,
+      "anchored": true,
+      "canTouch": false,
+      "scripts": 0,
+      "seats": 0,
+      "lights": 0,
+      "joints": 0,
+      "constraints": 0,
+      "decals": 0,
+      "adaptation": "Rotation normalized with CFrame.Angles(0, pi, 0) * DeskTop.CFrame.Rotation:Inverse(), correcting the original near-90-degree yaw and a small roll: the width lies on X and the original chair side now faces -Z. No scaling. Identity bottom-centre pivot. No geometry added.",
+      "finish": {
+        "DeskTop": { "material": "Metal", "colorRGB": [112, 124, 137] },
+        "LowerShelfAndPanels": { "material": "Metal", "colorRGB": [57, 67, 76] },
+        "Inlay": { "from": "Neon", "to": "SmoothPlastic", "colorRGB": [58, 124, 130] }
+      },
+      "pivot": "Identity bottom-centre pivot",
+      "size": [8.000003814697266, 3.4000115394592287, 5.0000152587890629],
+      "staticChecks": "Minimum Y 0.0000001192; all four cardinal world-corner AABBs checked: the 8 x 5 footprint swaps to 5 x 8 at yaw 90/270",
+      "look": "Gray metal empty rectangular desktop with a lower shelf, two dark side support panels and a recessed teal inlay",
+      "functionality": "Static decorative desk only: no computer, chair, lights, seating or interactive behaviour. Tabletop interactions are not validated.",
+      "visualReview": "Front and rear checked by Codex in native Studio. Static Edit inspection only: no placement runtime, Play, UI, remote, avatar, physics, tabletop interaction or save/load validation."
+    }
+  ],
+  "batch02Tally": "9 installed (future_speaker_01, future_layered_coffee_table_01, cozy_tufted_leather_sofa_01, structure_industrial_wall_01, structure_acoustic_wall_01, future_drawer_cabinet_01, structure_window_arch_01, record_console_01, future_capsule_tv_stand_01); 13 pending, including this H02_19 piece (registered, integration pending). It becomes the tenth installed piece only after installation.",
+  "backup": "The prepared desk is NOT in the latest full-place backup (StudioBuilder-FullBackup-71Items-2026-10-26.rbxl); only the original H02_19 candidate is.",
+  "historicalRecords": "docs/assets/Catalog_Hunt_Batch02_2026-10-26.json and docs/assets/Futuristic_Furniture_Registration_2026-10-26.json are unchanged."
+}

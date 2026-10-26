@@ -286,7 +286,7 @@ return function(T, H)
 				T.eq(Catalog.getItem(item.id).structure, nil, c.id .. " shows furniture only: " .. item.id)
 			end
 		end
-		T.eq(#env.drawer.items, 20, "futuristic furniture")
+		T.eq(#env.drawer.items, 21, "futuristic furniture")
 		env.drawer.callbacks.onCategory("structure")
 		T.eq(env.drawer.category, "structure")
 		local labels = {}
@@ -312,7 +312,7 @@ return function(T, H)
 		T.eq(env.drawer.filter, "futuristic", "furniture filter remembered")
 		T.eq(env.drawer.typeView, "chooser", "back in furniture: the type chooser")
 		env.drawer.callbacks.onType("all")
-		T.eq(#env.drawer.items, 20)
+		T.eq(#env.drawer.items, 21)
 	end)
 
 	T.test("controller: switching category while placing cancels the stale placement; nothing is sent", function()
