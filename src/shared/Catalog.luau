@@ -477,6 +477,18 @@ Catalog.Items = {
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.structure_ceiling_acoustic_01",
 		structure = { kind = "ceiling" },
 	},
+	-- Industrial wall (2026-10-26): batch 02 H02_03, the Straight Wall from a
+	-- free modular wall pack, rotated and normalized to the 16 x 15 x 1 module by
+	-- Codex (docs/assets/Industrial_Wall_Registration_2026-10-26.json).
+	-- Install source: ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- Its imported PointLight is disabled; no lighting behaviour.
+	{
+		id = "structure_industrial_wall_01",
+		displayName = "Industrial Concrete Wall",
+		collections = { "futuristic", "1980s" },
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.structure_industrial_wall_01",
+		structure = { kind = "wall" },
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

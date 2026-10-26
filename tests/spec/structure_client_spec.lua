@@ -260,7 +260,7 @@ return function(T, H)
 		T.eq(env.drawer.filter, "floor")
 		T.deepEq(ids(env.drawer.items), { "structure_floor_01", "structure_floor_oak_01", "structure_floor_walnut_01", "structure_floor_concrete_01", "structure_floor_slate_01" })
 		local expected = {
-			{ "wall", { "structure_wall_01", "structure_wall_wood_01", "structure_wall_brick_01" } },
+			{ "wall", { "structure_wall_01", "structure_wall_wood_01", "structure_wall_brick_01", "structure_industrial_wall_01" } },
 			{ "doorway", { "structure_doorway_01", "structure_doorway_wide_01" } },
 			{ "ceiling", { "structure_ceiling_01", "structure_ceiling_dark_01", "structure_ceiling_acoustic_01" } },
 			{ "window_wall", { "structure_window_wall_01", "structure_window_black_01", "structure_glass_partition_01" } },

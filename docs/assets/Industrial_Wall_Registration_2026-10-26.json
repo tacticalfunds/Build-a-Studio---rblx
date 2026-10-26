@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually inspected by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates and NOT runtime tested. Installed Build count remains 54 (38 furniture, 16 structure); repository count 55.",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of e42b8d5 (not an export file)",
+  "source": {
+    "name": "Modular Wall Pack",
+    "creator": "WilliamBosso",
+    "creatorStoreAssetId": "120565443892509",
+    "free": true,
+    "extractedPiece": "Straight Wall",
+    "batch02Candidate": "H02_03 (Industrial Straight Wall); the original candidate is retained"
+  },
+  "items": [
+    {
+      "id": "structure_industrial_wall_01",
+      "displayName": "Industrial Concrete Wall",
+      "collections": ["futuristic", "1980s"],
+      "structure": { "kind": "wall" },
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.structure_industrial_wall_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.structure_industrial_wall_01",
+      "baseParts": 26,
+      "scripts": 0,
+      "lights": 1,
+      "lightNote": "One imported PointLight remains present but is DISABLED. No lighting adapter behaviour is claimed.",
+      "anchored": true,
+      "adaptation": "Imported geometry rotated and normalized; minimum trim thickness 0.05 enforced; depth constrained to one stud.",
+      "rotation": "Identity",
+      "pivot": "Bottom-centre pivot at the origin",
+      "size": [16, 15, 1],
+      "look": "Gray concrete wall with dark metal horizontal trim and conduit, a brown lower band and a small pale indicator; plain reverse",
+      "functionality": "Static wall panel",
+      "visualReview": "Both faces inspected by Codex in native Studio; bounds and pivot assertions passed"
+    }
+  ],
+  "batch02Tally": "3 installed (future_speaker_01, future_layered_coffee_table_01, cozy_tufted_leather_sofa_01); 19 pending, including this H02_03 piece (registered, integration pending).",
+  "backup": "NOT included in the latest full-place backup (StudioBuilder-FullBackup-54Items-2026-10-26-0013.rbxl), which predates this candidate. A refreshed backup follows integration.",
+  "historicalRecords": "docs/assets/Catalog_Hunt_Batch02_2026-10-26.json is unchanged."
+}

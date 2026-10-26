@@ -76,9 +76,11 @@ return function(T, H)
 	local SOFA = "cozy_tufted_leather_sofa_01"
 	local BATCH03_STRUCTURE = { structure_glass_partition_01 = "window_wall", structure_ceiling_acoustic_01 = "ceiling" }
 	local BATCH03_ORDER = { "structure_glass_partition_01", "structure_ceiling_acoustic_01" }
+	local INDUSTRIAL_WALL = "structure_industrial_wall_01"
 
-	T.test("catalog holds 7 original, 24 expansion, 5 structure, 4 later furniture, 9 structure variant, 2 futuristic furniture, 1 sofa and 2 batch 03 structure IDs, earlier entries unchanged in order", function()
-		T.eq(#Catalog.Items, 54, "item count")
+	T.test("catalog holds 7 original, 24 expansion, 5 structure, 4 later furniture, 9 structure variant, 2 futuristic furniture, 1 sofa, 2 batch 03 structure and 1 industrial wall ID, earlier entries unchanged in order", function()
+		T.eq(#Catalog.Items, 55, "item count")
+		T.eq(Catalog.Items[55].id, INDUSTRIAL_WALL, "the industrial wall is appended last")
 		T.eq(Catalog.Items[52].id, SOFA, "the sofa follows the futuristic furniture")
 		T.eq(Catalog.Items[53].id, BATCH03_ORDER[1], "batch 03 structure #1")
 		T.eq(Catalog.Items[54].id, BATCH03_ORDER[2], "batch 03 structure #2")
@@ -117,25 +119,27 @@ return function(T, H)
 		-- Futuristic furniture: the speaker and the layered coffee table (futuristic only).
 		-- Tufted leather sofa: cozy, retro, 1980s and winter.
 		-- Batch 03 structure: the glass partition and the acoustic ceiling carry all five tags (16 structure pieces).
+		-- The industrial wall is the first structure piece with narrower tags: futuristic and 1980s only.
+		local structureTags = { cozy = 16, retro = 16, ["1980s"] = 17, winter = 16, futuristic = 17 }
 		local expected = { cozy = 27, retro = 21, ["1980s"] = 17, winter = 13, futuristic = 11 }
 		for _, c in ipairs(Catalog.Collections) do
 			T.eq(#Catalog.getFurnitureTagged(c.id), expected[c.id], c.id .. " furniture count")
-			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id] + 16, c.id .. " raw tag count (16 structure pieces carry all five tags)")
+			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id] + structureTags[c.id], c.id .. " raw tag count (structure pieces included)")
 			for _, item in ipairs(Catalog.getFurnitureTagged(c.id)) do
 				T.eq(item.structure, nil, item.id)
 			end
 		end
-		local perKind = { floor = 5, wall = 3, doorway = 2, ceiling = 3, window_wall = 3 }
+		local perKind = { floor = 5, wall = 4, doorway = 2, ceiling = 3, window_wall = 3 }
 		local structureTotal = 0
 		for _, f in ipairs(Catalog.StructureFilters) do
 			local items = Catalog.getStructureItems(f.id)
 			T.eq(#items, perKind[f.id], f.id)
 			for _, item in ipairs(items) do
-				T.eq(STRUCTURE[item.id] or STRUCTURE_VARIANTS[item.id] or BATCH03_STRUCTURE[item.id], f.id, item.id)
+				T.eq(STRUCTURE[item.id] or STRUCTURE_VARIANTS[item.id] or BATCH03_STRUCTURE[item.id] or (item.id == INDUSTRIAL_WALL and "wall"), f.id, item.id)
 			end
 			structureTotal = structureTotal + #items
 		end
-		T.eq(structureTotal, 16)
+		T.eq(structureTotal, 17)
 		local labels = {}
 		for i, f in ipairs(Catalog.StructureFilters) do labels[i] = f.displayName end
 		T.eq(table.concat(labels, ","), "Floors,Walls,Doors,Ceilings,Windows")
@@ -276,7 +280,7 @@ return function(T, H)
 			end
 			expectedInspected[#expectedInspected + 1] = a.id
 		end
-		T.eq(#Catalog.Items, base + #APPROVED_TRACKED + #VARIANT_ORDER + #FUTURISTIC_FURNITURE + 1 + #BATCH03_ORDER, "only the structure variants, futuristic furniture, the sofa and the batch 03 structure follow the approved tracked items")
+		T.eq(#Catalog.Items, base + #APPROVED_TRACKED + #VARIANT_ORDER + #FUTURISTIC_FURNITURE + 1 + #BATCH03_ORDER + 1, "only the structure variants, futuristic furniture, the sofa, the batch 03 structure and the industrial wall follow the approved tracked items")
 		expectedInspected[#expectedInspected + 1] = "structure_wall_brick_01" -- the tracked White Brick Wall, resized (structure manifest)
 		local inspected = {}
 		for _, item in ipairs(Catalog.Items) do
@@ -422,7 +426,7 @@ return function(T, H)
 				prepared[#prepared + 1] = it.id
 			end
 		end
-		T.deepEq(prepared, { "future_speaker_01", "future_layered_coffee_table_01", SOFA, BATCH03_ORDER[1], BATCH03_ORDER[2] })
+		T.deepEq(prepared, { "future_speaker_01", "future_layered_coffee_table_01", SOFA, BATCH03_ORDER[1], BATCH03_ORDER[2], INDUSTRIAL_WALL })
 	end)
 
 	T.test("batch 03 structure: registered exactly from its manifest, on the grid module, provenance kept out of the catalog", function()
@@ -474,6 +478,56 @@ return function(T, H)
 		end
 	end)
 
+	T.test("industrial wall: registered exactly from its manifest as a 16 x 15 x 1 wall on the grid; Structure-mode only; light disabled, not claimed", function()
+		local StructureGrid = H.load("src/shared/StructureGrid")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Industrial_Wall_Registration_2026-10-26.json")
+		local count = 0
+		for _ in manifest:gmatch('"preparedPath"') do count = count + 1 end
+		T.eq(count, 1, "manifest items")
+		local item = Catalog.getItem(INDUSTRIAL_WALL)
+		T.ok(item ~= nil, INDUSTRIAL_WALL)
+		T.eq(item.displayName, "Industrial Concrete Wall")
+		T.deepEq(item.structure, { kind = "wall" })
+		T.eq(item.type, nil, "no furniture type")
+		T.deepEq(item.collections, { "futuristic", "1980s" })
+		T.eq(item.sourceRef, "ServerStorage.StudioBuilderPreparedAssets." .. INDUSTRIAL_WALL, "prepared name matches its id")
+		local at = manifest:find('"id": "' .. INDUSTRIAL_WALL .. '"', 1, true)
+		T.ok(at, "id in manifest")
+		local entry = manifest:sub(at, manifest:find('"visualReview"', at, true))
+		T.ok(entry:find('"displayName": "' .. item.displayName .. '"', 1, true), "displayName")
+		T.ok(entry:find('"structure": { "kind": "wall" }', 1, true), "kind in manifest")
+		T.ok(entry:find('"collections": ["futuristic", "1980s"]', 1, true), "collections in manifest")
+		T.ok(entry:find('"sourceRef": "' .. item.sourceRef .. '"', 1, true), "sourceRef")
+		T.ok(entry:find('"preparedPath": "' .. item.sourceRef .. '"', 1, true), "install source")
+		for _, fact in ipairs({ '"baseParts": 26,', '"scripts": 0,', '"lights": 1,', '"anchored": true,', '"rotation": "Identity",', '"size": [16, 15, 1],' }) do
+			T.ok(entry:find(fact, 1, true), fact)
+		end
+		T.ok(entry:find("DISABLED", 1, true) and entry:find("No lighting adapter behaviour is claimed", 1, true), "the light is disabled and not claimed")
+		T.ok(manifest:find('"creator": "WilliamBosso"', 1, true) and manifest:find("H02_03", 1, true), "source recorded")
+		T.ok(manifest:find("NOT included in the latest full-place backup", 1, true), "backup status recorded")
+		for key in pairs(item) do
+			T.ok(key ~= "sourceAssetId" and key ~= "preparedPath" and key ~= "adaptation" and key ~= "lights", INDUSTRIAL_WALL .. " carries " .. key)
+		end
+		-- The 16 x 15 x 1 module validates on every wall edge inside the live 48 marker, in both orientations, and snaps from off-grid.
+		local size = { 16, 15, 1 }
+		local live = { halfX = 24, halfZ = 24, height = 24 }
+		T.deepEq(StructureGrid.validate("wall", { x = 0, y = 0, z = 8, yaw = 0 }, size, live), { x = 0, y = 0, z = 8, yaw = 0 })
+		T.deepEq(StructureGrid.validate("wall", { x = 8, y = 0, z = 16, yaw = 90 }, size, live), { x = 8, y = 0, z = 16, yaw = 90 })
+		T.eq((StructureGrid.validate("wall", { x = 3, y = 0, z = 8, yaw = 0 }, size, live)), nil, "off-grid refused")
+		T.eq((StructureGrid.validate("wall", { x = 0, y = 15, z = 8, yaw = 0 }, size, live)), nil, "wall level is 0")
+		local projected = StructureGrid.project("wall", { x = 1.2, y = 0, z = 6.7 }, 0)
+		T.ok(projected ~= nil and StructureGrid.validate("wall", projected, size, live) ~= nil, "a projected hit validates")
+		-- Furniture style lists never include it; Structure > Walls does.
+		for _, c in ipairs(Catalog.Collections) do
+			for _, f in ipairs(Catalog.getFurnitureTagged(c.id)) do
+				T.ok(f.id ~= INDUSTRIAL_WALL, c.id .. " furniture excludes the wall")
+			end
+		end
+		local walls = {}
+		for _, w in ipairs(Catalog.getStructureItems("wall")) do walls[#walls + 1] = w.id end
+		T.eq(walls[#walls], INDUSTRIAL_WALL, "listed last under Walls")
+	end)
+
 	T.test("sorted collections follow declared order", function()
 		local sorted = Catalog.getCollectionsSorted()
 		for i = 2, #sorted do
@@ -493,7 +547,7 @@ return function(T, H)
 
 	T.test("every sourceRef exists in the committed asset guide or expansion manifest (no invented sources)", function()
 		local guide = H.readFile(H.ROOT .. "/docs/assets/Studio_Asset_Guide_2026-10-25.json")
-		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_Expansion_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Futuristic_Furniture_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tufted_Leather_Sofa_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Batch03_Structure_Registration_2026-10-26.json")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_Expansion_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Futuristic_Furniture_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tufted_Leather_Sofa_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Batch03_Structure_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Industrial_Wall_Registration_2026-10-26.json")
 		for _, item in ipairs(Catalog.Items) do
 			local inGuide = string.find(guide, '"path": "' .. item.sourceRef .. '"', 1, true) or string.find(guide, '"path":"' .. item.sourceRef .. '"', 1, true)
 			local inManifest = string.find(manifest, '"sourceRef": "' .. item.sourceRef .. '"', 1, true)

@@ -533,7 +533,7 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
 
-## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (16 pieces and R rotation installed; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (16 pieces and R rotation installed, 1 more registered with integration pending; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
 Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
 - Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
   - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
@@ -726,6 +726,28 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - batch 03: 2 installed, 1 quarantined (Modern wood block), 9 thumbnail-only;
     - batch 02 unchanged: 3 installed, 19 pending.
   - The historical manifests are unchanged.
+- Industrial wall registration (repository; Codex integration pending):
+  - **Registered (1):** `structure_industrial_wall_01` (Industrial Concrete Wall; `wall`, in Walls; futuristic and 1980s), appended last.
+    - It's the first structure piece without all five tags. Structure mode ignores style filters, so it still lists under Walls.
+    - **Counts:** repository 55 (38 furniture, 17 structure; Walls 4). Installed stays **54**.
+  - **Source:** free Creator Store asset 120565443892509, Modular Wall Pack by WilliamBosso; the extracted Straight Wall, batch 02 H02_03 (the original candidate is retained).
+  - **Preparation (Codex):**
+    - the imported geometry was rotated and normalized, with a minimum trim thickness of 0.05 and depth constrained to one stud;
+    - bounds are exactly 16 × 15 × 1, with identity rotation and a bottom-centre pivot at the origin;
+    - 26 anchored BaseParts, zero LuaSourceContainers;
+    - both faces were inspected in native Studio, and the bounds and pivot assertions passed.
+    - Look: gray concrete with dark metal horizontal trim and conduit, a brown lower band and a small pale indicator; the reverse is plain.
+  - **Light:** one imported PointLight is present but **disabled**. No lighting adapter behaviour is claimed.
+  - **Provenance:** `docs/assets/Industrial_Wall_Registration_2026-10-26.json`. Install source: `ServerStorage.StudioBuilderPreparedAssets.structure_industrial_wall_01`. The batch 02 manifest is unchanged.
+  - **Pending (Codex):**
+    - install into `StudioBuilderTemplates`, the probe, and Play Place → Rotate → Delete;
+    - a refreshed backup after integration (the 54-item backup predates this candidate).
+  - **Batch 02 tally:** 3 installed, 19 pending (this candidate among them until integration).
+  - **Tests:**
+    - counts updated: 55 items, Walls 4, 17 structure; raw tag counts per collection now account for the narrower tags;
+    - a new test checks the manifest fields and facts and that the prepared name matches the id;
+    - it also checks that the 16 × 15 × 1 module validates on both wall orientations within the live 48 marker, refuses off-grid and wrong-level positions, validates a projected hit, stays out of furniture style lists, and lists last under Walls.
+    - No UI or runtime code changed.
 
 ## 11. Existing room assets in Build (user request): Pending
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
