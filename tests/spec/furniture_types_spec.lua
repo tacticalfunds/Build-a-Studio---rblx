@@ -19,7 +19,7 @@ return function(T, H)
 		winter_firewood_shelf_01 = "storage", winter_log_basket_01 = "storage", future_drawer_cabinet_01 = "storage",
 		studio_boom_mic_01 = "microphones", studio_desk_mic_01 = "microphones",
 		retro_cassette_01 = "audio", studio_headphones_01 = "audio", studio_mixer_01 = "audio",
-		retro_record_player_01 = "audio", retro_radio_01 = "audio", future_speaker_01 = "audio",
+		retro_record_player_01 = "audio", retro_radio_01 = "audio", future_speaker_01 = "audio", record_console_01 = "audio",
 		future_layered_coffee_table_01 = "tables", studio_conference_table_01 = "tables",
 		cozy_floor_lamp_01 = "lighting", future_modern_lamp_01 = "lighting", studio_desk_lamp_01 = "lighting", winter_lantern_01 = "lighting",
 		retro_classic_floor_lamp_01 = "lighting", studio_softbox_01 = "lighting", studio_umbrella_light_01 = "lighting",
@@ -48,7 +48,7 @@ return function(T, H)
 				seen[item.id] = true
 			end
 		end
-		T.eq(furniture, 49)
+		T.eq(furniture, 50)
 		for id in pairs(EXPECTED) do T.ok(seen[id], "assigned item exists: " .. id) end
 		T.eq(Catalog.getFurnitureType("doors"), nil, "no empty Doors type in furniture")
 		T.eq(Catalog.getFurnitureType("seating").displayName, "Seating")
@@ -229,7 +229,7 @@ return function(T, H)
 		for i, e in ipairs(expected) do
 			T.deepEq(env.drawer.types[i], e)
 		end
-		T.deepEq(env.drawer.types[#env.drawer.types], { id = "all", displayName = "All items", count = 36 })
+		T.deepEq(env.drawer.types[#env.drawer.types], { id = "all", displayName = "All items", count = 37 })
 		T.eq(#env.drawer.items, 0, "no cards while choosing a type")
 		env.drawer.callbacks.onType("microphones")
 		T.eq(env.drawer.typeView, "items")
@@ -239,7 +239,7 @@ return function(T, H)
 		T.eq(env.drawer.typeView, "chooser")
 		T.eq(env.c:isOpen(), true, "Types does not leave build mode")
 		env.drawer.callbacks.onType("all")
-		T.eq(#env.drawer.items, 36)
+		T.eq(#env.drawer.items, 37)
 		T.eq(env.drawer.typeName, "All items")
 		env.drawer.callbacks.onFilter("futuristic")
 		T.eq(env.drawer.typeView, "chooser", "changing collection returns to the chooser")

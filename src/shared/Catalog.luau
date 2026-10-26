@@ -682,6 +682,18 @@ Catalog.Items = {
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.structure_window_arch_01",
 		structure = { kind = "window_wall" },
 	},
+	-- Retro record console (2026-10-26): batch 02 H02_12, the free "Record
+	-- Player & Shelf" by Savageboy, yaw corrected and scaled 0.625 by Codex
+	-- (docs/assets/Record_Console_Registration_2026-10-26.json). Static
+	-- decoration: no playback or drawer behaviour. Prepared only: not in
+	-- StudioBuilderTemplates, not live.
+	{
+		id = "record_console_01",
+		displayName = "Retro Record Console",
+		collections = { "retro", "1980s", "cozy" },
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.record_console_01",
+		type = "audio",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

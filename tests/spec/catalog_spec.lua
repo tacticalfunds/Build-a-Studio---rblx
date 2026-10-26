@@ -91,10 +91,12 @@ return function(T, H)
 	local INDICATOR = "studio_broadcast_indicator_01"
 	local PANEL_DOOR = "structure_doorway_panel_01"
 	local ARCH_WINDOW = "structure_window_arch_01"
+	local RECORD_CONSOLE = "record_console_01"
 
-	T.test("catalog holds 7 original, 24 expansion, 5 structure, 4 later furniture, 9 structure variant, 2 futuristic furniture, 1 sofa, 2 batch 03 structure, 1 industrial wall, 1 acoustic wall, 1 drawer cabinet, 1 water dispenser, 1 tall floor plant, 1 conference table, 1 flower pot, 1 office chair, 1 coffee mug, 1 presentation board, 1 softbox, 1 umbrella light, 1 broadcast indicator, 1 panel door wall and 1 arched window wall ID, earlier entries unchanged in order", function()
-		T.eq(#Catalog.Items, 69, "item count")
-		T.eq(Catalog.Items[69].id, ARCH_WINDOW, "the arched window wall is appended last")
+	T.test("catalog holds 7 original, 24 expansion, 5 structure, 4 later furniture, 9 structure variant, 2 futuristic furniture, 1 sofa, 2 batch 03 structure, 1 industrial wall, 1 acoustic wall, 1 drawer cabinet, 1 water dispenser, 1 tall floor plant, 1 conference table, 1 flower pot, 1 office chair, 1 coffee mug, 1 presentation board, 1 softbox, 1 umbrella light, 1 broadcast indicator, 1 panel door wall, 1 arched window wall and 1 record console ID, earlier entries unchanged in order", function()
+		T.eq(#Catalog.Items, 70, "item count")
+		T.eq(Catalog.Items[70].id, RECORD_CONSOLE, "the record console is appended last")
+		T.eq(Catalog.Items[69].id, ARCH_WINDOW, "the arched window wall follows the panel door wall")
 		T.eq(Catalog.Items[68].id, PANEL_DOOR, "the panel door wall follows the broadcast indicator")
 		T.eq(Catalog.Items[67].id, INDICATOR, "the broadcast indicator follows the umbrella light")
 		T.eq(Catalog.Items[65].id, SOFTBOX, "the softbox follows the presentation board")
@@ -163,7 +165,8 @@ return function(T, H)
 		-- Studio softbox: cozy, 1980s and futuristic.
 		-- Studio umbrella light: cozy, 1980s and futuristic.
 		-- Broadcast indicator: retro, 1980s and futuristic.
-		local expected = { cozy = 36, retro = 25, ["1980s"] = 27, winter = 15, futuristic = 19 }
+		-- Retro record console: retro, 1980s and cozy.
+		local expected = { cozy = 37, retro = 26, ["1980s"] = 28, winter = 15, futuristic = 19 }
 		for _, c in ipairs(Catalog.Collections) do
 			T.eq(#Catalog.getFurnitureTagged(c.id), expected[c.id], c.id .. " furniture count")
 			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id] + structureTags[c.id], c.id .. " raw tag count (structure pieces included)")
@@ -322,7 +325,7 @@ return function(T, H)
 			end
 			expectedInspected[#expectedInspected + 1] = a.id
 		end
-		T.eq(#Catalog.Items, base + #APPROVED_TRACKED + #VARIANT_ORDER + #FUTURISTIC_FURNITURE + 1 + #BATCH03_ORDER + 15, "only the structure variants, futuristic furniture, the sofa, the batch 03 structure, the two prepared walls, the drawer cabinet, the ten room extractions, the panel door wall and the arched window wall follow the approved tracked items")
+		T.eq(#Catalog.Items, base + #APPROVED_TRACKED + #VARIANT_ORDER + #FUTURISTIC_FURNITURE + 1 + #BATCH03_ORDER + 16, "only the structure variants, futuristic furniture, the sofa, the batch 03 structure, the two prepared walls, the drawer cabinet, the ten room extractions, the panel door wall, the arched window wall and the record console follow the approved tracked items")
 		expectedInspected[#expectedInspected + 1] = "structure_wall_brick_01" -- the tracked White Brick Wall, resized (structure manifest)
 		local inspected = {}
 		for _, item in ipairs(Catalog.Items) do
@@ -469,7 +472,7 @@ return function(T, H)
 				prepared[#prepared + 1] = it.id
 			end
 		end
-		T.deepEq(prepared, { "future_speaker_01", "future_layered_coffee_table_01", SOFA, BATCH03_ORDER[1], BATCH03_ORDER[2], INDUSTRIAL_WALL, ACOUSTIC_WALL, CABINET, DISPENSER, PLANT, CONFERENCE_TABLE, FLOWER_POT, OFFICE_CHAIR, MUG, BOARD, SOFTBOX, UMBRELLA, INDICATOR, PANEL_DOOR, ARCH_WINDOW })
+		T.deepEq(prepared, { "future_speaker_01", "future_layered_coffee_table_01", SOFA, BATCH03_ORDER[1], BATCH03_ORDER[2], INDUSTRIAL_WALL, ACOUSTIC_WALL, CABINET, DISPENSER, PLANT, CONFERENCE_TABLE, FLOWER_POT, OFFICE_CHAIR, MUG, BOARD, SOFTBOX, UMBRELLA, INDICATOR, PANEL_DOOR, ARCH_WINDOW, RECORD_CONSOLE })
 	end)
 
 	T.test("batch 03 structure: registered exactly from its manifest, on the grid module, provenance kept out of the catalog", function()
@@ -1373,6 +1376,71 @@ return function(T, H)
 		end
 	end)
 
+	T.test("record console: batch 02 H02_12 registered exactly from its manifest as retro/1980s/cozy audio decor; prepared only; floor placement fits its bounds", function()
+		local Transform = H.load("src/shared/Transform")
+		local Config = H.load("src/shared/Config")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Record_Console_Registration_2026-10-26.json")
+		local count = 0
+		for _ in manifest:gmatch('"preparedPath"') do count = count + 1 end
+		T.eq(count, 1, "manifest items")
+		local item = Catalog.getItem(RECORD_CONSOLE)
+		T.ok(item ~= nil, RECORD_CONSOLE)
+		T.eq(item.displayName, "Retro Record Console")
+		T.eq(item.type, "audio")
+		T.eq(item.structure, nil, "furniture, not structure")
+		T.deepEq(item.collections, { "retro", "1980s", "cozy" })
+		T.eq(item.sourceRef, "ServerStorage.StudioBuilderPreparedAssets." .. RECORD_CONSOLE, "prepared name matches its id")
+		local keys = {}
+		for key in pairs(item) do keys[#keys + 1] = key end
+		table.sort(keys)
+		T.eq(table.concat(keys, ","), "collections,displayName,id,sourceRef,type", "only catalog fields; no credit, asset id or playback hooks")
+		local at = manifest:find('"id": "' .. RECORD_CONSOLE .. '"', 1, true)
+		local entry = manifest:sub(at, manifest:find('"visualReview"', at, true))
+		for _, fact in ipairs({
+			'"displayName": "' .. item.displayName .. '"', '"collections": ["retro", "1980s", "cozy"]', '"type": "audio"',
+			'"sourceRef": "' .. item.sourceRef .. '"', '"preparedPath": "' .. item.sourceRef .. '"',
+			'"baseParts": 57,', '"nestedModels": 2,', '"decals": 1,', '"scripts": 0,', '"joints": 0,', '"constraints": 0,',
+			'"unanchored": 0,', '"touchEnabled": 0,', '"lights": 0,', '"seats": 0,', '"front": "-Z",',
+		}) do
+			T.ok(entry:find(fact, 1, true), fact)
+		end
+		T.ok(entry:find("no playback, spinning, drawer interaction, seating, lights or new mechanics", 1, true), "static decoration only")
+		-- Source: the batch 02 candidate's free model; the template's decal texture is recorded but never named by builder code.
+		local batch02 = H.readFile(H.ROOT .. "/docs/assets/Catalog_Hunt_Batch02_2026-10-26.json")
+		local candidate = batch02:match('{[^{}]*"candidateId":"H02_12"[^{}]*}')
+		T.ok(candidate and candidate:find('"sourceAssetId":"126677556"', 1, true) and candidate:find('"creator":"Savageboy"', 1, true), "H02_12 is the Record Player & Shelf by Savageboy")
+		T.ok(manifest:find('"creatorStoreAssetId": "126677556"', 1, true) and manifest:find('"creator": "Savageboy"', 1, true), "same source in the manifest")
+		T.ok(entry:find('"texture": "rbxassetid://11815594"', 1, true), "decal recorded in the manifest")
+		for _, path in ipairs(H.sourceList) do
+			T.eq(H.readFile(H.ROOT .. "/" .. path):find("11815594", 1, true), nil, "the decal id is not in " .. path)
+		end
+		T.ok(manifest:find("NOT installed in StudioBuilderTemplates", 1, true) and manifest:find("Live Build count remains 69", 1, true), "prepared only; live 69")
+		T.ok(manifest:find("NOT included in the latest full-place backup", 1, true), "backup status recorded")
+		-- Floor placement with the reported bounds (half X about 4.375, half Z about 1.25) inside the live 48 marker.
+		local sx, sy, sz = entry:match('"size": %[([%d%.]+), ([%d%.]+), ([%d%.]+)%]')
+		local size = { tonumber(sx), tonumber(sy), tonumber(sz) }
+		T.deepEq(size, { 8.750013, 4.0000005, 2.5000336 })
+		local live = { halfX = 24, halfZ = 24, height = 24 }
+		local function place(x, y, z, yaw) return Transform.sanitize({ x = x, y = y, z = z, yaw = yaw }, size, live, Config) end
+		T.deepEq(place(0, 0, 0, 0), { x = 0, y = 0, z = 0, yaw = 0 }, "on the floor at the centre")
+		T.ok(place(19.6, 0, 0, 0) ~= nil, "front-facing against the X edge")
+		T.eq(select(2, place(19.7, 0, 0, 0)), "OutOfBounds", "its 8.75 width overhangs the X edge")
+		T.ok(place(22.7, 0, 0, 90) ~= nil, "turned 90 degrees, its 2.5 depth fits at x = 22.7")
+		T.eq(select(2, place(0, 0, 22.7, 90)), "OutOfBounds", "turned 90 degrees, its width overhangs the Z edge")
+		T.eq(select(2, place(0, -0.5, 0, 0)), "OutOfBounds", "not below the floor")
+		-- Audio lists: last in Retro, 1980s and Cozy; never in Winter, Futuristic or Structure mode.
+		for _, tag in ipairs(item.collections) do
+			local audio = Catalog.getFurnitureByType(tag, "audio")
+			T.eq(audio[#audio].id, RECORD_CONSOLE, "last in " .. tag .. " > Audio")
+		end
+		for _, tag in ipairs({ "winter", "futuristic" }) do
+			for _, f in ipairs(Catalog.getFurnitureTagged(tag)) do T.ok(f.id ~= RECORD_CONSOLE, tag) end
+		end
+		for _, f in ipairs(Catalog.StructureFilters) do
+			for _, s in ipairs(Catalog.getStructureItems(f.id)) do T.ok(s.id ~= RECORD_CONSOLE, f.id) end
+		end
+	end)
+
 	T.test("sorted collections follow declared order", function()
 		local sorted = Catalog.getCollectionsSorted()
 		for i = 2, #sorted do
@@ -1392,7 +1460,7 @@ return function(T, H)
 
 	T.test("every sourceRef exists in the committed asset guide or expansion manifest (no invented sources)", function()
 		local guide = H.readFile(H.ROOT .. "/docs/assets/Studio_Asset_Guide_2026-10-25.json")
-		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_Expansion_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Futuristic_Furniture_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tufted_Leather_Sofa_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Batch03_Structure_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Industrial_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Acoustic_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Drawer_Cabinet_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Water_Dispenser_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tall_Floor_Plant_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Conference_Table_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Flower_Pot_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Office_Chair_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Coffee_Mug_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Presentation_Board_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Studio_Softbox_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Studio_Umbrella_Light_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Broadcast_Indicator_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Panel_Door_Wall_Module_Preparation_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Arched_Window_Wall_Registration_2026-10-26.json")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_Expansion_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Futuristic_Furniture_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tufted_Leather_Sofa_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Batch03_Structure_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Industrial_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Acoustic_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Drawer_Cabinet_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Water_Dispenser_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tall_Floor_Plant_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Conference_Table_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Flower_Pot_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Office_Chair_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Coffee_Mug_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Presentation_Board_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Studio_Softbox_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Studio_Umbrella_Light_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Broadcast_Indicator_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Panel_Door_Wall_Module_Preparation_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Arched_Window_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Record_Console_Registration_2026-10-26.json")
 		for _, item in ipairs(Catalog.Items) do
 			local inGuide = string.find(guide, '"path": "' .. item.sourceRef .. '"', 1, true) or string.find(guide, '"path":"' .. item.sourceRef .. '"', 1, true)
 			local inManifest = string.find(manifest, '"sourceRef": "' .. item.sourceRef .. '"', 1, true)

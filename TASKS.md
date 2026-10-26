@@ -29,7 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | **49 installed**; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
+| 8 | More collection themes | 6 | **49 installed** (repository 50: the record console is registered, Studio integration pending); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (20 pieces and R rotation installed; 18 remote-tested in Play, the panel door wall and arched window wall static Edit checks only; physical R-key/UI, visual QA and doorway clearance pending) |
 | 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | In progress (11 installed, including the panel door wall: static Edit checks only, auto-open disabled; the laptop and the metal door remaining) |
@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 69 installed in total (49 furniture, 20 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the first 6 batch 02 pieces passed remote Place→Rotate→Delete, the arched window wall has static Edit checks only); batch 02: 7 installed, 15 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 69 installed in total (49 furniture, 20 structure; repository 70 with the record console registered and pending integration; see task 11 for the room extractions; see task 10 for the structure pieces; the first 6 batch 02 pieces passed remote Place→Rotate→Delete, the arched window wall has static Edit checks only); batch 02: 7 installed, 15 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -1590,3 +1590,19 @@ Make the assets already used in the six existing rooms available in the Build dr
   - **Counts:** live 69 = repository 69; batch 02 at 7 installed (H02_09 now installed), 15 pending; task 11 unchanged at 11 installed, 2 remaining. The task 8 and task 10 headings and the task 10 queue row now reflect 20 installed structure pieces, with the two static-only pieces named.
   - **Deferred to later code work:** stale source comments in `Catalog.luau` (the panel door and arched window entries still say "prepared only").
   - Documentation only: no code, runtime or UI change.
+- Record console registration (repository only; **prepared, NOT installed**; Studio integration pending). Batch 02 candidate H02_12.
+  - **Item:** `record_console_01`, "Retro Record Console", type `audio`, collections retro, 1980s and cozy, sourceRef `ServerStorage.StudioBuilderPreparedAssets.record_console_01`. It is appended as item 70 and lists last under Audio in Retro, 1980s and Cozy.
+  - **Source:** the free Creator Store "Record Player & Shelf" by Savageboy (asset 126677556). The catalog entry carries no credit or asset ID field; provenance is in the manifest. The original candidate is preserved.
+  - **Preparation (Codex, Studio Edit):**
+    - 57 anchored Parts, 2 nested Models and 1 top-facing Decal (its texture is recorded in the manifest only; no builder code names it);
+    - zero scripts, joints, constraints, unanchored or touch-enabled parts;
+    - the imported yaw corrected by -70.91357436° and scaled uniformly by 0.625; identity bottom-centre pivot; about 8.750013 × 4.0000005 × 2.5000336 studs; front faces −Z;
+    - all four cardinal world bounds and floor contact checked; visually reviewed: a blocky dark-brown low console with four shelves of colourful records and books, two gold drawer handles and a gray/black turntable in a central recessed top.
+  - **Static decoration only:** no playback, spinning, drawer interaction, seating, lights or new mechanics.
+  - **Not validated:** no Build UI, placement runtime, Play, avatar or save/load test. Review copy: `Workspace.StudioAssetYard.Record Console Prepared Review`.
+  - **Manifest:** [`docs/assets/Record_Console_Registration_2026-10-26.json`](docs/assets/Record_Console_Registration_2026-10-26.json). The batch 02 hunt record is unchanged. **Backup:** not in the 69-item backup, which predates this preparation.
+  - **Tests:**
+    - 1 new catalog test: exact fields against the manifest; the H02_12 source in the batch 02 record; the decal recorded but absent from every source file; prepared-only status; floor placement with the reported bounds (centre, X edge, turned 90°, below the floor); last under Audio in its three collections and absent from Winter, Futuristic and Structure mode;
+    - updated: item count 70, furniture 50, cozy/retro/1980s furniture counts, the reviewed type map (`audio`), the Cozy "All items" count, the prepared-copy list and the provenance list;
+    - **419 passed, 0 failed**; changing the item's type or dropping a collection fails tests.
+  - **Counts:** repository **70** (50 furniture, 20 structure); live **69** (49 furniture, 20 structure; 4 Windows; doors disabled) until Codex installs it. Batch 02 stays at 7 installed and 15 pending; this console becomes the eighth installed piece only after integration. Task 11 unchanged at 11 installed, 2 remaining.
