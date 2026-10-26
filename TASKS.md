@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 59 installed in total (41 furniture, 18 structure; see task 11 for the water dispenser and the tall floor plant; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 59 installed in total (41 furniture, 18 structure; 1 more registered, repository 60, integration pending: the conference table; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (2 installed: the water dispenser and the tall floor plant; 11 gap-audit entries remaining)
+## 11. Existing room assets in Build (user request): In progress (2 installed: the water dispenser and the tall floor plant; 11 gap-audit entries remaining, one of them, the conference table, registered with integration pending)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -921,3 +921,33 @@ Make the assets already used in the six existing rooms available in the Build dr
     - It includes the plant's new prepared, template and review copies.
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical registration manifest is unchanged.
+- Conference table registration (repository; Codex integration pending):
+  - **Registered (1):** `studio_conference_table_01` (White Conference Table; furniture type tables; cozy, 1980s and futuristic; ordinary floor placement), appended last.
+    - **Counts:** repository 60 (42 furniture, 18 structure). Installed stays **59** (41 furniture, 18 structure).
+  - **Source:** extracted from `Workspace.RoomCollection.ConferenceRoom.Table`; this is the gap audit's "Conference table". The original room is untouched.
+    - The parent free model is 4993294691, per the ConferenceRoom record in the asset guide.
+    - The creator is not independently verified, so no credit is recorded, and no individual table model ID is claimed.
+  - **Prepared copy (Codex, Edit):** `ServerStorage.StudioBuilderPreparedAssets.studio_conference_table_01`.
+    - Exact bounds X 24.224998474121095, Y 3.299999952316284, Z 11.625, with an identity bottom-centre pivot. The tiny Y difference from the gap audit is normalization rounding.
+    - 3 anchored Parts; zero scripts, Lights, Seats and joints; CanTouch false.
+    - The original geometry, scale, materials and colours were kept, and no geometry was added.
+    - Native viewport review: a large rectangular white Metal tabletop over a narrow dark WoodPlanks underlayer, on a broad dark wood pedestal. It differs in shape and size from all four existing table templates.
+    - Review copy: `Workspace.StudioAssetYard.Conference Table Review` at (4028, 1, 3538).
+  - **Decorative only:** no automatic chairs, seat adapters or new interactions.
+  - **Provenance:** `docs/assets/Conference_Table_Registration_2026-10-26.json`. The asset guide and the gap audit are unchanged.
+  - **Backup:** the prepared and review copies postdate the 59-item backup; the original room source is in it.
+  - **Pending (Codex):** install, the probe, Play Place → Rotate → Delete, then a backup.
+  - **Tallies:**
+    - task 11: 2 installed, 11 pending (the table registered among them, awaiting integration);
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Tests:**
+    - counts updated: 60 items, 42 furniture; cozy 30, 1980s 20, futuristic 13; futuristic tables 3; cozy All items 30; futuristic drawer 13;
+    - a new test checks the manifest fields and facts, that the prepared name matches the id, and that no creator, credit or table model ID is invented;
+    - it cross-checks the parent model against the asset guide, and the source path, type and footprint against the gap audit (with the Y rounding difference asserted);
+    - large-footprint placement inside the live 48 marker:
+      - lengthwise X and Z edge limits;
+      - turned 90° and 270°;
+      - the wider 45° diagonal extent;
+      - a refused off-step yaw;
+    - it's listed last in Cozy, 1980s and Futuristic > Tables, and never in Retro, Winter or Structure mode.
+    - No UI or runtime code changed.

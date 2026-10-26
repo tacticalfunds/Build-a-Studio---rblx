@@ -537,6 +537,18 @@ Catalog.Items = {
 		type = "plants",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_tall_floor_plant_01",
 	},
+	-- Conference table (2026-10-26): extracted by Codex from the existing
+	-- Conference Room (docs/assets/Conference_Table_Registration_2026-10-26.json);
+	-- the room itself is untouched. Install source:
+	-- ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- Decorative only: no chairs come with it and it has no seats.
+	{
+		id = "studio_conference_table_01",
+		displayName = "White Conference Table",
+		collections = { "cozy", "1980s", "futuristic" },
+		type = "tables",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_conference_table_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

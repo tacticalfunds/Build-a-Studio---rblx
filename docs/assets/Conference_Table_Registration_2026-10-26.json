@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually inspected by Codex in Edit; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates and NOT runtime tested. Installed Build count remains 59 (41 furniture, 18 structure); repository count 60.",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of e9ee720 (not an export file)",
+  "kind": "Existing-room extraction (task 11); not a batch 02 or batch 03 candidate",
+  "source": {
+    "extractedFrom": "Workspace.RoomCollection.ConferenceRoom.Table",
+    "gapAuditEntry": "Conference table (docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json)",
+    "parentModel": "ConferenceRoom",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, ConferenceRoom (path ServerStorage.PodcastAssetStaging.ConferenceRoom), preparation 'Source4993294691'",
+    "parentFreeModelAssetId": "4993294691",
+    "creator": "Not independently verified; not recorded (no credit)",
+    "tableModelAssetId": "None claimed: 4993294691 is the parent room model, not an individual table model",
+    "originalRoomSource": "Untouched"
+  },
+  "items": [
+    {
+      "id": "studio_conference_table_01",
+      "displayName": "White Conference Table",
+      "collections": ["cozy", "1980s", "futuristic"],
+      "type": "tables",
+      "placement": "floor",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.studio_conference_table_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.studio_conference_table_01",
+      "reviewCopy": "Workspace.StudioAssetYard.Conference Table Review at (4028, 1, 3538)",
+      "baseParts": 3,
+      "partClass": "Part",
+      "scripts": 0,
+      "lights": 0,
+      "seats": 0,
+      "joints": 0,
+      "anchored": true,
+      "canTouch": false,
+      "adaptation": "Original geometry, scale, materials and colours retained; no geometry added. Anchored, touch disabled, pivot normalized.",
+      "rotation": "Identity",
+      "pivot": "Identity bottom-centre pivot",
+      "size": [24.224998474121095, 3.299999952316284, 11.625],
+      "sizeNote": "The tiny Y difference from the gap audit (3.299999713897705) is normalization rounding.",
+      "look": "Large rectangular white Metal tabletop over a narrow dark WoodPlanks underlayer, on a broad dark wood pedestal",
+      "distinctFrom": "Differs in shape and size from all four existing table templates (Codex check)",
+      "functionality": "Decorative table only: no automatic chairs, no seat adapters and no new interactions.",
+      "visualReview": "Appearance verified by Codex in the native viewport"
+    }
+  ],
+  "task11Tally": "2 installed (studio_water_dispenser_01, studio_tall_floor_plant_01); 11 gap-audit entries pending, including this table (registered, integration pending).",
+  "backup": "The prepared and review copies postdate the latest full-place backup (StudioBuilder-FullBackup-59Items-2026-10-26-0156.rbxl); the original room source is in that backup.",
+  "historicalRecords": "docs/assets/Studio_Asset_Guide_2026-10-25.json and docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json are unchanged."
+}
