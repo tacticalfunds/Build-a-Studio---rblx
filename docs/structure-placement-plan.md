@@ -19,7 +19,12 @@
 - **Client:**
   - The Build drawer has a **Furniture | Structure** choice row (existing button styles; selected is teal). In Structure mode the existing filter row reads Floors / Walls / Doors / Ceilings / Windows. The style filters show furniture only.
   - The ghost is computed by `PlacementPreview` through the same `StructureGrid` and code mapping as the server, with the supplied sandbox bounds. A floor hit places a ceiling at y = 15.
-  - R in a structure preview turns floors and ceilings 90°. On wall pieces it flips which way they face (180°), because the edge they sit on follows the pointer.
+  - **R or "Rotate [R]" turns every structure preview 90°** (floors, ceilings, walls, window walls and doorways). The turn holds while pointing.
+    - The preview uses `StructureGrid.project(..., { lockYaw = true })`: yaw 0/180 snaps to the nearest X-axis edge, and 90/270 to the nearest Z-axis edge.
+    - The status line shows the angle ("Angle 90° [R]") so square floors and ceilings give visible feedback.
+    - Earlier, edge pieces flipped 180° and the pointer chose the edge, so symmetric walls looked unchanged.
+    - Server validation and the default `project` behaviour are unchanged.
+    - A placed, selected piece still uses the server's Rotate, with the provisional hinge.
   - Switching category cancels any placement or move preview.
   - A Place or Move is only sent for a valid preview computed for the current item **and** yaw.
 - **Unchanged:** no save schema change, no support graph or cascade delete, no new remote. Furniture behaviour is unchanged.

@@ -13,7 +13,9 @@
 	  turns invalid exactly where the server would reject.
 	* Structure pieces (ctx.structureKind, task 10) use the shared StructureGrid
 	  instead, the same module and code mapping the server uses: the hit's x/z
-	  picks the nearest cell centre or cell edge, the level is fixed by kind
+	  picks the nearest cell centre or, for walls, the nearest edge along the
+	  axis the preview yaw selects (locked orientation: R turns every piece
+	  90 degrees and the turn holds while pointing), the level is fixed by kind
 	  (floor 0, wall 0, ceiling 15: a floor hit places a ceiling at y 15), yaw
 	  is cardinal, and bounds are the supplied sandbox bounds with no overhang.
 	  Any hit counts (floor, a wall face, a ceiling top): only x/z are used.
@@ -39,7 +41,7 @@ local function computeStructure(hit, ctx)
 	if type(hit) ~= "table" or not finite(hit.x) or not finite(hit.z) then
 		return { valid = false, code = "NoSurface" }
 	end
-	local raw, projectCode = StructureGrid.project(ctx.structureKind, { x = hit.x, z = hit.z }, ctx.yaw)
+	local raw, projectCode = StructureGrid.project(ctx.structureKind, { x = hit.x, z = hit.z }, ctx.yaw, { lockYaw = true })
 	if raw == nil then
 		local code, reason = StructureGrid.toProtocol(projectCode)
 		return { valid = false, code = code, reason = reason }

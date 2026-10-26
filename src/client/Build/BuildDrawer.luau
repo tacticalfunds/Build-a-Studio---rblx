@@ -165,7 +165,7 @@ function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
 	self.actions = actions
 
 	local selection
-	self.selectionRow, selection = buttonRow(body, 2, { "Move", "Rotate", "Duplicate", "Delete" }, { callbacks.onMove, callbacks.onRotate, callbacks.onDuplicate, callbacks.onDelete })
+	self.selectionRow, selection = buttonRow(body, 2, { "Move", "Rotate [R]", "Duplicate", "Delete" }, { callbacks.onMove, callbacks.onRotate, callbacks.onDuplicate, callbacks.onDelete })
 	self.selectionButtons = selection
 
 	local hint = row(body, 3, 54)
@@ -186,7 +186,7 @@ function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
 		return b
 	end
 	self.placeHere = hintButton("Place here", true, 1, callbacks.onPlaceHere)
-	hintButton("Rotate", false, 2, callbacks.onRotate) -- touch users have no R key
+	hintButton("Rotate [R]", false, 2, callbacks.onRotate) -- touch users have no R key
 	hintButton("Cancel", false, 3, callbacks.onCancel)
 	self.hintRow = hint
 	self:setInputMode("mouse")

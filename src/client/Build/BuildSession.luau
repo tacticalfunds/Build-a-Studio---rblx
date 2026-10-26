@@ -18,10 +18,9 @@
 	* Categories (task 10): "furniture" shows the five style filters;
 	  "structure" shows Floors / Walls / Doors / Ceilings / Windows. Switching
 	  category cancels any preview (a stale placement or move never carries
-	  over). The chosen item's structure kind sets the preview rotation step:
-	  90 degrees for floors and ceilings; 180 for edge pieces (walls, window
-	  walls, doorways), because which edge they sit on follows the pointer,
-	  so R only flips which way the piece faces.
+	  over). R turns every structure preview 90 degrees (furniture keeps
+	  RotationStep, 15). The preview keeps that orientation while the pointer
+	  moves: a wall's yaw picks which edge axis it snaps to.
 	* Furniture types: inside a collection, furnitureType is nil (the type
 	  chooser), "all" (every furniture item in the collection) or one
 	  Catalog.FurnitureTypes id. Changing collection, type, structure filter
@@ -129,11 +128,10 @@ end
 
 -- Preview rotation step for the current item (see header).
 function BuildSession:rotationStep()
-	local spec = self.itemKind and StructureGrid.Kinds[self.itemKind]
-	if spec == nil then
-		return self.config.RotationStep
+	if self.itemKind and StructureGrid.Kinds[self.itemKind] then
+		return StructureGrid.YAW_STEP
 	end
-	return spec.placement == "edge" and 180 or StructureGrid.YAW_STEP
+	return self.config.RotationStep
 end
 
 -- Picking a collection (even the current one) returns to its type chooser

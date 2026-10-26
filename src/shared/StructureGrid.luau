@@ -191,8 +191,16 @@ end
 	the nearest Z-axis edge (x on an edge line); a tie picks the X-axis edge.
 	Returns an unvalidated { x, y, z, yaw } (run validate for bounds), or
 	nil, code for bad input.
+
+	options.lockYaw (optional, default false): keep preferredYaw exactly and
+	let it choose the edge axis instead of the pointer: yaw 0/180 snaps to
+	the nearest X-axis edge (z on an edge line, x at a cell centre), 90/270
+	to the nearest Z-axis edge. The client preview uses this so R turns a
+	wall 90 degrees and the turn sticks while the pointer moves. Without the
+	option the nearest-edge behaviour above is unchanged; server validation
+	never depends on it.
 ]]
-function StructureGrid.project(kind, hit, preferredYaw)
+function StructureGrid.project(kind, hit, preferredYaw, options)
 	local spec = type(kind) == "string" and StructureGrid.Kinds[kind] or nil
 	if spec == nil then
 		return nil, Codes.BadKind
@@ -209,6 +217,12 @@ function StructureGrid.project(kind, hit, preferredYaw)
 	end
 	if spec.placement == "cell" then
 		return { x = StructureGrid.snapCentre(hit.x), y = spec.level, z = StructureGrid.snapCentre(hit.z), yaw = yaw }
+	end
+	if type(options) == "table" and options.lockYaw == true then
+		if StructureGrid.edgeAxis(yaw) == "x" then
+			return { x = StructureGrid.snapCentre(hit.x), y = spec.level, z = StructureGrid.snapEdge(hit.z), yaw = yaw }
+		end
+		return { x = StructureGrid.snapEdge(hit.x), y = spec.level, z = StructureGrid.snapCentre(hit.z), yaw = yaw }
 	end
 	local flipped = yaw == 180 or yaw == 270
 	local edgeZ = StructureGrid.snapEdge(hit.z)

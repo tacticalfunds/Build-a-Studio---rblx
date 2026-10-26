@@ -439,9 +439,9 @@ function BuildController:_refresh()
 	if session.readOnly then
 		status = "Only the host can build."
 	elseif session:isPreviewing() and session.itemKind then
-		status = "Placing: snaps to the 16-stud room grid."
+		status = string.format("Placing: snaps to the 16-stud room grid. Angle %d° [R]", session.previewYaw)
 	elseif session:isPreviewing() then
-		status = "Placing: snaps to floors and tabletops."
+		status = string.format("Placing: snaps to floors and tabletops. Angle %d° [R]", session.previewYaw)
 	else
 		status = "Build your studio."
 	end

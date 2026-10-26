@@ -517,4 +517,23 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - no console errors.
   - **Visual QA pending:** all world captures render white, including the original room in Edit mode. Rendering is Automatic, ViewMode None, with sane lighting; there's no confirmed cause. The GUI works and raycasts hit the correct geometry. **Visual placement, the hinge Rotate feel and doorway clearance are not approved.**
   - **Backups and place state:** Studio was returned to Edit, with no publish or merge. The full-place backup is still pending; there's a source-only backup.
+- Rotation usability (user priority, 2026-10-26; repository only, install pending):
+  - **What changed:**
+    - R and the Rotate button now turn **every** structure preview 90° (floors, ceilings, walls, window walls, doorways), and the chosen angle holds while the pointer moves. Furniture keeps 15°.
+    - `StructureGrid.project` gets a backward-compatible `options.lockYaw`: the yaw picks the edge axis (0/180 X-axis, 90/270 Z-axis, same grid origin) and is kept exactly. The default nearest-edge behaviour and all server validation are unchanged.
+    - `PlacementPreview` passes `lockYaw` for structure.
+    - `BuildSession.rotationStep` returns 90 for every structure kind.
+    - The status line shows the angle ("Angle 90° [R]"), and the Rotate buttons are labelled "Rotate [R]".
+    - A selected placed piece keeps the authoritative server Rotate.
+    - Text-box focus, processed-input and free-camera key rules, host checks, bounds and stale-preview protection are unchanged.
+  - **Before:** edge previews flipped 180° and the pointer chose the edge, so symmetric walls looked unchanged.
+  - **Evidence (executed 2026-10-26):** `lua5.4 tests/run.lua` gives **310 passed, 0 failed** (30 specs). New `structure_rotation_spec` (5 tests):
+    - `lockYaw` semantics against the default, with every locked projection on the grid;
+    - four R turns of all 5 kinds: 90° steps, angle shown, each ghost's server acceptance matching its validity, edge-line axis per yaw, every turn a distinct preview, and the final click sending the exact ghost;
+    - the angle holding across a pointer sweep, with parity;
+    - furniture 15° steps unchanged, and a selected piece's R sending Rotate;
+    - R ignored while typing or when processed, free-camera keys untouched, and a stale preview not sent after a turn.
+
+    `structure_client_spec` was updated to the locked semantics. 6 mutations caught.
+  - **Live status note (Codex, 2026-10-26):** the latest live Play snapshot reports **39 templates** and a user layout of 12 pieces. The classic floor lamp (e5d524d) is registered in the repository only and **not claimed installed**. User builds were not touched.
 
