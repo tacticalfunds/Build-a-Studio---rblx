@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 52 installed (the 3 batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 3 installed, 19 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 54 installed in total (38 furniture, 16 structure; see task 10 for the 2 batch 03 structure pieces; the 3 batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 3 installed, 19 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -533,7 +533,7 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
 
-## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (14 pieces and R rotation installed, 2 more registered with install pending; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (16 pieces and R rotation installed; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
 Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
 - Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
   - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
@@ -709,6 +709,23 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - counts updated: 54 items; Windows 3, Ceilings 3; 16 structure pieces;
     - a new test checks each piece against its manifest (kind, tags, sourceRef, install source, facts), that its measured size validates on the grid, and that the wood block stays out.
     - No UI or runtime code changed.
+- 54-item install checkpoint (Codex, 2026-10-26; supersedes the "install pending" notes in the batch 03 registration entry above, which are left as written):
+  - **Review:** Codex reviewed d034a34 and ran its tests independently: 314 passed, 0 failed.
+  - **Installed:** the matching `Catalog`, `structure_glass_partition_01` and `structure_ceiling_acoustic_01`. **Installed total: 54** (38 furniture, 16 structure).
+  - **Checks:**
+    - all 54 live template probes are valid, 0 invalid;
+    - filters: Floors 5, Walls 3, Doors 2, Ceilings 3, Windows 3;
+    - real client BuilderRequest Place → Rotate → Delete passed for **each** new piece (all six operations ok), using the partition at (0, 0, 8, 0) and the ceiling at (0, 15, 0, 0); the test copies were removed;
+    - back in Edit, the 54 templates persist.
+  - **Not done:** a physical UI-click or R-key check.
+  - **Backup:** a local full-place backup, `StudioBuilder-FullBackup-54Items-2026-10-26-0013.rbxl`, 4,137,806 bytes, SHA256 `48D0C5D40EAA99B0801949284198F70D01B19A83CF4BC7FE963B09538AAFBFC6`.
+    - The file exists and its binary Roblox header is verified; restoration is not tested.
+    - It contains the prepared, template and review copies of the two pieces.
+    - The prior backups are kept. It is local only and not uploaded.
+  - **Tallies:**
+    - batch 03: 2 installed, 1 quarantined (Modern wood block), 9 thumbnail-only;
+    - batch 02 unchanged: 3 installed, 19 pending.
+  - The historical manifests are unchanged.
 
 ## 11. Existing room assets in Build (user request): Pending
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
