@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 65 installed in total (47 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 65 installed in total (47 furniture, 18 structure; 1 more registered, repository 66, installation pending: the studio umbrella light; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (8 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board and the studio softbox; 5 original gap-audit entries remaining)
+## 11. Existing room assets in Build (user request): In progress (8 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board and the studio softbox; 5 original gap-audit entries remaining, one of them, the umbrella light, prepared and registered with installation pending)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1220,3 +1220,32 @@ Make the assets already used in the six existing rooms available in the Build dr
     - Earlier backups are kept. It is local only.
   - **Index correction:** the gap-audit file row no longer makes the blanket "not extracted" claim about all 13 objects. It now points to the current tally of 8 installed and 5 unextracted, and the audit JSON is unchanged.
   - The historical registration manifest is unchanged.
+- Studio umbrella light registration (repository; prepared and registered, installation pending):
+  - **Registered (1):** `studio_umbrella_light_01` (Studio Umbrella Light; existing lighting type; cozy, 1980s and futuristic; floor placement), appended last.
+    - **Counts:** repository 66 (48 furniture, 18 structure). Live stays **65** (47 furniture, 18 structure).
+  - **Source:** the gap audit's "Lighting umbrella", from `Workspace.RoomCollection.BroadcastSet['Lighting Ubrella']`.
+    - The audit measured only the 10-part **head**. The registered item is the **complete fixture**, combining copies of that head, the sibling Medium boom, the Stand tripod and 3 sibling support Parts. The supports sit at source positions [488.041748046875, 3.66770601272583, −1.0360262393951416], [488.02581787109375, 4.199891090393066, −1.4861855506896973] and [488.041748046875, 4.20881462097168, −1.144085168838501].
+    - Its counts and dimensions must **not** be equated with the head-only audit figures.
+    - The parent room asset is 136839605425322, per the asset guide. The creator is unverified, so there's no separate fixture asset ID and no credit.
+    - It is the current project-modified room version, further adapted; the original is untouched.
+  - **Prepared copy (Codex):** `ServerStorage.StudioBuilderPreparedAssets.studio_umbrella_light_01`; review copy `Workspace.StudioAssetYard.Studio Umbrella Review` at (4292, 1, 3538), yaw 180.
+    - **Removed:** the initial 46-part assembly included two disconnected red/white control-face parts, which were removed. 25 Studio*/Podcast* attributes were also removed. No scripts or joints were found.
+    - **Orientation:** rotated yaw 90 and bottom-centred with an identity pivot. The copied head was shifted [0, −0.10, −0.054] in the prepared frame to close a small boom-fitting gap, then the fixture was re-centred. There's no fabricated geometry and no material change.
+    - **Final contents:** 44 BaseParts (32 Parts and 12 Unions) and 29 DataModelMeshes, all anchored, CanTouch false; 0 LuaSourceContainers, Seats, joints, remaining attributes and tags.
+    - **Final size:** [2.1505026817321779, 6.569082260131836, 2.8773441314697267], identity bottom-centre (measured error 0), upright along +Y. The reflector opening direction is [0.0001253413, −0.4999973178, −0.8660269976]: horizontal along −Z with a 30° downward tilt.
+    - **Look:** a white scalloped reflector with a dark outer shell, an angled shaft on an articulated boom, a slim dark pole, a three-legged braced tripod and a side-mounted dark power box. Native visual review is complete: the entire fixture is visible and the shaft joins the boom.
+  - **Light:** 1 PointLight, intentionally **disabled** (Enabled = false, Brightness 0.670820415019989, Range 10, Color [1, 0.9194186925888062, 0.8544370532035828]).
+    - It's decorative only, pending a builder lighting adapter. There are no adjustable or articulated controls, and the original room's fixture controls must not operate it.
+  - **Sanitizer:** the existing TemplateSanitizer on disposable clones. Placement keeps 44 parts and 1 disabled light (removes 0); preview keeps 44 parts and 0 lights (removes 1). No sanitizer changes.
+  - **Local evidence:** `outputs/Studio Umbrella Preparation.json` and `outputs/Review Studio Umbrella.png` are local and not in this repository.
+  - **Provenance:** `docs/assets/Studio_Umbrella_Light_Registration_2026-10-26.json`. The asset guide and the gap audit are unchanged.
+  - **Pending:** live installation, Place, Rotate and Delete, the disabled-light check, and a new full-place backup. The prepared and review copies postdate the 65-item backup; the original source is in it.
+  - **Tallies:**
+    - task 11: 8 installed, 5 remaining (the umbrella prepared and registered among them, installation pending);
+    - batch 02 unchanged: 6 installed, 16 pending.
+    - The wider queue is unfinished.
+  - **Tests:**
+    - counts updated: 66 items, 48 furniture; cozy 36, 1980s 26, futuristic 18; futuristic lighting 4; cozy All items 36; futuristic drawer 18;
+    - one compact test covers: the catalog fields only; the key manifest facts (44 parts, disabled light, no attributes, no fabricated geometry, the head-only audit warning); the parent asset per the guide; that it is the complete fixture (more parts and over twice the height of the audited head) and stands upright; floor placement (corner, the Z overhang unless turned, the height limit); and last in Cozy, 1980s and Futuristic > Lighting;
+    - the softbox's "last in Lighting" check now allows the umbrella after it.
+    - No UI, adapter or runtime code changed.

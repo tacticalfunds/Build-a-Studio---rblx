@@ -612,6 +612,20 @@ Catalog.Items = {
 		type = "lighting",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_softbox_01",
 	},
+	-- Studio umbrella light (2026-10-26): the complete Broadcast Set umbrella
+	-- fixture (head, boom, tripod and supports), assembled by Codex from
+	-- project-modified room copies
+	-- (docs/assets/Studio_Umbrella_Light_Registration_2026-10-26.json). Install
+	-- source: ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install
+	-- pending. Decorative only: its PointLight is disabled and nothing on it
+	-- moves or adjusts.
+	{
+		id = "studio_umbrella_light_01",
+		displayName = "Studio Umbrella Light",
+		collections = { "cozy", "1980s", "futuristic" },
+		type = "lighting",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_umbrella_light_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

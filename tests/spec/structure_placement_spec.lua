@@ -124,7 +124,7 @@ return function(T, H)
 				kinds[item.id] = item.structure.kind
 			end
 		end
-		T.eq(#Catalog.Items, 65)
+		T.eq(#Catalog.Items, 66)
 		for i = 1, 31 do
 			T.eq(Catalog.Items[i].structure, nil, Catalog.Items[i].id .. " (furniture)")
 		end

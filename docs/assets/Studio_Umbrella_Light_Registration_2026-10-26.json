@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually reviewed by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates; live Place/Rotate/Delete and the placed light's disabled state not yet verified. Installed Build count remains 65 (47 furniture, 18 structure); repository count 66.",
+  "recordedFrom": "Codex verified preparation relayed in the checkpoint request after the review of 8f5bfac (local evidence outputs/Studio Umbrella Preparation.json and outputs/Review Studio Umbrella.png are not in this repository)",
+  "kind": "Existing-room extraction (task 11); not a batch 02 or batch 03 candidate",
+  "source": {
+    "gapAuditEntry": "Lighting umbrella (docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json), sourcePath Workspace.RoomCollection.BroadcastSet.Lighting Ubrella",
+    "auditScope": "The gap audit measured only the 10-part umbrella HEAD (about 2.15 x 2.15 x 2.48). The registered item is the COMPLETE fixture, so its part counts and dimensions must NOT be equated with the head-only audit figures.",
+    "assembledFrom": [
+      "A copy of the umbrella head: Workspace.RoomCollection.BroadcastSet['Lighting Ubrella']",
+      "A copy of the sibling Medium boom",
+      "A copy of the sibling Stand tripod",
+      "Copies of 3 sibling support Parts at source positions [488.041748046875, 3.66770601272583, -1.0360262393951416], [488.02581787109375, 4.199891090393066, -1.4861855506896973] and [488.041748046875, 4.20881462097168, -1.144085168838501]"
+    ],
+    "parentModel": "BroadcastSet",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, BroadcastSet (path ServerStorage.PodcastAssetStaging.BroadcastSet), preparation 'Source136839605425322'",
+    "parentRoomAssetId": "136839605425322",
+    "creator": "Not independently verified; not recorded (no credit)",
+    "fixtureModelAssetId": "None claimed: 136839605425322 is the parent room asset, not a separate fixture model",
+    "modifiedVersion": "The current project-modified room version, further adapted. It is NOT an unchanged free model. The original is untouched."
+  },
+  "items": [
+    {
+      "id": "studio_umbrella_light_01",
+      "displayName": "Studio Umbrella Light",
+      "collections": ["cozy", "1980s", "futuristic"],
+      "type": "lighting",
+      "placement": "floor (existing furniture placement; no new placement metadata)",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.studio_umbrella_light_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.studio_umbrella_light_01",
+      "reviewCopy": "Workspace.StudioAssetYard.Studio Umbrella Review at (4292, 1, 3538), yaw 180",
+      "baseParts": 44,
+      "partBreakdown": "32 Parts + 12 UnionOperations",
+      "dataModelMeshes": 29,
+      "scripts": 0,
+      "seats": 0,
+      "joints": 0,
+      "remainingAttributes": 0,
+      "tags": 0,
+      "lights": 1,
+      "anchored": true,
+      "canTouch": false,
+      "light": {
+        "class": "PointLight",
+        "enabled": false,
+        "brightness": 0.670820415019989,
+        "range": 10,
+        "color": [1, 0.9194186925888062, 0.8544370532035828],
+        "note": "Intentionally DISABLED. Decorative only, pending a builder lighting adapter. No adjustable or articulated controls. The original room's fixture controls must not operate it."
+      },
+      "adaptation": "The initial 46-part assembly included two disconnected red/white control-face parts; those 2 copied pieces were removed. Removed 25 Studio*/Podcast* attributes. No scripts or joints were found. Rotated yaw 90 and bottom-centred with an identity pivot. The copied head was shifted [0, -0.10, -0.054] in the prepared frame to close a small gap at the boom fitting, then the whole fixture was re-centred. No fabricated geometry and no material changes.",
+      "rotation": "Identity",
+      "pivot": "Identity bottom-centre pivot; measured error 0",
+      "upright": "+Y",
+      "reflectorOpeningDirection": [0.0001253413, -0.4999973178, -0.8660269976],
+      "reflectorNote": "Horizontal along -Z with a 30 degree downward tilt",
+      "size": [2.1505026817321779, 6.569082260131836, 2.8773441314697267],
+      "look": "White scalloped reflector with a dark outer shell, an angled shaft on an articulated boom, a slim dark pole, a three-legged braced tripod and a side-mounted dark power box",
+      "sanitizer": "Existing TemplateSanitizer on disposable clones: placement keeps 44 parts and 1 disabled light (removes 0); preview keeps 44 parts and 0 lights (removes 1). No sanitizer changes.",
+      "functionality": "Decorative only: the light is disabled, and nothing is adjustable or articulated.",
+      "visualReview": "Native visual review complete (Codex): the entire fixture is visible and the shaft joins the boom"
+    }
+  ],
+  "pendingAfterReview": [
+    "Live installation",
+    "Real Place, Rotate and Delete checks",
+    "Verify the placed light stays disabled",
+    "A new full-place backup"
+  ],
+  "task11Tally": "8 installed (water dispenser, tall floor plant, conference table, flower pot, office chair, coffee mug, presentation board, studio softbox); 5 original gap-audit entries remaining, including the umbrella (prepared and registered, installation pending).",
+  "backup": "The prepared and review copies postdate the latest full-place backup (StudioBuilder-FullBackup-65Items-2026-10-26-0357.rbxl); the original source is in that backup.",
+  "historicalRecords": "docs/assets/Studio_Asset_Guide_2026-10-25.json and docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json are unchanged."
+}
