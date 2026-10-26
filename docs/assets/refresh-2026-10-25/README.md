@@ -33,6 +33,11 @@ The prior descriptive guide is embedded in the catalog JSON (`priorSourceGuide`)
 - The 38 installed IDs, their order, display names and collection tags are identical to `src/shared/Catalog.luau` at 46d55cb.
 - **5,758 is not a count of unique assets.** It counts every nested or copied Model record.
 
+**Later change (2026-10-26):**
+- Tracked import 11829259774 (Realistic Rug) was normalized and approved by Codex. It's registered in the repository as `retro_patterned_rug_01` (see `../Decor_Candidate_retro_patterned_rug_01_2026-10-26.json`), with Studio install pending.
+- So 12 of the 13 tracked candidates remain unregistered.
+- The two pillow derivatives were normalized but are not approved.
+
 **Status corrections after this refresh (Codex, 2026-10-26):**
 - **Captures:** the blank (white) world captures have recovered, and models render normally. Builder-specific visual QA is still pending.
 - **Lights:** the cork floor lamp's light is enabled (brightness 1, range 10; original). The sculptural modern lamp, desk lamp and lantern lights are disabled, as intended.

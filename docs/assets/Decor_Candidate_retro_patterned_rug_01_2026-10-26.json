@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-26",
+  "status": "Approved by Codex for registration; registered in Catalog.luau (repository); Studio install and Play check pending",
+  "recordedFrom": "Codex inspection and normalization report relayed in the review of 3e7a45e (not an export file)",
+  "trackedCandidate": "One of the 13 tracked candidates in docs/assets/refresh-2026-10-25 (new import 11829259774, 'Realistic Rug'); not a new candidate",
+  "items": [
+    {
+      "id": "retro_patterned_rug_01",
+      "displayName": "Patterned Vintage Rug",
+      "collections": ["cozy", "retro", "1980s"],
+      "type": "decor",
+      "sourceRef": "ServerStorage.NextCatalogInspection.Review_11829259774",
+      "templatePath": "ServerStorage.PreparedDecorCandidates.retro_patterned_rug_01",
+      "sourceAssetId": "11829259774",
+      "sourceName": "Realistic Rug",
+      "sourceCreator": "caductis",
+      "sourceUrl": "https://create.roblox.com/store/asset/11829259774",
+      "free": true,
+      "look": "Muted red/brown patterned floor rug with an ornate border and fringed edges.",
+      "functionality": "Decorative only; no functional seat/light/audio adapter enabled",
+      "parts": 1,
+      "partClass": "MeshPart",
+      "scripts": 0,
+      "sounds": 0,
+      "lights": 0,
+      "particles": 0,
+      "anchored": true,
+      "canTouch": false,
+      "scale": 0.65,
+      "pivot": "Normalized orientation; bottom-centre pivot at origin",
+      "size": [9.04305362701416, 0.30398762226104739, 10.028568267822266],
+      "visualReview": "Neutral-lit Studio screenshot reviewed; texture and shape visible",
+      "notes": [
+        "Original source model retained in ServerStorage.NextCatalogInspection.",
+        "Temporary inspection display removed and original Lighting restored."
+      ]
+    }
+  ],
+  "notApproved": [
+    "Two normalized pillow derivatives (from imports 17525320179 and 8918744044) are NOT approved and must not be registered."
+  ]
+}

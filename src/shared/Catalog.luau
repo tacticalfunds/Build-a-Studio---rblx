@@ -335,6 +335,17 @@ Catalog.Items = {
 		sourceRef = "ServerStorage.StructureCandidateImports.Vintage Radio",
 		-- Source creator zzz_1551 (manifest sourceCreator).
 	},
+	-- Decor (2026-10-26): approved by Codex from the tracked candidates
+	-- (docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json;
+	-- template ServerStorage.PreparedDecorCandidates.retro_patterned_rug_01,
+	-- Studio install pending). Source: free Creator Store model by caductis.
+	{
+		id = "retro_patterned_rug_01",
+		displayName = "Patterned Vintage Rug",
+		collections = { "cozy", "retro", "1980s" },
+		type = "decor",
+		sourceRef = "ServerStorage.NextCatalogInspection.Review_11829259774",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.
