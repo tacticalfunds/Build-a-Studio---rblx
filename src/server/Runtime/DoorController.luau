@@ -457,21 +457,54 @@ function DoorController:stop()
 	end
 end
 
--- Stops ticking, returns every door to closed with its original collision
--- (best effort), and releases all registrations. Later calls are no-ops.
+-- Stops ticking (disconnecting once), tries to close every door, and
+-- releases all registrations. The confirmed-close rule holds here too:
+-- original collision is restored only after a SUCCESSFUL closed pose (or a
+-- leaf already confirmed at angle 0). A leaf that can't be closed is left
+-- non-colliding where it is, and logged with what to do; a restore that
+-- fails part-way is turned back off so the leaf is never half-solid.
+-- Returns the ids of doors that could not be confirmed closed with their
+-- original collision. Later calls are no-ops (and return an empty list).
 function DoorController:destroy()
+	if self.destroyed then
+		return {}
+	end
 	self:stop()
-	local regs = self.order
+	self.destroyed = true -- no tick, attach or edit from here on
+	local regs = {}
+	for i, reg in ipairs(self.order) do
+		regs[i] = reg
+	end
+	local unconfirmed = {}
 	for _, reg in ipairs(regs) do
-		self:_call(reg, "pose", 0)
-		self:_call(reg, "setCollision", true)
+		if reg.angle ~= 0 then
+			-- As in tick: no pose unless collision is off first.
+			if self:_call(reg, "setCollision", false) and self:_call(reg, "pose", 0) then
+				reg.angle = 0
+			end
+		end
+		if reg.angle == 0 then
+			if not self:_call(reg, "setCollision", true) then
+				self:_call(reg, "setCollision", false)
+				unconfirmed[#unconfirmed + 1] = reg.id
+				self.log("door " .. tostring(reg.id) .. " closed on shutdown but its collision could not be restored; "
+					.. "it is left non-colliding. Re-place the item or reload the build to reset it.")
+			end
+		else
+			if not self:_call(reg, "setCollision", false) then
+				self.log("door " .. tostring(reg.id) .. " could not turn its leaf collision off on shutdown")
+			end
+			unconfirmed[#unconfirmed + 1] = reg.id
+			self.log("door " .. tostring(reg.id) .. " could not be closed on shutdown; its leaf is left open at "
+				.. tostring(reg.angle) .. " degrees and non-colliding. Re-place the item or reload the build to reset it.")
+		end
 	end
 	for i = #regs, 1, -1 do
 		self:detach(regs[i].model)
 	end
 	self.inputs = {}
 	self.overflow = {}
-	self.destroyed = true
+	return unconfirmed
 end
 
 function DoorController:count()

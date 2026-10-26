@@ -1525,3 +1525,18 @@ Make the assets already used in the six existing rooms available in the Build dr
   - **Docs:** the plan has a new "Runtime wiring" section and activation steps; the door module headers now say "disabled by default" instead of "dormant".
   - **Still requires Studio validation before anyone enables the flag:** physical hinge and frame contact, real sensing, player interaction, adjacent-wall overlap and real overlap false positives, whether the sandbox marker or room parts collide, and a build load at the limit. The template is not installed.
   - **Counts unchanged:** live 67; repository 68 (49 furniture, 19 structure); task 11 at 10 installed, 3 remaining.
+- Panel door runtime: shutdown and rebind cleanup fix (still **DISABLED BY DEFAULT**; `Config.Doors.Enabled` stays false; nothing run in Studio). The review of e38fe0a found one defect plus a portability issue:
+  1. **Cleanup broke the confirmed-close rule.** `DoorRuntime.stop` and rebind call `DoorController:destroy`, which tried `pose(0)` and then restored collision **unconditionally**. With a failing pivot the leaf stayed physically open but became solid (reviewer's reproduction). **Fixed:**
+     - for an open leaf, `destroy` turns collision off, then poses 0, and restores the original collision only after that pose succeeds; a leaf already confirmed at 0 is not posed;
+     - if collision can't be turned off, no pose is sent;
+     - an unconfirmed leaf is left where it is, non-colliding, with an actionable log ("could not be closed on shutdown … re-place the item or reload the build");
+     - a restore that fails part-way is turned back off and logged;
+     - every registration and core entry is still released, the Heartbeat is disconnected exactly once, `destroy` returns the unconfirmed ids, and a second `destroy` does nothing.
+  2. **CRLF:** the BuilderService wiring guard in `door_runtime_spec` matched a multi-line string exactly, so it failed on a CRLF (Windows) checkout. It now normalizes CRLF to LF before the same checks.
+  - **Tests:**
+    - 2 new controller tests: the clean destroy order (collision off → pose 0 → restore; no pose for a closed leaf; no calls after a second destroy), and destroy faults (close pose fails; collision can't be turned off; restore fails), each still releasing and disconnecting;
+    - 4 new world-hook runtime tests: stop and rebind with a closed door, the reviewer's stop fault (open leaf, failing pivot: stays open and non-colliding, logged, released, never ticks again), the same fault on rebind (exactly one controller ticking), and collision-write faults including a part-way restore;
+    - the end-to-end test moved onto a shared rig and now also checks that a clean stop logs nothing;
+    - **417 passed, 0 failed**, and the same with BuilderService converted to CRLF;
+    - restoring the old `destroy` fails 5 tests; posing without collision off fails 3; dropping the turn-back-off after a failed restore fails 1.
+  - **Counts unchanged:** live 67; repository 68 (49 furniture, 19 structure).

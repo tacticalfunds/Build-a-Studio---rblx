@@ -115,7 +115,8 @@ return function(T, H)
 	end)
 
 	T.test("BuilderService: doors start only behind the flag, and the world's fourth argument is that runtime or nil", function()
-		local src = H.readFile(H.ROOT .. "/src/server/Runtime/BuilderService.luau")
+		-- Line endings normalized so a CRLF checkout (Windows archive) matches too.
+		local src = H.readFile(H.ROOT .. "/src/server/Runtime/BuilderService.luau"):gsub("\r\n", "\n")
 		local args = src:match("PlacedItemsWorld%.new(%b())")
 		T.eq(args, "(placedFolder, sandbox.origin, curatedTemplate, doors)")
 		-- `doors` starts nil and is only set from DoorRuntime.start inside the flag check.
@@ -248,76 +249,200 @@ return function(T, H)
 		end)
 	end)
 
+	-- A started runtime, a world with its door hook, one placed panel door
+	-- (and one plain doorway), and a fake player that can stand near it.
+	local function rig()
+		H.setGlobal("CFrame", CF)
+		H.setGlobal("Enum", { ModelStreamingMode = { Persistent = "Persistent" } })
+		local e = env(ON)
+		e.logs = {}
+		e.deps.log = function(message) e.logs[#e.logs + 1] = message end
+		e.controller = DoorRuntime.start(e.deps)
+		function e.folder:GetChildren() return {} end
+		function e.folder:SetAttribute() end
+		e.leaves = {}
+		local function part(canCollide)
+			local state = { CanCollide = canCollide, IsA = function(_, c) return c == "BasePart" end }
+			return setmetatable({}, {
+				__index = state,
+				__newindex = function(_, k, v)
+					if e.failCollision and e.failCollision(state, v) then error("collision write failed") end
+					state[k] = v
+				end,
+			})
+		end
+		local function fakeModel()
+			local props, attrs = {}, {}
+			local parts = { part(true), part(false) }
+			local leaf = { pivots = {}, parts = parts, GetPivot = function() return cf("LEAF") end, GetDescendants = function() return parts end }
+			function leaf.PivotTo(_, c)
+				if e.failPivot then error("pivot failed") end
+				leaf.pivots[#leaf.pivots + 1] = c.desc
+			end
+			local methods = {
+				GetDescendants = function() return {} end,
+				SetAttribute = function(_, k, v) attrs[k] = v end,
+				GetAttribute = function(_, k) return attrs[k] end,
+				PivotTo = function(_, c) props.pivot = c.desc end,
+				Destroy = function() props.Parent = nil end,
+				FindFirstChild = function(_, n) if n == "Leaf" then return leaf end end,
+			}
+			local model = setmetatable({}, { __index = function(_, k) return methods[k] or props[k] end, __newindex = function(_, k, v) props[k] = v end })
+			e.leaves[model] = leaf
+			return model
+		end
+		local template = { Clone = function() return fakeModel() end }
+		e.world = PlacedItemsWorld.new(e.folder, cf("O"), function() return template end, e.controller)
+		e.door = e.world:apply({ kind = "spawn", id = "i1", record = { itemId = DOOR, placedByUserId = 1, x = 0, y = 0, z = 8, yaw = 0 } })
+		e.world:commit(e.door)
+		e.plain = e.world:apply({ kind = "spawn", id = "i2", record = { itemId = "structure_doorway_01", placedByUserId = 1, x = 16, y = 0, z = 8, yaw = 0 } })
+		e.world:commit(e.plain)
+		e.reg = e.controller:registration(e.door.model)
+		e.leaf = e.leaves[e.door.model]
+		e.leafParts = e.leaf.parts
+		-- A living player one stud in front of the doorway (world y 5 = room y 4).
+		local humanoid, root = { Health = 100 }, { Position = { X = 1, Y = 5, Z = 6 } }
+		local character = {
+			FindFirstChildOfClass = function(_, c) if c == "Humanoid" then return humanoid end end,
+			FindFirstChild = function(_, n) if n == "HumanoidRootPart" then return root end end,
+		}
+		function e.approach() e.players = { { Character = character } } end
+		function e.leave() e.players = {} end
+		function e.run(from, to) for t = from, to, 0.25 do e.now = t; e.heartbeat:fire() end end
+		function e.logged(text)
+			for _, line in ipairs(e.logs) do if line:find(text, 1, true) then return true end end
+			return false
+		end
+		return e
+	end
+	local function closedPose(desc) return desc:find("R(-0.0000)", 1, true) or desc:find("R(0.0000)", 1, true) end
+
 	T.test("end to end with the world hook: a placed panel door opens for a nearby player, closes after they leave, and stop() restores it", function()
 		run(function()
-			H.setGlobal("CFrame", CF)
-			H.setGlobal("Enum", { ModelStreamingMode = { Persistent = "Persistent" } })
-			local e = env(ON)
-			local controller = DoorRuntime.start(e.deps)
-			function e.folder:GetChildren() return {} end
-			function e.folder:SetAttribute() end
-			local leafParts = {}
-			local function fakeModel()
-				local props, attrs = {}, {}
-				local parts = { { CanCollide = true, IsA = function(_, c) return c == "BasePart" end }, { CanCollide = false, IsA = function(_, c) return c == "BasePart" end } }
-				local leaf = {
-					pivots = {},
-					GetPivot = function() return cf("LEAF") end,
-					GetDescendants = function() return parts end,
-				}
-				function leaf.PivotTo(_, c) leaf.pivots[#leaf.pivots + 1] = c.desc end
-				local methods = {
-					GetDescendants = function() return {} end,
-					SetAttribute = function(_, k, v) attrs[k] = v end,
-					GetAttribute = function(_, k) return attrs[k] end,
-					PivotTo = function(_, c) props.pivot = c.desc end,
-					Destroy = function() props.Parent = nil end,
-					FindFirstChild = function(_, n) if n == "Leaf" then return leaf end end,
-				}
-				local model = setmetatable({}, { __index = function(_, k) return methods[k] or props[k] end, __newindex = function(_, k, v) props[k] = v end })
-				leafParts[model] = { leaf = leaf, parts = parts }
-				return model
-			end
-			local template = { Clone = function() return fakeModel() end }
-			local world = PlacedItemsWorld.new(e.folder, cf("O"), function() return template end, controller)
-			local door = world:apply({ kind = "spawn", id = "i1", record = { itemId = DOOR, placedByUserId = 1, x = 0, y = 0, z = 8, yaw = 0 } })
-			world:commit(door)
-			local plain = world:apply({ kind = "spawn", id = "i2", record = { itemId = "structure_doorway_01", placedByUserId = 1, x = 16, y = 0, z = 8, yaw = 0 } })
-			world:commit(plain)
-			T.eq(controller:count(), 1, "only the door is registered")
-			T.eq(controller:committedCount(), 1)
-			local reg = controller:registration(door.model)
-			T.ok(reg ~= nil and controller:registration(plain.model) == nil)
-			-- A living player one stud in front of the doorway (world y 5 = room y 4).
-			local humanoid, root = { Health = 100 }, { Position = { X = 1, Y = 5, Z = 6 } }
-			e.players = { { Character = {
-				FindFirstChildOfClass = function(_, c) if c == "Humanoid" then return humanoid end end,
-				FindFirstChild = function(_, n) if n == "HumanoidRootPart" then return root end end,
-			} } }
-			local leaf, parts = leafParts[door.model].leaf, leafParts[door.model].parts
-			for t = 0, 1, 0.25 do e.now = t; e.heartbeat:fire() end
-			T.eq(reg.angle, 90, "fully open after the 0.6 s travel")
-			T.ok(leaf.pivots[#leaf.pivots]:find("R(-1.5708)", 1, true), "posed through the hinge from the stored record: " .. leaf.pivots[#leaf.pivots])
-			T.ok(not parts[1].CanCollide and not parts[2].CanCollide, "leaf collision off while open")
+			local e = rig()
+			T.eq(e.controller:count(), 1, "only the door is registered")
+			T.eq(e.controller:committedCount(), 1)
+			T.ok(e.reg ~= nil and e.controller:registration(e.plain.model) == nil)
+			e.approach()
+			e.run(0, 1)
+			T.eq(e.reg.angle, 90, "fully open after the 0.6 s travel")
+			T.ok(e.leaf.pivots[#e.leaf.pivots]:find("R(-1.5708)", 1, true), "posed through the hinge from the stored record: " .. e.leaf.pivots[#e.leaf.pivots])
+			T.ok(not e.leafParts[1].CanCollide and not e.leafParts[2].CanCollide, "leaf collision off while open")
 			T.ok(#e.queries > 0, "the sweep was scanned")
 			-- The player leaves the sandbox: closes after the exit delay, collision back to its originals.
-			e.players = {}
-			for t = 1.25, 5, 0.25 do e.now = t; e.heartbeat:fire() end
-			T.eq(reg.angle, 0)
-			T.eq(parts[1].CanCollide, true, "original collision restored")
-			T.eq(parts[2].CanCollide, false, "a non-colliding part stays non-colliding")
+			e.leave()
+			e.run(1.25, 5)
+			T.eq(e.reg.angle, 0)
+			T.eq(e.leafParts[1].CanCollide, true, "original collision restored")
+			T.eq(e.leafParts[2].CanCollide, false, "a non-colliding part stays non-colliding")
 			-- Open it again, then stop: the door is returned closed and released.
-			e.players = { { Character = {
-				FindFirstChildOfClass = function(_, c) if c == "Humanoid" then return humanoid end end,
-				FindFirstChild = function(_, n) if n == "HumanoidRootPart" then return root end end,
-			} } }
-			for t = 5.25, 6.5, 0.25 do e.now = t; e.heartbeat:fire() end
-			T.eq(reg.angle, 90)
+			e.approach()
+			e.run(5.25, 6.5)
+			T.eq(e.reg.angle, 90)
 			DoorRuntime.stop()
-			T.ok(leaf.pivots[#leaf.pivots]:find("R(-0.0000)", 1, true) or leaf.pivots[#leaf.pivots]:find("R(0.0000)", 1, true), "closed on stop")
-			T.eq(parts[1].CanCollide, true)
-			T.eq(controller:count(), 0, "registrations released")
+			T.ok(closedPose(e.leaf.pivots[#e.leaf.pivots]), "closed on stop")
+			T.eq(e.leafParts[1].CanCollide, true)
+			T.eq(e.controller:count(), 0, "registrations released")
 			T.eq(e.heartbeat:live(), 0)
+			T.eq(#e.logs, 0, "a clean stop logs nothing")
+		end)
+	end)
+
+	T.test("stop and rebind with a closed door: no pose is needed, original collision comes back", function()
+		run(function()
+			local e = rig()
+			e.leave()
+			e.run(0, 1)
+			T.eq(e.reg.angle, 0)
+			e.failPivot = true -- a closed leaf must not need a pose to be released
+			local before = #e.leaf.pivots
+			DoorRuntime.start(env(ON).deps) -- rebind
+			T.eq(#e.leaf.pivots, before)
+			T.eq(e.leafParts[1].CanCollide, true)
+			T.eq(e.controller:count(), 0)
+			T.eq(e.heartbeat:live(), 0)
+		end)
+	end)
+
+	T.test("stop fault: the closing pose fails, so the open leaf stays non-colliding, is logged, released and never ticks again", function()
+		run(function()
+			local e = rig()
+			e.approach()
+			e.run(0, 1)
+			T.eq(e.reg.angle, 90)
+			local openPose = e.leaf.pivots[#e.leaf.pivots]
+			e.failPivot = true
+			DoorRuntime.stop()
+			T.eq(e.leaf.pivots[#e.leaf.pivots], openPose, "the leaf physically stays open")
+			T.eq(e.leafParts[1].CanCollide, false, "an unconfirmed close never restores collision")
+			T.eq(e.leafParts[2].CanCollide, false)
+			T.ok(e.logged("i1 could not be closed on shutdown; its leaf is left open at 90 degrees and non-colliding. Re-place the item or reload the build to reset it."), "actionable log")
+			T.eq(e.controller:count(), 0, "registrations released anyway")
+			T.eq(e.controller.core:count(), 0)
+			T.eq(e.heartbeat.connects, 1)
+			T.eq(e.heartbeat:live(), 0, "disconnected exactly once")
+			T.eq(DoorRuntime.active(), nil)
+			e.failPivot = false
+			local logs, pivots = #e.logs, #e.leaf.pivots
+			e.run(1.25, 3)
+			DoorRuntime.stop()
+			T.eq(#e.leaf.pivots, pivots, "no tick or second cleanup touches the leaf")
+			T.eq(#e.logs, logs)
+			T.eq(e.leafParts[1].CanCollide, false)
+		end)
+	end)
+
+	T.test("rebind fault: the same rule holds when a new start replaces the runtime", function()
+		run(function()
+			local e = rig()
+			e.approach()
+			e.run(0, 1)
+			e.failPivot = true
+			local nextEnv = env(ON)
+			local replacement = DoorRuntime.start(nextEnv.deps)
+			T.ok(replacement ~= nil and replacement ~= e.controller)
+			T.eq(e.leafParts[1].CanCollide, false, "left non-colliding")
+			T.ok(e.logged("could not be closed on shutdown"))
+			T.eq(e.controller.destroyed, true)
+			T.eq(e.heartbeat:live(), 0)
+			T.eq(nextEnv.heartbeat:live(), 1, "exactly one controller ticking")
+			e.heartbeat:fire()
+			T.eq(e.controller:count(), 0)
+		end)
+	end)
+
+	T.test("stop faults in collision: no pose without collision off; a part-way restore is turned back off", function()
+		run(function()
+			-- Collision can't be turned off: the leaf is not moved at all.
+			local e = rig()
+			e.approach()
+			e.run(0, 1)
+			local openPose = e.leaf.pivots[#e.leaf.pivots]
+			e.failCollision = function() return true end
+			DoorRuntime.stop()
+			T.eq(e.leaf.pivots[#e.leaf.pivots], openPose, "no pose without collision off")
+			T.eq(e.leafParts[1].CanCollide, false, "still off from opening")
+			T.ok(e.logged("could not turn its leaf collision off on shutdown"))
+			T.ok(e.logged("could not be closed on shutdown"))
+			T.eq(e.controller:count(), 0)
+			T.eq(e.heartbeat:live(), 0)
+			teardown()
+			-- The leaf closes, but restoring fails on the second part after the first
+			-- was turned solid: the first is turned back off.
+			local f = rig()
+			f.approach()
+			f.run(0, 1)
+			local first, secondState = f.leafParts[1], getmetatable(f.leafParts[2]).__index
+			-- Restoring writes part 1 (true) then part 2 (false); fail part 2 while part 1 is solid.
+			f.failCollision = function(state, value)
+				return state == secondState and value == false and first.CanCollide == true
+			end
+			DoorRuntime.stop()
+			T.ok(closedPose(f.leaf.pivots[#f.leaf.pivots]), "the leaf did close")
+			T.eq(first.CanCollide, false, "the half-restored part is turned back off")
+			T.ok(f.logged("i1 closed on shutdown but its collision could not be restored; it is left non-colliding."))
+			T.eq(f.controller:count(), 0)
+			T.eq(f.heartbeat:live(), 0)
 		end)
 	end)
 end

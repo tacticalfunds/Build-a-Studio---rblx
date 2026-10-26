@@ -17,7 +17,7 @@ return function(T, H)
 	-- env.input(reg) decides each door's sensing input (nil = unknown).
 	local function setup(opts)
 		opts = opts or {}
-		local env = { now = 0, calls = {}, connections = 0, failDriver = {} }
+		local env = { now = 0, calls = {}, connections = 0, failDriver = {}, logs = {} }
 		env.input = function() return CLEAR end
 		env.sensing = { inputs = function(_, regs)
 			env.scans = (env.scans or 0) + 1
@@ -29,7 +29,8 @@ return function(T, H)
 		env.driver = {}
 		for _, method in ipairs({ "attach", "detach", "pose", "setCollision" }) do
 			env.driver[method] = function(_, r, value)
-				if env.failDriver[method] then error(method .. " failed") end
+				local f = env.failDriver[method]
+				if f == true or (type(f) == "function" and f(r, value)) then error(method .. " failed") end
 				env.calls[#env.calls + 1] = { method = method, id = r.id, coreId = r.coreId, value = value }
 			end
 		end
@@ -44,6 +45,7 @@ return function(T, H)
 			clock = function() return env.now end,
 			specFor = opts.specFor or function(itemId) if itemId == "test_door" then return META end end,
 			scanInterval = 0.25, maxInputAge = 1, activeCap = opts.activeCap,
+			log = function(message) env.logs[#env.logs + 1] = message end,
 		})
 		function env.tick(t) env.now = t env.controller:tick() end
 		function env.last(method, id)
@@ -397,6 +399,78 @@ return function(T, H)
 		T.eq(#env.calls, calls, "tick after destroy is a no-op")
 		T.eq(env.controller:start(), false)
 		T.eq(env.controller:attach({}, "i2", record(), false), nil, "no attach after destroy")
+	end)
+
+	T.test("destroy keeps the confirmed-close rule: collision off, then pose 0, and originals restored only after that pose succeeds", function()
+		local env = setup()
+		local open, closed = {}, {}
+		env.controller:attach(open, "i1", record(), false)
+		env.controller:attach(closed, "i2", record(nil, -8), false)
+		env.input = function(r) return r.id == "i1" and NEAR or CLEAR end
+		env.controller:start()
+		for t = 0, 1, 0.25 do env.now = t; env.fire() end
+		T.eq(env.controller:registration(open).angle, 90)
+		T.eq(env.controller:registration(closed).angle, 0)
+		local mark = #env.calls
+		T.deepEq(env.controller:destroy(), {}, "both confirmed closed")
+		local seq = {}
+		for i = mark + 1, #env.calls do
+			local c = env.calls[i]
+			if c.method ~= "detach" then seq[#seq + 1] = c.id .. ":" .. c.method .. "=" .. tostring(c.value) end
+		end
+		T.deepEq(seq, { "i1:setCollision=false", "i1:pose=0", "i1:setCollision=true", "i2:setCollision=true" },
+			"the open door closes before collision returns; the closed one needs no pose")
+		T.eq(env.connections, 0)
+		T.deepEq(env.controller:destroy(), {}, "a second destroy does nothing")
+		T.eq(#env.calls, mark + #seq + 2, "no driver calls after the first destroy")
+	end)
+
+	T.test("destroy faults: an unconfirmed close leaves the leaf open and non-colliding with a log; registrations are still released once", function()
+		local function opened(fail)
+			local env = setup()
+			local model = {}
+			env.controller:attach(model, "i1", record(), false)
+			env.input = function() return NEAR end
+			env.controller:start()
+			for t = 0, 1, 0.25 do env.now = t; env.fire() end
+			T.eq(env.controller:registration(model).angle, 90)
+			for method, f in pairs(fail) do env.failDriver[method] = f end
+			local mark = #env.calls
+			local left = env.controller:destroy()
+			local after = {}
+			for i = mark + 1, #env.calls do after[#after + 1] = env.calls[i] end
+			return env, left, after
+		end
+		local function has(list, text)
+			for _, line in ipairs(list) do if line:find(text, 1, true) then return true end end
+			return false
+		end
+		-- 1. The closed pose fails: no restore at all; collision is (re)turned off.
+		local env, left, after = opened({ pose = true })
+		T.deepEq(left, { "i1" })
+		for _, c in ipairs(after) do T.ok(not (c.method == "setCollision" and c.value == true), "never restored") end
+		T.eq(env.last("setCollision").value, false)
+		T.ok(has(env.logs, "i1 could not be closed on shutdown; its leaf is left open at 90 degrees and non-colliding"), "actionable log")
+		T.eq(env.count("detach"), 1)
+		T.eq(env.controller:count(), 0)
+		T.eq(env.core:count(), 0)
+		T.eq(env.connections, 0)
+		-- 2. Collision can't even be turned off: no pose is sent, nothing restored, both logged.
+		env, left, after = opened({ setCollision = function(_, on) return on == false end })
+		T.deepEq(left, { "i1" })
+		for _, c in ipairs(after) do T.ok(c.method ~= "pose", "no pose without collision off") end
+		T.ok(has(env.logs, "could not turn its leaf collision off on shutdown"))
+		T.ok(has(env.logs, "could not be closed on shutdown"))
+		T.eq(env.count("detach"), 1)
+		T.eq(env.connections, 0)
+		-- 3. Closed, but the restore fails: turned back off, logged, still released.
+		env, left, after = opened({ setCollision = function(_, on) return on == true end })
+		T.deepEq(left, { "i1" })
+		T.eq(env.last("pose").value, 0, "the leaf did close")
+		T.eq(env.last("setCollision").value, false, "back to non-colliding after the failed restore")
+		T.ok(has(env.logs, "closed on shutdown but its collision could not be restored"))
+		T.eq(env.count("detach"), 1)
+		T.eq(env.controller:count(), 0)
 	end)
 
 	T.test("scans are bounded to active doors at the scan interval; frozen doors are never scanned", function()
