@@ -117,10 +117,14 @@ function DoorGeometry.validate(meta)
 	}
 end
 
--- +1 or -1: the rotation sign that moves the leaf centre toward -z.
+-- +1 or -1: the rotation sign (in this module's x -> +z convention) that
+-- moves the leaf centre toward -z. A Roblox driver turning the leaf with
+-- CFrame.Angles(0, a, 0) must use a = -sign * angle, because Roblox's
+-- positive yaw turns +x toward -z.
 local function swingSign(clean)
 	return (clean.leaf.center[1] < clean.hinge.x) and 1 or -1
 end
+DoorGeometry.swingSign = swingSign
 
 local function leafCorners(clean)
 	local c, s = clean.leaf.center, clean.leaf.size
@@ -241,6 +245,16 @@ function DoorGeometry.toRoom(box, t)
 		end
 	end
 	return { minX = minX, maxX = maxX, minY = y + box.minY, maxY = y + box.maxY, minZ = minZ, maxZ = maxZ }
+end
+
+-- Room-space position of a template-local point (x, y, z) under a placement
+-- transform (cardinal yaw only). Returns x, y, z or nil, code.
+function DoorGeometry.pointToRoom(px, py, pz, t)
+	local room, code = DoorGeometry.toRoom({ minX = px, maxX = px, minY = py, maxY = py, minZ = pz, maxZ = pz }, t)
+	if room == nil then
+		return nil, code
+	end
+	return room.minX, room.minY, room.minZ
 end
 
 -- True when a room-space box lies inside bounds { halfX, halfZ, height }

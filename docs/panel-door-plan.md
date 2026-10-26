@@ -2,9 +2,18 @@
 
 **Status:**
 - The design checkpoint (85025c9) was accepted with corrections.
-- The foundation (8275097) was reviewed and **not accepted for integration**. Four state-machine defects were found (token reuse, invalid first clock, lenient input, the reopen bypass); they are fixed in the following commit.
-- The **pure foundation** is now implemented and tested: `src/shared/DoorGeometry.luau` and `src/server/Core/DoorAutoOpen.luau`.
-- **No live entry point, catalog entry, template, runtime, UI or save-schema change references them yet**, and a test enforces that.
+- The foundation (8275097) wasn't accepted; its corrections (a65d89c) were accepted.
+- **The runtime layer is now implemented, tested and DORMANT:**
+  - `src/server/Runtime/DoorSensing.luau`;
+  - `src/server/Runtime/DoorController.luau`;
+  - `src/server/Runtime/DoorRuntimeAdapters.luau`;
+  - an optional lifecycle hook in `PlacedItemsWorld`.
+- **Nothing activates doors:**
+  - the production bootstrap and BuilderService don't create a controller;
+  - BuilderService builds the world with no hook (exactly three arguments);
+  - no source outside the door modules names a door module.
+  - A test enforces all three.
+- **Also unchanged:** there's no catalog entry and no installed template, and no UI, remote or save-schema change.
 - Nothing here is claimed to work in Studio.
 - The prepared candidate is recorded in [`assets/Panel_Door_Candidate_Preparation_2026-10-26.json`](assets/Panel_Door_Candidate_Preparation_2026-10-26.json).
 
@@ -60,7 +69,7 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
 
 **With valid, unblocked input:**
 - **Closed:** nearby → open. Otherwise closed collision is restored once the doorway isn't occupied.
-- **Opening:** finish at full travel. Avatars aren't solid, and collision is off.
+- **Opening:** finish at full travel. Avatar occupancy doesn't stop an opening, and an avatar can make a closing reopen, while no solid obstruction is present. The leaf's collision is off during any motion. **That is the door's visual behaviour, not a claim that avatars have no collision**: the leaf may pass visually through an avatar while it swings.
 - **Open:** nearby or occupied → stay open. Otherwise close after `exitDelay` seconds of being clear (2 s by default).
 - **Closing:** nearby or occupied → reopen from the current progress (the return path is known clear). Otherwise finish closed, with collision on.
 - **Held:** nearby or occupied → open. Otherwise close. Either way it resumes from where it stopped.
@@ -75,35 +84,61 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
 
 **This is not a security lock.** Auto doors open for any living player nearby.
 
-## Adapter contracts for the first runtime
+## Runtime layer (implemented, dormant)
 
-| Adapter | Contract |
+| Piece | What it does |
 |---|---|
-| **Nearby scan** (server) | Each tick, scan only **live characters in the current sandbox**: a Humanoid with Health > 0, a root part present, and its position **finite** and inside the sandbox bounds plus a small margin. Measure room-space distance to each door's opening centre; `nearby` means within about 6 studs. Bound the scan: players × doors, at most 150 doors, at 4 Hz. No client input is involved, but positions are still validated. |
-| **Occupancy and obstruction** (server, later) | Query the room-space `sweptBox` (plus the doorway opening box) for overlapping parts. Exclude **only** the owning door model (its own surround, `Frame` and `Leaf`) and the floor piece directly supporting it, where it merely touches at the sill. **Adjacent walls and any other structure are not globally ignored:** anything that actually intrudes into the sweep counts. Parts of a living character's model count as `occupied`; every other solid part (placed furniture, other structure) counts as `blocked`. If the scan can't run or returns bad data, the runtime must pass an **unknown** input (for example, omit it), which holds the door still. |
-| **Leaf driver** (server) | Handles each event. **opening / closing / held:** tween the Leaf's pivot about the hinge from the event's progress, with collision off. **opened / closed:** final pose. **collision** and **closed with collide = true:** restore the leaf's closed collision. **snapClosed:** cancel the tween, then pivot to closed. Report tween completion with `complete(id, token)`. Always compute poses from the stored module pivot and hinge. |
-| **Lifecycle hook** (PlacedItemsWorld) | Before a door-affecting `apply` (move, remove, replace) and on `rollback` and `reconcile`, cancel its tween and call `reset(id)`, so the edit works on a closed leaf at the stored pivot. On a spawn `commit`, `add(id)` (it starts closed); on a remove `commit`, `remove(id)`. A rolled-back spawn never `add`s; a rolled-back remove keeps the door, already reset. Duplicate and load spawn closed. |
-| **Persistence** | Nothing. Door state never enters SaveSnapshot, BuildModel, history or revisions. |
+| **DoorSensing** (`src/server/Runtime/DoorSensing.luau`) | Pure logic over two injected queries; it produces each door's `{ nearby, occupied, blocked }`. More detail below. |
+| **DoorController** (`src/server/Runtime/DoorController.luau`) | Registrations, edits, ticking and poses; more detail below. |
+| **DoorRuntimeAdapters** (`src/server/Runtime/DoorRuntimeAdapters.luau`) | The Roblox pieces, with types injected so tests use fakes. `characters()` returns Players' characters (`alive` = Humanoid Health > 0, position from `origin:PointToObjectSpace`). `queryBox()` calls `GetPartBoundsInBox` over the room box with `MaxParts`, reports `truncated` when the limit is reached, names each hit's top-level model (a placed item or a character), and takes `supportingFloor` from an injected predicate. `driver` pivots the Leaf to `module * hinge * Angles(0, -swingSign * angle, 0) * hinge:Inverse() * closedOffset`, where `module` always comes from the stored record. It records each leaf part's original `CanCollide` at attach. |
+| **PlacedItemsWorld hook** | An optional 4th argument; with none, nothing changes. More detail below. |
 
-## First runtime follow-up (next code checkpoint, not started)
+**DoorSensing:**
+- **Characters:** only entries that are `alive`, with finite positions inside the sandbox plus a margin, count. One bad entry is skipped. A failed scan, a non-table result or more than `maxCharacters` entries makes every door **unknown**.
+- **Overlap hits:** each is classified. The owning door model is ignored; a counted character's model means occupied; a part flagged supporting floor that only touches the sweep's bottom is ignored. **Everything else blocks**, including adjacent walls, other structure, furniture, dead characters and a floor piece that rises into the sweep.
+- **Unknown door:** a failed or truncated query, more than `maxHits` hits, or a malformed hit makes that door unknown, and unknown doors are left out of the result.
+- **Query box:** always the conservative whole-sweep room box from `DoorGeometry`.
 
-1. Catalog: `structure_doorway_panel_01` (kind `doorway`), plus a strictly validated optional `door` field. It's validated by `DoorGeometry.validate`, and the catalog never carries asset IDs. The probe also checks for `Frame` and `Leaf` children.
-2. Placement: use `DoorGeometry.check` alongside StructureGrid for door items, so an out-of-bounds swing is `SwingOutOfBounds`. StructureGrid's existing behaviour stays as it is.
-3. Runtime: a DoorController wiring the adapters above to `DoorAutoOpen`, plus a PlacedItemsWorld hook that's optional and a no-op for non-doors.
-4. Tests for the lifecycle hook with fake worlds: apply, rollback, commit, reconcile, duplicate and load. Also a SaveSnapshot encode that's identical with doors open or closed, and a check that no prompts or remotes are added.
-5. Codex in Studio: build and install the module, then check in Play:
+**DoorController:**
+- **Keyed by model:** registrations are keyed by model, not placement id. Each gets a never-reused core id (`door#<generation>`).
+- **Specs:** a door's spec comes from an injected, validated `specFor(itemId)`. Nil or invalid means it isn't a door and is left alone. Nothing is hardcoded or registered.
+- **Poses:** each tick, the pose is `openDegrees` × the core's linear progress at `now`. There are no tweens and no completion callbacks, so there's no easing disagreement and nothing completes twice.
+- **Scans:** sensing runs at `scanInterval` over unfrozen doors only. Results older than `maxInputAge` count as unknown.
+- **Collision:** off on every motion, hold or reset event. The template's original states come back only on `collision` or `closed` with `collide = true`, i.e. closed and clear.
+- **Edits:**
+  - `attach` (frozen), `beginEdit` (snap closed, collision off, freeze, remember the record), `moved`, `cancelEdit` (restore the record, thaw), `thaw` and `detach`.
+  - A frozen door gets no input, so it can't reopen between an edit's apply and its commit or rollback.
+- **Lifecycle:** at most one heartbeat connection. `stop` disconnects it. `destroy` disconnects, returns doors to closed with their original collision, releases every registration and core entry, and makes later calls no-ops. The controller holds no other connections or tasks.
+
+**PlacedItemsWorld hook**, with every call guarded:
+- **spawn:** attach frozen, then thaw on commit or detach on rollback.
+- **move:** `beginEdit` **before** the pivot changes, then `moved`. Rollback re-pivots, then `cancelEdit`.
+- **remove:** `beginEdit` before unparenting. Commit detaches; rollback cancels.
+- **replace:** only after every new model has built (a failed build calls nothing). The old set gets `beginEdit` and the new set is attached frozen. Commit detaches old and thaws new; rollback does the reverse.
+- **reconcile:** detach dropped and stray models; kept models get `beginEdit`, pivot, `moved`, then `thaw`; respawns are attached, then thawed. A failure mid-door leaves that door frozen and closed.
+- Duplicate, load, undo and redo all reach the world as these same effects.
+
+**Transient state only:** door state never changes build revisions or saves. No door module mentions SaveSnapshot, BuildModel, BuildPersistence, revisions, attributes or DataStores (checked statically), and the integration test sees zero revision publishes.
+
+## Before activation (next checkpoints, not started)
+
+1. Codex builds the 16 × 15 × 1 module (frame raised +0.8; recess the leaf if the 0.515 hinge-side overhang matters on outer edges), measures its hinge and leaf, and installs it.
+2. Register `structure_doorway_panel_01` with its door metadata (validated by `DoorGeometry`). Add `DoorGeometry.check` to placement for door items, giving `SwingOutOfBounds`. Probe for `Frame` and `Leaf`.
+3. Wire it up: the bootstrap creates a DoorController with the real adapters (supplying the origin, the folder, a supporting-floor predicate and `RunService.Heartbeat`) and passes it to PlacedItemsWorld. That changes the dormant guard deliberately.
+4. Studio Play checks:
    - probe;
-   - Place, Rotate, Move, Duplicate, Delete and Undo;
+   - Place, Rotate, Move, Duplicate, Delete, Undo and Redo;
    - Save/load (it loads closed);
-   - auto-open and walk-through;
-   - holding with an avatar in the doorway;
-   - holding against furniture in the sweep;
+   - walk-through and auto-open;
+   - an avatar in the doorway holding it open;
+   - furniture in the sweep holding it;
+   - **real overlap false positives** (for example adjacent walls touching the sweep box);
+   - collision states;
    - a fresh backup.
 
-## What this checkpoint does NOT exercise
+## What is NOT exercised (still unverified)
 
-- **Studio, Play, physics and collision:** nothing real, including real tweens, CFrame pivots and actual leaf poses.
-- **Adapters:** character scans and overlap queries don't exist yet.
-- **The module itself:** not built, and its final hinge and leaf metadata aren't known.
-- **The wider build path:** catalog registration, the placement integration and the PlacedItemsWorld hook aren't wired.
-- **Avatar walk-through and clearance:** untested.
+- **Studio:** nothing runs there, including real CFrame maths, actual leaf poses, physics, collision and replication.
+- **Real overlap queries:** `GetPartBoundsInBox` behaviour is unverified: false positives from parts merely touching the box, rotated part extents (the adapter's `maxY` is an axis-aligned estimate), and characters' accessories.
+- **Real Players and Humanoids:** the adapters are tested only against fakes.
+- **The door module and activation:** the module isn't built and its final metadata is unknown. There's no catalog registration, placement integration or bootstrap wiring, and no avatar walk-through.

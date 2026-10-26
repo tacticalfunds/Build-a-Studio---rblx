@@ -1395,3 +1395,26 @@ Make the assets already used in the six existing rooms available in the Build dr
     - **347 passed, 0 failed** in total;
     - mutations that restore each defect (per-registration tokens, an accepted invalid clock, lenient input, the reopen bypass) each fail tests.
   - **Unchanged:** DoorGeometry, StructureGrid, live code, catalog, UI and save schema. Counts unchanged (live and repository 67; task 11 at 10 installed, 3 remaining).
+- Panel door runtime layer (repository code; **DORMANT: not activated, not registered, not installed**). The corrected foundation (a65d89c) was accepted.
+  - **`DoorSensing`:**
+    - counts only living characters with finite positions inside the sandbox; a failed or truncated character scan makes every door unknown;
+    - overlap hits: the owning door is ignored, avatars mean occupied, and supporting-floor contact at the sill is ignored;
+    - **everything else blocks**, including adjacent walls and other structure;
+    - a failed, truncated or malformed query makes that door unknown;
+    - it always queries the conservative whole-sweep box.
+  - **`DoorController`:**
+    - registrations keyed by model, with never-reused generation core ids, and specs injected and validated (nothing hardcoded or registered);
+    - linear poses from the core's progress (no tweens or completion callbacks);
+    - sensing at an interval, with stale results treated as unknown;
+    - collision off whenever moving, held or open, and the template's original states restored only closed and clear;
+    - `beginEdit` / `moved` / `cancelEdit` / `thaw` / `detach`, with frozen doors unable to reopen mid-edit;
+    - start, stop and destroy with at most one heartbeat connection and nothing left behind.
+  - **`DoorRuntimeAdapters`:** Roblox characters, `GetPartBoundsInBox` overlap with truncation, and a leaf driver posed from the stored record, hinge and closed offset (never the model's pivot or bounding box). Roblox types are injected.
+  - **`PlacedItemsWorld`:** an optional door hook (a 4th argument; with none, everything is unchanged). It covers spawn, move, remove, replace (nothing on a failed build), commit, rollback and reconcile, including kept models.
+  - **Guard:** narrowed. Door modules may reference each other; no other source names a door module, and BuilderService still builds the world with exactly three arguments. Door modules also never touch saves, revisions, the build model, attributes or DataStores.
+  - **Tests:**
+    - 27 new: sensing 6, controller 9, world lifecycle 9, adapters 3;
+    - **374 passed, 0 failed** in total;
+    - mutations (move without a freeze, scanning frozen doors, collision on while open, structure ignored, a leaked core entry on detach, stale inputs never expiring) each fail tests.
+  - **Not exercised:** Studio itself, including real CFrame poses, physics, collision and replication, real `GetPartBoundsInBox` false positives, rotated part extents, real Players and Humanoids, the door module, catalog registration, placement integration, bootstrap activation and avatar walk-through.
+  - **Counts unchanged:** live and repository 67; task 11 at 10 installed, 3 remaining; batch 02 at 6 installed, 16 pending.

@@ -175,12 +175,38 @@ return function(T, H)
 		end
 	end)
 
-	T.test("foundation only: no live source references DoorGeometry or DoorAutoOpen yet", function()
+	T.test("dormant: only door modules reference door modules; nothing in production activates doors", function()
+		local DOOR_MODULES = { "DoorGeometry", "DoorAutoOpen", "DoorSensing", "DoorController", "DoorRuntimeAdapters" }
 		for _, rel in ipairs(H.sourceList) do
-			if not rel:find("DoorGeometry", 1, true) and not rel:find("DoorAutoOpen", 1, true) then
+			local isDoorModule = false
+			for _, name in ipairs(DOOR_MODULES) do
+				if rel:find("/" .. name .. ".luau", 1, true) then isDoorModule = true end
+			end
+			if not isDoorModule then
 				local src = H.readFile(H.ROOT .. "/" .. rel)
-				T.eq(src:find("DoorGeometry", 1, true), nil, rel .. " references DoorGeometry")
-				T.eq(src:find("DoorAutoOpen", 1, true), nil, rel .. " references DoorAutoOpen")
+				for _, name in ipairs(DOOR_MODULES) do
+					T.eq(src:find(name, 1, true), nil, rel .. " references " .. name)
+				end
+			end
+		end
+		-- The world's optional hook stays unused: BuilderService builds it with exactly three arguments.
+		local service = H.readFile(H.ROOT .. "/src/server/Runtime/BuilderService.luau")
+		local args = service:match("PlacedItemsWorld%.new(%b())")
+		T.ok(args ~= nil, "BuilderService builds the world")
+		local depth, commas = 0, 0
+		for ch in args:sub(2, -2):gmatch(".") do
+			if ch == "(" then depth = depth + 1 elseif ch == ")" then depth = depth - 1 elseif ch == "," and depth == 0 then commas = commas + 1 end
+		end
+		T.eq(commas, 2, "no door hook passed to PlacedItemsWorld")
+		-- Door state is transient: no door module touches saves, revisions or the build model.
+		for _, name in ipairs(DOOR_MODULES) do
+			for _, rel in ipairs(H.sourceList) do
+				if rel:find("/" .. name .. ".luau", 1, true) then
+					local src = H.readFile(H.ROOT .. "/" .. rel)
+					for _, word in ipairs({ "SaveSnapshot", "BuildModel", "BuildPersistence", "publishRevision", "BuildRevision", "SetAttribute", "DataStore" }) do
+						T.eq(src:find(word, 1, true), nil, rel .. " mentions " .. word)
+					end
+				end
 			end
 		end
 	end)
