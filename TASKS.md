@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 62 installed in total (44 furniture, 18 structure; 1 more registered, repository 63, integration pending: the steaming coffee mug; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 63 installed in total (45 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (5 installed: the water dispenser, the tall floor plant, the conference table, the flower pot and the office chair; 8 original gap-audit entries remaining, one of them, the coffee mug, prepared and registered with integration pending)
+## 11. Existing room assets in Build (user request): In progress (6 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair and the coffee mug; 7 original gap-audit entries remaining)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1099,3 +1099,26 @@ Make the assets already used in the six existing rooms available in the Build dr
     - one focused test covers: the catalog fields only (no provenance or steam keys); the manifest agreeing with the catalog; the modified-version and no-creator records; source and size against the gap audit; floor, tabletop (y = 3.3) and edge placement; and last under Decor in every collection;
     - the water dispenser's "last in Decor" check now allows the mug after it.
     - No UI or runtime code changed.
+- 63-item verified installation checkpoint (Codex, Studio Experience `132242140555698`, 2026-10-26; supersedes the "integration pending" and "not yet verified" notes in the coffee mug entry above, which are left as written as history):
+  - **Review:** Codex reviewed 552a454 and ran the 323 tests independently: 0 failures.
+  - **Installed:** `studio_coffee_mug_01` is in Studio Experience. **Installed total: 63** (45 furniture, 18 structure). The Catalog module was backed up first as `ServerStorage.BuilderIntegrationBackups.Catalog_Before63_20261026_0314`.
+  - **Checks:**
+    - a fresh Edit probe after Play: 63 catalog entries, 63 templates, 63 valid, 0 invalid, 0 not installed;
+    - real BuilderRequest checks passed:
+      1. floor Place, revision 1;
+      2. Rotate, revision 2;
+      3. Delete, revision 3;
+      4. conference table Place, revision 4;
+      5. tabletop mug Place, revision 5, with the mug's minimum Y at 3.299999833 against the table's maximum Y of 3.299999952;
+      6. and 7. only the test mug and table deleted.
+    - **Steam:** the emitter was retained, enabled, rate 4, pointing world-up; faint rising steam was visible in native Play screenshots. The temporary camera override was removed.
+    - back in Edit, persistence was verified, and no test items remain.
+  - **Not done:** physical mouse or R-key UI verification. There's no pickup or drinking behaviour.
+  - **No registered-but-uninstalled items:** repository 63, live 63. The wider queue isn't finished.
+  - **Tallies:**
+    - task 11: 6 installed (the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair and the coffee mug), 7 original gap-audit entries remaining;
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Backup (new latest):** `StudioBuilder-FullBackup-63Items-2026-10-26-0320.rbxl`, 4,148,374 bytes, SHA256 `CF9D24ADA36D3CBCC7D26B9D56029CF99DA24E77BB38E3634E09661C5E474F49`.
+    - The Roblox header is verified; restore is untested.
+    - Previous backups are kept. It is local only and not uploaded.
+  - The historical registration manifest is unchanged.
