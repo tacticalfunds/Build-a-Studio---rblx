@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-26",
+  "status": "CANDIDATE prepared by Codex in Studio. NOT registered in Catalog.luau, NOT in StudioBuilderTemplates, NOT installed. No opening test and no placement test yet. Implementation plan: docs/panel-door-plan.md.",
+  "recordedFrom": "Codex verified Studio preparation relayed in the planning request after the review of 5918894 (local evidence outputs/Panel Door Candidate Preparation.json and outputs/Review Panel Door Candidate.png are not in this repository)",
+  "kind": "Existing-room extraction candidate (task 11); not a batch 02 or batch 03 candidate",
+  "source": {
+    "extractedFrom": "Workspace.RoomCollection.ConferenceRoom.Door (the original source is unchanged)",
+    "gapAuditEntry": "Panel door (docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json): 38 parts, size [4.65, 6.75, 0.75], proposed type doors",
+    "scaleCheck": "The audited size x 4/3 is [6.2, 9.0, 1.0], matching the prepared bounds after the uniform 4/3 scale.",
+    "parentModel": "ConferenceRoom",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, ConferenceRoom, preparation 'Source4993294691'",
+    "parentFreeModelAssetId": "4993294691",
+    "creator": "Not independently verified; not recorded (no credit)",
+    "doorModelAssetId": "None claimed"
+  },
+  "candidate": {
+    "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.studio_panel_door_candidate_01",
+    "reviewCopy": "Workspace.StudioAssetYard.Panel Door Candidate Review at (4380, 1, 3538), yaw 180",
+    "look": "Dark wood door and frame with honey-coloured trim, two tall frosted upper panes, two recessed lower panels and a brass-coloured round knob",
+    "removed": {
+      "welds": 29,
+      "rotateJoints": 2,
+      "bodyGyros": 1,
+      "invisibleHelperParts": 3,
+      "scripts": "None were present"
+    },
+    "remaining": {
+      "visibleParts": 35,
+      "anchored": true,
+      "canTouch": false,
+      "joints": 0,
+      "forces": 0,
+      "scripts": 0,
+      "visualMeshes": "Retained"
+    },
+    "children": ["Frame", "Leaf"],
+    "scale": "Uniform 4/3",
+    "orientation": "Normalized",
+    "pivot": "Identity bottom-centre pivot",
+    "size": [6.1999998093, 8.9999990463, 1],
+    "frameClearOpening": { "width": 5, "height": 8.2, "yFrom": 0.2, "yTo": 8.4, "note": "Approximate" },
+    "hingeCentres": [[2.4998779297, 7.4001665115, 0], [2.4998779297, 1.2000665665, 0]],
+    "leafBoundsIncludingHardware": { "centre": [0.0998414308, 4.3001308441, 0], "size": [5.2000732422, 8.2000856400, 0.9500000477] },
+    "visualReview": "Native Studio screenshot visually inspected (Codex)"
+  },
+  "knownBlockers": [
+    "The closed, anchored leaf blocks passage.",
+    "It is not a 16 x 15 x 1 structure module.",
+    "The existing open doorway wall has a roughly 5-wide opening at y 1 to 8.5, so this 6.2-wide, 9-high frame cannot be dropped into it unchanged.",
+    "Floor pieces occupy y 0 to 1, so the frame's clear opening starting at y 0.2 would sit 0.8 below the floor surface unless the frame is raised (see the plan)."
+  ],
+  "backup": "The original room source is in the 67-item backup (StudioBuilder-FullBackup-67Items-2026-10-26-0437.rbxl). The new prepared and review copies postdate it and need a later backup at installation.",
+  "historicalRecords": "docs/assets/Studio_Asset_Guide_2026-10-25.json and docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json are unchanged."
+}

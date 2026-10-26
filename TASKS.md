@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (10 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox, the umbrella light and the broadcast indicator lamp; 3 remaining: the laptop, the panel door and the metal door)
+## 11. Existing room assets in Build (user request): In progress (10 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox, the umbrella light and the broadcast indicator lamp; 3 remaining: the laptop, the panel door and the metal door; the panel door is a prepared candidate, not registered or installed, with a plan for review)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1324,3 +1324,29 @@ Make the assets already used in the six existing rooms available in the Build dr
     - Earlier backups are kept. It is local only.
   - **Nonblocking review finding, for a later cleanup (test code not changed now):** in the broadcast indicator test in `tests/spec/catalog_spec.lua`, the yaw 180 placement near the +Z edge is a valid bounds check. But its label, "backing plate against the +Z edge", is inaccurate: at yaw 180 the backing faces −Z.
   - The historical manifests and the gap audit are unchanged.
+- Panel door candidate (Codex, 2026-10-26): **prepared only, not registered and not installed.** This checkpoint is docs and design only.
+  - **Candidate:** `ServerStorage.StudioBuilderPreparedAssets.studio_panel_door_candidate_01`, from `Workspace.RoomCollection.ConferenceRoom.Door` (the original is unchanged); this is the gap audit's "Panel door".
+  - **Review copy:** `Workspace.StudioAssetYard.Panel Door Candidate Review` at (4380, 1, 3538), yaw 180.
+  - **Preparation:**
+    - removed 29 Welds, 2 Rotate joints, 1 BodyGyro and 3 invisible helper Parts; no scripts were present;
+    - 35 visible anchored Parts remain, CanTouch false, with no joints, forces or scripts;
+    - children are Frame and Leaf;
+    - uniform 4/3 scale (matching the audited size × 4/3), with an identity bottom-centre pivot;
+    - bounds 6.2 × 9 × 1, clear opening about 5 × 8.2 (y 0.2 to 8.4), hinges at local x 2.5, z 0;
+    - native screenshot inspected.
+  - **Blockers:**
+    - the closed anchored leaf blocks passage;
+    - it is not a 16 × 15 × 1 module;
+    - it doesn't fit the existing doorway's opening of about 5 wide at y 1 to 8.5;
+    - its opening starts 0.8 below the floor-module top.
+  - **Plan:** [`docs/panel-door-plan.md`](docs/panel-door-plan.md). It covers:
+    - a dedicated 16 × 15 × 1 doorway module authored **closed**, as the probe's bottom-centre pivot rule requires, with the frame raised to sill y = 1;
+    - open state transient and server-only: never saved, closed on spawn and before any edit;
+    - recommended first version: server-side auto-open by proximity, with no prompt, remote or UI change;
+    - a pure swing-volume bounds check (`SwingOutOfBounds`);
+    - strict catalog door metadata;
+    - the tests for the first code checkpoint;
+    - decisions D1 to D6 for review.
+  - **Provenance:** `docs/assets/Panel_Door_Candidate_Preparation_2026-10-26.json`. Codex's local evidence (`outputs/Panel Door Candidate Preparation.json`, `outputs/Review Panel Door Candidate.png`) is not in this repository.
+  - **Backup:** the original source is in the 67-item backup. The prepared and review copies postdate it and need a later backup at installation.
+  - **Counts unchanged:** live 67 (49 furniture, 18 structure); task 11 at 10 installed, 3 remaining; batch 02 at 6 installed, 16 pending. The wider queue isn't finished.
