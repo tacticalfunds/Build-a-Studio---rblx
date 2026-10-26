@@ -32,7 +32,7 @@ Known contracts (from Codex, 2026-10-25):
 | 8 | More collection themes | 6 | **49 installed**; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (14 pieces and R rotation installed; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending) |
-| 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | In progress (10 installed; the panel door wall registered in the repository as prepared-only, not installed; the laptop and the metal door remaining) |
+| 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | In progress (11 installed, including the panel door wall: static Edit checks only, auto-open disabled; the laptop and the metal door remaining) |
 
 **User priority (2026-10-25): keep expanding the model catalog.** Codex prepares and inspects candidates. Each set is registered in its own bounded checkpoint (manifest, catalog entries, tests), then installed and Play-checked by Codex. The queue order above is otherwise unchanged.
 
@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 67 installed in total (49 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 68 installed in total (49 furniture, 19 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (10 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox, the umbrella light and the broadcast indicator lamp; 3 remaining: the laptop, the panel door and the metal door; the panel door wall module is prepared in Studio and registered in the repository as item 68, prepared-only: not installed, auto-open runtime dormant)
+## 11. Existing room assets in Build (user request): In progress (10 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox, the umbrella light, the broadcast indicator lamp and the panel door wall (installed in Edit with static checks only; auto-open disabled, Play/UI/runtime checks pending); 2 remaining: the laptop and the metal door)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1540,3 +1540,19 @@ Make the assets already used in the six existing rooms available in the Build dr
     - **417 passed, 0 failed**, and the same with BuilderService converted to CRLF;
     - restoring the old `destroy` fails 5 tests; posing without collision off fails 3; dropping the turn-back-off after a failed restore fails 1.
   - **Counts unchanged:** live 67; repository 68 (49 furniture, 19 structure).
+- 68-item installation checkpoint: panel door wall installed in Studio Edit, doors disabled (Codex, Studio Experience place `132242140555698`, 2026-10-26). This is installation evidence. It supersedes the "not installed" and "live 67" notes in the panel door entries above, which stay as written as history.
+  - **Accepted:** 72d56f3, after Codex's independent run (417 passed) and its original injected stop-failure probe (passing).
+  - **Installed:** the reviewed door and catalog delta (16 modules) and the `structure_doorway_panel_01` template. **Live and repository both 68** (49 furniture, 19 structure).
+  - **Config:** the live Config lacked the unrelated BuildSeats constants. That was preserved as it was; only the `Doors` settings were added. **`Config.Doors.Enabled` remains false.**
+  - **Probe:** a fresh Studio catalog/probe validation passes for all 68 templates. The door template has 39 anchored parts, no scripts, joints or constraints, Frame and Leaf children, and a measured size of 16 × 15 × 1.
+  - **Static Edit checks** (isolated Edit test trees; the real PlacementCore and PlacedItemsWorld with an injected authority and clock):
+    - Place, Rotate and Delete pass at yaw 0, 90, 180 and 270;
+    - outer-edge placement is rejected with OutOfBounds;
+    - no temporary models were left behind, and the live placed count is 0.
+  - **Not checked:** Play, remote requests, the UI, physics, avatars and automatic-door behaviour. The runtime is not enabled, so placed doors stay static and closed.
+  - **Backups:**
+    - the previous three builder roots: `ServerStorage.BuilderIntegrationBackups.Door68_Before72d56f3_20261026_1124`;
+    - the original room door, the prepared copy and the yard copies are preserved;
+    - full place (new latest, local, not uploaded): `StudioBuilder-FullBackup-68Items-2026-10-26.rbxl`, 4,181,422 bytes, SHA256 `2F3EAFC938EEBE59835244E368C03E9BC074986B1264119357F98D2E0A712664`; restore not tested.
+  - **Still pending:** Play, remote and UI checks for the static door; then, only after review, a Studio-only session with doors enabled covering hinge and frame contact, real sensing, player interaction, adjacent-wall overlaps and a build load at the limit (see the plan's "Before activation").
+  - **Counts:** live 68 = repository 68; task 11 at 11 installed, 2 remaining (the guest laptop and the metal door). This checkpoint is documentation only: no code change.
