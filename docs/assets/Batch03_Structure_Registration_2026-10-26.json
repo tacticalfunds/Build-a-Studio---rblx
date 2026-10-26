@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-26",
+  "status": "Visual and static preparation approved by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates: no live placement yet. Installed Build count remains 52; repository count 54.",
+  "recordedFrom": "Codex native-viewport review and measurements of the prepared copies, relayed in the checkpoint request after the review of c84622e (not an export file)",
+  "items": [
+    {
+      "id": "structure_glass_partition_01",
+      "displayName": "Grid Glass Partition",
+      "collections": ["cozy", "retro", "1980s", "winter", "futuristic"],
+      "structure": { "kind": "window_wall" },
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.structure_glass_partition_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.structure_glass_partition_01",
+      "source": { "name": "Glass Partition", "creator": "v7k_1", "creatorStoreAssetId": "4494060927", "free": true, "batch03": true },
+      "baseParts": 2,
+      "partClasses": ["Part (glazing)", "UnionOperation (black grid frame)"],
+      "scripts": 0,
+      "textures": 0,
+      "anchored": true,
+      "adaptation": "Redundant Weld removed. Original yaw normalized and resized per axis from the 11.92 x 9.43 x 0.24 source to 16 x 15 x 1, length along local X.",
+      "pivot": "Upright identity bottom-centre pivot; error 0.000000954",
+      "size": [15.9999895, 14.999814, 1],
+      "look": "Black grid frame with transparent glazing",
+      "functionality": "Fixed glass wall: no opening and no door behaviour",
+      "visualReview": "Reviewed by Codex in the native Studio viewport"
+    },
+    {
+      "id": "structure_ceiling_acoustic_01",
+      "displayName": "Acoustic Tile Ceiling",
+      "collections": ["cozy", "retro", "1980s", "winter", "futuristic"],
+      "structure": { "kind": "ceiling" },
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.structure_ceiling_acoustic_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.structure_ceiling_acoustic_01",
+      "source": { "name": "Scaleable Ceiling Tiles", "creator": "VCVCFans", "creatorStoreAssetId": "551197444", "free": true, "batch03": true },
+      "baseParts": 1,
+      "partClasses": ["Part"],
+      "scripts": 0,
+      "textures": 2,
+      "anchored": true,
+      "adaptation": "Resized from the 9 x 0.2 x 9 source to 16 x 1 x 16. The source texture (342118609) is kept at 4 x 4 studs, and the Top texture was copied to the Bottom face so the underside reads correctly.",
+      "pivot": "Identity bottom-centre pivot; error 0",
+      "size": [16, 1, 16],
+      "look": "White speckled acoustic tiles with grid seams",
+      "functionality": "Static ceiling panel",
+      "visualReview": "Underside reviewed by Codex in the native Studio viewport using a flipped gallery copy; the prepared copy remains upright"
+    }
+  ],
+  "batch03Tally": "2 prepared and registered (these two), 1 other source quarantined (Modern wood block, not Build-ready), 9 thumbnail-only.",
+  "backup": "NOT included in the latest full-place backup (StudioBuilder-FullBackup-52Items-2026-10-25-2353.rbxl).",
+  "historicalRecords": "docs/assets/Catalog_Hunt_Batch03_2026-10-26.json and docs/assets/Batch03_Structure_Import_Checkpoint_2026-10-26.json are unchanged."
+}

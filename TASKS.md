@@ -533,7 +533,7 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
 
-## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (14 pieces and R rotation installed; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (14 pieces and R rotation installed, 2 more registered with install pending; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
 Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
 - Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
   - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
@@ -685,6 +685,30 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
   - **Limitation:** the camera ViewportSize was 1 × 1, and automated mouse input stalled and was cancelled. So the **physical R key, the drawer UI and visual checks remain unverified**, as does **doorway avatar clearance**. No UI success is claimed.
   - **Code:** no changes beyond the reviewed sources. The previous independent pure suite was 311/0.
   - **Still pending:** batch 02 and batch 03 candidates, and the full-place backup.
+- Batch 03 structure registration (repository; Codex install pending):
+  - **Registered (2):** both carry all five collection tags, are appended after the sofa, and use the existing structure conventions.
+    - `structure_glass_partition_01` (Grid Glass Partition; `window_wall`, in Windows).
+    - `structure_ceiling_acoustic_01` (Acoustic Tile Ceiling; `ceiling`).
+  - **Counts:** repository 54 (38 furniture, 16 structure); installed stays **52**.
+  - **Glass partition:** from 4494060927 Glass Partition by v7k_1.
+    - Measured 15.9999895 × 14.9998140 × 1 (normalized and resized per axis to 16 × 15 × 1, length along local X).
+    - Upright identity bottom-centre pivot (error 0.000000954).
+    - 2 anchored BaseParts (Part glazing and a UnionOperation black grid frame); 0 Lua, 0 Textures; the redundant weld was removed.
+    - Native viewport review: a black grid frame with transparent glazing. It is a fixed glass wall, with no opening or door behaviour.
+  - **Acoustic ceiling:** from 551197444 Scaleable Ceiling Tiles by VCVCFans.
+    - 1 anchored Part, 16 × 1 × 16 (from the 9 × 0.2 × 9 source), with a bottom-centre identity pivot (error 0).
+    - 0 Lua, 2 Textures: texture 342118609 kept at 4 × 4 studs, and the Top texture copied to the Bottom face.
+    - The underside was reviewed natively on a flipped gallery copy; the prepared copy stays upright.
+  - **Provenance:** `docs/assets/Batch03_Structure_Registration_2026-10-26.json`. Install source: `ServerStorage.StudioBuilderPreparedAssets.<id>`. The historical batch 03 manifests are unchanged.
+  - **Approval scope:** visual and static only. Not installed, with no live placement, and not in the 52-item backup.
+  - **Pending (Codex):** install, the probe, Play placement, and a backup refresh.
+  - **Tallies:**
+    - batch 03: 2 prepared and registered, 1 other source quarantined (Modern wood block), 9 thumbnail-only;
+    - batch 02 unchanged: 3 installed, 19 pending.
+  - **Tests:**
+    - counts updated: 54 items; Windows 3, Ceilings 3; 16 structure pieces;
+    - a new test checks each piece against its manifest (kind, tags, sourceRef, install source, facts), that its measured size validates on the grid, and that the wood block stays out.
+    - No UI or runtime code changed.
 
 ## 11. Existing room assets in Build (user request): Pending
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).

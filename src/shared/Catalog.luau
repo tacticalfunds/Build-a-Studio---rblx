@@ -458,6 +458,25 @@ Catalog.Items = {
 		type = "seating",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.cozy_tufted_leather_sofa_01",
 	},
+	-- Batch 03 structure pieces (2026-10-26): 2 adapted free assets, visually
+	-- reviewed and static-checked by Codex, resized to the grid module
+	-- (docs/assets/Batch03_Structure_Registration_2026-10-26.json).
+	-- Install source: ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- The glass partition is a fixed glass wall: no opening, no door behaviour.
+	{
+		id = "structure_glass_partition_01",
+		displayName = "Grid Glass Partition",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.structure_glass_partition_01",
+		structure = { kind = "window_wall" },
+	},
+	{
+		id = "structure_ceiling_acoustic_01",
+		displayName = "Acoustic Tile Ceiling",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.structure_ceiling_acoustic_01",
+		structure = { kind = "ceiling" },
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.
