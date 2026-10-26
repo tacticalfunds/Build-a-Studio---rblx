@@ -409,7 +409,9 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
 - Catalog hunt batch 02 (2026-10-26; **inventory only**: documentation, nothing registered, no runtime change):
   - **Archived:** `docs/assets/Catalog_Hunt_Batch02_2026-10-26.json`, verbatim, and indexed in `docs/assets/README.md`.
   - **Contents:** 8 inspected free sources gave 22 candidate pieces: 7 walls/trims, 4 seating, 3 storage, 2 tables, 2 audio, 2 decor, 1 door, 1 window. The Modular Wall Pack and the Modular Wall Trim Pack, previously deferred, are now inspected.
-  - **Copies:** the prepared copies in `ServerStorage.CatalogHuntPrepared02` are anchored and script-free. The originals are preserved in `ServerStorage.CatalogHuntBatch02` with their scripts disabled. The Futuristic Furniture pack's welding, vehicle-movement, text-banner and unpacker scripts never ran.
+  - **Copies:** the prepared copies in `ServerStorage.CatalogHuntPrepared02` are reported anchored and script-free.
+    **Correction:** their persistence is **UNVERIFIED**. An Edit execute returned 22 prepared models, but the current Play server has no `CatalogHuntPrepared02` folder (`CatalogHuntBatch02` is present). This stays pending until Studio is back in Edit. Codex keeps a recreation script locally (`work/prepare-hunt-batch02.luau`, not in this repository).
+    All 22 remain candidates only. Nothing is ready or installed, and no runtime work is assigned. The originals are preserved in `ServerStorage.CatalogHuntBatch02` with their scripts disabled. The Futuristic Furniture pack's welding, vehicle-movement, text-banner and unpacker scripts never ran.
   - **Pending:** geometry, orientation, visual and placement review (sideways acoustic panels, unusually oriented industrial walls, walls and trims not on the 16-stud module). **No review gallery yet:** Studio entered Play before staging.
   - Not registered, not Build-ready. This entry doesn't start any other implementation, and the queue order is unchanged.
   - **Still pending Studio integration:** the 9 structure variants (caf7115) and the rotation change (14933b6).
