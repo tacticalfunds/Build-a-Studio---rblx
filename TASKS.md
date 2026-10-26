@@ -462,6 +462,14 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
   - **Still pending:** fit, orientation, visual and placement approval of all 22, so none is registered; and the full-place disk backup.
   - The historical batch 02 manifest and the earlier "unverified" notes are unchanged.
   - Housekeeping: the rotation install entry was moved from the end of task 11 to task 10, where it belongs. Its wording is unchanged and the queue order is unchanged.
+- Batch 03 structure import checkpoint (Codex, 2026-10-26, Edit mode; documentation only):
+  - **Imported to quarantine:** 3 of 12 shortlisted sources in `ServerStorage.CatalogHuntBatch03`, zero scripts: Glass Partition, Scaleable Ceiling Tiles and Modern wood block. The other 9 are still thumbnail-only. Archived as `docs/assets/Batch03_Structure_Import_Checkpoint_2026-10-26.json`.
+  - **None is Build-ready:**
+    - the glass partition needs 16-stud grid sizing;
+    - the ceiling's texture is on its top face only, so it needs an underside treatment;
+    - the wood block is a decal-covered four-stud cube, not a modular slatted wall, with two overlapping Top decals.
+  - Gallery capture stalled and was cancelled, so there is no visual approval. Build templates stay **49**.
+  - The historical batch 03 manifest is unchanged.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
