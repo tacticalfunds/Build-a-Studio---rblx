@@ -1,105 +1,103 @@
-# Panel door: implementation plan (design only)
+# Panel door: implementation plan
 
-Status: **plan for review.** No code, catalog entry or template exists for this yet, and nothing here is claimed to work. The prepared candidate is recorded in [`assets/Panel_Door_Candidate_Preparation_2026-10-26.json`](assets/Panel_Door_Candidate_Preparation_2026-10-26.json).
+**Status:**
+- The design checkpoint (85025c9) was accepted with corrections.
+- The **pure foundation** is now implemented and tested: `src/shared/DoorGeometry.luau` and `src/server/Core/DoorAutoOpen.luau`.
+- **No live entry point, catalog entry, template, runtime, UI or save-schema change references them yet**, and a test enforces that.
+- Nothing here is claimed to work in Studio.
+- The prepared candidate is recorded in [`assets/Panel_Door_Candidate_Preparation_2026-10-26.json`](assets/Panel_Door_Candidate_Preparation_2026-10-26.json).
+
+## Decisions (made in the review of 85025c9)
+
+- **D1:** a dedicated 16 × 15 × 1 module surround.
+- **D2:** automatic opening for any **living** nearby player.
+- **D4:** a fixed local **−Z** swing side.
+- **D5:** the frame raised **+0.8**, so the clear opening sits at y 1.0 to 9.2.
+- **UI and remotes:** the current UI is kept, with no prompts and no new remote.
+- **Furniture in the swing holds the door**, rather than the leaf visually slicing through it. There's no general furniture-placement rewrite.
 
 ## What the code does today (inspected)
 
-- **StructureGrid** (`src/shared/StructureGrid.luau`): `doorway` is an edge kind at level 0 on the 16-stud grid, with cardinal yaw. Its length runs along local X, and the module is 16 × 15 × 1. Validation checks the grid, the level, the yaw, and that the template's size box fits the bounds. Nothing knows about a moving part.
-- **The existing doorway** (`structure_doorway_01` and `_wide_01`): a static open frame. Its measured opening (D4 in [`structure-placement-plan.md`](structure-placement-plan.md)) is x −2.5 to 2.5 and y 1 to 8.5, with a threshold at y 0 to 1. **Floor modules occupy y 0 to 1**, so a walkable opening starts at y 1.
-- **TemplateCatalog probe**: requires an upright pivot at the **bounding-box bottom centre**. A template authored with its leaf open would shift the box and fail the probe.
-- **TemplateSanitizer**: strips code, prompts, click and drag detectors, and remotes from every clone, and anchors every part. The preview also drops collision. A door template stays script-free and survives this unchanged.
-- **PlacedItemsWorld**: clones, sanitizes, tags (`BuildItemId`) and `PivotTo`s whole models. Move, rotate, remove and load all go through it. That's the one place to hook a door reset.
-- **PlacementCore / Protocol**: Place, Move, Rotate, Duplicate, Delete, Undo, Redo and Status. All of these are host-only edits under one lock, with revisions and history. Rate limit: edit 12 burst at 6/s.
-- **SaveSnapshot**: saves `{ Id, CatalogId, Transform }` only, with Build Version 1. There's no per-item state field.
-- **Build UI**: Furniture/Structure categories, the type chooser, and Structure filters Floors, Walls, Doors, Ceilings and Windows. A door module lists under **Doors** with no UI change.
+- **StructureGrid:** `doorway` is a 16 × 15 × 1 edge kind at level 0, with cardinal yaw and length along local X. It knows nothing of moving parts, and it is **unchanged** by this work.
+- **Existing doorway** opening: x −2.5 to 2.5, y 1 to 8.5. Floor modules occupy y 0 to 1.
+- **TemplateCatalog probe:** requires an upright pivot at the **bounding-box bottom centre**. So the template must be authored with the leaf **closed**.
+- **TemplateSanitizer:** strips code, prompts, detectors and remotes, and anchors every part. The door template stays script-free.
+- **PlacedItemsWorld:** a two-phase `apply`, then `commit` or `rollback`, plus `reconcile`. It's the one place to hook door resets.
+- **PlacementCore:** host-only edits under one lock, with revisions and history.
+- **SaveSnapshot:** saves only `{ Id, CatalogId, Transform }` (Build Version 1).
 
-## Recommendation
+## Template and pivot contract
 
-### 1. Template: a dedicated 16 × 15 × 1 doorway module, authored closed
+- Codex builds `structure_doorway_panel_01`: a 16 × 15 × 1 panel with a cut-out holding the prepared `Frame` and `Leaf`, with the frame raised so its sill is at y = 1. The surround is project-built geometry.
+- **The module pivot is fixed:** identity, at the bottom centre of the 16 × 15 × 1 box with the leaf closed. The runtime must **store this pivot when it spawns the door and always use it**, for edits, resets and tweens. It must never recompute it from `GetBoundingBox` or `GetPivot` while a leaf is open, because an open leaf shifts the box.
+- **Hinge and leaf metadata** come from the installed module (the candidate's values move by the +0.8 raise). They are validated by `DoorGeometry.validate`.
 
-- Codex builds `structure_doorway_panel_01` in Studio: a 16 × 15 × 1 wall panel with a cut-out sized to the 6.2 × 9 frame, holding the prepared **Frame** and **Leaf** at local x = 0.
-- **Raise the frame 0.8** so its clear opening sits at y **1.0 to 9.2**, level with the floor-module top and the existing threshold. Otherwise the bottom 0.8 of the opening is below the floor surface. The frame top is then at 9.8, well inside 15.
-- The surround is project-built geometry (from the existing wall kit's material). It is recorded as such and not attributed to the free model.
-- Children: `Frame` (static) and `Leaf` (a Model whose parts are all anchored).
-- **Pivot contract:** identity, at the bottom centre of the 16 × 15 × 1 box (the wall-line centre), with the **leaf closed**. The probe then passes, and StructureGrid needs no size change.
-- **Why not standalone furniture:** it wouldn't join walls, would leave gaps around a 6.2-wide frame, and has no grid rule for an opening.
+## Swing volume (correction 1)
 
-### 2. Door state: saved pose closed, open state transient
+- The earlier rectangle, x [−2.75, 2.5] by z [−5.25, 0], was **not conservative**. The closed leaf, with its hardware, already reaches x about 2.70 (past the hinge at 2.50) and z ±0.475.
+- **`DoorGeometry.sweptBox` replaces it with an exact construction.** At any angle, the box of a rotating rectangle is set by its four corners. So the union over the whole 0..open arc is the box of the four corners' circular arcs: each arc's end points, plus any ±x or ±z extreme the arc passes. It is padded by 1e-6.
+- **Measured candidate** (hinge x 2.49988, z 0; leaf centre x 0.09984; size 5.20007 × 8.20009 × 0.95):
+  - x **−2.5228 to 3.0153**; z **−5.0226 to 0.5154**; y **0.2 to 8.4**.
+  - The hinge-side corner swings out about 0.515 past the wall line, beyond the wall's 0.5 half-depth.
+  - So even an inward-swinging door on an outer edge needs bounds about 0.015 larger than a 49 marker. That's recorded as a finding for the module build: recessing the leaf or the frame would remove it.
+- **Tests:** the corners are sampled every 0.25° across 0..90° and checked inside the box, which is also tight to within 1e-3. The 45°, 120° and 180° arcs and a mirrored hinge are sampled too. All four cardinal yaws are checked against an independent CFrame-convention transform. A mutation that drops the arc extremes fails 5 tests, and one that ignores thickness fails 3.
 
-- **Saved:** only the module transform, as today. **No new save fields; Build Version stays 1.**
-- **Open or closed:** server memory only. It is never saved, never in history and never a revision.
-- Every spawn starts closed: Place, Duplicate, load, recovery reconcile and Undo/Redo respawn.
-- Any edit effect on a door snaps it closed first, then the edit applies to a closed model. That covers Move, Rotate, Delete, replace and reconcile. A moving leaf can't be carried into a new pose or saved half-open.
+## Auto-open state machine (corrections 2 and 3)
 
-### 3. Behaviour: trusted server code, with auto-open by proximity in the first version
+`DoorAutoOpen` is pure, with a fake clock. Per door it tracks a phase (`closed`, `opening`, `open`, `closing`, `held`), a progress value (0 = closed, 1 = open), whether it's collidable, and a motion token.
 
-- A new server module, **DoorController** (`src/server/Runtime/`), owns every leaf. Templates stay script-free.
-- **First version:** a leaf opens when any player's character root is within about 6 studs of the opening centre, measured server-side. It closes after the doorway has been clear for about 2 seconds.
-  - No client request, no new remote, no prompt and no UI change.
-  - Authorization, range and rate concerns are avoided because clients never ask: the server reads its own character positions.
-  - A bounded tick (4 Hz, over at most 150 items, doors only) keeps the cost small.
-- **Swing:** the leaf rotates 90° about its vertical hinge axis, at local x = 2.5, z = 0 (both hinge centres measured there). It always swings toward local **−Z**, tweened server-side with `PivotTo` on the anchored Leaf. The leaf's CanCollide is off while it's moving. Closed it blocks; open it sits beside the opening.
-- **Swing volume (local):** a quarter disc of radius about 5.25 about the hinge: x −2.75 to 2.5, z −5.25 to 0. That's inside the module's half-cell (8), so it never reaches the next edge line.
-- **Alternative for review (D2):** an explicit toggle (click or tap) over a dedicated DoorRequest remote. It would need its own rate bucket (for example 4 burst at 2/s), a server-side range check of about 10 studs from the hinge, and a decision on who may toggle. It's more code and touches the client input, so it isn't recommended first.
+**Inputs per door, supplied by the runtime adapters:**
+- `nearby`: a living player is close enough to want it open.
+- `occupied`: an avatar is in the doorway or the leaf's sweep.
+- `blocked`: a solid obstruction is in the sweep. The door's own Frame and Leaf and the floor don't count.
 
-### 4. Placement and clearance rules
+A missing or malformed input counts as **blocked**: the door holds still and nothing moves on unsupplied data.
 
-- **Grid:** the door module uses the existing `doorway` kind, so R-rotate, snapping and bounds work unchanged.
-- **Room bounds:** add a pure `StructureGrid.doorSwing(transform, door)` that returns the room-space swing box. Validation also refuses a door whose swing box leaves the bounds, with a new code `SwingOutOfBounds`.
-  - On the live 48 marker, outer edges are already refused, as walls are (D2).
-  - On a future 49 marker, only an inward-swinging yaw is accepted on an outer edge.
-- **Furniture in the swing:** not blocked in the first version. Anchored parts don't collide physically; the leaf may pass through furniture visually. This is documented as a known limit, not hidden.
+**Rules:**
+- **Closed:** blocked → stay shut, even if someone is near (no slicing through furniture). Otherwise nearby → open. Closed collision comes back **only** when the doorway is neither occupied nor blocked.
+- **Opening:** collision is off. A fresh opening **holds** where it is when blocked. A reopen that reverses a closing retraces space the leaf just swept, so it keeps going.
+- **Open:** nearby, occupied or blocked → stay open, however long. Otherwise it closes after `exitDelay` seconds of being clear (2 s by default).
+- **Closing:** collision is off. Nearby, occupied or blocked → **reopen from the current progress**, with a proportional duration. Otherwise it finishes closed, with collision on (it's clear).
+- **Held:** blocked → stay. Otherwise it resumes toward open (if nearby or occupied) or toward closed.
 
-### 5. Catalog metadata
+**Guarantees:**
+- `update()` returns **at most one event per door**, in insertion order, with at most 150 doors.
+- Motions finish by the clock (with a 1e-9 tolerance) or via `complete(id, token)` from a runtime tween.
+- **Stale tokens are ignored** after a reversal, hold, reset or remove, so an old callback can't move a door.
+- `reset(id)` snaps it closed and invalidates in-flight motions. Collision then waits for a clear update. `remove(id)` drops all its state.
+- The clock ignores non-finite or backwards time.
 
-- A new optional top-level `door = { hingeX = 2.5, swing = "-z", radius = 5.25 }`, strictly validated: only on `structure.kind == "doorway"`, with no other keys and finite numbers.
-- The probe also checks that the template has `Frame` and `Leaf` children.
-- No asset IDs. The provenance stays in the manifest.
+**This is not a security lock.** Auto doors open for any living player nearby.
 
-## Lifecycle summary
+## Adapter contracts for the first runtime
 
-| Event | Door behaviour |
+| Adapter | Contract |
 |---|---|
-| Place / Duplicate / load / reconcile | Spawns closed |
-| Move / Rotate | Snaps closed, then moves; it can reopen afterwards |
-| Delete / Undo removal | Snaps closed, then removes; its state is dropped |
-| Host change, save, preset load | No door state involved |
-| Preview ghost | Closed (sanitized preview clone, no collision) |
+| **Nearby scan** (server) | Each tick, scan only **live characters in the current sandbox**: a Humanoid with Health > 0, a root part present, and its position **finite** and inside the sandbox bounds plus a small margin. Measure room-space distance to each door's opening centre; `nearby` means within about 6 studs. Bound the scan: players × doors, at most 150 doors, at 4 Hz. No client input is involved, but positions are still validated. |
+| **Occupancy and obstruction** (server, later) | Query the room-space `sweptBox` (plus the doorway opening box) for overlapping parts. Exclude the door's own `Frame` and `Leaf`, the floor and structure pieces. Parts of a living character's model count as `occupied`; other solid parts (placed furniture, other structure) count as `blocked`. Until this adapter exists, the runtime must pass `blocked = true` for a door it can't check, which holds it still. |
+| **Leaf driver** (server) | Handles each event. **opening / closing / held:** tween the Leaf's pivot about the hinge from the event's progress, with collision off. **opened / closed:** final pose. **collision** and **closed with collide = true:** restore the leaf's closed collision. **snapClosed:** cancel the tween, then pivot to closed. Report tween completion with `complete(id, token)`. Always compute poses from the stored module pivot and hinge. |
+| **Lifecycle hook** (PlacedItemsWorld) | Before a door-affecting `apply` (move, remove, replace) and on `rollback` and `reconcile`, cancel its tween and call `reset(id)`, so the edit works on a closed leaf at the stored pivot. On a spawn `commit`, `add(id)` (it starts closed); on a remove `commit`, `remove(id)`. A rolled-back spawn never `add`s; a rolled-back remove keeps the door, already reset. Duplicate and load spawn closed. |
+| **Persistence** | Nothing. Door state never enters SaveSnapshot, BuildModel, history or revisions. |
 
-## Tests for the first code checkpoint (pure, run in `tests/run.lua`)
+## First runtime follow-up (next code checkpoint, not started)
 
-1. **Catalog:** the door metadata's strict validation (wrong kind, extra keys, non-finite values all rejected), plus registration counts (Doors filter 2 → 3).
-2. **StructureGrid.doorSwing:** for each yaw 0/90/180/270, the swing box is on the expected side, with the right extents from the hinge and radius.
-   - On the 49 marker, an outer edge with an outward swing gives `SwingOutOfBounds` and an inward swing is accepted.
-   - Interior edges are accepted.
-3. **DoorController core** (no Roblox, with a fake clock and fake characters):
-   - it opens within range and stays closed out of range;
-   - it closes after the clear delay;
-   - the reset hook snaps it closed;
-   - delete drops its state;
-   - duplicate and load start closed;
-   - the tick cost is bounded by the number of doors.
-4. **Persistence:** `SaveSnapshot.encode` output is identical whether a door is open or closed (no door state is ever saved).
-5. **Hinge maths:** rotating the leaf 90° keeps its hinge-side edge fixed, and its far edge lands at radius distance on −Z.
-6. **Static guards:** the door template and runtime add no ProximityPrompt, ClickDetector or new RemoteEvent in the auto-open version.
+1. Catalog: `structure_doorway_panel_01` (kind `doorway`), plus a strictly validated optional `door` field. It's validated by `DoorGeometry.validate`, and the catalog never carries asset IDs. The probe also checks for `Frame` and `Leaf` children.
+2. Placement: use `DoorGeometry.check` alongside StructureGrid for door items, so an out-of-bounds swing is `SwingOutOfBounds`. StructureGrid's existing behaviour stays as it is.
+3. Runtime: a DoorController wiring the adapters above to `DoorAutoOpen`, plus a PlacedItemsWorld hook that's optional and a no-op for non-doors.
+4. Tests for the lifecycle hook with fake worlds: apply, rollback, commit, reconcile, duplicate and load. Also a SaveSnapshot encode that's identical with doors open or closed, and a check that no prompts or remotes are added.
+5. Codex in Studio: build and install the module, then check in Play:
+   - probe;
+   - Place, Rotate, Move, Duplicate, Delete and Undo;
+   - Save/load (it loads closed);
+   - auto-open and walk-through;
+   - holding with an avatar in the doorway;
+   - holding against furniture in the sweep;
+   - a fresh backup.
 
-## What the first usable checkpoint would deliver
+## What this checkpoint does NOT exercise
 
-- **Repository:** the catalog entry `structure_doorway_panel_01` (kind doorway, with door metadata), `StructureGrid.doorSwing` and its validation, DoorController (a pure core plus a thin runtime) wired through a PlacedItemsWorld reset hook, and the tests above. No UI changes.
-- **Codex in Studio:** build the 16 × 15 × 1 surround with the frame raised to sill y = 1, install it, then check in Play:
-  - probe;
-  - Place, Rotate, Move, Duplicate, Delete;
-  - Save/load (it loads closed);
-  - an avatar walking through as it auto-opens;
-  - the leaf closing after the clear delay;
-  - a fresh backup.
-- **Until then:** none of this is claimed working. The candidate is prepared only, not registered, not installed and untested.
-
-## Decisions for review
-
-- **D1:** a module surround (recommended) or a standalone door.
-- **D2:** auto-open by proximity (recommended for the first version) or an explicit toggle remote.
-- **D3:** who opens it: everyone nearby (auto) or only the host.
-- **D4:** a fixed −Z swing side (recommended), or a mirrored variant later.
-- **D5:** raise the frame so its sill is at y = 1 (recommended).
-- **D6:** whether furniture in the swing is ignored in the first version (recommended) or blocks placement.
+- **Studio, Play, physics and collision:** nothing real, including real tweens, CFrame pivots and actual leaf poses.
+- **Adapters:** character scans and overlap queries don't exist yet.
+- **The module itself:** not built, and its final hinge and leaf metadata aren't known.
+- **The wider build path:** catalog registration, the placement integration and the PlacedItemsWorld hook aren't wired.
+- **Avatar walk-through and clearance:** untested.

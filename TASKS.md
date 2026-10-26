@@ -1350,3 +1350,33 @@ Make the assets already used in the six existing rooms available in the Build dr
   - **Provenance:** `docs/assets/Panel_Door_Candidate_Preparation_2026-10-26.json`. Codex's local evidence (`outputs/Panel Door Candidate Preparation.json`, `outputs/Review Panel Door Candidate.png`) is not in this repository.
   - **Backup:** the original source is in the 67-item backup. The prepared and review copies postdate it and need a later backup at installation.
   - **Counts unchanged:** live 67 (49 furniture, 18 structure); task 11 at 10 installed, 3 remaining; batch 02 at 6 installed, 16 pending. The wider queue isn't finished.
+- Panel door pure foundation (repository code; **not wired, not registered, not installed**):
+  - **Decisions accepted in the review of 85025c9:**
+    - a dedicated 16 × 15 × 1 module surround;
+    - the frame raised +0.8;
+    - automatic opening for any living nearby player;
+    - a fixed local −Z swing;
+    - no prompts, no new remote, and the current UI kept.
+  - **`src/shared/DoorGeometry.luau`:**
+    - strict validation of finite, well-shaped door metadata (hinge, closed leaf box including hardware, swing "-z", open angle);
+    - the **exact swept box** of the closed leaf box over the whole arc, built from its four corners' circular arcs, which replaces the non-conservative rectangle in the design note;
+    - the y bounds, a cardinal-yaw room transform matching `PlacedItemsWorld`, and a bounds check (`SwingOutOfBounds`).
+  - **Finding:** the measured hinge-side corner swings about 0.515 past the wall line, beyond the 0.5 half-depth. An inward-swinging outer-edge door therefore exceeds a 49 marker by about 0.015 unless the module recesses the leaf.
+  - **`src/server/Core/DoorAutoOpen.luau`:** a pure state machine driven by a fake clock:
+    - proximity opening, and closing after an exit delay;
+    - separate `occupied` and `blocked` inputs, with missing input held still;
+    - holding open while occupied or blocked;
+    - reopening from the current progress if obstructed while closing;
+    - a fresh opening holds against a solid obstruction;
+    - collision off while moving, and closed collision restored only when clear;
+    - at most one event per door per update;
+    - explicit `reset` and `remove`, and token-protected `complete` that ignores stale callbacks.
+  - **StructureGrid is unchanged.** No live source references either module; a test enforces that.
+  - **Plan updated** ([`docs/panel-door-plan.md`](docs/panel-door-plan.md)): the swing-volume correction, the fixed module pivot contract, the obstruction and occupancy rules, the adapter contracts (validated live-character scans, the overlap adapter, the leaf driver, and lifecycle hooks covering apply, rollback, commit, reconcile and stale tweens), the first runtime follow-up, and what isn't exercised.
+  - **Tests:**
+    - 18 new: `door_geometry_spec` (7) and `door_auto_open_spec` (11);
+    - **345 passed, 0 failed** in total;
+    - mutations that drop the arc extremes, ignore leaf thickness, or let closing ignore an avatar each fail tests.
+  - **Not exercised:** anything in Studio (tweens, pivots, physics, collision), the character and overlap adapters, the module itself, catalog registration, the placement integration, the PlacedItemsWorld hook, and avatar walk-through.
+  - **Asset index fix:** the remaining-objects lines now say the panel door is extracted and prepared but not registered, rather than "unextracted".
+  - **Counts unchanged:** live and repository 67; task 11 at 10 installed, 3 remaining; batch 02 at 6 installed, 16 pending.
