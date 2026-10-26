@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 60 installed in total (42 furniture, 18 structure; 1 more registered, repository 61, integration pending: the red flower pot; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 61 installed in total (43 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (3 installed: the water dispenser, the tall floor plant and the conference table; 10 gap-audit entries remaining, one of them, the red flower pot, registered with integration pending)
+## 11. Existing room assets in Build (user request): In progress (4 installed: the water dispenser, the tall floor plant, the conference table and the flower pot; 9 gap-audit entries remaining)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -997,3 +997,27 @@ Make the assets already used in the six existing rooms available in the Build dr
     - it's listed last in Cozy, Retro, 1980s and Winter > Plants, and never in Futuristic or Structure mode.
     - Existing test: the tall floor plant's "last in Plants" check now allows later registrations after it.
     - No UI or runtime code changed.
+- 61-item verified installation checkpoint (Codex, 2026-10-26; supersedes the "integration pending" notes in the red flower pot entry above, which are left as written as history):
+  - **Review:** Codex reviewed e0c91b7 and ran its archive independently: 321 passed, 0 failed.
+  - **Installed:** `studio_flower_pot_01` is in the live Catalog and `StudioBuilderTemplates`. **Installed total: 61** (43 furniture, 18 structure).
+  - **Checks:**
+    - a fresh probe: 61 entries, 61 templates, 61 valid, 0 invalid;
+    - real Play client BuilderRequest checks all succeeded:
+      1. flower pot floor Place at (0, 0, 0, yaw 0), revision 1;
+      2. Rotate direction 1, revision 2;
+      3. Delete, revision 3;
+      4. conference table Place, revision 4;
+      5. flower pot elevated Place at (0, 3.3, 0, yaw 0), revision 5;
+      6. Delete the flower pot, revision 6;
+      7. Delete the table, revision 7.
+    - all test copies were removed, and persistence was verified back in Edit.
+  - **Scope:** these are server request tests. They are not physical UI or R-key tests, and not a visual check that the pot sits correctly on the tabletop. The original room is unchanged.
+  - **No registered-but-uninstalled items:** the repository and the live install both hold 61.
+  - **Tallies:**
+    - task 11: 4 installed (the water dispenser, the tall floor plant, the conference table and the flower pot), 9 gap-audit entries remaining;
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Backup:** `StudioBuilder-FullBackup-61Items-2026-10-26-0236.rbxl`, 4,145,249 bytes, SHA256 `0E3241A2FFE94E68ED4595EA30DE25A6CAC231C037141690C10B32065790F750`.
+    - The `<roblox!` header is valid; restore is untested.
+    - It includes the pot's prepared, template and review copies.
+    - Previous backups are kept. It is local only and not uploaded.
+  - The historical registration manifest is unchanged.
