@@ -29,7 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | **49 installed** (repository 50: the record console is registered, Studio integration pending); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
+| 8 | More collection themes | 6 | **50 installed** (repository 50; the record console has static Edit checks only); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (20 pieces and R rotation installed; 18 remote-tested in Play, the panel door wall and arched window wall static Edit checks only; physical R-key/UI, visual QA and doorway clearance pending) |
 | 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | In progress (11 installed, including the panel door wall: static Edit checks only, auto-open disabled; the laptop and the metal door remaining) |
@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 69 installed in total (49 furniture, 20 structure; repository 70 with the record console registered and pending integration; see task 11 for the room extractions; see task 10 for the structure pieces; the first 6 batch 02 pieces passed remote Place→Rotate→Delete, the arched window wall has static Edit checks only); batch 02: 7 installed, 15 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 70 installed in total (50 furniture, 20 structure; live = repository 70; see task 11 for the room extractions; see task 10 for the structure pieces; the first 6 batch 02 pieces passed remote Place→Rotate→Delete, the arched window wall and the record console have static Edit checks only); batch 02: 8 installed, 14 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -1606,3 +1606,17 @@ Make the assets already used in the six existing rooms available in the Build dr
     - updated: item count 70, furniture 50, cozy/retro/1980s furniture counts, the reviewed type map (`audio`), the Cozy "All items" count, the prepared-copy list and the provenance list;
     - **419 passed, 0 failed**; changing the item's type or dropping a collection fails tests.
   - **Counts:** repository **70** (50 furniture, 20 structure); live **69** (49 furniture, 20 structure; 4 Windows; doors disabled) until Codex installs it. Batch 02 stays at 7 installed and 15 pending; this console becomes the eighth installed piece only after integration. Task 11 unchanged at 11 installed, 2 remaining.
+- 70-item installation checkpoint: record console installed in Studio Edit (Codex, Studio Experience place `132242140555698`, 2026-10-26). This is installation evidence. It supersedes the "prepared, NOT installed" and "live 69" notes in the record console registration entry above, which stay as written as history; the registration manifest and tests are unchanged.
+  - **Accepted:** fab302c, after Codex reviewed all 7 changed files and ran the suite independently from a pristine archive (Lua 5.4 via Lupa): 419 passed, 0 failed.
+  - **Installed:** ONLY the Catalog and the `record_console_01` template. **Live and repository both 70** (50 furniture, 20 structure).
+  - **Backup first:** the prior live Catalog matched c6bbd41 exactly. Rollback copy: `ServerStorage.BuilderIntegrationBackups.RecordConsole70_Beforefab302c_20261026_1244.Catalog`.
+  - **Audit (fresh, isolated):** 70 catalog entries, 70 of 70 templates valid, 50 furniture and 20 structure, 4 Windows pieces, `Config.Doors.Enabled` false.
+  - **Static Edit probe** (the real PlacementCore and PlacedItemsWorld, isolated, with an injected authority and clock):
+    - Place, Rotate and Delete pass at yaw 0, 90, 180 and 270;
+    - outer-edge placement is rejected with OutOfBounds;
+    - logs empty; temporary models cleaned up.
+  - **Not checked:** Play, the UI, remote requests, avatars, physics and save/load.
+  - **Full-place backup (new latest, local, not uploaded; saved with Download a Copy):** `StudioBuilder-FullBackup-70Items-2026-10-26.rbxl`, 4,191,919 bytes, SHA256 `570BEE62BCE474573B4C0D745964F1E4B776A8BD9C62BE1075DBE658A46C9E52`; restore not tested.
+  - **Counts:** live 70 = repository 70 (50 furniture, 20 structure); batch 02 at 8 installed (H02_12 now installed), 14 pending; task 11 unchanged at 11 installed, 2 remaining.
+  - **Next (Codex, independent):** preparing another pending model.
+  - Documentation only: no code, UI or marketing change.
