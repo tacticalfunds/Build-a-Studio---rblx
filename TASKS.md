@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 55 installed in total (38 furniture, 17 structure; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 4 installed, 18 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 56 installed in total (38 furniture, 18 structure; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 5 installed, 17 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -533,7 +533,7 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
 
-## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (17 pieces and R rotation installed, 1 more registered with integration pending; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (18 pieces and R rotation installed; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
 Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
 - Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
   - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
@@ -784,6 +784,22 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - a new test checks the manifest fields and facts (57 = 56 tiles + 1 backing, the 8 × 7 layout, the backing disclosure, no acoustic claim) and that the prepared name matches the id;
     - it also checks grid validation on both wall orientations, refusals for a cell centre and a raised spot, the exact Walls order, and that it stays out of furniture style lists.
     - No UI or runtime code changed.
+- 56-item install checkpoint (Codex, 2026-10-26; supersedes the "integration pending" notes in the acoustic wall entry above, which are left as written):
+  - **Review:** Codex reviewed 71c9a2d and ran its suite independently: 316 passed, 0 failed.
+  - **Installed:** live Studio now has 56 catalog entries and 56 templates (38 furniture, 18 structure).
+  - **Checks:**
+    - all 56 template probes are valid, 0 invalid;
+    - filters: Floors 5, Walls 5, Doors 2, Ceilings 3, Windows 3;
+    - Acoustic Foam Wall is installed: 57 anchored parts, 0 scripts and 0 lights; decorative acoustic appearance only;
+    - real client BuilderRequest Place at local (0, 0, −8, yaw 180), Rotate direction 1, and Delete all passed (revisions 1, 2 and 3), and the test copy was removed;
+    - back in Edit, catalog and template persistence was verified.
+  - **Not done:** a physical UI-click or R-key test.
+  - **Batch 02:** 5 installed (H02_10 among them), 17 pending.
+  - **Backup:** a new full-place backup, `StudioBuilder-FullBackup-56Items-2026-10-26-0055.rbxl`, 4,141,091 bytes, SHA256 `E290100DCCE4015401016F107D37FCFBF7D7C9DD0C24E7626DDCED5C15EC53DF`.
+    - The file and its `<roblox!` header are verified; restore is untested.
+    - It includes the acoustic wall's prepared, template and review copies.
+    - Earlier backups are kept. It is local only and not uploaded.
+  - The historical manifests are unchanged.
 
 ## 11. Existing room assets in Build (user request): Pending
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
