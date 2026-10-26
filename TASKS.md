@@ -425,6 +425,21 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
   - **Batch 02** keeps its status: candidates only, with prepared-copy persistence unverified until Studio is back in Edit.
   - **Install pending:** the runtime changes through 5fcf60b (311 tests passed, independently reviewed) are still not installed. Studio stays in Play and wasn't interrupted. The queue order is unchanged.
 
+- Existing-room gap audit (2026-10-26; **documentation only**; feeds task 11, which still waits on an inspected manifest):
+  - **Archived:** `docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json`, verbatim, and indexed in `docs/assets/README.md`.
+  - **Scope:** a read-only Play audit of **13 existing room objects or groups**. These aren't 13 imported or Build-ready assets.
+    - Conference Room: table, office chairs, coffee mug, guest laptop, water cooler, presentation board, flower pot, tall plant, panel door.
+    - Broadcast Set: softbox, lighting umbrella, On Air sign, metal door.
+  - **Flags:**
+    - **Guest laptop: 611 parts**. Optimize it or replace it with a lower-part equivalent before builder duplication.
+    - **Office chairs:** a 12-seat group. Extract a single chair; don't register the group.
+    - **Doors (2):** grid and clearance adaptation needed; functional opening not verified.
+    - **Lighting props** (softbox, umbrella, On Air sign; one light each): orientation and light-control integration review needed.
+    - **Presentation board:** carries live studio text labels (AFTER HOURS etc.), to review before reuse.
+  - No scripts were found in these 13 objects; that isn't a whole-place security audit.
+  - Template extraction and registration remain pending Edit mode. Studio is still in Play, so no integration is claimed.
+  - Batch 02 and batch 03 keep their pending and unverified status. No runtime, catalog or queue change.
+
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
 - UX: a Branding section on the Studio page. The host enters a Roblox image asset ID and sees a preview. They then apply it either to the whole active room's branding, or by clicking or selecting eligible individual surfaces (wall signs, screens, mugs, laptop lids). Apply and Reset per room and per surface.

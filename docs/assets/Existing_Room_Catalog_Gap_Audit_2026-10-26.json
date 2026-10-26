@@ -1,0 +1,225 @@
+{
+  "scope": "13 existing-room objects or groups; read-only Play audit",
+  "objects": [
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 0,
+      "displayName": "Conference table",
+      "sourcePath": "Workspace.RoomCollection.ConferenceRoom.Table",
+      "size": [
+        24.224998474121094,
+        3.299999713897705,
+        11.625
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "tables",
+      "lights": 0,
+      "parts": 3
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 12,
+      "displayName": "Office chairs",
+      "sourcePath": "Workspace.RoomCollection.ConferenceRoom.Chairs",
+      "size": [
+        30.06268310546875,
+        4.592565536499023,
+        17.311527252197266
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "seating",
+      "lights": 0,
+      "parts": 36
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 0,
+      "displayName": "Roblox coffee mug",
+      "sourcePath": "Workspace.RoomCollection.ConferenceRoom.Coffee cup",
+      "size": [
+        0.7700138092041016,
+        0.7425128817558289,
+        0.6092129349708557
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "decor",
+      "lights": 0,
+      "parts": 5
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 0,
+      "displayName": "Guest laptop",
+      "sourcePath": "Workspace.RoomCollection.ConferenceRoom.Guest laptop",
+      "size": [
+        1.644039511680603,
+        1.7000949382781982,
+        1.3191449642181396
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "decor",
+      "lights": 0,
+      "parts": 611
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 0,
+      "displayName": "Water cooler",
+      "sourcePath": "Workspace.RoomCollection.ConferenceRoom.Water Machine",
+      "size": [
+        1.949987769126892,
+        5.100000381469727,
+        2.25
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "decor",
+      "lights": 0,
+      "parts": 20
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [
+        "AFTER HOURS",
+        "PODCAST STUDIO / 01",
+        "CONVERSATIONS  •  IDEAS  •  COMMUNITY"
+      ],
+      "seats": 0,
+      "displayName": "Presentation board",
+      "sourcePath": "Workspace.RoomCollection.ConferenceRoom.WhiteBoard",
+      "size": [
+        9.502521514892578,
+        6.674382209777832,
+        0.24321874976158142
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "screens",
+      "lights": 0,
+      "parts": 9
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 0,
+      "displayName": "Flower pot",
+      "sourcePath": "Workspace.RoomCollection.ConferenceRoom.Flower Pot",
+      "size": [
+        1.9535506963729858,
+        2.9155631065368652,
+        1.935222864151001
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "plants",
+      "lights": 0,
+      "parts": 38
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 0,
+      "displayName": "Tall potted plant",
+      "sourcePath": "Workspace.RoomCollection.ConferenceRoom.Potted Plant",
+      "size": [
+        5.213370323181152,
+        7.141579627990723,
+        3.7111449241638184
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "plants",
+      "lights": 0,
+      "parts": 1
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 0,
+      "displayName": "Panel door",
+      "sourcePath": "Workspace.RoomCollection.ConferenceRoom.Door",
+      "size": [
+        4.649999618530273,
+        6.749999046325684,
+        0.75
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "doors",
+      "lights": 0,
+      "parts": 38
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 0,
+      "displayName": "Studio softbox",
+      "sourcePath": "Workspace.RoomCollection.BroadcastSet.Softbox1",
+      "size": [
+        2.6022839546203613,
+        3.6576573848724365,
+        7.9109272956848145
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "lighting",
+      "lights": 1,
+      "parts": 25
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 0,
+      "displayName": "Lighting umbrella",
+      "sourcePath": "Workspace.RoomCollection.BroadcastSet.Lighting Ubrella",
+      "size": [
+        2.150217294692993,
+        2.1502342224121094,
+        2.482438087463379
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "lighting",
+      "lights": 1,
+      "parts": 10
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 0,
+      "displayName": "On air sign",
+      "sourcePath": "Workspace.RoomCollection.BroadcastSet.On Air ausen",
+      "size": [
+        1.365000605583191,
+        1.7549996376037598,
+        1.755004644393921
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "decor",
+      "lights": 1,
+      "parts": 3
+    },
+    {
+      "scriptPaths": [],
+      "textLabels": [],
+      "seats": 0,
+      "displayName": "Metal door",
+      "sourcePath": "Workspace.RoomCollection.BroadcastSet.Metal Door",
+      "size": [
+        4.884700298309326,
+        8.86050033569336,
+        0.9435572028160095
+      ],
+      "status": "Existing room object audit only; template extraction and review pending",
+      "proposedType": "doors",
+      "lights": 0,
+      "parts": 14
+    }
+  ],
+  "reviewNotes": [
+    "Guest laptop has 611 BaseParts: optimize or replace with a lower-part visual equivalent before unlimited builder duplication.",
+    "Office chairs group contains 12 seats; extract a single chair rather than registering the whole group.",
+    "Doors need grid/clearance adaptation; functional opening is not verified.",
+    "Studio lighting props need orientation and light-control integration review.",
+    "No LuaSourceContainer instances found in these 13 inspected objects; this is not a whole-place security audit.",
+    "Template extraction and registration remain pending Edit mode."
+  ]
+}
