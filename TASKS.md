@@ -29,7 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | 39 installed (live); repo 49 (adds classic floor lamp + 9 structure variants, install pending); 10 candidates tracked, not registered; Executive/Broadcast pending |
+| 8 | More collection themes | 6 | **49 installed** (Edit-mode install after 5fcf60b; Play/UI placement of the 10 new items pending); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (installed and remote-tested in Play; visual QA and doorway clearance pending) |
 | 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | Pending: awaiting an inspected manifest |
@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 39 installed (live); repo 49 (adds classic floor lamp + 9 structure variants, install pending); 10 candidates tracked, not registered; Executive/Broadcast pending
+## 8. More collection themes: 49 installed (Play/UI placement of the 10 new items pending); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -440,6 +440,19 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
   - Template extraction and registration remain pending Edit mode. Studio is still in Play, so no integration is claimed.
   - Batch 02 and batch 03 keep their pending and unverified status. No runtime, catalog or queue change.
 
+- Integration checkpoint (Codex, 2026-10-26, Studio back in Edit):
+  - **Installed:** **only `Catalog.luau`** from the reviewed 5fcf60b, plus ten approved templates: the 9 `StructureExpansionCandidates` variants and `retro_classic_floor_lamp_01`. **The live catalog and templates are now 49.**
+  - **Checks:**
+    - a fresh require and the TemplateCatalog `serverStorageProbe` passed for all 49;
+    - structure counts: Floors 5, Walls 3, Doors 2, Ceilings 2, Windows 2;
+    - all ten additions are anchored, with zero scripts and upright bottom-centre pivots.
+  - **Backup:** the previous Catalog source was backed up locally and in `ServerStorage.BuilderIntegrationBackups.Catalog_Before49_20261025_2233`.
+  - **Not verified in this checkpoint:** Play/UI placement of the ten new items.
+  - **Not installed:** the five-module **R rotation change (14933b6)**.
+  - **Still candidates only:** batch 02 and batch 03. The full-place backup is still pending.
+  - Codex independently verified that the 718e39e gap-audit JSON matches the supplied file exactly.
+  - Earlier "install pending" notes for the lamp and the structure variants are kept as history; this entry supersedes them.
+
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
 - UX: a Branding section on the Studio page. The host enters a Roblox image asset ID and sees a preview. They then apply it either to the whole active room's branding, or by clicking or selecting eligible individual surfaces (wall signs, screens, mugs, laptop lids). Apply and Reset per room and per surface.
@@ -552,7 +565,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - no console errors.
   - **Visual QA pending:** all world captures render white, including the original room in Edit mode. Rendering is Automatic, ViewMode None, with sane lighting; there's no confirmed cause. The GUI works and raycasts hit the correct geometry. **Visual placement, the hinge Rotate feel and doorway clearance are not approved.**
   - **Backups and place state:** Studio was returned to Edit, with no publish or merge. The full-place backup is still pending; there's a source-only backup.
-- Rotation usability (user priority, 2026-10-26; repository only, install pending):
+- Rotation usability (user priority, 2026-10-26; repository only, **still not installed** as of the 49-item Edit install):
   - **What changed:**
     - R and the Rotate button now turn **every** structure preview 90° (floors, ceilings, walls, window walls, doorways), and the chosen angle holds while the pointer moves. Furniture keeps 15°.
     - `StructureGrid.project` gets a backward-compatible `options.lockYaw`: the yaw picks the edge axis (0/180 X-axis, 90/270 Z-axis, same grid origin) and is kept exactly. The default nearest-edge behaviour and all server validation are unchanged.

@@ -25,15 +25,15 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 
 | Area | Status |
 |---|---|
-| Catalog | **31 items installed** in the working place. Place→Delete passed in Play for all 31, and the drawer filters were checked ([`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md)). Real DataStore save/load with expansion items, multiplayer and a performance benchmark are not done. The 5 structure pieces are installed too, and their placement was checked over the real remote in Play (24e8047); **visual QA is pending** (see the catalog section). The 2 decor items are installed too (46d55cb: Play Place/Rotate/Delete passed), for **38 installed**. The patterned rug was installed and Play-checked after a9bf5ba, for **39 installed**. In the repository, `retro_classic_floor_lamp_01` and 9 structure variants are registered (**49 entries, 14 of them structure pieces**) but not yet installed. Full current asset list: [`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md). |
+| Catalog | **31 items installed** in the working place. Place→Delete passed in Play for all 31, and the drawer filters were checked ([`docs/integration-catalog-expansion.md`](docs/integration-catalog-expansion.md)). Real DataStore save/load with expansion items, multiplayer and a performance benchmark are not done. The 5 structure pieces are installed too, and their placement was checked over the real remote in Play (24e8047); **visual QA is pending** (see the catalog section). The 2 decor items are installed too (46d55cb: Play Place/Rotate/Delete passed), for **38 installed**. The patterned rug was installed and Play-checked after a9bf5ba, for **39 installed**. Since then, Codex installed the classic floor lamp and the 9 structure variants in Edit mode (Catalog from 5fcf60b), for **49 installed, 14 of them structure pieces**. A fresh require and the template probe passed for all 49; Play/UI placement of the ten new items is not yet verified. Full current asset list: [`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md). |
 | Placement, undo/redo, host authority, recovery (server) | Tested locally and in real Studio Luau; Place/Undo/Redo/Delete checked in Play |
 | Build drawer UI | **Installed at 4c7087d and checked in Play** (Codex). Collection → type chooser → type cards, "< Types" back without exiting, Structure filters, and a placement through the category UI confirmed on the server. Screenshot: matching dark/teal panel and grid; no console errors. Earlier: the full edit flow passed at 62f2f87. |
-| Structure pieces (task 10) | Installed; placement, move, rotate, duplicate, undo/redo, delete and refusals checked over the real remote in Play. **Builder-specific visual QA and doorway clearance are pending.** 9 more structure variants (floors, walls, a ceiling, a window wall, a wide doorway) are registered in the repository only; install pending. |
+| Structure pieces (task 10) | Installed; placement, move, rotate, duplicate, undo/redo, delete and refusals checked over the real remote in Play. **Builder-specific visual QA and doorway clearance are pending.** 9 more structure variants (floors, walls, a ceiling, a window wall, a wide doorway) are installed (Edit mode; probe passed). Their Play/UI placement is not yet verified. The R-rotation change (14933b6) is **not installed**. |
 | Full-place backup | **Pending**: only source backups exist (the full-place RBXL is still the 62f2f87 baseline) |
 | Save/load through StudioPresets | Director logic tested locally and in real Studio Luau; Play round trip done **against a memory stand-in for StudioPresets** |
 | Real DataStore, real text filtering, multiplayer | **Not verified** |
 | Seat assignment (task 7) | Pure model and integration plan only ([`docs/task7-seat-plan.md`](docs/task7-seat-plan.md)); **no runtime seating wiring**, no approved anchor metadata. Catalog chairs are decorative. |
-| Remaining model candidates | 13 tracked in the refresh: the rug is installed; the classic floor lamp and the White Brick Wall (as `structure_wall_brick_01`) are registered in the repo, install pending; **10 are not registered** ([`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md)) |
+| Remaining model candidates | 13 tracked in the refresh: the rug is installed; the classic floor lamp and the White Brick Wall (as `structure_wall_brick_01`) are installed (Play/UI placement pending); **10 are not registered** ([`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md)) |
 | Executive/Broadcast collections (task 8), Branding (task 9) | Not started |
 
 ## Repository layout and Rojo mapping
@@ -324,17 +324,17 @@ All are free and all are **decorative**. No seat, light or audio adapter exists:
 - **Patterned Vintage Rug (`retro_patterned_rug_01`), installed after a9bf5ba:** a muted red/brown patterned rug with an ornate border and fringe. Decor; tagged Cozy, Retro and 1980s; caductis source.
   - **Checked in Play:** listed under Cozy → Decor as "Ready to place" (Cozy count 25). Real remote Place, Rotate and Delete worked, and a screenshot shows it correctly on the floor.
   - Provenance: [`docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json`](docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json).
-- **Registered in the repository, Studio install pending (1):** `retro_classic_floor_lamp_01`, Classic Shaded Floor Lamp.
+- **Installed (Edit mode, after 5fcf60b; Play/UI placement pending) (1):** `retro_classic_floor_lamp_01`, Classic Shaded Floor Lamp.
   - A tall, slender dark bronze stand with a round ornamental base and an aged cream fabric shade. Lighting type; tagged Cozy, Retro, 1980s and Winter.
   - From tracked import 4128475322 by bearduckmonkey; one MeshPart, 2 × 6.5 × 2 studs, zero scripts.
   - **Decorative only:** it has no Light object, gives no light and has no on/off.
   - Provenance: [`docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json`](docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json).
-  - Style counts once installed: Cozy 26, Retro 20, 1980s 16, Winter 12, Futuristic 9.
-- **Structure variants (9), registered in the repository, Studio install pending:** Light Oak, Dark Walnut, Concrete and Slate floors; Wood Panel Wall; White Brick Wall; Dark Studio Ceiling; Black Frame Window Wall; Wide Open Doorway.
+  - Style counts (live, with the lamp): Cozy 26, Retro 20, 1980s 16, Winter 12, Futuristic 9.
+- **Structure variants (9), installed (Edit mode, after 5fcf60b; probe passed; Play/UI placement pending):** Light Oak, Dark Walnut, Concrete and Slate floors; Wood Panel Wall; White Brick Wall; Dark Studio Ceiling; Black Frame Window Wall; Wide Open Doorway.
   - These are adapted free assets and material variants of the modular kit (plus the tracked White Brick Wall resized to the grid), not nine independent models.
   - Install source: `ServerStorage.StructureExpansionCandidates.<id>`. Provenance: [`docs/assets/Structure_Expansion_2026-10-26.json`](docs/assets/Structure_Expansion_2026-10-26.json).
   - The wide doorway's opening is 8 wide and 9 high above a 1-stud threshold. **Avatar walkthrough not tested.**
-  - Structure filters once installed: Floors 5, Walls 3, Doors 2, Ceilings 2, Windows 2.
+  - Structure filters (live): Floors 5, Walls 3, Doors 2, Ceilings 2, Windows 2.
 - **Tracked, not registered (10 of the 13):** see the current refresh, [`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md).
   - **Earlier prepared (3):** the corner, the standalone window frame and the 272-part shoji divider.
   - **New wall (1):** Concrete Sci-Fi Wall. It needs grid adaptation. (The White Brick Wall is now registered as `structure_wall_brick_01`.)
