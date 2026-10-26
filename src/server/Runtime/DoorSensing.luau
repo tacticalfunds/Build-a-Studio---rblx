@@ -10,9 +10,10 @@
 		    space), model = <character model> }. Raising, returning a non-table
 		    or more than maxCharacters entries makes the whole scan UNKNOWN.
 		queryBox(roomBox, reg) -> hits, truncated. hits is a list of
-		    { model = <top-level model or nil>, supportingFloor = bool,
-		      maxY = number (room space) }. Raising, a non-table, truncated =
-		    true or more than maxHits hits makes that door UNKNOWN.
+		    { model = <top-level model or nil>, solid = bool (the part
+		      collides), supportingFloor = bool, maxY = number (room-space
+		      top of the part's oriented box) }. Raising, a non-table,
+		    truncated = true or more than maxHits hits makes that door UNKNOWN.
 
 	Characters: only entries with alive == true and a finite position inside
 	the sandbox bounds plus `margin` count; anything else is skipped (one bad
@@ -22,15 +23,20 @@
 	room box from DoorGeometry, and center = { x, y, z } of the doorway):
 	* nearby: a counted character within nearbyRadius (horizontal) of the
 	  centre, and within the sweep's height range plus `margin`.
-	* each overlap hit is classified:
+	* each overlap hit is classified, in this order:
 		- the owning door model itself (surround, Frame, Leaf): ignored;
-		- a living counted character's model: occupied;
-		- a part flagged supportingFloor that only touches the sweep's bottom
-		  (maxY <= roomBox.minY + contactTolerance): ignored;
-		- anything else, including adjacent walls, other structure, furniture,
-		  dead characters and a floor piece that rises into the sweep: blocked.
-	  A malformed hit makes the door UNKNOWN. Nothing is ignored just because
-	  it is structure.
+		- a living counted character's model: occupied, whether or not that
+		  part collides (character parts are often non-collidable);
+		- a non-solid part (solid = false: decoration, helper, invisible
+		  non-colliding part): ignored, since it can't obstruct the leaf;
+		- a solid part flagged supportingFloor that only touches the sweep's
+		  bottom (maxY <= roomBox.minY + contactTolerance): ignored;
+		- any other solid part, including adjacent walls, other structure,
+		  furniture, dead characters and a floor piece that rises into the
+		  sweep: blocked.
+	  A malformed hit (non-table, `solid` not a boolean, a floor without a
+	  finite maxY) makes the door UNKNOWN. Nothing is ignored just because it
+	  is structure.
 	UNKNOWN doors are simply left out of the returned map; DoorAutoOpen then
 	holds them still.
 ]]
@@ -105,6 +111,12 @@ function DoorSensing:classify(hit, reg, characterModels)
 	end
 	if hit.model ~= nil and characterModels[hit.model] then
 		return "occupied"
+	end
+	if type(hit.solid) ~= "boolean" then
+		return nil
+	end
+	if not hit.solid then
+		return "ignore"
 	end
 	if hit.supportingFloor == true then
 		if not isFinite(hit.maxY) then

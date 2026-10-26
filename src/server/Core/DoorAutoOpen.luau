@@ -291,6 +291,21 @@ function DoorAutoOpen:complete(id, token, now)
 	return self:_finish(id, door, false)
 end
 
+-- Stop a moving leaf where it is (for example when the runtime could not
+-- apply a prerequisite such as disabling collision). Returns the "held"
+-- event, or nil when nothing was moving or the clock is unknown.
+function DoorAutoOpen:hold(id, now)
+	local door = self.doors[id]
+	if door == nil or door.motion == nil then
+		return nil
+	end
+	now = self:_clock(now) or self.now
+	if now == nil then
+		return nil
+	end
+	return self:_hold(id, door, now)
+end
+
 -- Snap closed now (before any edit to the door: move, rotate, delete,
 -- rollback, reconcile, reload). Invalidates in-flight motions. Collision
 -- returns only once a later valid update sees the doorway clear.

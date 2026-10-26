@@ -14,8 +14,11 @@
 	hits and truncated = (#parts >= maxHits). Each hit names its top-level
 	model: a placed item (direct child of the placed-items folder) or a
 	character model, so DoorSensing can ignore the owning door and count
-	avatars. supportingFloor comes from deps.isSupportingFloor(part, model);
-	maxY is the part's top in room space (axis-aligned estimate).
+	avatars. solid = part.CanCollide. supportingFloor comes from
+	deps.isSupportingFloor(part, model). maxY is the top of the part's
+	ORIENTED box in room space: centre y + the half-extents projected onto the
+	room's up axis (|R10| sx + |R11| sy + |R12| sz) / 2 from the part's
+	room-relative CFrame, so a rotated part's top is never underestimated.
 
 	driver: records the leaf's closed offset from the module pivot and each
 	leaf part's original CanCollide at attach (the template is closed then).
@@ -95,8 +98,15 @@ function DoorRuntimeAdapters.queryBox(deps)
 		local hits = {}
 		for _, part in ipairs(parts) do
 			local model = topModel(part, folder)
-			local top = origin:PointToObjectSpace(part.Position).Y + part.Size.Y / 2
-			hits[#hits + 1] = { model = model, supportingFloor = isSupportingFloor(part, model) == true, maxY = top }
+			local _, cy, _, _, _, _, r10, r11, r12 = origin:ToObjectSpace(part.CFrame):GetComponents()
+			local s = part.Size
+			local top = cy + (math.abs(r10) * s.X + math.abs(r11) * s.Y + math.abs(r12) * s.Z) / 2
+			hits[#hits + 1] = {
+				model = model,
+				solid = part.CanCollide == true,
+				supportingFloor = isSupportingFloor(part, model) == true,
+				maxY = top,
+			}
 		end
 		return hits, #parts >= maxHits
 	end

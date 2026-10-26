@@ -18,10 +18,11 @@ return function(T, H)
 		Angles = function(_, y) return cf(string.format("R(%g)", y)) end,
 	}
 
-	local function setup(withDoors, missingTemplates)
+	local function setup(withDoors, missingTemplates, opts)
+		opts = opts or {}
 		H.setGlobal("CFrame", fakeCFrame)
 		H.setGlobal("Enum", { ModelStreamingMode = { Persistent = "Persistent" } })
-		local env = { log = {}, built = {}, revisions = 0 }
+		local env = { log = {}, built = {}, revisions = 0, activeCap = opts.activeCap, failDriver = {} }
 		local function note(s) env.log[#env.log + 1] = s end
 		env.folder = { Name = "Folder" }
 		function env.folder:GetChildren()
@@ -74,15 +75,20 @@ return function(T, H)
 			local driver = {}
 			for _, method in ipairs({ "attach", "detach", "pose", "setCollision" }) do
 				driver[method] = function(_, reg, value)
+					local f = env.failDriver[method]
+					if f and (f == true or f == reg.id or (type(f) == "function" and f(reg))) then
+						error(method .. " failed")
+					end
 					env.calls[#env.calls + 1] = { method = method, id = reg.id, value = value }
 					if method == "pose" then note("pose " .. reg.id .. " " .. tostring(value)) end
 				end
 			end
-			env.core = DoorAutoOpen.new()
+			env.core = DoorAutoOpen.new({ maxDoors = 2 * (env.activeCap or 150) })
 			env.doors = DoorController.new({
 				core = env.core, driver = driver, clock = function() return env.now end,
 				sensing = { inputs = function(_, regs) local out = {} for _, r in ipairs(regs) do out[r.coreId] = env.input end return out end },
 				specFor = function(itemId) if itemId == "test_door" then return META end end,
+				activeCap = env.activeCap,
 			})
 			function env.tick(t) env.now = t env.doors:tick() end
 		end
@@ -326,6 +332,112 @@ return function(T, H)
 			T.eq(reg.frozen, false)
 			env.tick(2); env.tick(2.6)
 			T.eq(env.core:state(reg.coreId).phase, "open")
+		end)
+	end)
+
+	T.test("build load at capacity: a full replacement set is staged beside the frozen old set; commit keeps every new door, rollback keeps every old one", function()
+		run(function()
+			local env = setup("real", nil, { activeCap = 3 })
+			local function load(entries) return env.world:apply({ kind = "replace", entries = entries }) end
+			-- 3 doors (the cap) plus 2 non-doors.
+			env.world:commit(load({
+				{ id = "d1", record = rec(0) }, { id = "p1", record = rec(1, "cozy_plant_01") },
+				{ id = "d2", record = rec(2) }, { id = "d3", record = rec(3) }, { id = "p2", record = rec(4, "cozy_plant_01") },
+			}))
+			T.eq(env.doors:committedCount(), 3)
+			local oldRegs = {}
+			for _, id in ipairs({ "d1", "d2", "d3" }) do oldRegs[id] = env.doors:registration(env.world.models[id]) end
+			-- Replace with 3 doors (two reusing ids) and a non-door: rollback restores the old set intact.
+			local entries = { { id = "d1", record = rec(5) }, { id = "d2", record = rec(6) }, { id = "d9", record = rec(7) }, { id = "p3", record = rec(8, "cozy_plant_01") } }
+			local token = load(entries)
+			T.eq(env.doors:count(), 6, "3 old (frozen) + 3 staged")
+			T.eq(env.doors:committedCount(), 3, "staged doors don't count against the cap")
+			env.world:rollback(token)
+			T.eq(env.doors:count(), 3)
+			T.eq(env.doors:committedCount(), 3)
+			for id, reg in pairs(oldRegs) do
+				T.eq(env.doors:registration(env.world.models[id]), reg, id .. " kept")
+				T.eq(reg.frozen, false, id .. " thawed")
+			end
+			-- Commit: every new door is registered and active; none dropped.
+			env.world:commit(load(entries))
+			T.eq(env.doors:count(), 3)
+			T.eq(env.doors:committedCount(), 3)
+			T.eq(next(env.doors.overflow), nil, "nothing over capacity")
+			for _, id in ipairs({ "d1", "d2", "d9" }) do
+				local reg = env.doors:registration(env.world.models[id])
+				T.ok(reg ~= nil and reg.frozen == false and reg.staged == false, id .. " active")
+			end
+			T.eq(env.core:count(), 3, "core slots match live doors")
+			env.tick(0); env.tick(0.3); env.tick(0.9)
+			for _, id in ipairs({ "d1", "d2", "d9" }) do
+				T.eq(env.core:state(env.doors:registration(env.world.models[id]).coreId).phase, "open", id .. " works")
+			end
+		end)
+	end)
+
+	T.test("build load over capacity is explicit: extra new doors are recorded in overflow, not silently dropped", function()
+		run(function()
+			local env = setup("real", nil, { activeCap = 2 })
+			env.world:commit(env.world:apply({ kind = "replace", entries = { { id = "a", record = rec(0) }, { id = "b", record = rec(1) }, { id = "c", record = rec(2) } } }))
+			T.eq(env.doors:committedCount(), 2)
+			local overflowCount = 0
+			for _ in pairs(env.doors.overflow) do overflowCount = overflowCount + 1 end
+			T.eq(overflowCount, 1, "the third door is recorded")
+			T.eq(env.core:count(), 2)
+		end)
+	end)
+
+	T.test("driver faults during edits: move and remove applies fail before touching the model; a failing build load unwinds; reconcile stays in recovery", function()
+		run(function()
+			local env = setup("real")
+			env.world:commit(env.world:apply({ kind = "spawn", id = "i1", record = rec(0) }))
+			env.world:commit(env.world:apply({ kind = "spawn", id = "i2", record = rec(2) }))
+			local m1 = env.world.models.i1
+			local r1 = env.doors:registration(m1)
+			env.tick(0); env.tick(0.6)
+			T.eq(env.core:state(r1.coreId).phase, "open")
+			env.failDriver.pose = "i1"
+			local mark = #env.log
+			T.throws(function() env.world:apply({ kind = "move", id = "i1", to = rec(9) }) end)
+			for _, line in ipairs(env.since(mark)) do
+				T.ok(not line:find("^PivotTo i1"), "the model never moved half-open: " .. line)
+			end
+			T.eq(r1.record.x, 0)
+			T.eq(r1.frozen, false)
+			T.eq(r1.faulted, true)
+			T.throws(function() env.world:apply({ kind = "remove", id = "i1" }) end)
+			T.eq(m1.Parent, env.folder, "remove failed before unparenting")
+			-- Build load: whichever old door freezes first succeeds, the second fails:
+			-- the first freeze is cancelled and the new models destroyed.
+			env.failDriver.pose = nil
+			env.tick(1); env.tick(1.3) -- recover i1 first
+			local poses, firstFrozen = 0, nil
+			env.failDriver.pose = function(reg)
+				poses = poses + 1
+				if poses == 1 then firstFrozen = reg.id end
+				return poses == 2
+			end
+			local before = #env.built
+			T.throws(function() env.world:apply({ kind = "replace", entries = { { id = "i5", record = rec(5) } } }) end)
+			env.failDriver.pose = nil
+			T.ok(firstFrozen ~= nil, "one old door was frozen before the failure")
+			T.eq(env.world.models.i1, m1, "the old set is still current")
+			T.eq(env.doors:registration(env.world.models[firstFrozen]).frozen, false, "the first freeze was cancelled")
+			T.eq(env.doors:registration(env.world.models[firstFrozen]).recordBeforeEdit, nil)
+			T.eq(env.built[before + 1].destroyed, true, "the new model was destroyed")
+			T.eq(env.doors:count(), 2, "no staged registrations left behind")
+			-- Reconcile: the failing door aborts it (the core stays in recovery); fix the driver and it completes.
+			env.tick(2); env.tick(2.3) -- resync whichever door faulted above
+			env.failDriver.pose = "i1"
+			T.throws(function() env.world:reconcile({ { id = "i1", record = rec(0) }, { id = "i2", record = rec(2) } }) end)
+			env.failDriver.pose = nil
+			env.tick(3); env.tick(3.3)
+			T.eq(r1.faulted, false, "resynced")
+			env.world:reconcile({ { id = "i1", record = rec(0) }, { id = "i2", record = rec(2) } })
+			T.eq(r1.frozen, false)
+			T.eq(env.core:state(r1.coreId).phase, "closed", "reconciled closed at its stored pose")
+			T.eq(env.revisions, 0)
 		end)
 	end)
 end

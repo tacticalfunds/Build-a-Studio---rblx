@@ -77,35 +77,47 @@ return function(T, H)
 		T.eq(list[2].alive, false, "reported, then filtered by DoorSensing")
 	end)
 
-	T.test("queryBox: room box to a sandbox-frame query; hits name their top-level model; truncation reported", function()
+	T.test("queryBox: room box to a sandbox-frame query; hits carry model, solid flag and an orientation-aware top; truncation reported", function()
 		local folder = { name = "folder" }
 		local door = { Parent = folder, IsA = function(_, c) return c == "Model" end }
 		local leafModel = { Parent = door, IsA = function(_, c) return c == "Model" end }
 		local charModel = { Parent = { Parent = nil, IsA = function() return false end }, IsA = function(_, c) return c == "Model" end }
 		local floorPiece = { Parent = folder, IsA = function(_, c) return c == "Model" end }
+		-- Part CFrames relative to the origin: components x, y, z, R00..R22.
+		local function partCF(y, r10, r11, r12)
+			return { rel = { 0, y, 0, 1, 0, 0, r10, r11, r12, 0, 0, 1 } }
+		end
+		local origin = cf("O")
+		function origin:ToObjectSpace(c) return { GetComponents = function() return table.unpack(c.rel) end } end
+		local flat = { Parent = floorPiece, CFrame = partCF(0.5, 0, 1, 0), Size = { X = 16, Y = 1, Z = 16 }, CanCollide = true }
+		-- Tilted 90 degrees about Z: the 16-stud X side now points up.
+		local tilted = { Parent = floorPiece, CFrame = partCF(0.5, 1, 0, 0), Size = { X = 16, Y = 1, Z = 16 }, CanCollide = true }
 		local parts = {
-			{ Parent = leafModel, Position = { X = 0, Y = 5, Z = 8 }, Size = { Y = 2 } },
-			{ Parent = charModel, Position = { X = 0, Y = 4, Z = 8 }, Size = { Y = 2 } },
-			{ Parent = floorPiece, Position = { X = 0, Y = 1.5, Z = 8 }, Size = { Y = 1 } },
+			{ Parent = leafModel, CFrame = partCF(4, 0, 1, 0), Size = { X = 1, Y = 2, Z = 1 }, CanCollide = true },
+			{ Parent = charModel, CFrame = partCF(3, 0, 1, 0), Size = { X = 1, Y = 2, Z = 1 }, CanCollide = false },
+			flat,
+			tilted,
 		}
 		local query
 		local ws = { GetPartBoundsInBox = function(_, c, size, params) query = { c = c.desc, size = size, max = params.MaxParts } return parts end }
 		local q = Adapters.queryBox({
-			origin = cf("O"), folder = folder, maxHits = 3, workspace = ws, CFrame = CF, Vector3 = V3,
+			origin = origin, folder = folder, maxHits = 4, workspace = ws, CFrame = CF, Vector3 = V3,
 			OverlapParams = { new = function() return {} end },
 			isSupportingFloor = function(_, model) return model == floorPiece end,
 		})
 		local hits, truncated = q({ minX = -2, maxX = 4, minY = 0, maxY = 9, minZ = 3, maxZ = 9 })
 		T.eq(query.c, "O*T(1,4.5,6)")
 		T.deepEq(query.size, { X = 6, Y = 9, Z = 6 })
-		T.eq(query.max, 3)
+		T.eq(query.max, 4)
 		T.eq(hits[1].model, door, "a leaf part maps to its placed door model")
+		T.eq(hits[1].solid, true)
 		T.eq(hits[2].model, charModel, "a character part maps to the character model")
-		T.eq(hits[3].model, floorPiece)
+		T.eq(hits[2].solid, false, "non-collidable part reported as not solid")
 		T.eq(hits[3].supportingFloor, true)
-		T.eq(hits[3].maxY, 1, "top of the floor part in room space")
+		T.eq(hits[3].maxY, 1, "a flat floor's top")
+		T.eq(hits[4].maxY, 8.5, "a rotated floor's top uses its oriented extent (0.5 + 16/2), not Size.Y/2")
 		T.eq(truncated, true, "MaxParts reached: reported as truncated")
-		parts[3] = nil
+		parts[4] = nil
 		local _, t2 = q({ minX = -2, maxX = 4, minY = 0, maxY = 9, minZ = 3, maxZ = 9 })
 		T.eq(t2, false)
 	end)

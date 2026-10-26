@@ -81,25 +81,31 @@ return function(T, H)
 		end
 	end)
 
-	T.test("overlap classification: own door ignored, avatars occupied, everything else solid; nothing ignored just for being structure", function()
+	T.test("overlap classification: own door ignored, avatars occupied even when non-colliding, non-solid parts ignored, solid parts block; structure never ignored wholesale", function()
 		local r = reg(REC)
 		local function classify(hits, chars)
 			return only(sensing(chars or { char(20, 20, ALICE) }, hits), r)
 		end
-		T.deepEq(classify({ { model = DOOR_MODEL, maxY = 9 } }), { nearby = false, occupied = false, blocked = false }, "the owning door model is ignored")
-		T.eq(classify({ { model = ALICE, maxY = 5 } }).occupied, true, "a living character's model")
-		T.eq(classify({ { model = ALICE, maxY = 5 } }).blocked, false)
-		T.eq(classify({ { model = BOB, maxY = 5 } }).blocked, true, "an unknown or dead character model is solid")
-		T.eq(classify({ { model = WALL, maxY = 15 } }).blocked, true, "an adjacent wall is never globally ignored")
-		T.eq(classify({ { model = CHAIR, maxY = 2 } }).blocked, true, "furniture")
-		T.eq(classify({ { model = nil, maxY = 1 } }).blocked, true, "an unowned part")
+		T.deepEq(classify({ { model = DOOR_MODEL, solid = true, maxY = 9 } }), { nearby = false, occupied = false, blocked = false }, "the owning door model is ignored")
+		T.eq(classify({ { model = ALICE, solid = true, maxY = 5 } }).occupied, true, "a living character's model")
+		local ghost = classify({ { model = ALICE, solid = false, maxY = 5 } })
+		T.ok(ghost.occupied == true and ghost.blocked == false, "an avatar counts as occupying even with non-collidable parts")
+		T.eq(classify({ { model = ALICE, solid = true, maxY = 5 } }).blocked, false)
+		T.eq(classify({ { model = BOB, solid = true, maxY = 5 } }).blocked, true, "an unknown or dead character's solid part blocks")
+		T.eq(classify({ { model = WALL, solid = true, maxY = 15 } }).blocked, true, "a solid adjacent wall blocks: never globally ignored")
+		local decor = classify({ { model = WALL, solid = false, maxY = 15 } })
+		T.deepEq(decor, { nearby = false, occupied = false, blocked = false }, "a non-solid decoration or helper part doesn't pin the door")
+		T.eq(classify({ { model = CHAIR, solid = true, maxY = 2 } }).blocked, true, "solid furniture")
+		T.eq(classify({ { model = nil, solid = true, maxY = 1 } }).blocked, true, "an unowned solid part")
 		local sill = r.roomBox.minY
-		T.eq(classify({ { model = FLOOR, supportingFloor = true, maxY = sill } }).blocked, false, "the supporting floor touching the sill is ignored")
-		T.eq(classify({ { model = FLOOR, supportingFloor = true, maxY = sill + 0.04 } }).blocked, false, "within contact tolerance")
-		T.eq(classify({ { model = FLOOR, supportingFloor = true, maxY = sill + 0.5 } }).blocked, true, "a floor piece rising into the sweep blocks")
-		T.eq(classify({ { model = WALL, supportingFloor = false, maxY = sill } }).blocked, true, "only flagged floor gets the contact exemption")
-		local both = classify({ { model = DOOR_MODEL, maxY = 9 }, { model = ALICE, maxY = 5 }, { model = CHAIR, maxY = 2 } })
+		T.eq(classify({ { model = FLOOR, solid = true, supportingFloor = true, maxY = sill } }).blocked, false, "the supporting floor touching the sill is ignored")
+		T.eq(classify({ { model = FLOOR, solid = true, supportingFloor = true, maxY = sill + 0.04 } }).blocked, false, "within contact tolerance")
+		T.eq(classify({ { model = FLOOR, solid = true, supportingFloor = true, maxY = sill + 0.5 } }).blocked, true, "a floor piece rising into the sweep (e.g. rotated) blocks")
+		T.eq(classify({ { model = WALL, solid = true, supportingFloor = false, maxY = sill } }).blocked, true, "only flagged floor gets the contact exemption")
+		local both = classify({ { model = DOOR_MODEL, solid = true, maxY = 9 }, { model = ALICE, solid = false, maxY = 5 }, { model = CHAIR, solid = true, maxY = 2 } })
 		T.deepEq(both, { nearby = false, occupied = true, blocked = true })
+		T.eq(classify({ { model = WALL, maxY = 15 } }), nil, "a hit without a solid flag is malformed: unknown")
+		T.eq(classify({ { model = WALL, solid = "yes", maxY = 15 } }), nil)
 	end)
 
 	T.test("failed, truncated or malformed overlap queries make that door unknown", function()
@@ -111,7 +117,7 @@ return function(T, H)
 			tooMany = sensing({}, tooMany, false),
 			notTable = sensing({}, "hits"),
 			badHit = sensing({}, { "part" }),
-			badFloorTop = sensing({}, { { model = FLOOR, supportingFloor = true, maxY = 0 / 0 } }),
+			badFloorTop = sensing({}, { { model = FLOOR, solid = true, supportingFloor = true, maxY = 0 / 0 } }),
 			raises = sensing({}, function() error("query failed") end),
 		}) do
 			T.eq(only(s, r), nil, name)

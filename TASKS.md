@@ -1418,3 +1418,35 @@ Make the assets already used in the six existing rooms available in the Build dr
     - mutations (move without a freeze, scanning frozen doors, collision on while open, structure ignored, a leaked core entry on detach, stale inputs never expiring) each fail tests.
   - **Not exercised:** Studio itself, including real CFrame poses, physics, collision and replication, real `GetPartBoundsInBox` false positives, rotated part extents, real Players and Humanoids, the door module, catalog registration, placement integration, bootstrap activation and avatar walk-through.
   - **Counts unchanged:** live and repository 67; task 11 at 10 installed, 3 remaining; batch 02 at 6 installed, 16 pending.
+- Panel door runtime corrections (still **DORMANT**). The review of e49842c added 3 regressions that failed (374/3), plus an adapter finding, so it was not accepted for activation. Fixed:
+  1. **Replacement capacity:**
+     - committed doors are capped at 150;
+     - doors staged by an edit's apply don't count until thaw, and the core holds 2 × the cap;
+     - a full 150-for-150 build load stages its new set, and commit detaches the old set before thawing the new one;
+     - over-cap doors go into an explicit `overflow` record instead of being silently dropped;
+     - rollback keeps the old set.
+  2. **Cached scans after edits:** a door's cached input is discarded on `beginEdit`, `moved`, `cancelEdit` and `thaw`, so it waits for a fresh scan at its new pose. Scan results are filtered to the doors actually scanned, never frozen or faulted ones.
+  3. **Driver faults:**
+     - a failed collision disable holds the motion before any pose is sent;
+     - `reg.angle` updates only on a successful pose;
+     - faulted doors get no input and are resynced every scan interval, with recovery needing fresh input;
+     - a failed snap in `beginEdit` raises without changing edit state, so the world's move or remove apply fails untouched, a build load unwinds its freezes and new models, and a reconcile stays in recovery.
+     - The pure core gains `DoorAutoOpen:hold`.
+  4. **Adapter:**
+     - hits carry `solid = CanCollide`, so non-solid decorations and helpers are ignored;
+     - avatars still count as occupying even with non-collidable parts;
+     - a missing `solid` flag is unknown;
+     - the floor top uses the part's oriented extent, so a rotated floor isn't ignored;
+     - solid adjacent walls still block.
+  - **Tests:**
+    - 8 new tests, plus revised expectations in several existing ones;
+    - world build load at capacity (commit and rollback, doors mixed with non-doors) and over capacity;
+    - the reviewer's smallest-cap reproduction;
+    - moves and rollbacks inside the scan interval;
+    - error injection on collision disable, pose, collision restore and `beginEdit`, checking world, core and driver consistency, plus move, remove, replace and reconcile under faults;
+    - a non-solid decoration versus a solid wall;
+    - non-colliding avatar parts;
+    - a rotated floor's top.
+    - **382 passed, 0 failed** in total.
+    - Mutations reverting each fix fail tests. A test that depended on `pairs` order was made deterministic after its mutation survived.
+  - **Still not exercised:** Studio itself, including real overlap false positives from solid touching parts, collision groups, mesh collision shapes, real CFrame poses, physics, replication and avatar walk-through. Counts unchanged (live and repository 67).

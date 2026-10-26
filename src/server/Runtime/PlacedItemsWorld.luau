@@ -38,12 +38,16 @@
 	* remove:  apply -> beginEdit before unparenting; commit -> detach;
 	           rollback -> cancelEdit.
 	* replace: only after every new model built (a failed build calls
-	           nothing): old -> beginEdit, new -> attach(frozen);
+	           nothing): old -> beginEdit (if one fails, the freezes made so
+	           far are cancelled, the new models destroyed and the apply
+	           fails with the world untouched), new -> attach(frozen);
 	           commit -> detach old, thaw new; rollback -> detach new, cancelEdit old.
 	* reconcile: dropped models -> detach; kept -> beginEdit, PivotTo,
 	           moved, thaw; respawned -> attach then thaw.
 	Doors stay frozen (snapped closed, no sensing) from apply until commit or
-	rollback, so a reset door cannot reopen mid-edit. The controller keys
+	rollback, so a reset door cannot reopen mid-edit. beginEdit raises when a
+	door can't be snapped closed; for move and remove that happens before the
+	model changes, so the apply simply fails. The controller keys
 	doors by model, so old and new models with the same id never share state.
 ]]
 
@@ -121,8 +125,24 @@ function PlacedItemsWorld:apply(effect)
 		end
 		local old = self.models
 		if self.doors then
-			for _, model in pairs(old) do
-				self.doors:beginEdit(model)
+			-- Freezing an old door can fail (driver fault); then undo the
+			-- freezes already made, discard the new models and fail the apply
+			-- with the world untouched.
+			local frozen = {}
+			local okFreeze, freezeErr = pcall(function()
+				for _, model in pairs(old) do
+					self.doors:beginEdit(model)
+					frozen[#frozen + 1] = model
+				end
+			end)
+			if not okFreeze then
+				for _, model in ipairs(frozen) do
+					self.doors:cancelEdit(model)
+				end
+				for _, model in pairs(created) do
+					model:Destroy()
+				end
+				error(freezeErr, 0)
 			end
 		end
 		for _, model in pairs(old) do

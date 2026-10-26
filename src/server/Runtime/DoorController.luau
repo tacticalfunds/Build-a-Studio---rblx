@@ -5,7 +5,8 @@
 	no door behaviour is live.
 
 	Injected:
-		core      DoorAutoOpen instance (the single timing authority)
+		core      DoorAutoOpen instance (the single timing authority). Its
+		          maxDoors must be at least 2 * activeCap (staging room).
 		sensing   { inputs(regs) -> { [coreId] = input } } (DoorSensing)
 		driver    { attach(reg), detach(reg), pose(reg, degrees), setCollision(reg, on) }
 		clock()   -> seconds (non-finite values make a tick a no-op)
@@ -17,27 +18,48 @@
 	Registrations are keyed by MODEL, not by placement id, so an old model
 	and its replacement with the same id (build load, undo, reconcile) never
 	share state. Each registration gets a fresh core id "door#<generation>"
-	that is never reused; DoorAutoOpen tokens are global too, so nothing from
-	an old registration can move a new one.
+	that is never reused; DoorAutoOpen tokens are global too.
+
+	Capacity: at most activeCap (150) COMMITTED doors. A door attached frozen
+	by an edit's apply is STAGED and does not count until thaw (commit), so a
+	build load can stage a full replacement set beside the frozen old set
+	(the core holds up to 2 * activeCap). The world's commit detaches the old
+	set before thawing the new one, so a 150-for-150 load fits. If a thaw
+	would still exceed activeCap, that door is released and recorded in
+	`overflow` (never silently dropped).
+
+	Sensing: a door's cached input is discarded on beginEdit, moved,
+	cancelEdit and thaw, so after any edit it waits (holding still) for a
+	fresh scan taken at its new pose; a stale result can never start motion
+	or restore collision. Frozen and faulted doors are never scanned.
 
 	Poses: every tick, each door's leaf angle is openDegrees * the core's
-	linear progress at `now`, sent to the driver. There are no tweens and no
-	completion callbacks, so there is no easing disagreement and nothing can
-	complete twice; the core finishes motions by the clock.
+	linear progress at `now`. There are no tweens and no completion
+	callbacks, so there is no easing disagreement and nothing can complete
+	twice. `reg.angle` is the last angle the driver ACCEPTED; a failed pose
+	leaves it unchanged so the next attempt retries.
 
-	Collision: the driver turns leaf collision off on every motion, hold or
-	reset event and restores the template's original states only on
-	"collision" or "closed" with collide = true, i.e. closed and clear.
+	Collision: turned off on every motion, hold or reset event and restored
+	to the template's original states only on "collision" or "closed" with
+	collide = true (closed and clear).
+
+	Faults: if the driver fails to disable collision, pose the leaf or restore
+	collision, the registration is FAULTED: its motion is held at once (no
+	pose is sent for a motion whose collision could not be disabled), it gets
+	no sensing input, and every scanInterval the controller tries to resync
+	(the core's desired collision, then the desired pose). Only a fully
+	successful resync clears the fault. beginEdit is edit-critical: if the
+	snap closed fails, the door is faulted, its previous edit state is kept
+	and the error is raised, so the world's apply fails before it touches the
+	model and the existing transaction / reconcile handling takes over.
 
 	Edits (PlacedItemsWorld lifecycle, all no-ops for non-door models):
 		attach(model, id, record, frozen)   spawn apply / replace new / reconcile respawn
-		beginEdit(model)   before a move, remove or replace-out applies: snap
-		                   closed, freeze, remember the record
+		beginEdit(model)   before a move, remove or replace-out applies (raises on failure)
 		moved(model, record)   after the model's pivot changed
 		cancelEdit(model)  rollback: restore the remembered record, thaw
 		thaw(model)        commit (spawn / move), or after reconcile
-		detach(model)      the model is going away (rollback of a spawn,
-		                   commit of a remove or replace-out, reconcile)
+		detach(model)      the model is going away
 	A frozen door gets no sensing input, so DoorAutoOpen holds it closed: a
 	door reset by an edit cannot reopen before that edit commits or rolls back.
 
@@ -52,8 +74,9 @@ local DoorController = {}
 DoorController.__index = DoorController
 
 DoorController.Defaults = {
-	scanInterval = 0.25, -- seconds between sensing passes
+	scanInterval = 0.25, -- seconds between sensing passes (and fault resync attempts)
 	maxInputAge = 1, -- older sensing results count as unknown
+	activeCap = 150, -- committed doors
 }
 
 local function isFinite(v)
@@ -79,6 +102,8 @@ function DoorController.new(deps)
 		byCore = {},
 		order = {},
 		generation = 0,
+		committed = 0,
+		overflow = {},
 		inputs = {},
 		inputsAt = nil,
 		lastScan = nil,
@@ -92,15 +117,41 @@ function DoorController.new(deps)
 		assert(isFinite(v) and v > 0, "DoorController: bad " .. key)
 		self[key] = v
 	end
+	assert(type(self.core.maxDoors) == "number" and self.core.maxDoors >= 2 * self.activeCap,
+		"DoorController: core.maxDoors must be at least 2 * activeCap for staged replacements")
 	return self
 end
 
+function DoorController:_now()
+	local ok, now = pcall(self.clock)
+	if ok and isFinite(now) then
+		return now
+	end
+	return nil
+end
+
+-- Calls the driver; returns true on success, false (logged) on failure.
 function DoorController:_call(reg, method, ...)
 	local ok, err = pcall(self.driver[method], self.driver, reg, ...)
 	if not ok then
 		self.log("door driver " .. method .. " failed for " .. tostring(reg.id) .. ": " .. tostring(err))
 	end
 	return ok
+end
+
+function DoorController:_forgetInput(reg)
+	self.inputs[reg.coreId] = nil
+end
+
+-- Marks a registration faulted and stops any motion where it is.
+function DoorController:_fault(reg, reason)
+	if not reg.faulted then
+		self.log("door " .. tostring(reg.id) .. " faulted: " .. reason)
+	end
+	reg.faulted = true
+	reg.nextResync = nil
+	self:_forgetInput(reg)
+	self.core:hold(reg.coreId, self:_now())
 end
 
 -- Sets reg.record and the derived room-space sweep box and doorway centre.
@@ -110,6 +161,7 @@ function DoorController:_place(reg, record)
 	local c = reg.spec.leaf.center
 	local x, y, z = DoorGeometry.pointToRoom(c[1], c[2], c[3], record)
 	reg.center = x and { x = x, y = y, z = z } or nil
+	self:_forgetInput(reg)
 end
 
 function DoorController:attach(model, id, record, frozen)
@@ -125,10 +177,17 @@ function DoorController:attach(model, id, record, frozen)
 		self.log("door spec invalid for " .. tostring(record.itemId) .. "; left static")
 		return nil
 	end
+	local staged = frozen ~= false
+	if not staged and self.committed >= self.activeCap then
+		self.overflow[model] = id
+		self.log("door limit reached; " .. tostring(id) .. " left static")
+		return nil
+	end
 	self.generation = self.generation + 1
 	local coreId = "door#" .. self.generation
 	if not self.core:add(coreId) then
-		self.log("door limit reached; " .. tostring(id) .. " left static")
+		self.overflow[model] = id
+		self.log("door staging limit reached; " .. tostring(id) .. " left static")
 		return nil
 	end
 	local reg = {
@@ -139,7 +198,8 @@ function DoorController:attach(model, id, record, frozen)
 		sweptLocal = DoorGeometry.sweptBox(spec),
 		coreId = coreId,
 		generation = self.generation,
-		frozen = frozen ~= false,
+		frozen = staged,
+		staged = staged,
 		angle = 0,
 	}
 	self:_place(reg, record)
@@ -150,10 +210,16 @@ function DoorController:attach(model, id, record, frozen)
 	self.byModel[model] = reg
 	self.byCore[coreId] = reg
 	self.order[#self.order + 1] = reg
+	if not staged then
+		self.committed = self.committed + 1
+	end
 	return reg
 end
 
 function DoorController:detach(model)
+	if model ~= nil then
+		self.overflow[model] = nil
+	end
 	local reg = model and self.byModel[model]
 	if reg == nil then
 		return false
@@ -166,27 +232,35 @@ function DoorController:detach(model)
 			break
 		end
 	end
+	if not reg.staged then
+		self.committed = self.committed - 1
+	end
+	self.inputs[reg.coreId] = nil
 	self.core:remove(reg.coreId)
 	reg.detached = true
 	self:_call(reg, "detach")
 	return true
 end
 
--- Snap closed and freeze before an edit. Idempotent: a second beginEdit
--- keeps the record from before the first.
+-- Snap closed and freeze before an edit. Raises (leaving the previous edit
+-- state, faulted) if the driver can't disable collision or close the leaf,
+-- so the caller's apply fails before it changes the model.
 function DoorController:beginEdit(model)
 	local reg = model and self.byModel[model]
 	if reg == nil then
 		return false
 	end
+	self:_forgetInput(reg)
+	if not self:_call(reg, "setCollision", false) or not self:_call(reg, "pose", 0) then
+		self:_fault(reg, "could not snap closed for an edit")
+		error("door " .. tostring(reg.id) .. " could not be snapped closed for an edit", 0)
+	end
+	reg.angle = 0
 	if reg.recordBeforeEdit == nil then
 		reg.recordBeforeEdit = reg.record
 	end
 	reg.frozen = true
-	self.core:reset(reg.coreId, self.clock())
-	self:_call(reg, "setCollision", false)
-	self:_call(reg, "pose", 0)
-	reg.angle = 0
+	self.core:reset(reg.coreId, self:_now())
 	return true
 end
 
@@ -215,11 +289,24 @@ function DoorController:thaw(model)
 	if reg == nil then
 		return false
 	end
+	if reg.staged then
+		if self.committed >= self.activeCap then
+			self.log("door limit reached at commit; " .. tostring(reg.id) .. " left static")
+			local id = reg.id
+			self:detach(model)
+			self.overflow[model] = id
+			return false
+		end
+		reg.staged = false
+		self.committed = self.committed + 1
+	end
 	reg.recordBeforeEdit = nil
 	reg.frozen = false
+	self:_forgetInput(reg)
 	return true
 end
 
+-- Applies one core event to the driver. A failed prerequisite faults the door.
 function DoorController:_apply(event)
 	local reg = self.byCore[event.id]
 	if reg == nil then
@@ -227,9 +314,32 @@ function DoorController:_apply(event)
 	end
 	local kind = event.kind
 	if kind == "collision" or (kind == "closed" and event.collide == true) then
-		self:_call(reg, "setCollision", true)
+		if not self:_call(reg, "setCollision", true) then
+			self:_fault(reg, "could not restore collision")
+		end
 	elseif kind == "opening" or kind == "closing" or kind == "held" or kind == "snapClosed" then
-		self:_call(reg, "setCollision", false)
+		if not self:_call(reg, "setCollision", false) then
+			self:_fault(reg, "could not disable collision")
+		end
+	end
+end
+
+-- Faulted doors: try to bring the driver back in line with the core.
+function DoorController:_resync(reg, now)
+	if reg.nextResync ~= nil and now < reg.nextResync then
+		return
+	end
+	reg.nextResync = now + self.scanInterval
+	local state = self.core:state(reg.coreId, now)
+	if state == nil then
+		return
+	end
+	local angle = reg.spec.openDegrees * state.progress
+	if self:_call(reg, "setCollision", state.collidable and state.phase == "closed") and self:_call(reg, "pose", angle) then
+		reg.angle = angle
+		reg.faulted = false
+		reg.nextResync = nil
+		self.log("door " .. tostring(reg.id) .. " recovered")
 	end
 end
 
@@ -237,20 +347,27 @@ function DoorController:tick()
 	if self.destroyed then
 		return
 	end
-	local okClock, now = pcall(self.clock)
-	if not okClock or not isFinite(now) then
+	local now = self:_now()
+	if now == nil then
 		return
 	end
 	local active = {}
 	for _, reg in ipairs(self.order) do
-		if not reg.frozen then
+		if not reg.frozen and not reg.faulted then
 			active[#active + 1] = reg
 		end
 	end
 	if self.lastScan == nil or now - self.lastScan >= self.scanInterval or now < self.lastScan then
 		self.lastScan = now
 		local okScan, inputs = pcall(self.sensing.inputs, self.sensing, active)
-		self.inputs = (okScan and type(inputs) == "table") and inputs or {}
+		local scanned = {}
+		if okScan and type(inputs) == "table" then
+			-- Keep only entries for doors that were scanned (never frozen or faulted ones).
+			for _, reg in ipairs(active) do
+				scanned[reg.coreId] = inputs[reg.coreId]
+			end
+		end
+		self.inputs = scanned
 		self.inputsAt = now
 	end
 	local fresh = self.inputsAt ~= nil and now - self.inputsAt <= self.maxInputAge and now >= self.inputsAt
@@ -264,12 +381,19 @@ function DoorController:tick()
 		self:_apply(event)
 	end
 	for _, reg in ipairs(self.order) do
-		local state = self.core:state(reg.coreId, now)
-		if state then
-			local angle = reg.spec.openDegrees * state.progress
-			if angle ~= reg.angle then
-				reg.angle = angle
-				self:_call(reg, "pose", angle)
+		if reg.faulted then
+			self:_resync(reg, now)
+		else
+			local state = self.core:state(reg.coreId, now)
+			if state then
+				local angle = reg.spec.openDegrees * state.progress
+				if angle ~= reg.angle then
+					if self:_call(reg, "pose", angle) then
+						reg.angle = angle
+					else
+						self:_fault(reg, "could not pose the leaf")
+					end
+				end
 			end
 		end
 	end
@@ -292,8 +416,8 @@ function DoorController:stop()
 	end
 end
 
--- Stops ticking, returns every door to closed with its original collision,
--- and releases all registrations. Later calls are no-ops.
+-- Stops ticking, returns every door to closed with its original collision
+-- (best effort), and releases all registrations. Later calls are no-ops.
 function DoorController:destroy()
 	self:stop()
 	local regs = self.order
@@ -305,11 +429,16 @@ function DoorController:destroy()
 		self:detach(regs[i].model)
 	end
 	self.inputs = {}
+	self.overflow = {}
 	self.destroyed = true
 end
 
 function DoorController:count()
 	return #self.order
+end
+
+function DoorController:committedCount()
+	return self.committed
 end
 
 function DoorController:registration(model)

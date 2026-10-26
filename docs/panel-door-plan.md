@@ -3,6 +3,7 @@
 **Status:**
 - The design checkpoint (85025c9) was accepted with corrections.
 - The foundation (8275097) wasn't accepted; its corrections (a65d89c) were accepted.
+- The first runtime (e49842c) was reviewed and **not accepted for activation**. Three regressions failed (replacement capacity, cached scans reused after an edit, driver faults ignored), plus an adapter finding (non-solid parts blocking, axis-aligned floor top). All are corrected in the following commit.
 - **The runtime layer is now implemented, tested and DORMANT:**
   - `src/server/Runtime/DoorSensing.luau`;
   - `src/server/Runtime/DoorController.luau`;
@@ -90,31 +91,48 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
 |---|---|
 | **DoorSensing** (`src/server/Runtime/DoorSensing.luau`) | Pure logic over two injected queries; it produces each door's `{ nearby, occupied, blocked }`. More detail below. |
 | **DoorController** (`src/server/Runtime/DoorController.luau`) | Registrations, edits, ticking and poses; more detail below. |
-| **DoorRuntimeAdapters** (`src/server/Runtime/DoorRuntimeAdapters.luau`) | The Roblox pieces, with types injected so tests use fakes. `characters()` returns Players' characters (`alive` = Humanoid Health > 0, position from `origin:PointToObjectSpace`). `queryBox()` calls `GetPartBoundsInBox` over the room box with `MaxParts`, reports `truncated` when the limit is reached, names each hit's top-level model (a placed item or a character), and takes `supportingFloor` from an injected predicate. `driver` pivots the Leaf to `module * hinge * Angles(0, -swingSign * angle, 0) * hinge:Inverse() * closedOffset`, where `module` always comes from the stored record. It records each leaf part's original `CanCollide` at attach. |
+| **DoorRuntimeAdapters** (`src/server/Runtime/DoorRuntimeAdapters.luau`) | The Roblox pieces, with types injected so tests use fakes. `characters()` returns Players' characters (`alive` = Humanoid Health > 0, position from `origin:PointToObjectSpace`). `queryBox()` calls `GetPartBoundsInBox` over the room box with `MaxParts`, reports `truncated` when the limit is reached, names each hit's top-level model (a placed item or a character), sets `solid = part.CanCollide`, and takes `supportingFloor` from an injected predicate. Each part's top is computed from its **oriented** box: centre y plus the half-extents projected onto the room's up axis, `(abs(R10)·sx + abs(R11)·sy + abs(R12)·sz) / 2`, so a rotated floor is never mistaken for one touching the sill. `driver` pivots the Leaf to `module * hinge * Angles(0, -swingSign * angle, 0) * hinge:Inverse() * closedOffset`, where `module` always comes from the stored record. It records each leaf part's original `CanCollide` at attach. |
 | **PlacedItemsWorld hook** | An optional 4th argument; with none, nothing changes. More detail below. |
 
 **DoorSensing:**
 - **Characters:** only entries that are `alive`, with finite positions inside the sandbox plus a margin, count. One bad entry is skipped. A failed scan, a non-table result or more than `maxCharacters` entries makes every door **unknown**.
-- **Overlap hits:** each is classified. The owning door model is ignored; a counted character's model means occupied; a part flagged supporting floor that only touches the sweep's bottom is ignored. **Everything else blocks**, including adjacent walls, other structure, furniture, dead characters and a floor piece that rises into the sweep.
-- **Unknown door:** a failed or truncated query, more than `maxHits` hits, or a malformed hit makes that door unknown, and unknown doors are left out of the result.
+- **Overlap hits:** classified in order:
+  1. the owning door model is ignored;
+  2. a counted character's model means occupied, **even if its parts don't collide**;
+  3. a **non-solid** part (`solid = false`: decorations, helpers, invisible non-colliding parts) is ignored;
+  4. a solid supporting-floor part that only touches the sweep's bottom is ignored;
+  5. **every other solid part blocks**, including adjacent walls, other structure, furniture, dead characters and a floor piece rising into the sweep.
+- **Unknown door:** a failed or truncated query, more than `maxHits` hits, or a malformed hit (including a missing or non-boolean `solid`) makes that door unknown, and unknown doors are left out of the result.
 - **Query box:** always the conservative whole-sweep room box from `DoorGeometry`.
 
 **DoorController:**
 - **Keyed by model:** registrations are keyed by model, not placement id. Each gets a never-reused core id (`door#<generation>`).
 - **Specs:** a door's spec comes from an injected, validated `specFor(itemId)`. Nil or invalid means it isn't a door and is left alone. Nothing is hardcoded or registered.
-- **Poses:** each tick, the pose is `openDegrees` × the core's linear progress at `now`. There are no tweens and no completion callbacks, so there's no easing disagreement and nothing completes twice.
-- **Scans:** sensing runs at `scanInterval` over unfrozen doors only. Results older than `maxInputAge` count as unknown.
+- **Capacity:**
+  - at most `activeCap` (150) **committed** doors;
+  - doors attached frozen by an edit's apply are **staged** and don't count until thaw, so the core is sized at 2 × `activeCap` and a 150-for-150 build load can stage its whole new set beside the frozen old one;
+  - the world's commit detaches the old set before thawing the new one;
+  - a door that would still exceed the cap is released and recorded in `overflow`, never silently dropped;
+  - rollback keeps the old set intact.
+- **Poses:** each tick, the pose is `openDegrees` × the core's linear progress at `now`. There are no tweens and no completion callbacks. `reg.angle` is the last angle the driver **accepted**, so a failed pose is retried rather than hidden.
+- **Scans:** sensing runs at `scanInterval` over doors that are neither frozen nor faulted. Results older than `maxInputAge` count as unknown. **A door's cached input is discarded on `beginEdit`, `moved`, `cancelEdit` and `thaw`**, so after any edit it holds still until a fresh scan at its new pose. Scan results are filtered to the doors actually scanned.
 - **Collision:** off on every motion, hold or reset event. The template's original states come back only on `collision` or `closed` with `collide = true`, i.e. closed and clear.
+- **Faults:**
+  - If the driver fails to disable collision, pose the leaf or restore collision, the door is **faulted**:
+    - its motion is held at once (via `DoorAutoOpen:hold`), so no pose is sent for a motion whose collision couldn't be disabled;
+    - it gets no sensing input;
+    - every `scanInterval` the controller tries to resync it (the core's desired collision, then the desired pose). Only a fully successful resync clears the fault, and motion then needs fresh input.
+  - **`beginEdit` is edit-critical.** If the snap closed fails, the door is faulted, its previous edit state is kept and the error is raised. The world's move or remove apply then fails before it touches the model. A build load cancels the freezes already made and destroys its new models. A reconcile fails, so the core stays in recovery.
 - **Edits:**
-  - `attach` (frozen), `beginEdit` (snap closed, collision off, freeze, remember the record), `moved`, `cancelEdit` (restore the record, thaw), `thaw` and `detach`.
-  - A frozen door gets no input, so it can't reopen between an edit's apply and its commit or rollback.
-- **Lifecycle:** at most one heartbeat connection. `stop` disconnects it. `destroy` disconnects, returns doors to closed with their original collision, releases every registration and core entry, and makes later calls no-ops. The controller holds no other connections or tasks.
+  - `attach` (frozen and staged), `beginEdit`, `moved`, `cancelEdit` (restore the record, thaw), `thaw` (commit; staged doors become committed) and `detach`.
+  - A frozen door can't reopen between an edit's apply and its commit or rollback.
+- **Lifecycle:** at most one heartbeat connection. `stop` disconnects it. `destroy` disconnects, returns doors to closed with their original collision (best effort), releases every registration and core entry, and makes later calls no-ops.
 
 **PlacedItemsWorld hook**, with every call guarded:
 - **spawn:** attach frozen, then thaw on commit or detach on rollback.
 - **move:** `beginEdit` **before** the pivot changes, then `moved`. Rollback re-pivots, then `cancelEdit`.
 - **remove:** `beginEdit` before unparenting. Commit detaches; rollback cancels.
-- **replace:** only after every new model has built (a failed build calls nothing). The old set gets `beginEdit` and the new set is attached frozen. Commit detaches old and thaws new; rollback does the reverse.
+- **replace:** only after every new model has built (a failed build calls nothing). The old set gets `beginEdit`; if one fails, the earlier freezes are cancelled, the new models destroyed and the apply fails. The new set is attached frozen (staged). Commit detaches old, then thaws new; rollback does the reverse.
 - **reconcile:** detach dropped and stray models; kept models get `beginEdit`, pivot, `moved`, then `thaw`; respawns are attached, then thawed. A failure mid-door leaves that door frozen and closed.
 - Duplicate, load, undo and redo all reach the world as these same effects.
 
@@ -124,7 +142,7 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
 
 1. Codex builds the 16 × 15 × 1 module (frame raised +0.8; recess the leaf if the 0.515 hinge-side overhang matters on outer edges), measures its hinge and leaf, and installs it.
 2. Register `structure_doorway_panel_01` with its door metadata (validated by `DoorGeometry`). Add `DoorGeometry.check` to placement for door items, giving `SwingOutOfBounds`. Probe for `Frame` and `Leaf`.
-3. Wire it up: the bootstrap creates a DoorController with the real adapters (supplying the origin, the folder, a supporting-floor predicate and `RunService.Heartbeat`) and passes it to PlacedItemsWorld. That changes the dormant guard deliberately.
+3. Wire it up: the bootstrap creates a `DoorAutoOpen` with `maxDoors = 2 × activeCap` (staging room) and a DoorController with the real adapters (supplying the origin, the folder, a supporting-floor predicate and `RunService.Heartbeat`) and passes it to PlacedItemsWorld. That changes the dormant guard deliberately.
 4. Studio Play checks:
    - probe;
    - Place, Rotate, Move, Duplicate, Delete, Undo and Redo;
@@ -139,6 +157,6 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
 ## What is NOT exercised (still unverified)
 
 - **Studio:** nothing runs there, including real CFrame maths, actual leaf poses, physics, collision and replication.
-- **Real overlap queries:** `GetPartBoundsInBox` behaviour is unverified: false positives from parts merely touching the box, rotated part extents (the adapter's `maxY` is an axis-aligned estimate), and characters' accessories.
+- **Real overlap queries:** `GetPartBoundsInBox` behaviour is unverified: false positives from solid parts merely touching the box (adjacent walls could still hold a door), whether `CanCollide` alone is the right solidity test (for example parts using collision groups), meshes whose collision shape differs from their box, and characters' accessories. The oriented top is checked only against fake CFrame components.
 - **Real Players and Humanoids:** the adapters are tested only against fakes.
 - **The door module and activation:** the module isn't built and its final metadata is unknown. There's no catalog registration, placement integration or bootstrap wiring, and no avatar walk-through.
