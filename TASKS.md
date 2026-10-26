@@ -470,6 +470,12 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
     - the wood block is a decal-covered four-stud cube, not a modular slatted wall, with two overlapping Top decals.
   - Gallery capture stalled and was cancelled, so there is no visual approval. Build templates stay **49**.
   - The historical batch 03 manifest is unchanged.
+- Full-place backup checkpoint (Codex, 2026-10-26, Edit mode; documentation only):
+  - **Saved:** a full local place backup via File > Download a Copy: `StudioBuilder-FullBackup-2026-10-25-2313.rbxl`, 4,132,460 bytes, SHA256 `06018C0FF8ABC8392F3AECA2078F27B9EAF6D95C0F30C1C21E1B8307D343494C`. The RBXL is kept locally and not uploaded to this repository.
+  - **Verified:** the file exists and has a binary Roblox header. **Not reopened for restoration testing.**
+  - **Includes:** the current 49-item catalog, the 22 prepared and staged batch 02 candidates, and the 3 quarantined batch 03 sources. It supersedes the earlier "full-place backup pending" notes, which are left as written.
+  - Inclusion in the backup approves nothing: batch 02 and batch 03 candidates stay pending, and Build templates stay **49**.
+  - **Capture note:** the native Studio window renders normally; the earlier capture limitation is specific to automated capture. No new visual check is claimed.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.
