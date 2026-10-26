@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually reviewed by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates and NOT runtime tested. Installed Build count remains 58 (40 furniture, 18 structure); repository count 59.",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of 681fbbb (not an export file)",
+  "kind": "Existing-room extraction (task 11); not a batch 02 or batch 03 candidate",
+  "source": {
+    "extractedFrom": "Workspace.RoomCollection.ConferenceRoom.Potted Plant (one of the equivalent room copies)",
+    "gapAuditEntry": "Tall potted plant (docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json)",
+    "parentModel": "ConferenceRoom",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, ConferenceRoom (path ServerStorage.PodcastAssetStaging.ConferenceRoom), preparation 'Source4993294691'",
+    "parentFreeModelAssetId": "4993294691",
+    "creator": "Not independently verified; not recorded",
+    "plantModelAssetId": "None claimed: 4993294691 is the parent room model, not an individual plant model",
+    "meshContent": { "meshId": "rbxassetid://430369152", "textureId": "rbxassetid://430369173" },
+    "meshUniqueness": "No matching MeshId found among the 58 installed templates (Codex check)",
+    "originalRoomSource": "Unchanged"
+  },
+  "items": [
+    {
+      "id": "studio_tall_floor_plant_01",
+      "displayName": "Tall Floor Plant",
+      "collections": ["cozy", "retro", "1980s"],
+      "type": "plants",
+      "placement": "floor",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.studio_tall_floor_plant_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.studio_tall_floor_plant_01",
+      "baseParts": 1,
+      "partClass": "MeshPart",
+      "scripts": 0,
+      "lights": 0,
+      "seats": 0,
+      "joints": 0,
+      "anchored": true,
+      "canTouch": false,
+      "adaptation": "Original mesh, texture, scale and colours preserved; no geometry added. Anchored, touch disabled, pivot normalized.",
+      "rotation": "Identity",
+      "pivot": "Identity bottom-centre pivot",
+      "size": [5.213370323181152, 7.141579627990723, 3.7111449241638185],
+      "look": "Tall textured green leaves on a woody stem in a tapered dark-red pot",
+      "functionality": "Decorative only: no sway or animation.",
+      "visualReview": "Native Studio visual review passed (Codex)"
+    }
+  ],
+  "task11Tally": "1 installed (studio_water_dispenser_01); 12 gap-audit entries pending, including this plant (registered, integration pending).",
+  "backup": "The prepared and review copies postdate the latest full-place backup (StudioBuilder-FullBackup-58Items-2026-10-26-0136.rbxl); the original room source is in that backup.",
+  "historicalRecords": "docs/assets/Studio_Asset_Guide_2026-10-25.json and docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json are unchanged."
+}

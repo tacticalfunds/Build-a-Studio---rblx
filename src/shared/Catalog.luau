@@ -525,6 +525,18 @@ Catalog.Items = {
 		type = "decor",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_water_dispenser_01",
 	},
+	-- Tall floor plant (2026-10-26): extracted by Codex from the existing
+	-- Conference Room (docs/assets/Tall_Floor_Plant_Registration_2026-10-26.json);
+	-- the room itself is unchanged. Install source:
+	-- ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- Decorative only: the leaves don't sway.
+	{
+		id = "studio_tall_floor_plant_01",
+		displayName = "Tall Floor Plant",
+		collections = { "cozy", "retro", "1980s" },
+		type = "plants",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_tall_floor_plant_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

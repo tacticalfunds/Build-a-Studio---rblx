@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (1 installed: the water dispenser; the other 12 gap-audit entries are pending)
+## 11. Existing room assets in Build (user request): In progress (1 installed: the water dispenser; 1 more registered with integration pending: the tall floor plant; 12 gap-audit entries pending in all)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -879,3 +879,29 @@ Make the assets already used in the six existing rooms available in the Build dr
     - It includes the dispenser's prepared, template and review copies.
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
+- Tall floor plant registration (repository; Codex integration pending):
+  - **Registered (1):** `studio_tall_floor_plant_01` (Tall Floor Plant; furniture type plants; cozy, retro and 1980s; normal floor placement), appended last.
+    - **Counts:** repository 59 (41 furniture, 18 structure). Installed stays **58** (40 furniture, 18 structure).
+  - **Source:** extracted from `Workspace.RoomCollection.ConferenceRoom.Potted Plant` (one of the equivalent room copies); this is the gap audit's "Tall potted plant". The original room is unchanged.
+    - The parent free model is 4993294691, per the ConferenceRoom record in the asset guide.
+    - The creator is not independently verified and isn't recorded, and no individual plant model ID is claimed.
+    - The mesh content is recorded in the manifest only: MeshId `rbxassetid://430369152`, texture `rbxassetid://430369173`. Codex found no matching MeshId among the 58 installed templates.
+  - **Prepared copy (Codex):** `ServerStorage.StudioBuilderPreparedAssets.studio_tall_floor_plant_01`.
+    - Bounds 5.213370323181152 × 7.141579627990723 × 3.7111449241638185, with an identity bottom-centre pivot.
+    - One anchored MeshPart; 0 scripts, Lights, Seats and joints; CanTouch false.
+    - The original mesh, texture, scale and colours were kept, and no geometry was added.
+    - Native visual review: tall textured green leaves on a woody stem in a tapered dark-red pot.
+  - **Decorative only:** no sway.
+  - **Provenance:** `docs/assets/Tall_Floor_Plant_Registration_2026-10-26.json`. The asset guide and the gap audit are unchanged.
+  - **Backup:** the prepared and review copies postdate the 58-item backup; the original room source is in it.
+  - **Pending (Codex):** install, the probe, Play Place → Rotate → Delete, then a backup.
+  - **Tallies:**
+    - task 11: 1 installed, 12 gap-audit entries pending (the plant among them until integration);
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Tests:**
+    - counts updated: 59 items, 41 furniture; cozy 29, retro 22, 1980s 19; cozy All items 29;
+    - a new test checks the manifest fields and facts, that the prepared name matches the id, that no creator, credit or plant model ID is invented, and that no mesh ID ends up in the catalog;
+    - it cross-checks the parent model against the asset guide, and the source path, type and bounds against the gap audit's "Tall potted plant";
+    - floor placement with the measured bounds: in a corner, the X overhang unless turned 90°, and the 24-stud height limit;
+    - it's listed last in Cozy, Retro and 1980s > Plants, and never in Winter, Futuristic or Structure mode.
+    - No UI or runtime code changed.
