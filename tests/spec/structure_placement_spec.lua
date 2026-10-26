@@ -124,13 +124,14 @@ return function(T, H)
 				kinds[item.id] = item.structure.kind
 			end
 		end
-		T.eq(#Catalog.Items, 39)
+		T.eq(#Catalog.Items, 40)
 		for i = 1, 31 do
 			T.eq(Catalog.Items[i].structure, nil, Catalog.Items[i].id .. " (furniture)")
 		end
 		T.eq(Catalog.Items[37].structure, nil, "record player is furniture")
 		T.eq(Catalog.Items[38].structure, nil, "radio is furniture")
 		T.eq(Catalog.Items[39].structure, nil, "patterned rug is furniture")
+		T.eq(Catalog.Items[40].structure, nil, "classic floor lamp is furniture")
 		T.deepEq(kinds, { structure_wall_01 = "wall", structure_window_wall_01 = "window_wall", structure_doorway_01 = "doorway", structure_floor_01 = "floor", structure_ceiling_01 = "ceiling" })
 		local collections = { { id = "cozy", displayName = "Cozy" } }
 		local function check(structure)

@@ -346,6 +346,18 @@ Catalog.Items = {
 		type = "decor",
 		sourceRef = "ServerStorage.NextCatalogInspection.Review_11829259774",
 	},
+	-- Lighting (2026-10-26): approved by Codex from the tracked candidates
+	-- (docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json;
+	-- template ServerStorage.PreparedDecorCandidates.retro_classic_floor_lamp_01,
+	-- Studio install pending). Source: free Creator Store model by bearduckmonkey.
+	-- Decorative only: it has no Light object, gives no light and has no on/off.
+	{
+		id = "retro_classic_floor_lamp_01",
+		displayName = "Classic Shaded Floor Lamp",
+		collections = { "cozy", "retro", "1980s", "winter" },
+		type = "lighting",
+		sourceRef = "ServerStorage.NextCatalogInspection.Review_4128475322",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

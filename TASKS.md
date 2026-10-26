@@ -29,7 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | 38 installed + 1 registered in repo (patterned rug, install pending); furniture-by-type drawer installed (4c7087d); 12 candidates tracked, not registered; Executive/Broadcast pending |
+| 8 | More collection themes | 6 | 39 installed (rug Play-checked) + 1 registered in repo (classic floor lamp, install pending); 11 candidates tracked, not registered; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (installed and remote-tested in Play; visual QA and doorway clearance pending) |
 
@@ -257,7 +257,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 38 installed + 1 registered in repo (patterned rug, install pending); furniture-by-type drawer installed (4c7087d); 12 candidates tracked, not registered; Executive/Broadcast pending
+## 8. More collection themes: 39 installed (rug Play-checked) + 1 registered in repo (classic floor lamp, install pending); 11 candidates tracked, not registered; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -383,6 +383,27 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
     - New: rug-versus-manifest exactness (name, tags, type, sourceRef, creator, zero scripts); no other catalog entry pointing at an inspection copy; no pillow registered.
     - Updated: 39 entries in order; furniture counts Cozy 25, Retro 19, 1980s 15, Winter 11, Futuristic 9; the type assignments (34 furniture, Decor 6); the Cozy "All items (25)"; structure placement (item 39 is furniture).
     - 6 mutations caught: a wrong type, tag or name; an asset ID in another field; sourceRef as a URL; a pillow sneaked in.
+
+- Integration evidence for a9bf5ba (Codex):
+  - **Install:** independent full suite 305 passed, 0 failed. The catalog was backed up, then installed along with the prepared rug template.
+  - **Play:**
+    - Cozy → Decor lists Patterned Vintage Rug as "Ready to place", and the Cozy count is 25;
+    - real remote Place at the sandbox-relative origin, Rotate and Delete all succeeded;
+    - the screenshot shows the rug correctly on the floor;
+    - no console errors.
+  - Studio was returned to Edit. **Installed total: 39.** The full-place backup refresh is still pending; a source backup was saved.
+- Classic floor lamp registration (after review of a9bf5ba; repository only, Studio install and Play check pending):
+  - **Registered:** `retro_classic_floor_lamp_01`, "Classic Shaded Floor Lamp": type lighting; collections cozy, retro, 1980s and winter; sourceRef `ServerStorage.NextCatalogInspection.Review_4128475322`. It's appended as entry 40; the earlier entries are unchanged. **Installed stays 39** until Codex installs it.
+  - **Source:** tracked import 4128475322 ("Old Floor Lamp (Mesh)", free Creator Store asset by bearduckmonkey), one of the remaining 12. **11 remain unregistered.**
+  - **Codex's neutral-lit review:** a tall, slender dark bronze stand, a round ornamental base and an aged cream fabric shade. This corrects the earlier thumbnail-based "cage-like" description, which is noted in the refresh README.
+  - **Normalized:** one MeshPart, upright, bottom-centre pivot at zero, 2 × 6.5 × 2 studs, anchored, CanTouch false; zero scripts, sounds, particles and Light objects.
+  - **Decorative only:** no illumination and no on/off behaviour. No runtime light adapter was added.
+  - **Provenance:** `docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json`. The prepared template is in `ServerStorage.PreparedDecorCandidates.retro_classic_floor_lamp_01`.
+  - **Not approved:** the pillows and every other candidate.
+  - **Evidence (executed 2026-10-26):** `lua5.4 tests/run.lua` gives **305 passed, 0 failed**.
+    - The rug-only provenance test became one table of approved tracked registrations: the rug and the lamp, each checked against its own manifest (name, tags, type, sourceRef, creator, zero scripts) and appended in approval order, with nothing after them. Only these two point at inspection copies, there are no pillows, and the lamp manifest records no Light.
+    - Updated: 40 entries; furniture counts Cozy 26, Retro 20, 1980s 16, Winter 12, Futuristic 9; types (35 furniture, Lighting 5); the Winter type snapshot (lighting = 2); Cozy "All items (26)"; structure placement (item 40 is furniture).
+    - 5 mutations caught: lamp as decor, a missing Winter tag, a wrong name, a wrong sourceRef, a fireplace sneaked in.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.

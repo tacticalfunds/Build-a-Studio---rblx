@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-26",
+  "status": "Approved by Codex for registration; registered in Catalog.luau (repository); Studio install and Play check pending",
+  "recordedFrom": "Codex inspection and normalization report relayed in the review of a9bf5ba (not an export file)",
+  "trackedCandidate": "One of the remaining 12 tracked candidates from docs/assets/refresh-2026-10-25 (new import 4128475322, 'Old Floor Lamp (Mesh)'); not a new candidate",
+  "items": [
+    {
+      "id": "retro_classic_floor_lamp_01",
+      "displayName": "Classic Shaded Floor Lamp",
+      "collections": ["cozy", "retro", "1980s", "winter"],
+      "type": "lighting",
+      "sourceRef": "ServerStorage.NextCatalogInspection.Review_4128475322",
+      "templatePath": "ServerStorage.PreparedDecorCandidates.retro_classic_floor_lamp_01",
+      "sourceAssetId": "4128475322",
+      "sourceName": "Old Floor Lamp (Mesh)",
+      "sourceCreator": "bearduckmonkey",
+      "sourceUrl": "https://create.roblox.com/store/asset/4128475322",
+      "free": true,
+      "look": "Tall slender dark bronze stand with a round ornamental base and an aged cream fabric shade (neutral-lit Studio review). This corrects the earlier 'cage-like shade' description taken from the thumbnail.",
+      "functionality": "Decorative only: no Light object, no illumination and no on/off behaviour; no runtime light adapter",
+      "parts": 1,
+      "partClass": "MeshPart",
+      "scripts": 0,
+      "sounds": 0,
+      "lights": 0,
+      "particles": 0,
+      "anchored": true,
+      "canTouch": false,
+      "pivot": "Normalized upright; bottom-centre pivot at zero",
+      "size": [2, 6.500036239624023, 1.9999998807907105],
+      "visualReview": "Neutral-lit Studio visual review",
+      "notes": [
+        "Original source model preserved in ServerStorage.NextCatalogInspection.",
+        "Temporary review display removed and original Lighting restored."
+      ]
+    }
+  ],
+  "notApproved": [
+    "The two normalized pillow derivatives and all other tracked candidates remain NOT approved and must not be registered."
+  ]
+}

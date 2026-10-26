@@ -60,10 +60,10 @@ return function(T, H)
 	}
 	local STRUCTURE_ORDER = { "structure_wall_01", "structure_window_wall_01", "structure_doorway_01", "structure_floor_01", "structure_ceiling_01" }
 
-	local DECOR = { "retro_record_player_01", "retro_radio_01", "retro_patterned_rug_01" }
+	local DECOR = { "retro_record_player_01", "retro_radio_01", "retro_patterned_rug_01", "retro_classic_floor_lamp_01" }
 
-	T.test("catalog holds the 7 original, 24 expansion, 5 structure and 3 decor IDs, earlier entries unchanged in order", function()
-		T.eq(#Catalog.Items, 39, "item count")
+	T.test("catalog holds the 7 original, 24 expansion, 5 structure and 4 later furniture IDs, earlier entries unchanged in order", function()
+		T.eq(#Catalog.Items, 40, "item count")
 		for i, id in ipairs(STRUCTURE_ORDER) do
 			T.eq(Catalog.Items[#ORIGINAL + #EXPANSION + i].id, id, "structure #" .. i)
 		end
@@ -89,8 +89,8 @@ return function(T, H)
 
 	T.test("collection tag counts match the data, and every collection has items", function()
 		-- Style filters show furniture only; the 5 structure pieces carry all five tags but live in Structure mode.
-		-- The 3 decor items (record player, radio, patterned rug) are furniture tagged retro, 1980s and cozy.
-		local expected = { cozy = 25, retro = 19, ["1980s"] = 15, winter = 11, futuristic = 9 }
+		-- Later furniture: record player, radio and rug (cozy, retro, 1980s) and the lamp (also winter).
+		local expected = { cozy = 26, retro = 20, ["1980s"] = 16, winter = 12, futuristic = 9 }
 		for _, c in ipairs(Catalog.Collections) do
 			T.eq(#Catalog.getFurnitureTagged(c.id), expected[c.id], c.id .. " furniture count")
 			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id] + 5, c.id .. " raw tag count")
@@ -210,38 +210,54 @@ return function(T, H)
 		T.ok(ceiling:find("Neutral recolour of the kit floor geometry", 1, true), "ceiling provenance noted in the catalog")
 	end)
 
-	T.test("patterned rug: registered exactly from its manifest; the other tracked imports stay unregistered", function()
-		local manifest = H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json")
-		local rug = Catalog.getItem("retro_patterned_rug_01")
-		T.ok(rug ~= nil)
-		T.eq(Catalog.Items[#Catalog.Items].id, "retro_patterned_rug_01", "appended last")
-		T.ok(manifest:find('"displayName": "' .. rug.displayName .. '"', 1, true), "displayName")
-		T.ok(manifest:find('"sourceRef": "' .. rug.sourceRef .. '"', 1, true), "sourceRef")
-		T.ok(manifest:find('"type": "' .. rug.type .. '"', 1, true), "type")
-		T.eq(rug.type, "decor")
-		T.eq(rug.structure, nil)
-		local tags = {}
-		for tag in manifest:match('"collections": (%b[])'):gmatch('"([^"]+)"') do tags[tag] = true end
-		local mine = {}
-		for _, tag in ipairs(rug.collections) do mine[tag] = true end
-		T.deepEq(mine, tags, "collections")
-		T.ok(manifest:find('"sourceCreator": "caductis"', 1, true), "creator recorded")
-		T.ok(manifest:find('"scripts": 0,', 1, true), "zero scripts recorded")
-		for key in pairs(rug) do
-			T.ok(key ~= "sourceAssetId" and key ~= "templatePath" and key ~= "sourceUrl", "rug carries " .. key)
+	-- Tracked candidates approved one at a time, each with its own provenance manifest.
+	local APPROVED_TRACKED = {
+		{ id = "retro_patterned_rug_01", manifest = "Decor_Candidate_retro_patterned_rug_01_2026-10-26.json", creator = "caductis", type = "decor" },
+		{ id = "retro_classic_floor_lamp_01", manifest = "Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json", creator = "bearduckmonkey", type = "lighting" },
+	}
+
+	T.test("approved tracked candidates: each registered exactly from its manifest, appended in order; no other tracked import is registered", function()
+		local base = #ORIGINAL + #EXPANSION + #STRUCTURE_ORDER + 2 -- + record player, radio
+		local expectedInspected = {}
+		for i, a in ipairs(APPROVED_TRACKED) do
+			local manifest = H.readFile(H.ROOT .. "/docs/assets/" .. a.manifest)
+			local item = Catalog.getItem(a.id)
+			T.ok(item ~= nil, a.id)
+			T.eq(Catalog.Items[base + i].id, a.id, a.id .. " appended in approval order")
+			T.ok(manifest:find('"id": "' .. a.id .. '"', 1, true), a.id .. " manifest id")
+			T.ok(manifest:find('"displayName": "' .. item.displayName .. '"', 1, true), a.id .. " displayName")
+			T.ok(manifest:find('"sourceRef": "' .. item.sourceRef .. '"', 1, true), a.id .. " sourceRef")
+			T.ok(manifest:find('"type": "' .. item.type .. '"', 1, true), a.id .. " type")
+			T.eq(item.type, a.type)
+			T.eq(item.structure, nil)
+			local tags = {}
+			for tag in manifest:match('"collections": (%b[])'):gmatch('"([^"]+)"') do tags[tag] = true end
+			local mine = {}
+			for _, tag in ipairs(item.collections) do mine[tag] = true end
+			T.deepEq(mine, tags, a.id .. " collections")
+			T.ok(manifest:find('"sourceCreator": "' .. a.creator .. '"', 1, true), a.id .. " creator recorded")
+			T.ok(manifest:find('"scripts": 0,', 1, true), a.id .. " zero scripts recorded")
+			T.ok(manifest:find("NOT approved", 1, true), a.id .. " manifest records the unapproved pillows")
+			for key in pairs(item) do
+				T.ok(key ~= "sourceAssetId" and key ~= "templatePath" and key ~= "sourceUrl", a.id .. " carries " .. key)
+			end
+			expectedInspected[#expectedInspected + 1] = a.id
 		end
-		-- Only this one tracked import is registered: no other catalog entry points at an inspection copy.
+		T.eq(#Catalog.Items, base + #APPROVED_TRACKED, "nothing after the approved tracked items")
 		local inspected = {}
 		for _, item in ipairs(Catalog.Items) do
 			if item.sourceRef:find("NextCatalogInspection", 1, true) then
 				inspected[#inspected + 1] = item.id
 			end
 		end
-		T.deepEq(inspected, { "retro_patterned_rug_01" })
-		T.ok(manifest:find("NOT approved", 1, true), "pillow derivatives recorded as not approved")
+		T.deepEq(inspected, expectedInspected, "only approved tracked imports point at inspection copies")
 		for _, item in ipairs(Catalog.Items) do
 			T.eq(item.displayName:lower():find("pillow", 1, true), nil, "no pillow registered: " .. item.id)
 		end
+		-- The lamp is honestly decorative: the manifest records no Light object.
+		local lamp = H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json")
+		T.ok(lamp:find('"lights": 0,', 1, true))
+		T.ok(lamp:find("no illumination", 1, true))
 	end)
 
 	T.test("sorted collections follow declared order", function()
@@ -263,7 +279,7 @@ return function(T, H)
 
 	T.test("every sourceRef exists in the committed asset guide or expansion manifest (no invented sources)", function()
 		local guide = H.readFile(H.ROOT .. "/docs/assets/Studio_Asset_Guide_2026-10-25.json")
-		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json")
 		for _, item in ipairs(Catalog.Items) do
 			local inGuide = string.find(guide, '"path": "' .. item.sourceRef .. '"', 1, true) or string.find(guide, '"path":"' .. item.sourceRef .. '"', 1, true)
 			local inManifest = string.find(manifest, '"sourceRef": "' .. item.sourceRef .. '"', 1, true)

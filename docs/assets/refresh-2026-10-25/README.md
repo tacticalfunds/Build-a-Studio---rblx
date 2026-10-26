@@ -35,7 +35,11 @@ The prior descriptive guide is embedded in the catalog JSON (`priorSourceGuide`)
 
 **Later change (2026-10-26):**
 - Tracked import 11829259774 (Realistic Rug) was normalized and approved by Codex. It's registered in the repository as `retro_patterned_rug_01` (see `../Decor_Candidate_retro_patterned_rug_01_2026-10-26.json`), with Studio install pending.
-- So 12 of the 13 tracked candidates remain unregistered.
+- The rug was installed and Play-checked after a9bf5ba.
+- Tracked import 4128475322 (Old Floor Lamp) was normalized and approved by Codex. It's registered in the repository as `retro_classic_floor_lamp_01`, "Classic Shaded Floor Lamp" (see `../Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json`), with Studio install pending.
+  - The neutral-lit review shows a dark bronze stand, an ornamental base and an aged cream fabric shade. This **corrects** the "cage-like shade" description in the table below, which came from the thumbnail.
+  - It's decorative, with no Light object.
+- So 11 of the 13 tracked candidates remain unregistered.
 - The two pillow derivatives were normalized but are not approved.
 
 **Status corrections after this refresh (Codex, 2026-10-26):**
