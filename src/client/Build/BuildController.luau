@@ -351,6 +351,12 @@ function BuildController:_kindOf(itemId)
 	return type(item) == "table" and type(item.structure) == "table" and item.structure.kind or nil
 end
 
+-- Door metadata of a catalog item (doorway pieces only), or nil.
+function BuildController:_doorOf(itemId)
+	local item = itemId and self.env.catalog.getItem(itemId)
+	return type(item) == "table" and item.door or nil
+end
+
 function BuildController:_clearGhost()
 	if self.ghost then
 		self.ghost:destroy()
@@ -394,6 +400,7 @@ function BuildController:_updatePreview()
 		snap = true,
 		config = self.env.config,
 		structureKind = session.itemKind,
+		door = session.itemKind and self:_doorOf(session.itemId) or nil,
 	})
 	preview.itemId = session.itemId
 	preview.yaw = session.previewYaw
@@ -410,7 +417,7 @@ function BuildController:confirmPlacement()
 	end
 	local preview = self.lastPreview
 	if preview == nil or preview.itemId ~= session.itemId or preview.yaw ~= session.previewYaw or not preview.valid then
-		local code = preview and (preview.code == "OutOfBounds" or preview.code == "OffGrid") and preview.code or "BadTransform"
+		local code = preview and (preview.code == "OutOfBounds" or preview.code == "OffGrid" or preview.code == "SwingOutOfBounds") and preview.code or "BadTransform"
 		session.message = self.env.messageFor and self.env.messageFor(code) or "Can't place there."
 		self:_refresh()
 		return nil

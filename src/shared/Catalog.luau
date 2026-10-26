@@ -16,6 +16,12 @@
 	  "not installed" until they are placed there under their item IDs.
 	* Everything is decorative: chairs are not seats, lamps don't light, and
 	  microphones/mixers have no audio, until a dedicated adapter exists.
+	* Optional `door = { hinge, leaf, swing, openDegrees }` (DoorGeometry
+	  metadata, the leaf measured closed) is allowed ONLY on a doorway piece
+	  and must validate exactly; anything else fails the catalog (fail
+	  closed). The server and the preview refuse a placement whose leaf
+	  sweep leaves the sandbox (SwingOutOfBounds). It is placement metadata
+	  only: no door runtime is active.
 	* Optional `structure = { kind = ... }` marks a modular structure piece
 	  (StructureGrid kinds only: floor, ceiling, wall, window_wall, doorway).
 	  The server then applies the 16-stud grid, level and cardinal-yaw rules
@@ -34,6 +40,7 @@
 local Config = require(script.Parent.Config)
 local Validate = require(script.Parent.Validate)
 local StructureGrid = require(script.Parent.StructureGrid)
+local DoorGeometry = require(script.Parent.DoorGeometry)
 
 local Catalog = {}
 
@@ -640,6 +647,29 @@ Catalog.Items = {
 		type = "lighting",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_broadcast_indicator_01",
 	},
+	-- Wood panel door wall (2026-10-26): a 16 x 15 x 1 doorway module built by
+	-- Codex around the Conference Room door (frame and leaf raised 0.8, leaf
+	-- depth 92% and recessed 0.02 toward -z, project-made plaster surround)
+	-- (docs/assets/Panel_Door_Wall_Module_Preparation_2026-10-26.json).
+	-- Prepared only: not in StudioBuilderTemplates, not live. `door` is the
+	-- exact measured DoorGeometry metadata; placement refuses any spot where
+	-- the leaf's sweep would leave the sandbox. No door runtime is active.
+	{
+		id = "structure_doorway_panel_01",
+		displayName = "Wood Panel Door Wall",
+		collections = { "cozy", "retro", "1980s", "winter" },
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.structure_doorway_panel_01",
+		structure = { kind = "doorway" },
+		door = {
+			hinge = { x = 2.4998779296875, z = -0.02 },
+			leaf = {
+				center = { 0.09984123706817627, 5.100130558013916, -0.02000001072883606 },
+				size = { 5.2000732421875, 8.200085639953614, 0.8740000128746033 },
+			},
+			swing = "-z",
+			openDegrees = 90,
+		},
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.
@@ -739,6 +769,14 @@ function Catalog.validateData(collections, items)
 				end
 				if not onlyKind or type(s.kind) ~= "string" or StructureGrid.Kinds[s.kind] == nil then
 					fail("item " .. item.id .. " has invalid structure metadata")
+				end
+			end
+			if item.door ~= nil then
+				local s = item.structure
+				if type(s) ~= "table" or s.kind ~= "doorway" then
+					fail("item " .. item.id .. " has door metadata but is not a doorway piece")
+				elseif DoorGeometry.validate(item.door) == nil then
+					fail("item " .. item.id .. " has invalid door metadata")
 				end
 			end
 		end

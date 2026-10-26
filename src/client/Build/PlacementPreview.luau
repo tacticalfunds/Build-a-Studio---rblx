@@ -27,6 +27,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("StudioBuilder")
 local Transform = require(Shared:WaitForChild("Transform"))
 local StructureGrid = require(Shared:WaitForChild("StructureGrid"))
+local DoorGeometry = require(Shared:WaitForChild("DoorGeometry"))
 
 local PlacementPreview = {}
 
@@ -51,6 +52,14 @@ local function computeStructure(hit, ctx)
 		boundsEpsilon = ctx.config.BoundsEpsilon,
 	})
 	if clean then
+		-- Door items: the same swept-box check the server applies.
+		if ctx.door ~= nil then
+			local room, doorCode = DoorGeometry.check(ctx.door, clean, ctx.bounds, ctx.config.BoundsEpsilon)
+			if room == nil then
+				local code = (doorCode == DoorGeometry.Codes.SwingOutOfBounds) and "SwingOutOfBounds" or "UnknownItem"
+				return { valid = false, code = code, transform = clean }
+			end
+		end
 		return { valid = true, transform = clean }
 	end
 	local code, reason = StructureGrid.toProtocol(gridCode)
@@ -58,7 +67,8 @@ local function computeStructure(hit, ctx)
 end
 
 -- hit: { x, y, z, upDot } in sandbox local space, or nil when nothing was hit.
--- ctx: { size, yaw, bounds, snap, config, structureKind? }
+-- ctx: { size, yaw, bounds, snap, config, structureKind?, door? } (door: the
+-- catalog item's door metadata; its swept box must also fit, as on the server)
 -- Returns { valid, code, reason?, transform }; transform is the best guess for
 -- drawing the ghost even when invalid (nil when there is no surface).
 function PlacementPreview.compute(hit, ctx)

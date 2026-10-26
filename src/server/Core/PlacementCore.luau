@@ -63,6 +63,7 @@ local Protocol = require(Shared:WaitForChild("Protocol"))
 local Transform = require(Shared:WaitForChild("Transform"))
 local Validate = require(Shared:WaitForChild("Validate"))
 local StructureGrid = require(Shared:WaitForChild("StructureGrid"))
+local DoorGeometry = require(Shared:WaitForChild("DoorGeometry"))
 
 local SaveSnapshot = require(script.Parent.Parent:WaitForChild("Adapters"):WaitForChild("SaveSnapshot"))
 local BuildHistory = require(script.Parent.BuildHistory)
@@ -209,6 +210,25 @@ function PlacementCore:_structureKind(itemId)
 end
 
 
+-- Door items (catalog `door` metadata, doorways only): the leaf's whole
+-- swept box must stay inside the sandbox bounds too. Returns nil when the
+-- transform is fine, else a code. Malformed metadata fails closed.
+function PlacementCore:_doorCheck(itemId, t)
+	local item = self.catalog.getItem(itemId)
+	local door = type(item) == "table" and item.door or nil
+	if door == nil then
+		return nil
+	end
+	local room, code = DoorGeometry.check(door, t, self.bounds, self.config.BoundsEpsilon)
+	if room then
+		return nil
+	end
+	if code == DoorGeometry.Codes.SwingOutOfBounds then
+		return Codes.SwingOutOfBounds
+	end
+	return Codes.UnknownItem
+end
+
 function PlacementCore:_gridOptions()
 	return { maxCoordinate = self.config.MaxCoordinate, boundsEpsilon = self.config.BoundsEpsilon }
 end
@@ -228,10 +248,14 @@ function PlacementCore:_clean(itemId, raw)
 		return Transform.sanitize(raw, size, self.bounds, self.config)
 	end
 	local t, gridCode = StructureGrid.validate(kind, raw, size, self.bounds, self:_gridOptions())
-	if t then
-		return t
+	if t == nil then
+		return nil, StructureGrid.toProtocol(gridCode)
 	end
-	return nil, StructureGrid.toProtocol(gridCode)
+	local doorCode = self:_doorCheck(itemId, t)
+	if doorCode then
+		return nil, doorCode
+	end
+	return t
 end
 
 -- Resolves an existing item. Returns id, record or nil, code.
@@ -356,8 +380,21 @@ function planners.Rotate(self, _, payload)
 		if size == nil then
 			return nil, Codes.NotInstalled
 		end
-		local t, gridCode = StructureGrid.rotate(kind, record, direction, size, self.bounds, self:_gridOptions())
+		-- Door items: a hinge candidate whose swing leaves the bounds is
+		-- skipped; when none fits, the door's own refusal is reported.
+		-- _movePlan re-cleans the result through _clean (door check included).
+		local options = self:_gridOptions()
+		local doorCode
+		options.accept = function(candidate)
+			local refusal = self:_doorCheck(record.itemId, candidate)
+			doorCode = doorCode or refusal
+			return refusal == nil
+		end
+		local t, gridCode = StructureGrid.rotate(kind, record, direction, size, self.bounds, options)
 		if t == nil then
+			if doorCode then
+				return nil, doorCode
+			end
 			return nil, StructureGrid.toProtocol(gridCode)
 		end
 		return self:_movePlan(id, record, t)
@@ -400,13 +437,18 @@ function planners.Duplicate(self, userId, payload)
 		local dz = math.ceil(hz * 2 / grid) * grid
 		offsets = { { dx, 0 }, { -dx, 0 }, { 0, dz }, { 0, -dz } }
 	end
+	-- A door whose swing rules out every spot reports that, not plain bounds.
+	local refusal = Codes.OutOfBounds
 	for _, offset in ipairs(offsets) do
-		local t = self:_clean(source.itemId, { x = source.x + offset[1], y = source.y, z = source.z + offset[2], yaw = source.yaw })
+		local t, code = self:_clean(source.itemId, { x = source.x + offset[1], y = source.y, z = source.z + offset[2], yaw = source.yaw })
 		if t then
 			return self:_spawnPlan({ itemId = source.itemId, placedByUserId = userId, x = t.x, y = t.y, z = t.z, yaw = t.yaw })
 		end
+		if code == Codes.SwingOutOfBounds then
+			refusal = code
+		end
 	end
-	return nil, Codes.OutOfBounds
+	return nil, refusal
 end
 
 function planners.Delete(self, _, payload)

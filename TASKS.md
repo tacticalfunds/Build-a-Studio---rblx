@@ -32,7 +32,7 @@ Known contracts (from Codex, 2026-10-25):
 | 8 | More collection themes | 6 | **49 installed**; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (14 pieces and R rotation installed; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending) |
-| 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | Pending: awaiting an inspected manifest |
+| 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | In progress (10 installed; the panel door wall registered in the repository as prepared-only, not installed; the laptop and the metal door remaining) |
 
 **User priority (2026-10-25): keep expanding the model catalog.** Codex prepares and inspects candidates. Each set is registered in its own bounded checkpoint (manifest, catalog entries, tests), then installed and Play-checked by Codex. The queue order above is otherwise unchanged.
 
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (10 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox, the umbrella light and the broadcast indicator lamp; 3 remaining: the laptop, the panel door and the metal door; the panel door is a prepared candidate, not registered or installed, with a plan for review)
+## 11. Existing room assets in Build (user request): In progress (10 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox, the umbrella light and the broadcast indicator lamp; 3 remaining: the laptop, the panel door and the metal door; the panel door wall module is prepared in Studio and registered in the repository as item 68, prepared-only: not installed, auto-open runtime dormant)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1475,3 +1475,33 @@ Make the assets already used in the six existing rooms available in the Build dr
     - **391 passed, 0 failed** in total.
     - Removing the rebase fails all three stopper tests.
   - Counts unchanged (live and repository 67).
+- Panel door wall: catalog and placement integration (repository code; **prepared-only: NOT installed, runtime DORMANT**). Codex prepared the final physical module in Studio Edit and backed it up locally.
+  - **Module:** `ServerStorage.StudioBuilderPreparedAssets.structure_doorway_panel_01`, "Wood Panel Door Wall", a 16 × 15 × 1 doorway (cozy, retro, 1980s, winter).
+    - Children: Frame, Leaf and WallSurround (Models). 39 anchored BaseParts, CanTouch false, no scripts, joints, constraints or body movers.
+    - Identity bottom-centre pivot; closed bounds [-8, 0, -0.5] to [8, 15, 0.5].
+    - Frame and Leaf raised +0.8. The leaf's local Z is reduced to 92% and recessed 0.02 toward −Z, so the hinge-side protrusion no longer passes the wall face (the earlier 0.515 finding is resolved by the module).
+    - Four project-made plaster parts form the surround.
+    - Not in StudioBuilderTemplates and not in the live catalog.
+  - **Door metadata (exact):** hinge (2.4998779296875, −0.02); closed leaf centre [0.09984123706817627, 5.100130558013916, −0.02000001072883606], size [5.2000732421875, 8.200085639953614, 0.8740000128746033]; swing "-z"; 90°.
+  - **Swept box:** x −2.519 to 2.980, y 1.000 to 9.200, z −5.039 to 0.461 (module space). A test checks that `DoorGeometry.sweptBox` matches the accepted numbers within 1e-6.
+  - **Provenance:** from `Workspace.RoomCollection.ConferenceRoom.Door`, parent room asset 4993294691. The individual door's asset ID and creator are unverified, so no credit and no door asset ID are recorded.
+  - **Codex Studio Edit checks:** 396 passed, including 91 sampled leaf CFrame angles. These are Edit poses only: no runtime, physics, replication or avatar test. Frame contact, real sensing and adjacent-wall overlaps still need runtime checks. No sandbox enlargement.
+  - **Backup:** `StudioBuilder-FullBackup-PanelDoorPrepared-2026-10-26.rbxl`, 4,160,221 bytes, SHA256 `23B17B0618ABE86498115C93C86C3CB0594F1179D6CD315CEB03E6E687877C98` (local; restore not tested).
+  - **Manifest:** [`docs/assets/Panel_Door_Wall_Module_Preparation_2026-10-26.json`](docs/assets/Panel_Door_Wall_Module_Preparation_2026-10-26.json). The earlier candidate manifest is kept unchanged as history.
+  - **Catalog:** registered as item 68 with `structure = { kind = "doorway" }` and the door metadata. `Catalog.validateData` refuses door metadata on anything but a doorway and any malformed door metadata. No other item carries `door`, and the client listing is unchanged.
+  - **TemplateCatalog:** the probe reports the template's direct Model children. A door item is "invalid" unless both Frame and Leaf are present (fail closed); other items are unaffected.
+  - **Placement (`SwingOutOfBounds`):**
+    - the server runs `DoorGeometry.check` after the grid check in `_clean`, so place, move, duplicate, undo/redo and load classification all refuse a spot whose swept box leaves the bounds; the existing grid and bounds checks run first, unchanged;
+    - Rotate skips a hinge candidate whose swing leaves the bounds and takes the next in the fixed order (`StructureGrid.rotate` gains an optional `accept` filter); when none fits, the door's refusal is reported;
+    - Duplicate reports `SwingOutOfBounds` when the swing ruled out every spot;
+    - malformed door metadata that bypasses the catalog fails closed (`UnknownItem`);
+    - the client preview applies the same check (the controller passes the catalog item's door metadata), and the footer shows the new message.
+  - **What this means today:** on the live 48 marker every interior edge fits at every cardinal yaw and outer edges stay `OutOfBounds`, so the swing check never removes a live spot. On a 49 marker an outer door must swing into the room; facing out is `SwingOutOfBounds`.
+  - **Tests:**
+    - new `panel_door_spec` (11): exact metadata against the manifest, the swept box, fail-closed validation (4 non-doorway items, 11 malformed shapes), the Frame/Leaf probe, place on both markers at all yaws, move, rotate skip and all-refused cases, duplicate, undo/redo and load classification;
+    - 2 new client tests: preview/server parity for the door (2,592 placements on both markers, 224 swing refusals) and the controller ghost and footer;
+    - updated: counts 68 (49 furniture, 19 structure), tag counts, the doorway list, the provenance list, and the dormant guard (now: only Catalog, PlacementCore and PlacementPreview may use `DoorGeometry`; nothing outside the door modules names `DoorAutoOpen`, `DoorSensing`, `DoorController` or `DoorRuntimeAdapters`; BuilderService still builds the world with three arguments);
+    - **404 passed, 0 failed** in total;
+    - mutations that drop the server swing check, let rotate keep a swing-out candidate, drop the preview check or skip the Frame/Leaf probe each fail tests.
+  - **Not done:** installing the template, runtime activation of auto-open, real Place/Move/Rotate/Delete in Studio, a restore test of the backup, main merge, publishing and monetization.
+  - **Counts:** live **67** (49 furniture, 18 structure); repository **68** (49 furniture, 19 structure); task 11 at 10 installed, 3 remaining (the panel door is registered but not installed).

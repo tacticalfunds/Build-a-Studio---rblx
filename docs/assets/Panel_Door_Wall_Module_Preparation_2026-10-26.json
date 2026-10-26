@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-26",
+  "status": "Final physical module PREPARED by Codex in Studio Edit and locally backed up; registered in Catalog.luau (repository item 68) as a prepared-only doorway with door metadata. NOT in StudioBuilderTemplates, NOT in the live Build catalog, NOT installed. The door auto-open runtime stays dormant (no bootstrap wiring). Installed Build count remains 67 (49 furniture, 18 structure); repository count 68 (49 furniture, 19 structure).",
+  "recordedFrom": "Codex Studio Edit preparation report relayed in the checkpoint request after the acceptance of b786a15 (local evidence files are not in this repository)",
+  "kind": "Existing-room extraction (task 11): the panel door rebuilt as a 16 x 15 x 1 doorway wall module. Supersedes the door-only candidate in Panel_Door_Candidate_Preparation_2026-10-26.json, which is kept unchanged as history.",
+  "source": {
+    "extractedFrom": "Workspace.RoomCollection.ConferenceRoom.Door (the original source is unchanged)",
+    "parentModel": "ConferenceRoom",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, ConferenceRoom, preparation 'Source4993294691'",
+    "parentFreeModelAssetId": "4993294691",
+    "creator": "Not independently verified; not recorded (no credit)",
+    "doorModelAssetId": "None claimed: the individual door's asset ID is unverified; 4993294691 is the parent room asset"
+  },
+  "items": [
+    {
+      "id": "structure_doorway_panel_01",
+      "displayName": "Wood Panel Door Wall",
+      "collections": ["cozy", "retro", "1980s", "winter"],
+      "structure": { "kind": "doorway" },
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.structure_doorway_panel_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.structure_doorway_panel_01",
+      "templateName": "structure_doorway_panel_01",
+      "inStudioBuilderTemplates": false,
+      "inLiveCatalog": false,
+      "children": ["Frame", "Leaf", "WallSurround"],
+      "childClasses": { "Frame": "Model", "Leaf": "Model", "WallSurround": "Model" },
+      "baseParts": 39,
+      "anchored": true,
+      "canTouch": false,
+      "scripts": 0,
+      "joints": 0,
+      "constraints": 0,
+      "bodyMovers": 0,
+      "pivot": "Identity bottom-centre pivot",
+      "closedBounds": { "min": [-8, 0, -0.5], "max": [8, 15, 0.5], "size": [16, 15, 1] },
+      "door": {
+        "hinge": { "x": 2.4998779296875, "z": -0.02 },
+        "leaf": {
+          "center": [0.09984123706817627, 5.100130558013916, -0.02000001072883606],
+          "size": [5.2000732421875, 8.200085639953614, 0.8740000128746033]
+        },
+        "swing": "-z",
+        "openDegrees": 90
+      },
+      "measurements": {
+        "hingePartCentresY": [8.200166702270508, 2.0000665187835695],
+        "frameAndLeafRaised": 0.8,
+        "leafLocalZScale": 0.92,
+        "leafRecessTowardMinusZ": 0.02,
+        "wallSurround": "Four project-made plaster parts around the frame"
+      },
+      "sweptBox": {
+        "note": "Axis-aligned module-space box of the leaf over its full 0..90 degree swing toward -z (closed leaf included); matches DoorGeometry.sweptBox for the metadata above",
+        "x": [-2.519256675, 2.980471258],
+        "y": [1.000086738, 9.200174378],
+        "z": [-5.039134606, 0.460593309]
+      },
+      "look": "Dark wood frame and door, honey-coloured trim, two frosted upper panes, recessed lower panels, a brass knob and a warm plaster wall surround"
+    }
+  ],
+  "codexTesting": {
+    "result": "396 checks passed in Studio Edit",
+    "covered": "91 sample leaf CFrame angles across the swing, checked as Edit poses only",
+    "notCovered": "No runtime, physics, replication or avatar test. Frame contact, real sensing and overlaps with adjacent walls still need runtime checking.",
+    "sandbox": "No sandbox enlargement"
+  },
+  "backup": {
+    "file": "StudioBuilder-FullBackup-PanelDoorPrepared-2026-10-26.rbxl",
+    "bytes": 4160221,
+    "sha256": "23B17B0618ABE86498115C93C86C3CB0594F1179D6CD315CEB03E6E687877C98",
+    "location": "Local only; not uploaded to this repository",
+    "restoreTested": false
+  },
+  "repository": {
+    "catalog": "Registered as item 68 with validated door metadata; the Catalog validator rejects door metadata on anything but a doorway and malformed door metadata",
+    "placement": "Server placement (place, move, rotate, duplicate, undo/redo, load) and the client preview refuse a spot where the swept box leaves the build area, with SwingOutOfBounds; existing bounds checks are unchanged",
+    "templateProbe": "TemplateCatalog marks the item invalid unless its template has Model children named Frame and Leaf",
+    "runtime": "Dormant: DoorAutoOpen, DoorSensing, DoorController and DoorRuntimeAdapters are not wired by any entry point"
+  },
+  "notDone": [
+    "Installing the template in StudioBuilderTemplates",
+    "Runtime activation of auto-open",
+    "Real Place/Move/Rotate/Delete in Studio",
+    "Restore test of the backup",
+    "Main merge, Roblox publishing or monetization"
+  ]
+}

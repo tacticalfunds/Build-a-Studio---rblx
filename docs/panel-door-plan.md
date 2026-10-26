@@ -1,6 +1,7 @@
 # Panel door: implementation plan
 
 **Status:**
+- **Catalog and placement integration (prepared-only):** the final module is prepared in Studio Edit ([`assets/Panel_Door_Wall_Module_Preparation_2026-10-26.json`](assets/Panel_Door_Wall_Module_Preparation_2026-10-26.json)). `structure_doorway_panel_01` is registered in the repository (item 68) with its measured door metadata. The template probe requires `Frame` and `Leaf`, and server placement plus the client preview refuse a spot whose swept box leaves the bounds (`SwingOutOfBounds`). The template is **not installed** (live stays 67) and the runtime stays **dormant**.
 - The design checkpoint (85025c9) was accepted with corrections.
 - The foundation (8275097) wasn't accepted; its corrections (a65d89c) were accepted.
 - The collision-ordering and recovery fix (a02d970) was accepted for those cases. Two more probes then failed: a newly blocked or unknown scan still advanced the leaf once before holding. This is corrected in the following commit.
@@ -14,9 +15,9 @@
 - **Nothing activates doors:**
   - the production bootstrap and BuilderService don't create a controller;
   - BuilderService builds the world with no hook (exactly three arguments);
-  - no source outside the door modules names a door module.
+  - no source outside the door modules names `DoorAutoOpen`, `DoorSensing`, `DoorController` or `DoorRuntimeAdapters`; only the Catalog validator, PlacementCore and the client preview use the pure `DoorGeometry`.
   - A test enforces all three.
-- **Also unchanged:** there's no catalog entry and no installed template, and no UI, remote or save-schema change.
+- **Also unchanged:** there's no installed template, and no remote or save-schema change. The only UI change is the new `SwingOutOfBounds` footer message.
 - Nothing here is claimed to work in Studio.
 - The prepared candidate is recorded in [`assets/Panel_Door_Candidate_Preparation_2026-10-26.json`](assets/Panel_Door_Candidate_Preparation_2026-10-26.json).
 
@@ -43,7 +44,8 @@
 
 - Codex builds `structure_doorway_panel_01`: a 16 × 15 × 1 panel with a cut-out holding the prepared `Frame` and `Leaf`, with the frame raised so its sill is at y = 1. The surround is project-built geometry.
 - **The module pivot is fixed:** identity, at the bottom centre of the 16 × 15 × 1 box with the leaf closed. The runtime must **store this pivot when it spawns the door and always use it**, for edits, resets and tweens. It must never recompute it from `GetBoundingBox` or `GetPivot` while a leaf is open, because an open leaf shifts the box.
-- **Hinge and leaf metadata** come from the installed module (the candidate's values move by the +0.8 raise). They are validated by `DoorGeometry.validate`.
+- **Hinge and leaf metadata** come from the prepared module (the candidate's values moved by the +0.8 raise and the leaf recess). They are validated by `DoorGeometry.validate`.
+- **Final module (prepared, 2026-10-26):** children Frame, Leaf and WallSurround; 39 anchored parts, CanTouch false, no scripts, joints, constraints or body movers; closed bounds [-8, 0, -0.5] to [8, 15, 0.5]. Metadata: hinge (2.4998779296875, −0.02); leaf centre [0.09984123706817627, 5.100130558013916, −0.02000001072883606], size [5.2000732421875, 8.200085639953614, 0.8740000128746033]; swing "-z"; 90°.
 
 ## Swing volume (correction 1)
 
@@ -53,6 +55,7 @@
   - x **−2.5228 to 3.0153**; z **−5.0226 to 0.5154**; y **0.2 to 8.4**.
   - The hinge-side corner swings out about 0.515 past the wall line, beyond the wall's 0.5 half-depth.
   - So even an inward-swinging door on an outer edge needs bounds about 0.015 larger than a 49 marker. That's recorded as a finding for the module build: recessing the leaf or the frame would remove it.
+- **Final module:** the leaf's local Z was reduced to 92% and recessed 0.02 toward −Z. Its swept box is x **−2.5193 to 2.9805**, y **1.0001 to 9.2002**, z **−5.0391 to 0.4606**, inside the 0.5 half-depth, so an inward-facing outer-edge door fits a 49 marker. A test checks this box against the manifest.
 - **Tests:** the corners are sampled every 0.25° across 0..90° and checked inside the box, which is also tight to within 1e-3. The 45°, 120° and 180° arcs and a mirrored hinge are sampled too. All four cardinal yaws are checked against an independent CFrame-convention transform. A mutation that drops the arc extremes fails 5 tests, and one that ignores thickness fails 3.
 
 ## Auto-open state machine (corrections 2 and 3, revised after the review of 8275097)
@@ -146,11 +149,12 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
 
 **Transient state only:** door state never changes build revisions or saves. No door module mentions SaveSnapshot, BuildModel, BuildPersistence, revisions, attributes or DataStores (checked statically), and the integration test sees zero revision publishes.
 
-## Before activation (next checkpoints, not started)
+## Before activation (next checkpoints)
 
-1. Codex builds the 16 × 15 × 1 module (frame raised +0.8; recess the leaf if the 0.515 hinge-side overhang matters on outer edges), measures its hinge and leaf, and installs it.
-2. Register `structure_doorway_panel_01` with its door metadata (validated by `DoorGeometry`). Add `DoorGeometry.check` to placement for door items, giving `SwingOutOfBounds`. Probe for `Frame` and `Leaf`.
-3. Wire it up: the bootstrap creates a `DoorAutoOpen` with `maxDoors = 2 × activeCap` (staging room) and a DoorController with the real adapters (supplying the origin, the folder, a supporting-floor predicate and `RunService.Heartbeat`) and passes it to PlacedItemsWorld. That changes the dormant guard deliberately.
+1. **Done (prepared, not installed):** Codex built and measured the 16 × 15 × 1 module (frame raised +0.8, leaf recessed) in Studio Edit and backed it up. Installing it in StudioBuilderTemplates is still to do.
+2. **Done in the repository:** `structure_doorway_panel_01` is registered with its door metadata (validated by `DoorGeometry`; door metadata only on doorways, fail closed). Placement runs `DoorGeometry.check` for door items in `_clean` (place, move, duplicate, undo/redo, load) and as a rotate candidate filter, giving `SwingOutOfBounds`; the client preview matches. The probe requires `Frame` and `Leaf`.
+   - On the live 48 marker this removes no spot: interior edges always fit and outer edges are already `OutOfBounds`.
+3. Wire it up (not started): the bootstrap creates a `DoorAutoOpen` with `maxDoors = 2 × activeCap` (staging room) and a DoorController with the real adapters (supplying the origin, the folder, a supporting-floor predicate and `RunService.Heartbeat`) and passes it to PlacedItemsWorld. That changes the dormant guard deliberately.
 4. Studio Play checks:
    - probe;
    - Place, Rotate, Move, Duplicate, Delete, Undo and Redo;
@@ -167,4 +171,4 @@ Anything else is **unknown**: a missing input, wrong types, missing keys or extr
 - **Studio:** nothing runs there, including real CFrame maths, actual leaf poses, physics, collision and replication.
 - **Real overlap queries:** `GetPartBoundsInBox` behaviour is unverified: false positives from solid parts merely touching the box (adjacent walls could still hold a door), whether `CanCollide` alone is the right solidity test (for example parts using collision groups), meshes whose collision shape differs from their box, and characters' accessories. The oriented top is checked only against fake CFrame components.
 - **Real Players and Humanoids:** the adapters are tested only against fakes.
-- **The door module and activation:** the module isn't built and its final metadata is unknown. There's no catalog registration, placement integration or bootstrap wiring, and no avatar walk-through.
+- **The door module and activation:** the module is prepared and measured (Edit poses only: 91 sampled angles) but not installed. Catalog registration and placement integration are tested only in the Lua harness. There's no bootstrap wiring, no runtime test of frame contact, sensing or adjacent-wall overlaps, and no avatar walk-through.

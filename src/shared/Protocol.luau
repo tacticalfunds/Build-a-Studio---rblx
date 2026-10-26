@@ -73,6 +73,7 @@ Protocol.Codes = {
 	HistoryConflict = "HistoryConflict",
 	StaleRevision = "StaleRevision",
 	OffGrid = "OffGrid",
+	SwingOutOfBounds = "SwingOutOfBounds",
 	ApplyFailed = "ApplyFailed",
 	Internal = "Internal",
 }
@@ -98,6 +99,7 @@ Protocol.Messages = {
 	HistoryConflict = "That step can't be undone anymore, so it was skipped.",
 	StaleRevision = "The studio changed; check it and try again.",
 	OffGrid = "Structure pieces snap to the room grid; that spot or angle isn't on it.",
+	SwingOutOfBounds = "The door would swing outside the build area there. Try another spot or turn it.",
 	ApplyFailed = "The change couldn't be applied; nothing was changed.",
 	Internal = "Something went wrong.",
 }

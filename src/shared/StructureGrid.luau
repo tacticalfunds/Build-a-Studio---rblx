@@ -247,6 +247,9 @@ end
 		              the larger end, - then +.
 	Cell pieces keep their position and only turn. Returns a clean transform
 	or nil, code (OutOfBounds only when every candidate is out of bounds).
+	options.accept (optional): function(clean) -> boolean. A candidate it
+	refuses is skipped like an out-of-bounds one (code OutOfBounds); the
+	caller keeps its own reason. PlacementCore uses it for door swing.
 ]]
 function StructureGrid.rotate(kind, t, direction, size, bounds, options)
 	if direction ~= 1 and direction ~= -1 then
@@ -258,8 +261,13 @@ function StructureGrid.rotate(kind, t, direction, size, bounds, options)
 	end
 	local newYaw = (current.yaw + direction * StructureGrid.YAW_STEP) % 360
 	local spec = StructureGrid.Kinds[kind]
+	local accept = options and options.accept
 	if spec.placement == "cell" then
-		return StructureGrid.validate(kind, { x = current.x, y = current.y, z = current.z, yaw = newYaw }, size, bounds, options)
+		local clean, cellCode = StructureGrid.validate(kind, { x = current.x, y = current.y, z = current.z, yaw = newYaw }, size, bounds, options)
+		if clean and accept and not accept(clean) then
+			return nil, Codes.OutOfBounds
+		end
+		return clean, cellCode
 	end
 	local ends
 	if StructureGrid.edgeAxis(current.yaw) == "x" then
@@ -280,10 +288,10 @@ function StructureGrid.rotate(kind, t, direction, size, bounds, options)
 				candidate = { x = hinge[1], y = current.y, z = hinge[2] + sign * HALF, yaw = newYaw }
 			end
 			local clean, candidateCode = StructureGrid.validate(kind, candidate, size, bounds, options)
-			if clean then
+			if clean and (accept == nil or accept(clean)) then
 				return clean
 			end
-			lastCode = candidateCode
+			lastCode = candidateCode or Codes.OutOfBounds
 		end
 	end
 	return nil, lastCode

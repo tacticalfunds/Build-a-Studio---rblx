@@ -175,8 +175,17 @@ return function(T, H)
 		end
 	end)
 
-	T.test("dormant: only door modules reference door modules; nothing in production activates doors", function()
+	T.test("dormant: only door modules reference the runtime door modules; placement uses only the pure geometry; nothing in production activates doors", function()
 		local DOOR_MODULES = { "DoorGeometry", "DoorAutoOpen", "DoorSensing", "DoorController", "DoorRuntimeAdapters" }
+		-- Catalog validation, server placement and the client preview may use the
+		-- pure swept-box geometry; nothing outside the door modules may name the
+		-- state machine or the runtime layer.
+		local GEOMETRY_USERS = {
+			["src/shared/Catalog.luau"] = true,
+			["src/server/Core/PlacementCore.luau"] = true,
+			["src/client/Build/PlacementPreview.luau"] = true,
+		}
+		local geometryUsers = {}
 		for _, rel in ipairs(H.sourceList) do
 			local isDoorModule = false
 			for _, name in ipairs(DOOR_MODULES) do
@@ -185,10 +194,16 @@ return function(T, H)
 			if not isDoorModule then
 				local src = H.readFile(H.ROOT .. "/" .. rel)
 				for _, name in ipairs(DOOR_MODULES) do
-					T.eq(src:find(name, 1, true), nil, rel .. " references " .. name)
+					if name == "DoorGeometry" and GEOMETRY_USERS[rel] then
+						T.ok(src:find(name, 1, true), rel .. " uses DoorGeometry")
+						geometryUsers[#geometryUsers + 1] = rel
+					else
+						T.eq(src:find(name, 1, true), nil, rel .. " references " .. name)
+					end
 				end
 			end
 		end
+		T.eq(#geometryUsers, 3, "every allowed geometry user is in the source list")
 		-- The world's optional hook stays unused: BuilderService builds it with exactly three arguments.
 		local service = H.readFile(H.ROOT .. "/src/server/Runtime/BuilderService.luau")
 		local args = service:match("PlacedItemsWorld%.new(%b())")

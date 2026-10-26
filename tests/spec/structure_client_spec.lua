@@ -22,6 +22,8 @@ return function(T, H)
 		structure_doorway_01 = { 16, 15.000016212463379, 1 },
 		structure_floor_01 = { 16, 1, 16 },
 		structure_ceiling_01 = { 16, 1, 16 },
+		-- Prepared panel door wall: closed module bounds from its manifest.
+		structure_doorway_panel_01 = { 16, 15, 1 },
 		cozy_plant_01 = { 2.93, 5.72, 2.93 },
 	}
 	local KIND = {
@@ -122,6 +124,39 @@ return function(T, H)
 			end
 		end
 		H.note("structure preview/server parity: " .. checked .. " placements compared")
+	end)
+
+	T.test("parity: the panel door ghost applies the server's swept-box check (SwingOutOfBounds) at every yaw on both markers", function()
+		local DOOR = "structure_doorway_panel_01"
+		local door = Catalog.getItem(DOOR).door
+		local checked, swing = 0, 0
+		for _, bounds in ipairs({ LIVE, FUTURE }) do
+			for x = -30, 30, 3.5 do
+				for z = -30, 30, 3.5 do
+					for _, yaw in ipairs({ 0, 90, 180, 270 }) do
+						local ctx = { size = SIZES[DOOR], yaw = yaw, bounds = bounds, snap = true, config = Config, structureKind = "doorway", door = door }
+						local p = PlacementPreview.compute(hit(x, z), ctx)
+						local r = serverFor(bounds).place(DOOR, p.transform)
+						checked = checked + 1
+						T.eq(r.ok, p.valid, DOOR .. " at " .. x .. "," .. z .. " yaw " .. yaw)
+						if not p.valid then
+							T.eq(r.code, p.code, "same code at " .. x .. "," .. z .. " yaw " .. yaw)
+							if p.code == "SwingOutOfBounds" then swing = swing + 1 end
+						end
+						-- Without door metadata the same spot is judged by the grid alone.
+						ctx.door = nil
+						local plain = PlacementPreview.compute(hit(x, z), ctx)
+						T.ok(plain.valid or not p.valid, "the swing check only ever removes spots")
+					end
+				end
+			end
+		end
+		T.ok(swing > 0, "outward-facing outer edges on the 49 marker are SwingOutOfBounds")
+		-- Malformed metadata fails closed in the preview too.
+		local bad = PlacementPreview.compute(hit(0, 7), { size = SIZES[DOOR], yaw = 0, bounds = LIVE, snap = true, config = Config, structureKind = "doorway", door = { swing = "+z" } })
+		T.eq(bad.valid, false)
+		T.eq(bad.code, "UnknownItem")
+		H.note("panel door preview/server parity: " .. checked .. " placements compared, " .. swing .. " swing refusals")
 	end)
 
 	-- BuildSession -------------------------------------------------------------------------------
@@ -261,7 +296,7 @@ return function(T, H)
 		T.deepEq(ids(env.drawer.items), { "structure_floor_01", "structure_floor_oak_01", "structure_floor_walnut_01", "structure_floor_concrete_01", "structure_floor_slate_01" })
 		local expected = {
 			{ "wall", { "structure_wall_01", "structure_wall_wood_01", "structure_wall_brick_01", "structure_industrial_wall_01", "structure_acoustic_wall_01" } },
-			{ "doorway", { "structure_doorway_01", "structure_doorway_wide_01" } },
+			{ "doorway", { "structure_doorway_01", "structure_doorway_wide_01", "structure_doorway_panel_01" } },
 			{ "ceiling", { "structure_ceiling_01", "structure_ceiling_dark_01", "structure_ceiling_acoustic_01" } },
 			{ "window_wall", { "structure_window_wall_01", "structure_window_black_01", "structure_glass_partition_01" } },
 		}
@@ -400,5 +435,32 @@ return function(T, H)
 		env.reply = function() return { ok = false, code = "OffGrid", reason = "BadLevel", status = { state = "ready", revision = env.revision } } end
 		env.drawer.callbacks.onRotate()
 		T.eq(env.drawer.footer, Protocol.message("OffGrid"))
+	end)
+	T.test("controller: the panel door ghost is invalid where its swing leaves the build area; nothing is sent and the footer explains", function()
+		local env = setup(FUTURE)
+		env.c:open()
+		env.drawer.callbacks.onCategory("structure")
+		env.c:chooseItem("structure_doorway_panel_01")
+		T.eq(env.c.session.itemKind, "doorway")
+		env.c:onPointerMoved(at(3, 23.6), "touch")
+		T.deepEq(lastGhost(env).t, { x = 0, y = 0, z = 24, yaw = 0 })
+		T.eq(lastGhost(env).valid, true, "facing into the room on the 49 marker")
+		env.c:rotate()
+		env.c:rotate()
+		T.deepEq(lastGhost(env).t, { x = 0, y = 0, z = 24, yaw = 180 })
+		T.eq(lastGhost(env).valid, false, "facing out of the room")
+		local sent = #env.requests
+		env.c:onPointerPressed(at(3, 23.6), "mouse")
+		T.eq(lastGhost(env).valid, false)
+		T.eq(#env.requests, sent, "nothing is sent")
+		T.eq(env.c.session.message, Protocol.message("SwingOutOfBounds"))
+		env.c:onPointerMoved(at(3, -23.6), "touch")
+		T.deepEq(lastGhost(env).t, { x = 0, y = 0, z = -24, yaw = 180 })
+		env.drawer.callbacks.onPlaceHere()
+		T.deepEq(lastOp(env), { op = "Place", itemId = "structure_doorway_panel_01", transform = { x = 0, y = 0, z = -24, yaw = 180 } })
+		-- The plain doorway on the same outward spot is valid (it has no swing).
+		env.c:chooseItem("structure_doorway_01")
+		env.c:onPointerMoved(at(3, 23.6), "touch")
+		T.eq(lastGhost(env).valid, true)
 	end)
 end

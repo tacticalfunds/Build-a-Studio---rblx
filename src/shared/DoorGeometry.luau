@@ -1,7 +1,9 @@
 --[[
 	DoorGeometry: pure swing-volume maths for a hinged door leaf (panel door
-	plan, docs/panel-door-plan.md). No Roblox types. NOT referenced by any
-	live entry point, the catalog, StructureGrid or the placement path yet.
+	plan, docs/panel-door-plan.md). No Roblox types. Used by the Catalog
+	validator (door metadata), PlacementCore and the client preview (swept
+	box must fit the bounds: SwingOutOfBounds). The auto-open runtime that
+	would move a leaf stays dormant.
 
 	Metadata (template-local studs, module pivot at the bottom centre of the
 	CLOSED module; the leaf is described closed):

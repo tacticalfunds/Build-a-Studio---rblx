@@ -117,14 +117,14 @@ return function(T, H)
 
 	-- Catalog / listing interfaces --------------------------------------------------------
 
-	T.test("catalog: only the 18 registered structure pieces carry structure; metadata is optional and strictly validated", function()
+	T.test("catalog: only the 19 registered structure pieces carry structure; metadata is optional and strictly validated", function()
 		local kinds = {}
 		for _, item in ipairs(Catalog.Items) do
 			if item.structure ~= nil then
 				kinds[item.id] = item.structure.kind
 			end
 		end
-		T.eq(#Catalog.Items, 67)
+		T.eq(#Catalog.Items, 68)
 		for i = 1, 31 do
 			T.eq(Catalog.Items[i].structure, nil, Catalog.Items[i].id .. " (furniture)")
 		end
@@ -139,6 +139,7 @@ return function(T, H)
 			structure_window_black_01 = "window_wall", structure_doorway_wide_01 = "doorway",
 			structure_glass_partition_01 = "window_wall", structure_ceiling_acoustic_01 = "ceiling",
 			structure_industrial_wall_01 = "wall", structure_acoustic_wall_01 = "wall",
+			structure_doorway_panel_01 = "doorway",
 		})
 		local collections = { { id = "cozy", displayName = "Cozy" } }
 		local function check(structure)

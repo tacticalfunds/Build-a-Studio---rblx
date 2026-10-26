@@ -3,8 +3,12 @@
 
 	Pure core: TemplateCatalog.build(catalog, probe) where
 		probe(itemId) -> nil                      template not installed
-		              -> { size = { x, y, z } }   installed (measured bounds, studs)
+		              -> { size = { x, y, z }, models = { [childName] = true } }
+		                                          installed (measured bounds, studs; models =
+		                                          names of direct Model children)
 		              (raising an error marks the entry invalid)
+	Door items (catalog `door` metadata) additionally need `Frame` and `Leaf`
+	Model children reported by the probe, or they are "invalid" (fail closed).
 	Each item ends up "installed", "not_installed" or "invalid". Only installed
 	items may be placed; the UI shows the others as disabled "not installed" cards.
 
@@ -58,10 +62,13 @@ function TemplateCatalog.build(catalog, probe)
 			entry = { status = Status.NotInstalled }
 		else
 			local size = type(result) == "table" and cleanSize(result.size) or nil
-			if size then
-				entry = { status = Status.Installed, size = size }
-			else
+			local models = type(result) == "table" and type(result.models) == "table" and result.models or {}
+			if size == nil then
 				entry = { status = Status.Invalid, reason = "bad size" }
+			elseif item.door ~= nil and (models.Frame ~= true or models.Leaf ~= true) then
+				entry = { status = Status.Invalid, reason = "door template needs Frame and Leaf models" }
+			else
+				entry = { status = Status.Installed, size = size }
 			end
 		end
 		entries[item.id] = entry
@@ -140,7 +147,13 @@ function TemplateCatalog.serverStorageProbe()
 		if (pivot.Position - bottomCentre.Position).Magnitude > 0.05 then
 			error("template pivot is not at the bottom centre")
 		end
-		return { size = { size.X, size.Y, size.Z } }
+		local models = {}
+		for _, child in ipairs(template:GetChildren()) do
+			if child:IsA("Model") then
+				models[child.Name] = true
+			end
+		end
+		return { size = { size.X, size.Y, size.Z }, models = models }
 	end
 end
 
