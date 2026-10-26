@@ -694,6 +694,19 @@ Catalog.Items = {
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.record_console_01",
 		type = "audio",
 	},
+	-- Capsule TV stand (2026-10-26): batch 02 H02_16, the TV stand from the
+	-- free Futuristic Furniture by SebbyTheGODKid, turned +90, scaled 0.8 and
+	-- given a muted finish by Codex
+	-- (docs/assets/Capsule_TV_Stand_Registration_2026-10-26.json). Static
+	-- decorative storage; no TV included. Prepared only: not in
+	-- StudioBuilderTemplates, not live.
+	{
+		id = "future_capsule_tv_stand_01",
+		displayName = "Capsule TV Stand",
+		collections = { "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.future_capsule_tv_stand_01",
+		type = "storage",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

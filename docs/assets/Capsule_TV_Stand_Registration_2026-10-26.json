@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared, inspected and visually reviewed by Codex in Studio Edit; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates, NOT runtime tested and NOT in the 70-item backup. Live Build count remains 70 (50 furniture, 20 structure); repository count 71 (51 furniture, 20 structure).",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of a9fb8eb (not an export file); the facts below are recorded as supplied. Codex's local reconstruct script is not in this repository.",
+  "source": {
+    "name": "Futuristic Furniture",
+    "creator": "SebbyTheGODKid",
+    "creatorStoreAssetId": "1375085945",
+    "free": true,
+    "sourceChild": "Fururistic TV Stand by SebbyTheGODKid",
+    "batch02Candidate": "H02_16 (Future TV Stand); the original is preserved at ServerStorage.CatalogHuntPrepared02.H02_16"
+  },
+  "items": [
+    {
+      "id": "future_capsule_tv_stand_01",
+      "displayName": "Capsule TV Stand",
+      "collections": ["futuristic"],
+      "type": "storage",
+      "placement": "floor",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.future_capsule_tv_stand_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.future_capsule_tv_stand_01",
+      "reviewCopy": "Workspace.StudioAssetYard.Capsule TV Stand Prepared Review at (4540, 1, 3560)",
+      "unionOperations": 2,
+      "nestedModels": 1,
+      "anchored": true,
+      "canTouch": false,
+      "scripts": 0,
+      "joints": 0,
+      "constraints": 0,
+      "lights": 0,
+      "seats": 0,
+      "decals": 0,
+      "adaptation": "Prepared clone: yaw turned +90 degrees so the width lies on X, scaled uniformly by 0.8, identity bottom-centre pivot. No geometry added.",
+      "finish": {
+        "note": "Deliberately toned down from the original",
+        "AccentInlay": { "from": "white Neon", "to": "muted teal SmoothPlastic", "colorRGB": [58, 124, 130], "usePartColor": true },
+        "ConsoleShell": { "from": "translucent Glass", "to": "opaque dark Metal", "colorRGB": [57, 67, 76], "usePartColor": true }
+      },
+      "pivot": "Identity bottom-centre pivot",
+      "size": [11.736886, 3.647831, 2.608202],
+      "sizeSource": "GetBoundingBox",
+      "staticChecks": "World-corner AABB matches within 0.00002; minimum Y -0.000002742 (floating-point precision); all four cardinal AABBs checked in Edit",
+      "look": "Capsule-shaped open console with a flat top, a dark shell and a teal inner rim",
+      "functionality": "Static decorative storage stand only: no TV included, no playback, drawers, light, seating or new mechanics. Tabletop interaction and physics are not validated.",
+      "visualReview": "Front and rear checked by Codex in native Studio. Static Edit inspection only: no Build UI, placement runtime, Play, avatar, remote or save/load validation."
+    }
+  ],
+  "batch02Tally": "8 installed (future_speaker_01, future_layered_coffee_table_01, cozy_tufted_leather_sofa_01, structure_industrial_wall_01, structure_acoustic_wall_01, future_drawer_cabinet_01, structure_window_arch_01, record_console_01); 14 pending, including this H02_16 piece (registered, integration pending).",
+  "backup": "NOT included in the latest full-place backup (StudioBuilder-FullBackup-70Items-2026-10-26.rbxl), which predates this preparation.",
+  "historicalRecords": "docs/assets/Catalog_Hunt_Batch02_2026-10-26.json and docs/assets/Futuristic_Furniture_Registration_2026-10-26.json are unchanged."
+}

@@ -29,7 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | **50 installed** (repository 50; the record console has static Edit checks only); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
+| 8 | More collection themes | 6 | **50 installed** (repository 51: the capsule TV stand is registered, Studio integration pending; the record console has static Edit checks only); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (20 pieces and R rotation installed; 18 remote-tested in Play, the panel door wall and arched window wall static Edit checks only; physical R-key/UI, visual QA and doorway clearance pending) |
 | 11 | Existing room assets in Build (user request) | 8 (+ inspected manifest from Codex) | In progress (11 installed, including the panel door wall: static Edit checks only, auto-open disabled; the laptop and the metal door remaining) |
@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 70 installed in total (50 furniture, 20 structure; live = repository 70; see task 11 for the room extractions; see task 10 for the structure pieces; the first 6 batch 02 pieces passed remote Place→Rotate→Delete, the arched window wall and the record console have static Edit checks only); batch 02: 8 installed, 14 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 70 installed in total (50 furniture, 20 structure; repository 71 with the capsule TV stand registered and pending integration; see task 11 for the room extractions; see task 10 for the structure pieces; the first 6 batch 02 pieces passed remote Place→Rotate→Delete, the arched window wall and the record console have static Edit checks only); batch 02: 8 installed, 14 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -1620,3 +1620,20 @@ Make the assets already used in the six existing rooms available in the Build dr
   - **Counts:** live 70 = repository 70 (50 furniture, 20 structure); batch 02 at 8 installed (H02_12 now installed), 14 pending; task 11 unchanged at 11 installed, 2 remaining.
   - **Next (Codex, independent):** preparing another pending model.
   - Documentation only: no code, UI or marketing change.
+- Capsule TV stand registration (repository only; **prepared, NOT installed**; Studio integration pending). Batch 02 candidate H02_16.
+  - **Item:** `future_capsule_tv_stand_01`, "Capsule TV Stand", type `storage`, collection futuristic, sourceRef `ServerStorage.StudioBuilderPreparedAssets.future_capsule_tv_stand_01`. It is appended as item 71 and lists last under Futuristic > Storage.
+  - **Source:** the free "Futuristic Furniture" pack by SebbyTheGODKid (asset 1375085945), child "Fururistic TV Stand by SebbyTheGODKid". The original is preserved at `ServerStorage.CatalogHuntPrepared02.H02_16`. The catalog entry carries no credit or asset ID field; provenance is in the manifest.
+  - **Preparation (Codex, Studio Edit):**
+    - the prepared clone was turned +90° so its width lies on X, scaled uniformly by 0.8, with an identity bottom-centre pivot;
+    - size from GetBoundingBox [11.736886, 3.647831, 2.608202]; the world-corner AABB matches within 0.00002, and the minimum Y of -0.000002742 is floating-point precision; all four cardinal AABBs checked;
+    - 2 UnionOperations and 1 nested Model, all anchored, CanTouch false; zero scripts, joints, constraints, Lights, Seats and decals;
+    - finish deliberately toned down: the white Neon AccentInlay became muted teal SmoothPlastic (RGB 58, 124, 130) and the translucent Glass ConsoleShell became opaque dark Metal (RGB 57, 67, 76), both with UsePartColor; no geometry added;
+    - look: a capsule-shaped open console with a flat top, a dark shell and a teal inner rim; front and rear native Studio visual checks passed.
+  - **Static decorative storage only:** no TV included; no playback, drawers, light, seating or new mechanics. Tabletop interaction and physics are not validated.
+  - **Not validated:** no Build UI, placement runtime, Play, avatar, remote or save/load test. Review copy: `Workspace.StudioAssetYard.Capsule TV Stand Prepared Review` at (4540, 1, 3560). Codex's local reconstruct script is not in this repository.
+  - **Manifest:** [`docs/assets/Capsule_TV_Stand_Registration_2026-10-26.json`](docs/assets/Capsule_TV_Stand_Registration_2026-10-26.json). The batch 02 hunt record and the futuristic furniture manifest are unchanged. **Backup:** not in the 70-item backup.
+  - **Tests:**
+    - 1 new catalog test: exact fields against the manifest (including the finish changes); classified as storage, not a screen; the H02_16 source in the batch 02 record and the preserved original; prepared-only status; floor placement with the measured bounds (centre, X edge, turned 90°, below the floor); last under Futuristic > Storage and absent from Screens, the other styles and Structure mode;
+    - updated: item count 71, furniture 51, futuristic furniture 20, the reviewed type map, the futuristic type summary (storage 3), the futuristic storage list in the drawer cabinet test, the futuristic-prefix check in the batch 02 test, the prepared-copy list and the provenance list;
+    - **420 passed, 0 failed**; classifying it as a screen or adding a second collection fails tests.
+  - **Counts:** repository **71** (51 furniture, 20 structure); live **70** (50 furniture, 20 structure; 4 Windows; doors disabled) until Codex installs it. Batch 02 stays at 8 installed and 14 pending; this stand becomes the ninth installed piece only after integration. Task 11 unchanged at 11 installed, 2 remaining.
