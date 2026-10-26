@@ -427,6 +427,25 @@ Catalog.Items = {
 		sourceRef = "ServerStorage.StudioBuilderTemplates.structure_doorway_01",
 		structure = { kind = "doorway" },
 	},
+	-- Futuristic furniture (2026-10-26): 2 batch 02 pieces visually reviewed and
+	-- static-checked by Codex (docs/assets/Futuristic_Furniture_Registration_2026-10-26.json).
+	-- Source: free Creator Store model by SebbyTheGODKid. Install source:
+	-- ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- Decorative only: the speaker has no playback, and neither has a Light.
+	{
+		id = "future_speaker_01",
+		displayName = "Neon Studio Speaker",
+		collections = { "futuristic" },
+		type = "audio",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.future_speaker_01",
+	},
+	{
+		id = "future_layered_coffee_table_01",
+		displayName = "Layered Neon Coffee Table",
+		collections = { "futuristic" },
+		type = "tables",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.future_layered_coffee_table_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

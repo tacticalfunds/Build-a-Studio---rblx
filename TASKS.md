@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 49 installed; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 49 installed, 2 more registered (repository 51, install pending); all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -476,6 +476,13 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
   - **Includes:** the current 49-item catalog, the 22 prepared and staged batch 02 candidates, and the 3 quarantined batch 03 sources. It supersedes the earlier "full-place backup pending" notes, which are left as written.
   - Inclusion in the backup approves nothing: batch 02 and batch 03 candidates stay pending, and Build templates stay **49**.
   - **Capture note:** the native Studio window renders normally; the earlier capture limitation is specific to automated capture. No new visual check is claimed.
+- Futuristic furniture registration (repository; Codex install pending):
+  - **Registered (2):** `future_speaker_01` (Neon Studio Speaker; audio; futuristic) and `future_layered_coffee_table_01` (Layered Neon Coffee Table; tables; futuristic), appended after the structure variants. Repository count **51**; installed Build count stays **49**.
+  - **Checks reported by Codex:** native Studio viewport inspection, and an Edit re-read of the prepared copies: zero LuaSourceContainers, all parts anchored, identity bottom-centre pivot (minY within 0.00003 studs of zero), zero Light objects. The speaker is decorative only, with no playback. The source is the free Creator Store pack Futuristic Furniture by SebbyTheGODKid, sanitized earlier.
+  - **Provenance:** `docs/assets/Futuristic_Furniture_Registration_2026-10-26.json`. The historical batch 02 manifest is unchanged.
+  - **Pending (Codex):** install the two prepared copies from `ServerStorage.StudioBuilderPreparedAssets` into `StudioBuilderTemplates`, run the TemplateCatalog probe, and do real placement tests. Also refresh the RBXL backup: the new prepared names aren't in it yet.
+  - **Not approved:** the other 20 batch 02 candidates. The Leather Sofa (H02_11) is held for a local yaw correction (about −101°) and a front and seating-clearance review.
+  - Tests: the catalog, type-count and drawer-count specs are updated for 51 items (futuristic furniture 11). There's a new manifest cross-check, and a guard that no other batch 02 candidate is registered. No UI or runtime code changed.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.

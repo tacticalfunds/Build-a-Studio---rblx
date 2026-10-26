@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-26",
+  "status": "Visually reviewed and static-checked by Codex; registered in Catalog.luau (repository). NOT yet in StudioBuilderTemplates: Codex install, probe and real placement tests pending. Installed Build count remains 49; repository count 51.",
+  "recordedFrom": "Codex native-viewport inspection and Edit-mode re-read of the prepared copies, relayed in the checkpoint request (not an export file)",
+  "source": {
+    "name": "Futuristic Furniture",
+    "creator": "SebbyTheGODKid",
+    "creatorStoreAssetId": "1375085945",
+    "free": true,
+    "sanitized": "Source pack sanitized previously; no runtime scripts retained"
+  },
+  "items": [
+    {
+      "id": "future_speaker_01",
+      "displayName": "Neon Studio Speaker",
+      "collections": ["futuristic"],
+      "type": "audio",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.future_speaker_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.future_speaker_01",
+      "batch02Candidate": "H02_13 (Future Speaker): same source pack and matching size",
+      "baseParts": 5,
+      "scripts": 0,
+      "lights": 0,
+      "anchored": true,
+      "pivot": "Identity bottom-centre pivot; minY within 0.00003 studs of zero",
+      "size": [2.20001, 3.20001, 1.09995],
+      "look": "Gray cabinet with two round grille details and a cyan edge",
+      "functionality": "Decorative only: NO audio playback and zero Light objects",
+      "visualReview": "Inspected by Codex in the native Studio viewport"
+    },
+    {
+      "id": "future_layered_coffee_table_01",
+      "displayName": "Layered Neon Coffee Table",
+      "collections": ["futuristic"],
+      "type": "tables",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.future_layered_coffee_table_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.future_layered_coffee_table_01",
+      "batch02Candidate": "H02_20 (Future Coffee Table): same source pack and matching size",
+      "baseParts": 10,
+      "scripts": 0,
+      "lights": 0,
+      "anchored": true,
+      "pivot": "Identity bottom-centre pivot; minY within 0.00003 studs of zero",
+      "size": [9, 2.20006, 5.00011],
+      "look": "Gray metal level top, layered lower shelf and cyan corner supports",
+      "functionality": "Decorative only: zero Light objects",
+      "visualReview": "Inspected by Codex in the native Studio viewport"
+    }
+  ],
+  "notApproved": [
+    "The other 20 batch 02 candidates remain pending (fit, orientation, visual and placement approval) and must not be registered.",
+    "Leather Sofa H02_11 was inspected from a rear three-quarter angle and is HELD for a local yaw correction (about -101 degrees) and a front and seating-clearance review."
+  ],
+  "backup": "The original H02 copies are in the last full-place RBXL backup (StudioBuilder-FullBackup-2026-10-25-2313.rbxl). The new StudioBuilderPreparedAssets names are NOT yet in a refreshed RBXL backup.",
+  "historicalRecords": "docs/assets/Catalog_Hunt_Batch02_2026-10-26.json is unchanged."
+}
