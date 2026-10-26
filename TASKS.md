@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 61 installed in total (43 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 61 installed in total (43 furniture, 18 structure; 1 more registered, repository 62, integration pending: the black office chair; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (4 installed: the water dispenser, the tall floor plant, the conference table and the flower pot; 9 gap-audit entries remaining)
+## 11. Existing room assets in Build (user request): In progress (4 installed: the water dispenser, the tall floor plant, the conference table and the flower pot; 9 gap-audit entries remaining, one of them, the office chair, prepared and registered with integration pending)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1021,3 +1021,33 @@ Make the assets already used in the six existing rooms available in the Build dr
     - It includes the pot's prepared, template and review copies.
     - Previous backups are kept. It is local only and not uploaded.
   - The historical registration manifest is unchanged.
+- Black office chair registration (repository; prepared and registered, integration pending, **not installed**):
+  - **Registered (1):** `studio_office_chair_01` (Black Office Chair; cozy, 1980s and futuristic), appended last.
+    - **Type:** it was requested as "chairs". The catalog has no `chairs` furniture type, so it uses the existing `seating` type, as `studio_chair_01` and the gap audit's proposal do. Adding a type would change the type chooser UI, which this checkpoint must not do.
+    - **Counts:** repository 62 (44 furniture, 18 structure). Installed stays **61** (43 furniture, 18 structure).
+  - **Source:** one Office Chair extracted from `Workspace.RoomCollection.ConferenceRoom.Chairs`. It is **not** the 12-chair group, which the gap audit flagged as needing a single-chair extraction. The original room is unchanged.
+    - The parent free model is 4993294691, per the asset guide's ConferenceRoom record.
+    - The creator is not independently verified, so no credit is recorded, and no individual chair model ID is claimed.
+    - Mesh 96065544 and texture 96065600 are recorded in the manifest only.
+  - **Prepared copy (Codex):** `ServerStorage.StudioBuilderPreparedAssets.studio_office_chair_01`; review copy `Workspace.StudioAssetYard.Office Chair Review`.
+    - **Conversion:** the same SpecialMesh was converted to a MeshPart with AssetService.CreateMeshPartAsync at its original 1.125 scale, keeping the original texture, colour, Concrete material and reflectance.
+    - **Pivot:** the intrinsic mesh extents offset was corrected to an identity bottom-centre pivot (minimum Y 0), with the front facing −Z.
+    - **Measured bounds** (GetBoundingBox): 2.283479928970337 × 4.147194385528565 × 2.346519231796265.
+    - **Contents:** 1 MeshPart; 0 LuaSourceContainers, Lights, Seats and joints; anchored, CanTouch false, Hull collision.
+    - **Excluded:** the original invisible collision proxy, the Seat and three ManualWelds.
+    - **Look:** a black high-back padded office chair with armrests, a pedestal and five caster spokes, with a subtle fabric texture. Distinct from `studio_chair_01`. Visual review performed.
+  - **Decorative placement only:** no sitting, rolling or swivel behaviour yet.
+  - **Not yet tested:** live Place, Rotate and Delete, and the UI.
+  - **Provenance:** `docs/assets/Office_Chair_Registration_2026-10-26.json`. The asset guide and the gap audit are unchanged.
+  - **Backup:** the latest full-place backup is still `StudioBuilder-FullBackup-61Items-2026-10-26-0236.rbxl`. The prepared and review copies postdate it; the original source is in it.
+  - **Pending (Codex):** install, the probe, Play Place → Rotate → Delete, then a backup.
+  - **Tallies:**
+    - task 11: 4 installed, 9 remaining until Studio install verification (the office chair prepared and registered among them);
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Tests:**
+    - counts updated: 62 items, 44 furniture; cozy 32, 1980s 22, futuristic 14; futuristic seating 3; cozy All items 32; futuristic drawer 14;
+    - a new test checks the manifest fields and facts, the seating-for-"chairs" mapping, that no new furniture type was added, that the prepared name matches the id, and that no creator, credit, model ID or mesh ID is invented or carried;
+    - it cross-checks the parent model against the asset guide, and the 12-seat group in the gap audit, confirming this is one chair, not the group footprint;
+    - floor placement with the measured bounds: corner, the X edge facing forward versus turned 90°, the Z edge, and the 24-stud height limit;
+    - it's listed last in Cozy, 1980s and Futuristic > Seating, and never in Retro, Winter or Structure mode.
+    - No UI or runtime code changed.

@@ -83,10 +83,12 @@ return function(T, H)
 	local PLANT = "studio_tall_floor_plant_01"
 	local CONFERENCE_TABLE = "studio_conference_table_01"
 	local FLOWER_POT = "studio_flower_pot_01"
+	local OFFICE_CHAIR = "studio_office_chair_01"
 
-	T.test("catalog holds 7 original, 24 expansion, 5 structure, 4 later furniture, 9 structure variant, 2 futuristic furniture, 1 sofa, 2 batch 03 structure, 1 industrial wall, 1 acoustic wall, 1 drawer cabinet, 1 water dispenser, 1 tall floor plant, 1 conference table and 1 flower pot ID, earlier entries unchanged in order", function()
-		T.eq(#Catalog.Items, 61, "item count")
-		T.eq(Catalog.Items[61].id, FLOWER_POT, "the flower pot is appended last")
+	T.test("catalog holds 7 original, 24 expansion, 5 structure, 4 later furniture, 9 structure variant, 2 futuristic furniture, 1 sofa, 2 batch 03 structure, 1 industrial wall, 1 acoustic wall, 1 drawer cabinet, 1 water dispenser, 1 tall floor plant, 1 conference table, 1 flower pot and 1 office chair ID, earlier entries unchanged in order", function()
+		T.eq(#Catalog.Items, 62, "item count")
+		T.eq(Catalog.Items[61].id, FLOWER_POT, "the flower pot follows the conference table")
+		T.eq(Catalog.Items[62].id, OFFICE_CHAIR, "the office chair is appended last")
 		T.eq(Catalog.Items[59].id, PLANT, "the tall floor plant follows the water dispenser")
 		T.eq(Catalog.Items[60].id, CONFERENCE_TABLE, "the conference table follows the tall floor plant")
 		T.eq(Catalog.Items[57].id, CABINET, "the drawer cabinet follows the acoustic wall")
@@ -139,7 +141,8 @@ return function(T, H)
 		-- Tall floor plant: cozy, retro and 1980s.
 		-- Conference table: cozy, 1980s and futuristic.
 		-- Red flower pot: cozy, retro, 1980s and winter.
-		local expected = { cozy = 31, retro = 23, ["1980s"] = 21, winter = 14, futuristic = 13 }
+		-- Black office chair: cozy, 1980s and futuristic.
+		local expected = { cozy = 32, retro = 23, ["1980s"] = 22, winter = 14, futuristic = 14 }
 		for _, c in ipairs(Catalog.Collections) do
 			T.eq(#Catalog.getFurnitureTagged(c.id), expected[c.id], c.id .. " furniture count")
 			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id] + structureTags[c.id], c.id .. " raw tag count (structure pieces included)")
@@ -298,7 +301,7 @@ return function(T, H)
 			end
 			expectedInspected[#expectedInspected + 1] = a.id
 		end
-		T.eq(#Catalog.Items, base + #APPROVED_TRACKED + #VARIANT_ORDER + #FUTURISTIC_FURNITURE + 1 + #BATCH03_ORDER + 7, "only the structure variants, futuristic furniture, the sofa, the batch 03 structure, the two prepared walls, the drawer cabinet and the four room extractions follow the approved tracked items")
+		T.eq(#Catalog.Items, base + #APPROVED_TRACKED + #VARIANT_ORDER + #FUTURISTIC_FURNITURE + 1 + #BATCH03_ORDER + 8, "only the structure variants, futuristic furniture, the sofa, the batch 03 structure, the two prepared walls, the drawer cabinet and the five room extractions follow the approved tracked items")
 		expectedInspected[#expectedInspected + 1] = "structure_wall_brick_01" -- the tracked White Brick Wall, resized (structure manifest)
 		local inspected = {}
 		for _, item in ipairs(Catalog.Items) do
@@ -445,7 +448,7 @@ return function(T, H)
 				prepared[#prepared + 1] = it.id
 			end
 		end
-		T.deepEq(prepared, { "future_speaker_01", "future_layered_coffee_table_01", SOFA, BATCH03_ORDER[1], BATCH03_ORDER[2], INDUSTRIAL_WALL, ACOUSTIC_WALL, CABINET, DISPENSER, PLANT, CONFERENCE_TABLE, FLOWER_POT })
+		T.deepEq(prepared, { "future_speaker_01", "future_layered_coffee_table_01", SOFA, BATCH03_ORDER[1], BATCH03_ORDER[2], INDUSTRIAL_WALL, ACOUSTIC_WALL, CABINET, DISPENSER, PLANT, CONFERENCE_TABLE, FLOWER_POT, OFFICE_CHAIR })
 	end)
 
 	T.test("batch 03 structure: registered exactly from its manifest, on the grid module, provenance kept out of the catalog", function()
@@ -943,6 +946,83 @@ return function(T, H)
 		end
 	end)
 
+	T.test("black office chair: one chair registered exactly from its manifest as cozy/1980s/futuristic seating; decorative (no Seat); floor placement fits its bounds", function()
+		local Transform = H.load("src/shared/Transform")
+		local Config = H.load("src/shared/Config")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Office_Chair_Registration_2026-10-26.json")
+		local count = 0
+		for _ in manifest:gmatch('"preparedPath"') do count = count + 1 end
+		T.eq(count, 1, "manifest items")
+		local item = Catalog.getItem(OFFICE_CHAIR)
+		T.ok(item ~= nil, OFFICE_CHAIR)
+		T.eq(item.displayName, "Black Office Chair")
+		-- Chairs use the existing seating type; there is no separate chairs type in the chooser.
+		T.eq(item.type, "seating")
+		T.eq(Catalog.getFurnitureType("chairs"), nil, "no new furniture type was added")
+		T.eq(#Catalog.FurnitureTypes, 9, "the type list is unchanged")
+		T.eq(item.structure, nil, "furniture, not structure")
+		T.deepEq(item.collections, { "cozy", "1980s", "futuristic" })
+		T.eq(item.credit, nil, "no credit: the creator is not verified")
+		T.eq(item.sourceRef, "ServerStorage.StudioBuilderPreparedAssets." .. OFFICE_CHAIR, "prepared name matches its id")
+		local at = manifest:find('"id": "' .. OFFICE_CHAIR .. '"', 1, true)
+		T.ok(at, "id in manifest")
+		local entry = manifest:sub(at, manifest:find('"visualReview"', at, true))
+		T.ok(entry:find('"displayName": "' .. item.displayName .. '"', 1, true), "displayName")
+		T.ok(entry:find('"type": "seating"', 1, true) and entry:find("Requested as 'chairs'", 1, true), "type mapping recorded")
+		T.ok(entry:find('"collections": ["cozy", "1980s", "futuristic"]', 1, true), "collections in manifest")
+		T.ok(entry:find('"sourceRef": "' .. item.sourceRef .. '"', 1, true), "sourceRef")
+		T.ok(entry:find('"preparedPath": "' .. item.sourceRef .. '"', 1, true), "install source")
+		for _, fact in ipairs({ '"baseParts": 1,', '"partClass": "MeshPart",', '"scripts": 0,', '"lights": 0,', '"seats": 0,', '"joints": 0,', '"anchored": true,', '"canTouch": false,', '"collisionFidelity": "Hull",', '"front": "-Z",' }) do
+			T.ok(entry:find(fact, 1, true), fact)
+		end
+		T.ok(entry:find("original scale of 1.125", 1, true), "conversion at the original scale")
+		T.ok(entry:find("the Seat and three ManualWelds", 1, true), "excluded Seat and welds recorded")
+		T.ok(entry:find("no sitting, rolling or swivel behaviour", 1, true), "decorative only")
+		T.ok(manifest:find("NOT the 12-chair group", 1, true), "a single chair, not the group")
+		T.ok(manifest:find('"creator": "Not independently verified; not recorded (no credit)"', 1, true), "creator not invented")
+		T.ok(manifest:find("not an individual chair model", 1, true), "no individual chair model ID claimed")
+		T.ok(manifest:find('"meshId": "rbxassetid://96065544"', 1, true) and manifest:find('"textureId": "rbxassetid://96065600"', 1, true), "mesh content recorded")
+		local guide = H.readFile(H.ROOT .. "/docs/assets/Studio_Asset_Guide_2026-10-25.json")
+		local room = guide:find('"name": "ConferenceRoom"', 1, true)
+		T.ok(room and guide:sub(room, room + 800):find("Source4993294691", 1, true), "the asset guide records the parent model")
+		for key, value in pairs(item) do
+			T.ok(key ~= "sourceAssetId" and key ~= "preparedPath" and key ~= "placement" and key ~= "reviewCopy" and key ~= "meshContent" and key ~= "credit" and key ~= "seat", OFFICE_CHAIR .. " carries " .. key)
+			T.ok(type(value) ~= "string" or not value:find("9606", 1, true), OFFICE_CHAIR .. "." .. key .. " carries no mesh ID")
+		end
+		-- The gap audit lists the 12-seat group at this path; the registered item is one chair, much smaller than the group.
+		local audit = H.readFile(H.ROOT .. "/docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json")
+		local auditAt = audit:find('"displayName": "Office chairs"', 1, true)
+		T.ok(auditAt, "gap audit entry exists")
+		local auditEntry = audit:sub(audit:sub(1, auditAt):match(".*(){") or 1, (audit:find("}", auditAt, true)))
+		T.ok(auditEntry:find("Workspace.RoomCollection.ConferenceRoom.Chairs", 1, true), "same source group as the gap audit")
+		T.ok(auditEntry:find('"seats": 12', 1, true), "the audited group holds 12 seats")
+		T.ok(auditEntry:find('"seating"', 1, true), "the gap audit proposed type seating")
+		local sx, sy, sz = entry:match('"size": %[([%d%.]+), ([%d%.]+), ([%d%.]+)%]')
+		local size = { tonumber(sx), tonumber(sy), tonumber(sz) }
+		local gx, _, gz = auditEntry:match('"size":%s*%[%s*([%d%.]+),%s*([%d%.]+),%s*([%d%.]+)%s*%]')
+		T.ok(size[1] < tonumber(gx) / 5 and size[3] < tonumber(gz) / 5, "one chair, not the group footprint")
+		-- Floor placement (half extents 1.1417 x 1.1733) inside the live 48 marker.
+		local live = { halfX = 24, halfZ = 24, height = 24 }
+		local function place(x, y, z, yaw) return Transform.sanitize({ x = x, y = y, z = z, yaw = yaw }, size, live, Config) end
+		T.deepEq(place(0, 0, 0, 0), { x = 0, y = 0, z = 0, yaw = 0 }, "on the floor at the centre")
+		T.ok(place(22.8, 0, -22.8, 0) ~= nil, "fits in a corner")
+		T.ok(place(22.85, 0, 0, 0) ~= nil, "its 2.28 width fits at x = 22.85")
+		T.eq(select(2, place(22.85, 0, 0, 90)), "OutOfBounds", "turned 90 degrees, its 2.35 depth overhangs at x = 22.85")
+		T.eq(select(2, place(0, 0, 22.9, 0)), "OutOfBounds", "its 2.35 depth overhangs the Z edge at z = 22.9")
+		T.eq(select(2, place(0, 19.9, 0, 0)), "OutOfBounds", "its 4.15 height must stay under the 24 ceiling")
+		-- Filters: Cozy, 1980s and Futuristic > Seating, after the earlier chairs; never Retro, Winter or Structure mode.
+		for _, tag in ipairs(item.collections) do
+			local seating = Catalog.getFurnitureByType(tag, "seating")
+			T.eq(seating[#seating].id, OFFICE_CHAIR, "last in " .. tag .. " > Seating")
+		end
+		for _, tag in ipairs({ "retro", "winter" }) do
+			for _, f in ipairs(Catalog.getFurnitureTagged(tag)) do T.ok(f.id ~= OFFICE_CHAIR, tag .. " excludes the office chair") end
+		end
+		for _, f in ipairs(Catalog.StructureFilters) do
+			for _, s in ipairs(Catalog.getStructureItems(f.id)) do T.ok(s.id ~= OFFICE_CHAIR, f.id .. " excludes the office chair") end
+		end
+	end)
+
 	T.test("sorted collections follow declared order", function()
 		local sorted = Catalog.getCollectionsSorted()
 		for i = 2, #sorted do
@@ -962,7 +1042,7 @@ return function(T, H)
 
 	T.test("every sourceRef exists in the committed asset guide or expansion manifest (no invented sources)", function()
 		local guide = H.readFile(H.ROOT .. "/docs/assets/Studio_Asset_Guide_2026-10-25.json")
-		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_Expansion_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Futuristic_Furniture_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tufted_Leather_Sofa_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Batch03_Structure_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Industrial_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Acoustic_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Drawer_Cabinet_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Water_Dispenser_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tall_Floor_Plant_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Conference_Table_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Flower_Pot_Registration_2026-10-26.json")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_Expansion_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Futuristic_Furniture_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tufted_Leather_Sofa_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Batch03_Structure_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Industrial_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Acoustic_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Drawer_Cabinet_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Water_Dispenser_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tall_Floor_Plant_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Conference_Table_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Flower_Pot_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Office_Chair_Registration_2026-10-26.json")
 		for _, item in ipairs(Catalog.Items) do
 			local inGuide = string.find(guide, '"path": "' .. item.sourceRef .. '"', 1, true) or string.find(guide, '"path":"' .. item.sourceRef .. '"', 1, true)
 			local inManifest = string.find(manifest, '"sourceRef": "' .. item.sourceRef .. '"', 1, true)

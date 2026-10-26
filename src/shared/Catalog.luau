@@ -561,6 +561,19 @@ Catalog.Items = {
 		type = "plants",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_flower_pot_01",
 	},
+	-- Black office chair (2026-10-26): one chair extracted by Codex from the
+	-- existing Conference Room's chair group
+	-- (docs/assets/Office_Chair_Registration_2026-10-26.json); the room is
+	-- unchanged. Install source: ServerStorage.StudioBuilderPreparedAssets.<id>;
+	-- Studio install pending. Decorative only: it has no Seat, and it doesn't
+	-- roll or swivel.
+	{
+		id = "studio_office_chair_01",
+		displayName = "Black Office Chair",
+		collections = { "cozy", "1980s", "futuristic" },
+		type = "seating",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_office_chair_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

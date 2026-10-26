@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually reviewed by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates; live Place/Rotate/Delete and UI not yet tested. Installed Build count remains 61 (43 furniture, 18 structure); repository count 62.",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of 8271282 (not an export file)",
+  "kind": "Existing-room extraction (task 11); not a batch 02 or batch 03 candidate",
+  "source": {
+    "extractedFrom": "One Office Chair from Workspace.RoomCollection.ConferenceRoom.Chairs (NOT the 12-chair group)",
+    "gapAuditEntry": "Office chairs (docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json), a 12-seat group; the audit asked for a single chair to be extracted",
+    "parentModel": "ConferenceRoom",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, ConferenceRoom (path ServerStorage.PodcastAssetStaging.ConferenceRoom), preparation 'Source4993294691'",
+    "parentFreeModelAssetId": "4993294691",
+    "creator": "Not independently verified; not recorded (no credit)",
+    "chairModelAssetId": "None claimed: 4993294691 is the parent room model, not an individual chair model",
+    "meshContent": { "meshId": "rbxassetid://96065544", "textureId": "rbxassetid://96065600" },
+    "originalRoomSource": "Unchanged"
+  },
+  "items": [
+    {
+      "id": "studio_office_chair_01",
+      "displayName": "Black Office Chair",
+      "collections": ["cozy", "1980s", "futuristic"],
+      "type": "seating",
+      "typeNote": "Requested as 'chairs'. The catalog has no 'chairs' furniture type; chairs use the existing 'seating' type (as studio_chair_01 and the gap audit's proposedType do). Adding a new type would change the type chooser UI, so 'seating' is used.",
+      "placement": "Existing furniture placement (decorative only); no new placement metadata",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.studio_office_chair_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.studio_office_chair_01",
+      "reviewCopy": "Workspace.StudioAssetYard.Office Chair Review",
+      "baseParts": 1,
+      "partClass": "MeshPart",
+      "scripts": 0,
+      "lights": 0,
+      "seats": 0,
+      "joints": 0,
+      "anchored": true,
+      "canTouch": false,
+      "collisionFidelity": "Hull",
+      "adaptation": "The same SpecialMesh was converted to a MeshPart with AssetService.CreateMeshPartAsync at its original scale of 1.125, preserving the original texture, colour, Concrete material and reflectance. The intrinsic mesh extents offset was corrected to an identity bottom-centre pivot. Excluded from the original: the invisible collision proxy, the Seat and three ManualWelds.",
+      "rotation": "Identity",
+      "pivot": "Identity bottom-centre pivot; minimum Y 0",
+      "front": "-Z",
+      "size": [2.283479928970337, 4.147194385528565, 2.346519231796265],
+      "sizeSource": "GetBoundingBox",
+      "look": "Black high-back padded office chair with armrests, a pedestal and five caster spokes, with a subtle fabric texture",
+      "distinctFrom": "Distinct from the existing studio_chair_01 (Director's Folding Chair)",
+      "functionality": "Decorative placement only: no sitting, rolling or swivel behaviour yet.",
+      "visualReview": "Visual review performed by Codex"
+    }
+  ],
+  "task11Tally": "4 installed (studio_water_dispenser_01, studio_tall_floor_plant_01, studio_conference_table_01, studio_flower_pot_01); 9 gap-audit entries remaining, including the office chair (prepared and registered, integration pending, not installed).",
+  "backup": "The prepared and review copies postdate the latest full-place backup (StudioBuilder-FullBackup-61Items-2026-10-26-0236.rbxl); the original source is in that backup.",
+  "historicalRecords": "docs/assets/Studio_Asset_Guide_2026-10-25.json and docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json are unchanged."
+}
