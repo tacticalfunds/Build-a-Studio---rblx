@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually reviewed by Codex in Edit; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates and NOT runtime tested. Installed Build count remains 60 (42 furniture, 18 structure); repository count 61.",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of ecf5181 (not an export file)",
+  "kind": "Existing-room extraction (task 11); not a batch 02 or batch 03 candidate",
+  "source": {
+    "extractedFrom": "Workspace.RoomCollection.ConferenceRoom.Flower Pot",
+    "gapAuditEntry": "Flower pot (docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json)",
+    "parentModel": "ConferenceRoom",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, ConferenceRoom (path ServerStorage.PodcastAssetStaging.ConferenceRoom), preparation 'Source4993294691'",
+    "parentFreeModelAssetId": "4993294691",
+    "creator": "Not independently verified; not recorded (no credit)",
+    "flowerPotModelAssetId": "None claimed: 4993294691 is the parent room model, not an individual flower pot model",
+    "originalRoomSource": "Unchanged"
+  },
+  "items": [
+    {
+      "id": "studio_flower_pot_01",
+      "displayName": "Red Flower Pot",
+      "collections": ["cozy", "retro", "1980s", "winter"],
+      "type": "plants",
+      "placement": "Existing furniture placement; no new placement metadata",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.studio_flower_pot_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.studio_flower_pot_01",
+      "reviewCopy": "Workspace.StudioAssetYard.Flower Pot Review at (4072, 1, 3538)",
+      "baseParts": 38,
+      "partBreakdown": "37 Parts + 1 UnionOperation",
+      "meshes": { "SpecialMesh": 19, "CylinderMesh": 4, "BlockMesh": 10 },
+      "scripts": 0,
+      "lights": 0,
+      "seats": 0,
+      "joints": 0,
+      "anchored": true,
+      "canTouch": false,
+      "adaptation": "Original geometry, scale, materials, colours and textures retained; no geometry added. Anchored, touch disabled, pivot normalized.",
+      "rotation": "Identity",
+      "pivot": "Identity bottom-centre pivot; negligible bounding-centre X offset of 0.000029712915420532228 from float rounding",
+      "size": [1.9535508155822755, 2.915562868118286, 1.935222864151001],
+      "sizeNote": "Differs from the gap audit size by under 1e-6 on every axis.",
+      "look": "Stylized red blossoms and green leaves on dark textured stems in an orange terracotta-style pot with textured soil",
+      "distinctFrom": "Distinct from the installed green-only plants (Codex check)",
+      "functionality": "Decorative only: no sway and no interactions.",
+      "visualReview": "Native Studio visual review passed (Codex)"
+    }
+  ],
+  "task11Tally": "3 installed (studio_water_dispenser_01, studio_tall_floor_plant_01, studio_conference_table_01); 10 gap-audit entries pending, including this flower pot (registered, integration pending).",
+  "backup": "The prepared and review copies postdate the latest full-place backup (StudioBuilder-FullBackup-60Items-2026-10-26-0216.rbxl); the original room source is in that backup.",
+  "historicalRecords": "docs/assets/Studio_Asset_Guide_2026-10-25.json and docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json are unchanged."
+}

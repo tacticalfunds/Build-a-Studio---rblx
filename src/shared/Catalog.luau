@@ -549,6 +549,18 @@ Catalog.Items = {
 		type = "tables",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_conference_table_01",
 	},
+	-- Red flower pot (2026-10-26): extracted by Codex from the existing
+	-- Conference Room (docs/assets/Flower_Pot_Registration_2026-10-26.json);
+	-- the room itself is unchanged. Install source:
+	-- ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- Decorative only: no sway and no interactions.
+	{
+		id = "studio_flower_pot_01",
+		displayName = "Red Flower Pot",
+		collections = { "cozy", "retro", "1980s", "winter" },
+		type = "plants",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_flower_pot_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

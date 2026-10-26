@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 60 installed in total (42 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 60 installed in total (42 furniture, 18 structure; 1 more registered, repository 61, integration pending: the red flower pot; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (3 installed: the water dispenser, the tall floor plant and the conference table; 10 gap-audit entries remaining)
+## 11. Existing room assets in Build (user request): In progress (3 installed: the water dispenser, the tall floor plant and the conference table; 10 gap-audit entries remaining, one of them, the red flower pot, registered with integration pending)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -968,3 +968,32 @@ Make the assets already used in the six existing rooms available in the Build dr
     - It includes the table's new prepared, template and review copies.
     - Older backups are kept. It is local only and not uploaded.
   - The historical registration manifest is unchanged.
+- Red flower pot registration (repository; Codex integration pending):
+  - **Registered (1):** `studio_flower_pot_01` (Red Flower Pot; furniture type plants; cozy, retro, 1980s and winter; existing furniture placement, no new placement metadata), appended last.
+    - **Counts:** repository 61 (43 furniture, 18 structure). Installed stays **60** (42 furniture, 18 structure).
+  - **Source:** extracted from `Workspace.RoomCollection.ConferenceRoom.Flower Pot`; this is the gap audit's "Flower pot". The original room is unchanged.
+    - The parent free model is 4993294691, per the ConferenceRoom record in the asset guide.
+    - The creator is not independently verified, so no credit is recorded, and no individual model ID is claimed.
+  - **Prepared copy (Codex, Edit):** `ServerStorage.StudioBuilderPreparedAssets.studio_flower_pot_01`.
+    - Exact bounds 1.9535508155822755 × 2.915562868118286 × 1.935222864151001, within 1e-6 of the gap audit.
+    - Identity bottom-centre pivot, with a negligible bounding-centre X offset of 0.000029712915420532228 from float rounding.
+    - 38 anchored BaseParts (37 Parts and 1 UnionOperation); 19 SpecialMeshes, 4 CylinderMeshes and 10 BlockMeshes; zero scripts, Lights, Seats and joints; CanTouch false.
+    - The original geometry, scale, materials, colours and textures were kept, and no geometry was added.
+    - Native visual review: stylized red blossoms and green leaves on dark textured stems in an orange terracotta-style pot with textured soil. It's distinct from the installed green-only plants.
+    - Review copy: `Workspace.StudioAssetYard.Flower Pot Review` at (4072, 1, 3538).
+  - **Decorative only:** no sway and no interactions.
+  - **Provenance:** `docs/assets/Flower_Pot_Registration_2026-10-26.json`. The asset guide and the gap audit are unchanged.
+  - **Backup:** the prepared and review copies postdate the 60-item backup; the original room source is in it.
+  - **Pending (Codex):** install, the probe, Play Place → Rotate → Delete, then a backup.
+  - **Tallies:**
+    - task 11: 3 installed, 10 pending (the pot registered among them, awaiting integration);
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Tests:**
+    - counts updated: 61 items, 43 furniture; cozy 31, retro 23, 1980s 21, winter 14; winter plants 2; cozy All items 31;
+    - a new test checks the manifest fields and facts (parts, meshes, decorative, no new placement metadata), that the prepared name matches the id, and that no creator, credit or model ID is invented;
+    - it cross-checks the parent model against the asset guide, and the source path, type and every axis (within 1e-6) against the gap audit;
+    - floor placement: corner, X edge, turned 90°, and not below the floor;
+    - elevated placement under the same furniture rules: on a 3.3-stud tabletop, at y = 21 (fits), and at y = 21.1 (through the 24-stud ceiling);
+    - it's listed last in Cozy, Retro, 1980s and Winter > Plants, and never in Futuristic or Structure mode.
+    - Existing test: the tall floor plant's "last in Plants" check now allows later registrations after it.
+    - No UI or runtime code changed.

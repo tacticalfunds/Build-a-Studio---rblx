@@ -25,6 +25,7 @@ return function(T, H)
 		retro_classic_floor_lamp_01 = "lighting",
 		retro_crt_tv_01 = "screens",
 		cozy_plant_01 = "plants", cozy_monstera_01 = "plants", studio_tall_floor_plant_01 = "plants",
+		studio_flower_pot_01 = "plants",
 		cozy_book_set_01 = "decor", retro_book_01 = "decor", winter_folded_throw_01 = "decor",
 		winter_snow_globe_01 = "decor", winter_white_rug_01 = "decor", retro_patterned_rug_01 = "decor",
 		studio_water_dispenser_01 = "decor",
@@ -46,7 +47,7 @@ return function(T, H)
 				seen[item.id] = true
 			end
 		end
-		T.eq(furniture, 42)
+		T.eq(furniture, 43)
 		for id in pairs(EXPECTED) do T.ok(seen[id], "assigned item exists: " .. id) end
 		T.eq(Catalog.getFurnitureType("doors"), nil, "no empty Doors type in furniture")
 		T.eq(Catalog.getFurnitureType("seating").displayName, "Seating")
@@ -115,7 +116,7 @@ return function(T, H)
 			return table.concat(out, ",")
 		end
 		T.eq(summary("futuristic"), "seating=2,tables=3,storage=2,microphones=1,audio=3,lighting=2")
-		T.eq(summary("winter"), "seating=2,tables=1,storage=3,lighting=2,plants=1,decor=4")
+		T.eq(summary("winter"), "seating=2,tables=1,storage=3,lighting=2,plants=2,decor=4")
 		T.eq(#Catalog.getFurnitureByType("winter", "screens"), 0)
 	end)
 
@@ -227,7 +228,7 @@ return function(T, H)
 		for i, e in ipairs(expected) do
 			T.deepEq(env.drawer.types[i], e)
 		end
-		T.deepEq(env.drawer.types[#env.drawer.types], { id = "all", displayName = "All items", count = 30 })
+		T.deepEq(env.drawer.types[#env.drawer.types], { id = "all", displayName = "All items", count = 31 })
 		T.eq(#env.drawer.items, 0, "no cards while choosing a type")
 		env.drawer.callbacks.onType("microphones")
 		T.eq(env.drawer.typeView, "items")
@@ -237,7 +238,7 @@ return function(T, H)
 		T.eq(env.drawer.typeView, "chooser")
 		T.eq(env.c:isOpen(), true, "Types does not leave build mode")
 		env.drawer.callbacks.onType("all")
-		T.eq(#env.drawer.items, 30)
+		T.eq(#env.drawer.items, 31)
 		T.eq(env.drawer.typeName, "All items")
 		env.drawer.callbacks.onFilter("futuristic")
 		T.eq(env.drawer.typeView, "chooser", "changing collection returns to the chooser")

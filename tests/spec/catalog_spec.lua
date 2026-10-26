@@ -82,11 +82,13 @@ return function(T, H)
 	local DISPENSER = "studio_water_dispenser_01"
 	local PLANT = "studio_tall_floor_plant_01"
 	local CONFERENCE_TABLE = "studio_conference_table_01"
+	local FLOWER_POT = "studio_flower_pot_01"
 
-	T.test("catalog holds 7 original, 24 expansion, 5 structure, 4 later furniture, 9 structure variant, 2 futuristic furniture, 1 sofa, 2 batch 03 structure, 1 industrial wall, 1 acoustic wall, 1 drawer cabinet, 1 water dispenser, 1 tall floor plant and 1 conference table ID, earlier entries unchanged in order", function()
-		T.eq(#Catalog.Items, 60, "item count")
+	T.test("catalog holds 7 original, 24 expansion, 5 structure, 4 later furniture, 9 structure variant, 2 futuristic furniture, 1 sofa, 2 batch 03 structure, 1 industrial wall, 1 acoustic wall, 1 drawer cabinet, 1 water dispenser, 1 tall floor plant, 1 conference table and 1 flower pot ID, earlier entries unchanged in order", function()
+		T.eq(#Catalog.Items, 61, "item count")
+		T.eq(Catalog.Items[61].id, FLOWER_POT, "the flower pot is appended last")
 		T.eq(Catalog.Items[59].id, PLANT, "the tall floor plant follows the water dispenser")
-		T.eq(Catalog.Items[60].id, CONFERENCE_TABLE, "the conference table is appended last")
+		T.eq(Catalog.Items[60].id, CONFERENCE_TABLE, "the conference table follows the tall floor plant")
 		T.eq(Catalog.Items[57].id, CABINET, "the drawer cabinet follows the acoustic wall")
 		T.eq(Catalog.Items[58].id, DISPENSER, "the water dispenser follows the drawer cabinet")
 		T.eq(Catalog.Items[55].id, INDUSTRIAL_WALL, "the industrial wall follows the batch 03 structure")
@@ -136,7 +138,8 @@ return function(T, H)
 		-- Water dispenser: cozy and 1980s.
 		-- Tall floor plant: cozy, retro and 1980s.
 		-- Conference table: cozy, 1980s and futuristic.
-		local expected = { cozy = 30, retro = 22, ["1980s"] = 20, winter = 13, futuristic = 13 }
+		-- Red flower pot: cozy, retro, 1980s and winter.
+		local expected = { cozy = 31, retro = 23, ["1980s"] = 21, winter = 14, futuristic = 13 }
 		for _, c in ipairs(Catalog.Collections) do
 			T.eq(#Catalog.getFurnitureTagged(c.id), expected[c.id], c.id .. " furniture count")
 			T.eq(#Catalog.getItemsTagged(c.id), expected[c.id] + structureTags[c.id], c.id .. " raw tag count (structure pieces included)")
@@ -295,7 +298,7 @@ return function(T, H)
 			end
 			expectedInspected[#expectedInspected + 1] = a.id
 		end
-		T.eq(#Catalog.Items, base + #APPROVED_TRACKED + #VARIANT_ORDER + #FUTURISTIC_FURNITURE + 1 + #BATCH03_ORDER + 6, "only the structure variants, futuristic furniture, the sofa, the batch 03 structure, the two prepared walls, the drawer cabinet and the three room extractions follow the approved tracked items")
+		T.eq(#Catalog.Items, base + #APPROVED_TRACKED + #VARIANT_ORDER + #FUTURISTIC_FURNITURE + 1 + #BATCH03_ORDER + 7, "only the structure variants, futuristic furniture, the sofa, the batch 03 structure, the two prepared walls, the drawer cabinet and the four room extractions follow the approved tracked items")
 		expectedInspected[#expectedInspected + 1] = "structure_wall_brick_01" -- the tracked White Brick Wall, resized (structure manifest)
 		local inspected = {}
 		for _, item in ipairs(Catalog.Items) do
@@ -442,7 +445,7 @@ return function(T, H)
 				prepared[#prepared + 1] = it.id
 			end
 		end
-		T.deepEq(prepared, { "future_speaker_01", "future_layered_coffee_table_01", SOFA, BATCH03_ORDER[1], BATCH03_ORDER[2], INDUSTRIAL_WALL, ACOUSTIC_WALL, CABINET, DISPENSER, PLANT, CONFERENCE_TABLE })
+		T.deepEq(prepared, { "future_speaker_01", "future_layered_coffee_table_01", SOFA, BATCH03_ORDER[1], BATCH03_ORDER[2], INDUSTRIAL_WALL, ACOUSTIC_WALL, CABINET, DISPENSER, PLANT, CONFERENCE_TABLE, FLOWER_POT })
 	end)
 
 	T.test("batch 03 structure: registered exactly from its manifest, on the grid module, provenance kept out of the catalog", function()
@@ -778,7 +781,11 @@ return function(T, H)
 		-- Filters: Cozy/Retro/1980s > Plants; never Winter, Futuristic or Structure mode.
 		for _, tag in ipairs(item.collections) do
 			local plants = Catalog.getFurnitureByType(tag, "plants")
-			T.eq(plants[#plants].id, PLANT, "last in " .. tag .. " > Plants")
+			-- Later plants (the red flower pot) follow it in registration order.
+			local position
+			for i, f in ipairs(plants) do if f.id == PLANT then position = i end end
+			T.ok(position ~= nil, "listed in " .. tag .. " > Plants")
+			T.ok(position == #plants or plants[position + 1].id == FLOWER_POT, PLANT .. " precedes only later registrations in " .. tag)
 		end
 		for _, tag in ipairs({ "winter", "futuristic" }) do
 			for _, f in ipairs(Catalog.getFurnitureTagged(tag)) do T.ok(f.id ~= PLANT, tag .. " excludes the plant") end
@@ -863,6 +870,79 @@ return function(T, H)
 		end
 	end)
 
+	T.test("red flower pot: registered exactly from its manifest as cozy/retro/1980s/winter plants; matches its gap-audit entry; floor and elevated placement limits", function()
+		local Transform = H.load("src/shared/Transform")
+		local Config = H.load("src/shared/Config")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Flower_Pot_Registration_2026-10-26.json")
+		local count = 0
+		for _ in manifest:gmatch('"preparedPath"') do count = count + 1 end
+		T.eq(count, 1, "manifest items")
+		local item = Catalog.getItem(FLOWER_POT)
+		T.ok(item ~= nil, FLOWER_POT)
+		T.eq(item.displayName, "Red Flower Pot")
+		T.eq(item.type, "plants")
+		T.eq(item.structure, nil, "furniture, not structure")
+		T.deepEq(item.collections, { "cozy", "retro", "1980s", "winter" })
+		T.eq(item.credit, nil, "no credit: the creator is not verified")
+		T.eq(item.sourceRef, "ServerStorage.StudioBuilderPreparedAssets." .. FLOWER_POT, "prepared name matches its id")
+		local at = manifest:find('"id": "' .. FLOWER_POT .. '"', 1, true)
+		T.ok(at, "id in manifest")
+		local entry = manifest:sub(at, manifest:find('"visualReview"', at, true))
+		T.ok(entry:find('"displayName": "' .. item.displayName .. '"', 1, true), "displayName")
+		T.ok(entry:find('"type": "plants"', 1, true), "type in manifest")
+		T.ok(entry:find('"collections": ["cozy", "retro", "1980s", "winter"]', 1, true), "collections in manifest")
+		T.ok(entry:find('"sourceRef": "' .. item.sourceRef .. '"', 1, true), "sourceRef")
+		T.ok(entry:find('"preparedPath": "' .. item.sourceRef .. '"', 1, true), "install source")
+		for _, fact in ipairs({ '"baseParts": 38,', '"partBreakdown": "37 Parts + 1 UnionOperation",', '"SpecialMesh": 19', '"CylinderMesh": 4', '"BlockMesh": 10', '"scripts": 0,', '"lights": 0,', '"seats": 0,', '"joints": 0,', '"anchored": true,', '"canTouch": false,' }) do
+			T.ok(entry:find(fact, 1, true), fact)
+		end
+		T.ok(entry:find("no new placement metadata", 1, true), "existing furniture placement")
+		T.ok(entry:find("no geometry added", 1, true), "no added geometry")
+		T.ok(entry:find("no sway and no interactions", 1, true), "decorative only")
+		T.ok(manifest:find('"creator": "Not independently verified; not recorded (no credit)"', 1, true), "creator not invented")
+		T.ok(manifest:find("not an individual flower pot model", 1, true), "no individual model ID claimed")
+		local guide = H.readFile(H.ROOT .. "/docs/assets/Studio_Asset_Guide_2026-10-25.json")
+		local room = guide:find('"name": "ConferenceRoom"', 1, true)
+		T.ok(room and guide:sub(room, room + 800):find("Source4993294691", 1, true), "the asset guide records the parent model")
+		for key in pairs(item) do
+			T.ok(key ~= "sourceAssetId" and key ~= "preparedPath" and key ~= "placement" and key ~= "reviewCopy" and key ~= "meshes" and key ~= "credit", FLOWER_POT .. " carries " .. key)
+		end
+		-- The committed gap audit lists the same source path, type and size (within 1e-6).
+		local audit = H.readFile(H.ROOT .. "/docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json")
+		local auditAt = audit:find('"displayName": "Flower pot"', 1, true)
+		T.ok(auditAt, "gap audit entry exists")
+		local auditEntry = audit:sub(auditAt, (audit:find("}", auditAt, true)))
+		T.ok(auditEntry:find("Workspace.RoomCollection.ConferenceRoom.Flower Pot", 1, true), "same source path as the gap audit")
+		T.ok(auditEntry:find('"plants"', 1, true), "the gap audit proposed type plants")
+		local sx, sy, sz = entry:match('"size": %[([%d%.]+), ([%d%.]+), ([%d%.]+)%]')
+		local size = { tonumber(sx), tonumber(sy), tonumber(sz) }
+		local audited = { auditEntry:match('"size":%s*%[%s*([%d%.]+),%s*([%d%.]+),%s*([%d%.]+)%s*%]') }
+		for i = 1, 3 do
+			T.ok(math.abs(size[i] - tonumber(audited[i])) < 1e-6, "axis " .. i .. " within 1e-6 of the gap audit")
+		end
+		-- Floor placement (half extents 0.9768 x 0.9676) inside the live 48 marker.
+		local live = { halfX = 24, halfZ = 24, height = 24 }
+		local function place(x, y, z, yaw) return Transform.sanitize({ x = x, y = y, z = z, yaw = yaw }, size, live, Config) end
+		T.deepEq(place(0, 0, 0, 0), { x = 0, y = 0, z = 0, yaw = 0 }, "on the floor at the centre")
+		T.ok(place(23, 0, -23, 0) ~= nil, "fits in a corner")
+		T.eq(select(2, place(23.1, 0, 0, 0)), "OutOfBounds", "its 1.95 width overhangs the X edge at x = 23.1")
+		T.ok(place(23.02, 0, 0, 90) ~= nil, "turned 90 degrees, its 1.94 depth fits at x = 23.02")
+		T.eq(select(2, place(0, -0.1, 0, 0)), "OutOfBounds", "not below the floor")
+		-- Elevated placement uses the same furniture rules: on top of the 3.3-stud conference table, and up to the 24-stud ceiling.
+		T.ok(place(0, 3.3, 0, 0) ~= nil, "raised onto a tabletop")
+		T.ok(place(0, 21, 0, 0) ~= nil, "raised to 21: its 2.92 height still clears the ceiling")
+		T.eq(select(2, place(0, 21.1, 0, 0)), "OutOfBounds", "raised to 21.1 it would poke through the ceiling")
+		-- Filters: Cozy, Retro, 1980s and Winter > Plants; never Futuristic or Structure mode.
+		for _, tag in ipairs(item.collections) do
+			local plants = Catalog.getFurnitureByType(tag, "plants")
+			T.eq(plants[#plants].id, FLOWER_POT, "last in " .. tag .. " > Plants")
+		end
+		for _, f in ipairs(Catalog.getFurnitureTagged("futuristic")) do T.ok(f.id ~= FLOWER_POT, "futuristic excludes the flower pot") end
+		for _, f in ipairs(Catalog.StructureFilters) do
+			for _, s in ipairs(Catalog.getStructureItems(f.id)) do T.ok(s.id ~= FLOWER_POT, f.id .. " excludes the flower pot") end
+		end
+	end)
+
 	T.test("sorted collections follow declared order", function()
 		local sorted = Catalog.getCollectionsSorted()
 		for i = 2, #sorted do
@@ -882,7 +962,7 @@ return function(T, H)
 
 	T.test("every sourceRef exists in the committed asset guide or expansion manifest (no invented sources)", function()
 		local guide = H.readFile(H.ROOT .. "/docs/assets/Studio_Asset_Guide_2026-10-25.json")
-		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_Expansion_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Futuristic_Furniture_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tufted_Leather_Sofa_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Batch03_Structure_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Industrial_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Acoustic_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Drawer_Cabinet_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Water_Dispenser_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tall_Floor_Plant_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Conference_Table_Registration_2026-10-26.json")
+		local manifest = H.readFile(H.ROOT .. "/docs/assets/Catalog_Expansion_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_and_Decor_Candidates_2026-10-25.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_patterned_rug_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Decor_Candidate_retro_classic_floor_lamp_01_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Structure_Expansion_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Futuristic_Furniture_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tufted_Leather_Sofa_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Batch03_Structure_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Industrial_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Acoustic_Wall_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Drawer_Cabinet_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Water_Dispenser_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Tall_Floor_Plant_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Conference_Table_Registration_2026-10-26.json") .. H.readFile(H.ROOT .. "/docs/assets/Flower_Pot_Registration_2026-10-26.json")
 		for _, item in ipairs(Catalog.Items) do
 			local inGuide = string.find(guide, '"path": "' .. item.sourceRef .. '"', 1, true) or string.find(guide, '"path":"' .. item.sourceRef .. '"', 1, true)
 			local inManifest = string.find(manifest, '"sourceRef": "' .. item.sourceRef .. '"', 1, true)
