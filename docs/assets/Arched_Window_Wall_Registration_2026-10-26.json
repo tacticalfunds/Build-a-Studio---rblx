@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and statically validated by Codex in Studio Edit; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates and NOT runtime tested. Live Build count remains 68 (49 furniture, 19 structure); repository count 69 (49 furniture, 20 structure).",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of ce726a4. Codex's local evidence (outputs/Arched Window Wall Module Preparation.json and the screenshot outputs/Arched Window Wall Module Review.png) is on Codex's machine and is not in this repository; the facts below are recorded as supplied.",
+  "source": {
+    "name": "Arch Window",
+    "creator": "ClearlyRach",
+    "creatorStoreAssetId": "492934961",
+    "creatorStoreUrl": "https://create.roblox.com/store/asset/492934961",
+    "free": true,
+    "batch02Candidate": "H02_09 (Arched Window); the original candidate and the imported source are preserved"
+  },
+  "items": [
+    {
+      "id": "structure_window_arch_01",
+      "displayName": "Arched Window Wall",
+      "collections": ["cozy", "retro", "winter"],
+      "structure": { "kind": "window_wall" },
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.structure_window_arch_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.structure_window_arch_01",
+      "reviewCopy": "Workspace.StudioAssetYard.Arched Window Wall Module Review",
+      "baseParts": 7,
+      "anchored": true,
+      "canTouch": false,
+      "scripts": 0,
+      "constraints": 0,
+      "joints": 0,
+      "bodyMovers": 0,
+      "pivot": "Identity bottom-centre pivot",
+      "size": [16, 15, 1],
+      "boundsMin": [-8, 0, -0.5],
+      "adaptation": "The imported window was copied (the source is preserved), its yaw corrected by 19.088297 degrees, uniformly scaled to 98% and its bottom raised by 1.6. The plaster surround is ONE CSG union, cut with clones of the original outer frame and glazing so the window opening is preserved.",
+      "look": "Tall white arched frame with translucent panes, a central vertical mullion and three horizontal divisions, set in a warm pale plaster surround",
+      "functionality": "Static window wall. No opening, lighting or weather behaviour.",
+      "staticChecks": {
+        "yawBounds": "Bounds checked at yaw 0, 90, 180 and 270: passed",
+        "apertureRays": "3 rays through the aperture are clear of the surround",
+        "outsideRays": "3 rays outside the aperture hit the surround"
+      },
+      "visualReview": "Native Studio visual review by Codex. Static Edit asset validation ONLY: no Build UI, placement runtime, Play, avatar or save/load validation."
+    }
+  ],
+  "batch02Tally": "6 installed (future_speaker_01, future_layered_coffee_table_01, cozy_tufted_leather_sofa_01, structure_industrial_wall_01, structure_acoustic_wall_01, future_drawer_cabinet_01); 16 pending, including this H02_09 piece (registered, integration pending). It becomes the seventh installed batch 02 piece only after Codex integrates it.",
+  "backup": "NOT included in the latest full-place backup (StudioBuilder-FullBackup-68Items-2026-10-26.rbxl), which predates this window.",
+  "historicalRecords": "docs/assets/Catalog_Hunt_Batch02_2026-10-26.json is unchanged."
+}

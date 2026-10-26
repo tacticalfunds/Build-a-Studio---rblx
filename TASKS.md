@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (10 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox, the umbrella light, the broadcast indicator lamp and the panel door wall (installed in Edit with static checks only; auto-open disabled, Play/UI/runtime checks pending); 2 remaining: the laptop and the metal door)
+## 11. Existing room assets in Build (user request): In progress (11 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox, the umbrella light, the broadcast indicator lamp and the panel door wall (installed in Edit with static checks only; auto-open disabled, Play/UI/runtime checks pending); 2 remaining: the laptop and the metal door)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1556,3 +1556,22 @@ Make the assets already used in the six existing rooms available in the Build dr
     - full place (new latest, local, not uploaded): `StudioBuilder-FullBackup-68Items-2026-10-26.rbxl`, 4,181,422 bytes, SHA256 `2F3EAFC938EEBE59835244E368C03E9BC074986B1264119357F98D2E0A712664`; restore not tested.
   - **Still pending:** Play, remote and UI checks for the static door; then, only after review, a Studio-only session with doors enabled covering hinge and frame contact, real sensing, player interaction, adjacent-wall overlaps and a build load at the limit (see the plan's "Before activation").
   - **Counts:** live 68 = repository 68; task 11 at 11 installed, 2 remaining (the guest laptop and the metal door). This checkpoint is documentation only: no code change.
+- Arched window wall registration (repository only; **prepared, NOT installed**). Batch 02 candidate H02_09.
+  - **Item:** `structure_window_arch_01`, "Arched Window Wall", `structure = { kind = "window_wall" }`, collections cozy, retro and winter, sourceRef `ServerStorage.StudioBuilderPreparedAssets.structure_window_arch_01`. It is appended as item 69 and lists last in Structure > Windows.
+  - **Source:** the free Creator Store "Arch Window" by ClearlyRach (asset 492934961, https://create.roblox.com/store/asset/492934961). The catalog entry carries no credit or asset ID field; provenance is in the manifest.
+  - **Preparation (Codex, Studio Edit):**
+    - the imported window was copied (the source is preserved), its yaw corrected by 19.088297°, uniformly scaled to 98% and its bottom raised by 1.6;
+    - the warm pale plaster surround is one CSG union, cut with clones of the original outer frame and glazing so the opening is preserved;
+    - 7 anchored parts, CanTouch false, no scripts, constraints, joints or body movers;
+    - identity bottom-centre pivot; exact size 16 × 15 × 1, minimum [-8, 0, -0.5];
+    - look: a tall white arched frame, translucent panes, a central vertical mullion and three horizontal divisions.
+  - **Static checks (Codex):** a native Studio visual review; bounds at yaw 0, 90, 180 and 270 passed; 3 rays through the aperture are clear of the surround and 3 outside rays hit it. **Static Edit asset validation only:** no Build UI, placement runtime, Play, avatar or save/load test.
+  - **Review copy:** `Workspace.StudioAssetYard.Arched Window Wall Module Review`. Codex's local manifest (`outputs/Arched Window Wall Module Preparation.json`) and screenshot (`outputs/Arched Window Wall Module Review.png`) are on Codex's machine and are not in this repository; the facts are recorded as supplied.
+  - **Manifest:** [`docs/assets/Arched_Window_Wall_Registration_2026-10-26.json`](docs/assets/Arched_Window_Wall_Registration_2026-10-26.json). The batch 02 hunt record is unchanged.
+  - **Backup:** NOT in the 68-item backup, which predates this window.
+  - **Tests:**
+    - 1 new catalog test: exact fields against the manifest; the H02_09 source in the batch 02 record; prepared-only status; window-wall edges at every yaw on the live marker; outer edges OutOfBounds on the live marker and accepted on a 49 marker; last in Structure > Windows; never in furniture lists;
+    - updated counts (69 items, 20 structure; cozy, retro and winter +1; window_wall 4), the Windows lists in the client tests, the prepared-copy list and the provenance list;
+    - **418 passed, 0 failed**.
+  - **Wording fixes from ce726a4:** the task 11 heading now says 11 installed. The panel door plan's last limitation no longer says placement was tested only in Lua: it now names the static Edit Place/Rotate/Delete checks and keeps the Play, remote, UI, physics and avatar limits explicit.
+  - **Counts:** repository **69** (49 furniture, 20 structure); live **68** (49 furniture, 19 structure) until Codex installs it. Batch 02 stays at 6 installed and 16 pending; this window becomes the seventh installed piece only after integration. Task 11 unchanged at 11 installed, 2 remaining.

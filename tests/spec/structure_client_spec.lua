@@ -298,7 +298,7 @@ return function(T, H)
 			{ "wall", { "structure_wall_01", "structure_wall_wood_01", "structure_wall_brick_01", "structure_industrial_wall_01", "structure_acoustic_wall_01" } },
 			{ "doorway", { "structure_doorway_01", "structure_doorway_wide_01", "structure_doorway_panel_01" } },
 			{ "ceiling", { "structure_ceiling_01", "structure_ceiling_dark_01", "structure_ceiling_acoustic_01" } },
-			{ "window_wall", { "structure_window_wall_01", "structure_window_black_01", "structure_glass_partition_01" } },
+			{ "window_wall", { "structure_window_wall_01", "structure_window_black_01", "structure_glass_partition_01", "structure_window_arch_01" } },
 		}
 		for _, pair in ipairs(expected) do
 			local kind, list = pair[1], pair[2]
@@ -307,7 +307,7 @@ return function(T, H)
 			T.eq(env.drawer.filter, kind)
 		end
 		env.drawer.callbacks.onFilter("cozy")
-		T.deepEq(ids(env.drawer.items), { "structure_window_wall_01", "structure_window_black_01", "structure_glass_partition_01" }, "a style id in Structure mode is ignored")
+		T.deepEq(ids(env.drawer.items), { "structure_window_wall_01", "structure_window_black_01", "structure_glass_partition_01", "structure_window_arch_01" }, "a style id in Structure mode is ignored")
 		env.drawer.callbacks.onCategory("furniture")
 		T.eq(env.drawer.filter, "futuristic", "furniture filter remembered")
 		T.eq(env.drawer.typeView, "chooser", "back in furniture: the type chooser")

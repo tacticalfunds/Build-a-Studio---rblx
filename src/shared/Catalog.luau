@@ -670,6 +670,18 @@ Catalog.Items = {
 			openDegrees = 90,
 		},
 	},
+	-- Arched window wall (2026-10-26): batch 02 H02_09, the free Arch Window
+	-- by ClearlyRach, copied, yaw corrected, scaled 98% and set in a CSG
+	-- plaster surround cut to keep the opening; a 16 x 15 x 1 window wall
+	-- (docs/assets/Arched_Window_Wall_Registration_2026-10-26.json).
+	-- Prepared only: not in StudioBuilderTemplates, not live.
+	{
+		id = "structure_window_arch_01",
+		displayName = "Arched Window Wall",
+		collections = { "cozy", "retro", "winter" },
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.structure_window_arch_01",
+		structure = { kind = "window_wall" },
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.
