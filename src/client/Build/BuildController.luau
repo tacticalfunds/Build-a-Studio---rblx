@@ -63,6 +63,13 @@
 	* Structure items preview through PlacementPreview with their kind, using
 	  the shared StructureGrid and the supplied sandbox bounds, so the ghost
 	  is valid exactly where the server accepts it.
+	* Furniture types: picking a collection shows its type chooser (types
+	  with at least one item, with counts, plus All items). Picking a type
+	  lists only that type's furniture in the collection; "Types" returns to
+	  the chooser. Every collection, type or structure-filter change bumps
+	  intent and cancels any preview, so a pending response can't revive the
+	  old choice and no Place/Move is sent for a cancelled preview. Exit in
+	  the action row still leaves build mode.
 	* lastPreview remembers the item and yaw it was computed for, and is
 	  cleared whenever it can't be recomputed. A Place or Move is only sent
 	  for a valid preview of the current item at the current yaw, so a
@@ -468,22 +475,66 @@ function BuildController:showFilter(id)
 		return self:showStructureFilter(id)
 	end
 	local session = self.session
+	self:_bumpIntent()
 	session:setFilter(id)
 	if self.drawer == nil then
 		return
 	end
-	local catalog = self.env.catalog
-	local collection = catalog.getCollection(session.filter)
+	local collection = self.env.catalog.getCollection(session.filter)
 	self.drawer:setFilter(session.filter, collection and collection.displayName)
-	self:_setItems(catalog.getFurnitureTagged(session.filter))
+	self:_renderFurniture()
+end
+
+-- The furniture body for the current collection: its type chooser, or the
+-- cards of the chosen type (or of all its furniture).
+function BuildController:_renderFurniture()
+	local session, catalog = self.session, self.env.catalog
+	local collectionId = session.filter
+	if session.furnitureType == nil then
+		local types = catalog.getFurnitureTypeCounts(collectionId)
+		local total = #catalog.getFurnitureTagged(collectionId)
+		if total > 0 then
+			types[#types + 1] = { id = "all", displayName = "All items", count = total }
+		end
+		self.drawer:showTypes(types)
+		self:_setItems({})
+		return
+	end
+	if session.furnitureType == "all" then
+		self.drawer:showTypeItems("All items")
+		self:_setItems(catalog.getFurnitureTagged(collectionId))
+		return
+	end
+	local t = catalog.getFurnitureType(session.furnitureType)
+	self.drawer:showTypeItems(t and t.displayName or "")
+	self:_setItems(catalog.getFurnitureByType(collectionId, session.furnitureType))
+end
+
+-- A type button in the chooser ("all" for All items).
+function BuildController:chooseType(typeId)
+	local session = self.session
+	if session.category ~= "furniture" or not session:isOpen() then
+		return
+	end
+	self:_bumpIntent()
+	if session:setFurnitureType(typeId) and self.drawer then
+		self:_renderFurniture()
+	end
+end
+
+-- "Types": back to the chooser (does not leave build mode).
+function BuildController:backToTypes()
+	self:chooseType(nil)
 end
 
 function BuildController:showStructureFilter(kind)
 	local session = self.session
+	self:_bumpIntent()
 	session:setStructureFilter(kind)
 	if self.drawer == nil then
 		return
 	end
+	self.drawer:hideTypes()
 	local name
 	for _, f in ipairs(self.env.catalog.StructureFilters) do
 		if f.id == session.structureFilter then
@@ -559,6 +610,12 @@ function BuildController:_drawerCallbacks()
 		end,
 		onCategory = function(category)
 			self:setCategory(category)
+		end,
+		onType = function(typeId)
+			self:chooseType(typeId)
+		end,
+		onTypes = function()
+			self:backToTypes()
 		end,
 		onItem = function(itemId)
 			self:chooseItem(itemId)

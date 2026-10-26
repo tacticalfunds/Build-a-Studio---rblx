@@ -22,6 +22,10 @@
 	  to it. Five kit pieces carry it (registered, Studio install pending);
 	  corners and standalone window frames are not allowed until their fit
 	  is approved.
+	* Every furniture item has exactly one `type` (FurnitureTypes) chosen by
+	  what it does, set explicitly here and never derived from its name.
+	  The drawer groups a collection's furniture by type. Structure pieces
+	  have no type; they keep their own Structure filters.
 	* Collections are tags; an item may carry several. Every collection is free
 	  today. `entitlement` is metadata for a future unlock hook
 	  (server/Adapters/Entitlements); there is no paywall.
@@ -50,6 +54,7 @@ Catalog.Items = {
 		id = "cozy_armchair_01",
 		displayName = "Green Armchair",
 		collections = { "cozy", "retro", "1980s" },
+		type = "seating",
 		sourceRef = "ServerStorage.PodcastAssetStaging.Green Armchair",
 		-- Decorative only: not a participant seat until a seat-anchor adapter exists.
 	},
@@ -57,30 +62,35 @@ Catalog.Items = {
 		id = "cozy_coffee_table_01",
 		displayName = "Lounge Coffee Table",
 		collections = { "cozy", "retro", "winter" },
+		type = "tables",
 		sourceRef = "ServerStorage.PodcastAssetStaging.LoungeCoffeeTable",
 	},
 	{
 		id = "cozy_bookshelf_01",
 		displayName = "Filled Bookshelf",
 		collections = { "cozy", "retro", "winter" },
+		type = "storage",
 		sourceRef = "ServerStorage.PodcastAssetStaging.FilledBookshelf",
 	},
 	{
 		id = "cozy_plant_01",
 		displayName = "Small Potted Plant",
 		collections = { "cozy", "retro", "winter" },
+		type = "plants",
 		sourceRef = "ServerStorage.PodcastAssetStaging.SmallPottedPlant",
 	},
 	{
 		id = "cozy_floor_lamp_01",
 		displayName = "Cork Floor Lamp",
 		collections = { "cozy" },
+		type = "lighting",
 		sourceRef = "ServerStorage.BuilderAssetReview.Candidate_CorkFloorLamp",
 	},
 	{
 		id = "retro_tv_cart_01",
 		displayName = "AV Cart",
 		collections = { "1980s" },
+		type = "storage",
 		sourceRef = "ServerStorage.BuilderAssetReview.Candidate_RetroTVCart",
 		-- Cart only; it does not include a television.
 	},
@@ -88,6 +98,7 @@ Catalog.Items = {
 		id = "retro_cassette_01",
 		displayName = "Cassette Recorder",
 		collections = { "retro", "1980s" },
+		type = "audio",
 		sourceRef = "ServerStorage.BuilderAssetReview.Candidate_VintageCassette",
 		-- Decorative; no playback.
 	},
@@ -98,144 +109,168 @@ Catalog.Items = {
 		id = "cozy_book_set_01",
 		displayName = "Hardcover Book Collection",
 		collections = { "cozy", "retro", "winter" },
+		type = "decor",
 		sourceRef = "ServerStorage.PodcastAssetStaging.HardcoverBookSet",
 	},
 	{
 		id = "cozy_monstera_01",
 		displayName = "Large Monstera Plant",
 		collections = { "cozy", "retro" },
+		type = "plants",
 		sourceRef = "ServerStorage.PodcastAssetStaging.Monstera",
 	},
 	{
 		id = "cozy_upholstered_chair_01",
 		displayName = "Upholstered Dining Chair",
 		collections = { "cozy", "retro", "1980s" },
+		type = "seating",
 		sourceRef = "ServerStorage.PodcastAssetStaging.Upholstered Chair",
 	},
 	{
 		id = "future_curved_sofa_01",
 		displayName = "Curved Lounge Sofa",
 		collections = { "futuristic" },
+		type = "seating",
 		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Futuristic C-Shaped Sofa",
 	},
 	{
 		id = "future_glass_table_01",
 		displayName = "Neon Glass Coffee Table",
 		collections = { "futuristic" },
+		type = "tables",
 		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Sci-Fi Coffee Table",
 	},
 	{
 		id = "future_modern_lamp_01",
 		displayName = "Sculptural Modern Lamp",
 		collections = { "futuristic" },
+		type = "lighting",
 		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Modern Lamp",
 	},
 	{
 		id = "future_shelf_01",
 		displayName = "Sci-Fi Display Shelf",
 		collections = { "futuristic" },
+		type = "storage",
 		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Sci-Fi Shelf",
 	},
 	{
 		id = "modern_lounge_chair_01",
 		displayName = "Modern Lounge Chair",
 		collections = { "cozy", "futuristic" },
+		type = "seating",
 		sourceRef = "ServerStorage.PodcastAssetStaging.Modern armchair",
 	},
 	{
 		id = "retro_book_01",
 		displayName = "Vintage Hardcover",
 		collections = { "cozy", "retro" },
+		type = "decor",
 		sourceRef = "ServerStorage.PodcastAssetStaging.DetailedBook",
 	},
 	{
 		id = "retro_crt_tv_01",
 		displayName = "Vintage CRT Television",
 		collections = { "retro", "1980s" },
+		type = "screens",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.retro_crt_tv_01",
 	},
 	{
 		id = "retro_meeting_table_01",
 		displayName = "Oval Wooden Table",
 		collections = { "cozy", "retro", "1980s" },
+		type = "tables",
 		sourceRef = "ServerStorage.PodcastAssetStaging.Dinner Table",
 	},
 	{
 		id = "studio_boom_mic_01",
 		displayName = "Boom Arm Microphone",
 		collections = { "cozy", "retro", "1980s", "futuristic" },
+		type = "microphones",
 		sourceRef = "ServerStorage.PodcastAssetStaging.SM7B_BoomArm",
 	},
 	{
 		id = "studio_chair_01",
 		displayName = "Director's Folding Chair",
 		collections = { "cozy", "retro", "1980s" },
+		type = "seating",
 		sourceRef = "ServerStorage.PodcastAssetStaging.StudioChair",
 	},
 	{
 		id = "studio_desk_lamp_01",
 		displayName = "Adjustable Desk Lamp",
 		collections = { "cozy", "1980s", "futuristic" },
+		type = "lighting",
 		sourceRef = "ServerStorage.PodcastAssetStaging.DeskLamp",
 	},
 	{
 		id = "studio_desk_mic_01",
 		displayName = "Desktop Microphone",
 		collections = { "cozy", "retro", "1980s" },
+		type = "microphones",
 		sourceRef = "ServerStorage.PodcastAssetStaging.PodcastMicrophone",
 	},
 	{
 		id = "studio_headphones_01",
 		displayName = "Studio Headphones",
 		collections = { "cozy", "retro", "1980s", "futuristic" },
+		type = "audio",
 		sourceRef = "ServerStorage.PodcastAssetStaging.StudioHeadphones",
 	},
 	{
 		id = "studio_mixer_01",
 		displayName = "Studio Mixing Console",
 		collections = { "retro", "1980s", "futuristic" },
+		type = "audio",
 		sourceRef = "ServerStorage.PodcastAssetStaging.Audio Mixer U-100AM",
 	},
 	{
 		id = "winter_firewood_shelf_01",
 		displayName = "Firewood Storage Shelf",
 		collections = { "winter", "cozy" },
+		type = "storage",
 		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Firewood Rack Set.Prop_FirewoodLogHolderShelf",
 	},
 	{
 		id = "winter_folded_throw_01",
 		displayName = "Folded Knit Throw",
 		collections = { "cozy", "winter" },
+		type = "decor",
 		sourceRef = "ServerStorage.PodcastAssetStaging.FoldedThrow",
 	},
 	{
 		id = "winter_furry_chair_01",
 		displayName = "Cream Furry Lounge Chair",
 		collections = { "winter", "cozy" },
+		type = "seating",
 		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Cream Furry Lounge Chair",
 	},
 	{
 		id = "winter_lantern_01",
 		displayName = "Candle Lantern",
 		collections = { "winter", "cozy" },
+		type = "lighting",
 		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Candle Lantern",
 	},
 	{
 		id = "winter_log_basket_01",
 		displayName = "Firewood Basket",
 		collections = { "winter", "cozy" },
+		type = "storage",
 		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Firewood Rack Set.Prop_FirewoodLogHolder",
 	},
 	{
 		id = "winter_snow_globe_01",
 		displayName = "Snow Globe",
 		collections = { "winter" },
+		type = "decor",
 		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.Snow Globe",
 	},
 	{
 		id = "winter_white_rug_01",
 		displayName = "Geometric Winter Rug",
 		collections = { "winter", "cozy" },
+		type = "decor",
 		sourceRef = "ServerStorage.BuilderCollectionExpansionImports.White Rug",
 	},
 	-- Structure pieces (task 10): 5 candidates prepared by Codex
@@ -287,6 +322,7 @@ Catalog.Items = {
 		id = "retro_record_player_01",
 		displayName = "Vintage Record Player",
 		collections = { "retro", "1980s", "cozy" },
+		type = "audio",
 		sourceRef = "ServerStorage.StructureCandidateImports.Record Player",
 		-- Attribution requested by the creator; keep it wherever credits are shown.
 		credit = "RushioLCO (credit requested)",
@@ -295,10 +331,28 @@ Catalog.Items = {
 		id = "retro_radio_01",
 		displayName = "Vintage Radio",
 		collections = { "retro", "1980s", "cozy" },
+		type = "audio",
 		sourceRef = "ServerStorage.StructureCandidateImports.Vintage Radio",
 		-- Source creator zzz_1551 (manifest sourceCreator).
 	},
 }
+
+-- Furniture types, in chooser order. Each furniture item has exactly one.
+Catalog.FurnitureTypes = {
+	{ id = "seating", displayName = "Seating" },
+	{ id = "tables", displayName = "Tables" },
+	{ id = "storage", displayName = "Storage" },
+	{ id = "microphones", displayName = "Microphones" },
+	{ id = "audio", displayName = "Audio" },
+	{ id = "lighting", displayName = "Lighting" },
+	{ id = "screens", displayName = "Screens" },
+	{ id = "plants", displayName = "Plants" },
+	{ id = "decor", displayName = "Decor" },
+}
+local furnitureTypeIds = {}
+for _, t in ipairs(Catalog.FurnitureTypes) do
+	furnitureTypeIds[t.id] = t
+end
 
 -- Returns ok, errors (list of strings). Pure; used by tests and server startup.
 function Catalog.validateData(collections, items)
@@ -361,6 +415,13 @@ function Catalog.validateData(collections, items)
 					seen[tag] = true
 				end
 			end
+			if item.structure == nil then
+				if type(item.type) ~= "string" or furnitureTypeIds[item.type] == nil then
+					fail("item " .. item.id .. " needs a furniture type")
+				end
+			elseif item.type ~= nil then
+				fail("item " .. item.id .. " is a structure piece and must not have a furniture type")
+			end
 			if item.structure ~= nil then
 				local s = item.structure
 				local onlyKind = type(s) == "table"
@@ -420,6 +481,13 @@ function Catalog.getCollectionsSorted()
 	return list
 end
 
+function Catalog.getFurnitureType(typeId)
+	if type(typeId) ~= "string" then
+		return nil
+	end
+	return furnitureTypeIds[typeId]
+end
+
 -- Structure filters for the drawer's Structure mode, in display order. Each maps
 -- to exactly one StructureGrid kind (corners and standalone frames deferred).
 Catalog.StructureFilters = {
@@ -440,6 +508,33 @@ function Catalog.getFurnitureTagged(collectionId)
 	for _, item in ipairs(Catalog.getItemsTagged(collectionId)) do
 		if not Catalog.isStructure(item) then
 			list[#list + 1] = item
+		end
+	end
+	return list
+end
+
+-- Furniture in collectionId of one type, in declaration order.
+function Catalog.getFurnitureByType(collectionId, typeId)
+	local list = {}
+	for _, item in ipairs(Catalog.getFurnitureTagged(collectionId)) do
+		if item.type == typeId then
+			list[#list + 1] = item
+		end
+	end
+	return list
+end
+
+-- The type chooser for a collection: { id, displayName, count } in
+-- FurnitureTypes order, only types with at least one item.
+function Catalog.getFurnitureTypeCounts(collectionId)
+	local counts = {}
+	for _, item in ipairs(Catalog.getFurnitureTagged(collectionId)) do
+		counts[item.type] = (counts[item.type] or 0) + 1
+	end
+	local list = {}
+	for _, t in ipairs(Catalog.FurnitureTypes) do
+		if (counts[t.id] or 0) > 0 then
+			list[#list + 1] = { id = t.id, displayName = t.displayName, count = counts[t.id] }
 		end
 	end
 	return list

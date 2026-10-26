@@ -17,6 +17,9 @@ return function(T, H)
 		function d:containsPoint() return env.overDrawer end
 		function d:setFilter(id, name) self.filter, self.filterName = id, name end
 		function d:setCategory(category, filters) self.category, self.filters = category, filters end
+		function d:showTypes(types) self.types, self.typeView = types, "chooser" end
+		function d:showTypeItems(name) self.typeName, self.typeView = name, "items" end
+		function d:hideTypes() self.typeView = "none" end
 		function d:setItems(items) self.items = items end
 		function d:setStatus() end
 		function d:setFooter(text) self.footer = text end

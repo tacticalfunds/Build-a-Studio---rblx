@@ -3,7 +3,7 @@
 **Integration (Codex, after 24e8047):**
 - **Installed:** the 11 changed modules and 5 structure templates. The marker is now **49 × 24 × 49**.
 - **Checked in Play:** the Structure mode UI with five filters; placement of all five pieces over the real remote; a floor move, a wall rotate, a duplicate, undo/redo and deletions; BadYaw, OffGrid and OutOfBounds refusals; no console errors.
-- **Visual QA pending:** world captures render white, even the original room in Edit mode, with no confirmed cause. **Visual placement, the hinge Rotate feel and doorway clearance are not approved.**
+- **Visual QA pending:** the earlier white world captures have since recovered (models render normally), but builder-specific visual QA hasn't been redone. **Visual placement, the hinge Rotate feel and doorway clearance are not approved.**
 - **Backups:** the full-place backup is still pending; there's a source-only backup.
 
 **Status (client and registration checkpoint, after review of 12068ca):** server and client code were in the repository and tested with `lua5.4` only at the time; see the integration note above for what has since run in Studio.

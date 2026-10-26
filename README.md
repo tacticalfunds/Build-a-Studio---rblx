@@ -43,7 +43,7 @@ This README is the integration and playtest handoff (task 6). Deeper references:
 | `src/server` | `ServerScriptService.StudioBuilder` | `StudioBuilderBootstrap.server` plus `Adapters/`, `Core/`, `Runtime/`, `Bootstrap/` |
 | `src/client` | `StarterPlayer.StarterPlayerScripts.StudioBuilder` | `BuilderClient` (ModuleScript) plus `Build/`, `UI/`, `Adapters/` |
 | `integration/` | not synced by Rojo | Files installed by hand into live scripts (see below) |
-| `tests/` | not synced | `lua5.4 tests/run.lua` harness and 28 specs |
+| `tests/` | not synced | `lua5.4 tests/run.lua` harness and 29 specs |
 | `docs/studio-reference/` | not synced | Installed bb3efa6 source snapshot (reference only, read by one spec) |
 
 `BuilderClient` is a ModuleScript and doesn't start itself. The host panel requires it and calls `configure` and `open`.
@@ -186,7 +186,7 @@ Each hook below was checked against that source.
 
 ### Executed in this repository
 
-- `lua5.4 tests/run.lua`: **297 passed, 0 failed**, across 28 specs.
+- `lua5.4 tests/run.lua`: **304 passed, 0 failed**, across 29 specs.
 - `seat_assignments_spec` also checks the seat model's contracts against the attached bb3efa6 source: seat count, seat index range, pose modes, Lounge-only couch poses, seat labels and StudioCustomization isolation.
 - The tests run the real modules (and the real `integration/` files) against fakes. Yields are driven by coroutines.
 - Key behaviours were also checked by mutation: each original bug, put back, makes a test fail.
@@ -295,12 +295,16 @@ All are free and all are **decorative**. No seat, light or audio adapter exists:
     - the real client/server remote placed all five; a floor move, a wall rotate, a duplicate, undo, redo and every deletion worked;
     - BadYaw, OffGrid and OutOfBounds refusals were seen;
     - no console errors.
-  - **Visual QA is pending:** every world capture came out white, including the original room in Edit mode, with no confirmed cause; the GUI works and raycasts hit the correct geometry. **Visual placement and doorway clearance are not approved.**
+  - **Visual QA is pending:** the earlier blank (white) world captures have recovered, and the user sees models normally. Builder-specific visual QA hasn't been redone yet. **Visual placement and doorway clearance are not approved.**
   - Plan: [`docs/structure-placement-plan.md`](docs/structure-placement-plan.md) (task 10).
 - **Decor (2), installed at 46d55cb:** `retro_record_player_01` (Vintage Record Player; credit: RushioLCO, requested) and `retro_radio_01` (Vintage Radio; creator zzz_1551).
   - They're tagged Retro, 1980s and Cozy, and they're decorative with no audio.
   - Real Play Place, Rotate and Delete passed.
   - Style counts: Cozy 24, Retro 18, 1980s 14, Winter 11, Futuristic 9.
+- **Furniture types (repository; install pending):** each of the 33 furniture items has one explicit `type` by function: Seating 6, Tables 3, Storage 5, Microphones 2, Audio 5, Lighting 4, Screens 1, Plants 2, Decor 5.
+  - In the drawer, a collection opens a two-column type chooser (counts, empty types hidden, All items), then that type's cards, with "< Types" to go back. Exit leaves build mode.
+  - Structure pieces have no type and keep their own filters.
+- **Lights in templates (checked by Codex):** the original cork floor lamp's light is enabled (brightness 1, range 10). The modern lamp, desk lamp and lantern lights are disabled, as intended.
 - **Pending, tracked, not registered (13):** see the current refresh, [`docs/assets/refresh-2026-10-25/README.md`](docs/assets/refresh-2026-10-25/README.md).
   - **Earlier prepared (3):** the corner, the standalone window frame and the 272-part shoji divider.
   - **New walls (2):** Concrete Sci-Fi Wall and White Brick Wall. They need grid adaptation.

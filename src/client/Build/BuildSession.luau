@@ -22,10 +22,16 @@
 	  90 degrees for floors and ceilings; 180 for edge pieces (walls, window
 	  walls, doorways), because which edge they sit on follows the pointer,
 	  so R only flips which way the piece faces.
+	* Furniture types: inside a collection, furnitureType is nil (the type
+	  chooser), "all" (every furniture item in the collection) or one
+	  Catalog.FurnitureTypes id. Changing collection, type, structure filter
+	  or category cancels any placement or move preview; changing collection
+	  or category returns to the type chooser.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StructureGrid = require(ReplicatedStorage:WaitForChild("StudioBuilder"):WaitForChild("StructureGrid"))
+local Catalog = require(ReplicatedStorage:WaitForChild("StudioBuilder"):WaitForChild("Catalog"))
 
 local BuildSession = {}
 BuildSession.__index = BuildSession
@@ -41,6 +47,7 @@ function BuildSession.new(config)
 		filter = "cozy",
 		category = "furniture",
 		structureFilter = "floor",
+		furnitureType = nil, -- nil = type chooser, "all", or a FurnitureTypes id
 		itemId = nil,
 		itemKind = nil, -- structure kind of the item being placed or moved (nil = furniture)
 		selectedId = nil,
@@ -90,6 +97,7 @@ function BuildSession:setCategory(category)
 	end
 	if category ~= self.category then
 		self.category = category
+		self.furnitureType = nil
 		self:cancelPreview()
 	end
 	return true
@@ -97,10 +105,26 @@ end
 
 function BuildSession:setStructureFilter(kind)
 	if STRUCTURE_FILTERS[kind] then
-		self.structureFilter = kind
+		if kind ~= self.structureFilter then
+			self.structureFilter = kind
+			self:cancelPreview()
+		end
 		return true
 	end
 	return false
+end
+
+-- nil (back to the type chooser), "all" or a FurnitureTypes id. A change
+-- cancels any preview. Returns true when valid.
+function BuildSession:setFurnitureType(typeId)
+	if typeId ~= nil and typeId ~= "all" and Catalog.getFurnitureType(typeId) == nil then
+		return false
+	end
+	if typeId ~= self.furnitureType then
+		self.furnitureType = typeId
+		self:cancelPreview()
+	end
+	return true
 end
 
 -- Preview rotation step for the current item (see header).
@@ -112,9 +136,15 @@ function BuildSession:rotationStep()
 	return spec.placement == "edge" and 180 or StructureGrid.YAW_STEP
 end
 
+-- Picking a collection (even the current one) returns to its type chooser
+-- and cancels any preview.
 function BuildSession:setFilter(collectionId)
 	if FILTERS[collectionId] then
-		self.filter = collectionId
+		if collectionId ~= self.filter or self.furnitureType ~= nil then
+			self.filter = collectionId
+			self.furnitureType = nil
+			self:cancelPreview()
+		end
 		return true
 	end
 	return false

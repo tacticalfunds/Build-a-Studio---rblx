@@ -186,6 +186,9 @@ return function(T, H)
 			function d:containsPoint() return false end
 			function d:setFilter(id, name) self.filter, self.filterName = id, name end
 			function d:setCategory(category, filters) self.category, self.filters = category, filters end
+			function d:showTypes(types) self.types, self.typeView = types, "chooser" end
+			function d:showTypeItems(name) self.typeName, self.typeView = name, "items" end
+			function d:hideTypes() self.typeView = "none" end
 			function d:setItems(items) self.items = items end
 			function d:setStatus(text) self.status = text end
 			function d:setFooter(text) self.footer = text end
@@ -241,6 +244,7 @@ return function(T, H)
 		T.eq(#env.drawer.filters, 5)
 		for _, c in ipairs(Catalog.getCollectionsSorted()) do
 			env.drawer.callbacks.onFilter(c.id)
+			env.drawer.callbacks.onType("all")
 			for _, item in ipairs(env.drawer.items) do
 				T.eq(Catalog.getItem(item.id).structure, nil, c.id .. " shows furniture only: " .. item.id)
 			end
@@ -264,6 +268,8 @@ return function(T, H)
 		T.deepEq(ids(env.drawer.items), { "structure_window_wall_01" }, "a style id in Structure mode is ignored")
 		env.drawer.callbacks.onCategory("furniture")
 		T.eq(env.drawer.filter, "futuristic", "furniture filter remembered")
+		T.eq(env.drawer.typeView, "chooser", "back in furniture: the type chooser")
+		env.drawer.callbacks.onType("all")
 		T.eq(#env.drawer.items, 9)
 	end)
 

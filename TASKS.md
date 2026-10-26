@@ -29,7 +29,7 @@ Known contracts (from Codex, 2026-10-25):
 | 5 | Save/load with failure protection | 3 | Done (installed; real DataStore/text filter pending) |
 | 6 | Integration README and Codex Studio playtest handoff | 4, 5 | Done (playtest pending) |
 | 7 | Seat-anchor and camera-assignment adapter | 6 | In progress (foundation for review; wiring pending) |
-| 8 | More collection themes | 6 | 38 catalog entries installed (incl. 5 structure); 13 candidates tracked, not registered; Executive/Broadcast pending |
+| 8 | More collection themes | 6 | 38 installed; furniture-by-type drawer in repo for review; 13 candidates tracked; Executive/Broadcast pending |
 | 9 | Studio > Branding: image IDs on room or individual surfaces | 3, 5 (+ live panel/director/preset source) | Pending |
 | 10 | Structure pieces: walls, floors, ceilings, doorways, windows | 3, 4, 8 (+ Codex measurements) | In progress (installed and remote-tested in Play; visual QA and doorway clearance pending) |
 
@@ -257,7 +257,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 38 catalog entries installed (incl. 5 structure); 13 candidates tracked, not registered; Executive/Broadcast pending
+## 8. More collection themes: 38 installed; furniture-by-type drawer in repo for review; 13 candidates tracked; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -321,6 +321,37 @@ Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asse
     - Concrete Sci-Fi Wall and White Brick Wall (grid adaptation needed);
     - 8 new imports: two fireplaces, two pillows, executive sci-fi desk, realistic rug, old floor lamp, wood truss beam. Zero embedded scripts, but scaling, effects and visual QA remain, and they're **not approved**.
   - **Observation from the refresh:** four installed templates (cork floor lamp, modern lamp, desk lamp, lantern) each contain one light object. Whether those are enabled isn't stated. The builder doesn't control them.
+
+- Furniture organized by type (user priority, 2026-10-26; repository only, Studio install pending):
+  - **Catalog:** `Catalog.FurnitureTypes`: Seating, Tables, Storage, Microphones, Audio, Lighting, Screens, Plants, Decor.
+    - Each of the 33 furniture items has exactly one explicit primary `type` by function, set in data and never derived from names. The AV cart is Storage, not Screens.
+    - Totals: Seating 6, Tables 3, Storage 5, Microphones 2, Audio 5, Lighting 4, Screens 1, Plants 2, Decor 5.
+    - Structure pieces have no type.
+    - The validator requires a known type on furniture and forbids one on structure pieces.
+    - New helpers: `getFurnitureType`, `getFurnitureByType(collection, type)` and `getFurnitureTypeCounts(collection)` (ordered, empty types hidden).
+    - IDs, order, tags, placement authorization and persistence are unchanged.
+  - **Client:**
+    - `BuildSession.furnitureType` (nil = chooser, "all", or a type). Changing collection (even re-picking it) or category returns to the chooser.
+    - Changing collection, type or structure filter cancels any placement or move preview.
+    - `BuildController` adds `chooseType` and `backToTypes`; every navigation bumps intent, so an in-flight response only updates status.
+    - `BuildDrawer` gets a two-column type chooser with counts and All items, and a "< Types" row. The action row's Back is relabelled **Exit** (it leaves build mode; behaviour unchanged).
+    - Structure mode is unchanged and has no chooser. No new theme tokens; `docs/ui-contract.md` has a "Furniture by type" section for the visual comparison.
+  - **Evidence (executed 2026-10-26):** `lua5.4 tests/run.lua` gives **304 passed, 0 failed** (29 specs). New `furniture_types_spec` (7 tests):
+    - the complete reviewed type assignment, and no Doors type in furniture;
+    - validator rules;
+    - per-collection counts correct, in type order, no empty groups, adding up, with type filtering equal to the collection-type intersection (plus Futuristic and Winter snapshots);
+    - session navigation and cancellation;
+    - the controller chooser (counts, All items, no cards while choosing), type lists, Types vs Exit;
+    - type, collection and structure-filter changes cancelling placement and move with nothing sent;
+    - a Place in flight during a type change applying status only.
+
+    Updated fakes and one structure test (style filters now open the chooser). 10 mutations caught.
+  - **Not executed:** the real drawer Instances (BuildDrawer isn't run outside Roblox), Studio and Play.
+- Status corrections (Codex, 2026-10-26):
+  - The blank (white) world captures have recovered, and the user sees models normally. **Builder-specific visual QA is still pending.**
+  - The four-light check: the cork floor lamp is enabled (brightness 1, range 10; original). The sculptural modern lamp, desk lamp and lantern are disabled, as intended.
+  - The 89121f0 asset-log archive and ZIP were independently verified byte-for-byte.
+  - The earlier "white captures" notes above are kept as history.
 
 ## 9. Studio > Branding: Pending
 Requested 2026-10-25. Not started: it waits on the current panel, director and preset source from Codex, and builds on the host checks from task 3 and the saving from task 5.

@@ -12,10 +12,13 @@
 	  Doors / Ceilings / Windows (task 10). No extra tab row or panel;
 	* scroll body (x 14, y 119, w - 28, h - 177), rows with 9 px padding:
 	  a Furniture | Structure choice row (same button styles, selected =
-	  teal), actions (Undo / Redo / Back / Done), selection (Move / Rotate /
+	  teal), actions (Undo / Redo / Exit / Done; Exit leaves build mode),
+	  selection (Move / Rotate /
 	  Duplicate / Delete), placement row (Place here when the active input is
-	  touch / Rotate / Cancel), then catalog cards with ViewportFrames from
-	  PreviewTemplates;
+	  touch / Rotate / Cancel), the collection heading, then either the
+	  furniture type chooser (two-column grid of "Seating (4)"-style buttons,
+	  empty types hidden, plus All items) or a "< Types" row and the chosen
+	  type's catalog cards with ViewportFrames from PreviewTemplates;
 	* footer status at (18, bottom - 49), 11 px muted.
 	The drawer is draggable by its handle and clamped on-screen; refit() follows
 	viewport resizes/orientation; containsPoint() lets the controller keep every
@@ -69,9 +72,9 @@ local function buttonRow(parent, order, labels, callbacks)
 	return r, buttons
 end
 
--- callbacks: onFilter(id), onCategory(category), onItem(itemId), onUndo,
---            onRedo, onBack, onDone, onMove, onRotate, onDuplicate, onDelete,
---            onPlaceHere, onCancel
+-- callbacks: onFilter(id), onCategory(category), onType(typeId), onTypes,
+--            onItem(itemId), onUndo, onRedo, onBack (Exit), onDone, onMove,
+--            onRotate, onDuplicate, onDelete, onPlaceHere, onCancel
 -- collections: sorted { id, displayName }; structureFilters: { id, displayName }
 -- (optional). The tab row starts with the collections; setCategory relabels it.
 function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
@@ -157,7 +160,8 @@ function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
 	})
 	self.categoryButtons = categories
 
-	local _, actions = buttonRow(body, 1, { "Undo", "Redo", "Back", "Done" }, { callbacks.onUndo, callbacks.onRedo, callbacks.onBack, callbacks.onDone })
+	-- "Exit" leaves build mode; "< Types" (below) only returns to the type chooser.
+	local _, actions = buttonRow(body, 1, { "Undo", "Redo", "Exit", "Done" }, { callbacks.onUndo, callbacks.onRedo, callbacks.onBack, callbacks.onDone })
 	self.actions = actions
 
 	local selection
@@ -190,6 +194,35 @@ function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
 	local heading = row(body, 4, 34)
 	self.collectionHeading = place(PanelTheme.label("heading", ""), heading, UDim2.new(), UDim2.new(1, 0, 0, 16))
 	self.headingDescription = place(PanelTheme.label("description", "Choose an item, then a floor or tabletop."), heading, UDim2.fromOffset(0, 18), UDim2.new(1, 0, 0, 14))
+
+	-- "< Types" row: back to the chooser (not out of build mode).
+	local typeBack = row(body, 5, L.tabsHeight)
+	local backButton = PanelTheme.button("< Types", false)
+	place(backButton, typeBack, UDim2.new(), UDim2.new(1 / 3, -L.tabsGap * 2 / 3, 1, 0))
+	backButton.Activated:Connect(function()
+		if callbacks.onTypes then
+			callbacks.onTypes()
+		end
+	end)
+	self.typeName = place(PanelTheme.label("heading", ""), typeBack, UDim2.new(1 / 3, L.tabsGap, 0, 9), UDim2.new(2 / 3, -L.tabsGap, 0, 16))
+	typeBack.Visible = false
+	self.typeBackRow = typeBack
+
+	-- Type chooser: a compact two-column grid in the scroll body.
+	local chooser = Instance.new("Frame")
+	chooser.BackgroundTransparency = 1
+	chooser.Size = UDim2.new(1, 0, 0, 0)
+	chooser.AutomaticSize = Enum.AutomaticSize.Y
+	chooser.LayoutOrder = 6
+	chooser.Visible = false
+	chooser.Parent = body
+	local grid = Instance.new("UIGridLayout")
+	grid.CellSize = UDim2.new(0.5, -L.tabsGap / 2, 0, L.tabsHeight)
+	grid.CellPadding = UDim2.fromOffset(L.tabsGap, L.tabsGap)
+	grid.SortOrder = Enum.SortOrder.LayoutOrder
+	grid.Parent = chooser
+	self.typeChooser = chooser
+	self.typeButtons = {}
 	self:setCategory("furniture", collections)
 
 	self.footer = place(PanelTheme.label("status", ""), drawer, UDim2.new(0, L.footerX, 1, -L.footerBottomInset), UDim2.new(1, -L.footerX * 2, 0, L.footerHeight))
@@ -298,6 +331,41 @@ function BuildDrawer:setCategory(category, filters)
 	if self.headingDescription then
 		self.headingDescription.Text = category == "structure" and "Choose a piece, then point at the floor; it snaps to the room grid." or "Choose an item, then a floor or tabletop."
 	end
+end
+
+-- Furniture type chooser: types = { { id, displayName, count } } (empty
+-- types already left out by the controller). Hides the cards' back row.
+function BuildDrawer:showTypes(types)
+	for _, b in ipairs(self.typeButtons) do
+		b:Destroy()
+	end
+	self.typeButtons = {}
+	for i, t in ipairs(types) do
+		local b = PanelTheme.button(string.format("%s (%d)", t.displayName, t.count), false)
+		b.LayoutOrder = i
+		b.Parent = self.typeChooser
+		b.Activated:Connect(function()
+			if self.callbacks.onType then
+				self.callbacks.onType(t.id)
+			end
+		end)
+		self.typeButtons[i] = b
+	end
+	self.typeChooser.Visible = true
+	self.typeBackRow.Visible = false
+end
+
+-- The chosen type's cards: shows "< Types" and the type name.
+function BuildDrawer:showTypeItems(displayName)
+	self.typeChooser.Visible = false
+	self.typeBackRow.Visible = true
+	self.typeName.Text = displayName or ""
+end
+
+-- Structure mode: no type chooser and no back row.
+function BuildDrawer:hideTypes()
+	self.typeChooser.Visible = false
+	self.typeBackRow.Visible = false
 end
 
 function BuildDrawer:setFilter(filterId, displayName)

@@ -33,6 +33,13 @@ The prior descriptive guide is embedded in the catalog JSON (`priorSourceGuide`)
 - The 38 installed IDs, their order, display names and collection tags are identical to `src/shared/Catalog.luau` at 46d55cb.
 - **5,758 is not a count of unique assets.** It counts every nested or copied Model record.
 
+**Status corrections after this refresh (Codex, 2026-10-26):**
+- **Captures:** the blank (white) world captures have recovered, and models render normally. Builder-specific visual QA is still pending.
+- **Lights:** the cork floor lamp's light is enabled (brightness 1, range 10; original). The sculptural modern lamp, desk lamp and lantern lights are disabled, as intended.
+- **Archive check:** this archive (89121f0) and its ZIP were independently verified byte-for-byte.
+
+The archived files themselves are unchanged.
+
 ## Installed (38): in `ServerStorage.StudioBuilderTemplates` and the live catalog
 
 All are free and decorative: no functional seating, audio, video or speech.

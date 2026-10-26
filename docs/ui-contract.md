@@ -78,6 +78,17 @@ local C = {
   `PanelOpen` and the launcher text stale.
 - Codex handles the exact wiring into the existing panel and the visual comparison against it.
 
+## Furniture by type (check during the visual comparison)
+
+- **Flow:** pick a collection in the tab row (Cozy, 1980s, Retro, Winter, Futuristic). In Furniture mode, the body shows that collection's **type chooser**: a compact **two-column grid** (UIGridLayout, cells half-width minus the 6 px gap, 34 px high, 6 px padding) of standard `PanelTheme.button` buttons.
+  - The buttons read like "Seating (4)".
+  - Only types with items appear, in the fixed order Seating, Tables, Storage, Microphones, Audio, Lighting, Screens, Plants, Decor, followed by **All items (N)**.
+- **Picking a type** hides the grid and shows a row with a **"< Types"** button (a third of the width) and the type name as a heading. That type's item cards follow, unchanged.
+  "< Types" only returns to the chooser.
+- **Exit vs Types:** the action row's former **Back** is now labelled **Exit**, because it leaves build mode (same behaviour as before). "< Types" never leaves build mode. Done is unchanged.
+- **Navigation resets:** changing collection, or switching Furniture/Structure, returns to the type chooser. Changing collection, type or structure filter cancels any placement or move preview.
+- **No new tokens or panel:** no new colours, fonts, tab rows or panel; the body still scrolls. Structure mode is unchanged and shows no type chooser.
+
 ## Structure mode (task 10; check during the visual comparison)
 
 - A **Furniture | Structure** choice row sits at the top of the drawer's scroll body. It's built with `PanelTheme.button` in the same row style as the action buttons (selected = teal background with dark text).
