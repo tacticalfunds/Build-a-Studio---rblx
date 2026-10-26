@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 66 installed in total (48 furniture, 18 structure; 1 more registered, repository 67, installation pending: the broadcast indicator lamp; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 67 installed in total (49 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (9 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox and the umbrella light; 4 remaining: the laptop, the panel door, the On Air sign and the metal door; the On Air sign is now prepared and registered as the broadcast indicator lamp, installation pending)
+## 11. Existing room assets in Build (user request): In progress (10 installed: the water dispenser, the tall floor plant, the conference table, the flower pot, the office chair, the coffee mug, the presentation board, the studio softbox, the umbrella light and the broadcast indicator lamp; 3 remaining: the laptop, the panel door and the metal door)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1297,3 +1297,30 @@ Make the assets already used in the six existing rooms available in the Build dr
     - one compact test covers: the catalog fields only (no light, recording or wall-mount hooks); the key manifest facts (3 parts, disabled light, no attributes, "not a text sign", no recording reaction); the parent asset per the guide; the same 3-part source as the gap audit, with the audited X and Z swapped by the turn; placement against an edge versus side-on, on a tabletop, and the height limit; and last in Retro, 1980s and Futuristic > Lighting, never in Cozy or Winter;
     - the softbox and umbrella ordering checks now allow later registrations after them.
     - No UI, adapter or runtime code changed.
+- 67-item verified installation checkpoint (Codex, Studio Experience `132242140555698`, 2026-10-26). This is installation evidence. It supersedes the "installation pending" and "pending" notes in the broadcast indicator registration entry above, which stay as written as history:
+  - **Review:** Codex ran the 327 tests of 19c2a2e independently: zero failures.
+  - **Installed:** the reviewed Catalog and `studio_broadcast_indicator_01`. **Installed total: 67** (49 furniture, 18 structure).
+  - **Catalog backup:** `ServerStorage.BuilderIntegrationBackups.Catalog_Before67_20261026_0435`.
+  - **Checks:**
+    - fresh probes before and after Play: 67 entries, 67 templates, 67 valid, zero invalid or missing;
+    - real BuilderRequest checks all succeeded:
+      1. Status, revision 0;
+      2. floor Place `i1`, revision 1;
+      3. Rotate `i1`, revision 2;
+      4. Delete `i1`, revision 3;
+      5. raised Place `i2` at y = 3.3, revision 4;
+      6. Delete `i2`, revision 5.
+    - server measurements: 3 parts, one disabled PointLight, zero Studio/Podcast descendant attributes, size [1.7549996376037598, 1.7549996376037598, 1.3650007247924805]; floor minimum Y 0, raised minimum Y 3.299999952316284;
+    - **the light stayed disabled after rotation and after raised placement;**
+    - back in Edit, no test items remain.
+  - **Evidence:** Codex's local `Catalog 67 Installation Checkpoint.json` is not in this repository.
+  - **Scope:** these are remote/server checks, not physical mouse or R-key UI tests. It is decorative only: no recording-status reaction, wall snapping or lighting adapter.
+  - **No registered-but-uninstalled items:** repository 67 = live 67. The wider queue isn't finished.
+  - **Tallies:**
+    - task 11: 10 installed, 3 remaining (the guest laptop, the panel door and the metal door);
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Backup (new latest):** `StudioBuilder-FullBackup-67Items-2026-10-26-0437.rbxl`, 4,157,515 bytes, SHA256 `FC83E5A57219C28E79C695E6D0D143F7420E05A031C3F554C9F5E5F78CCBC70A`.
+    - The `<roblox!` header is verified; restore is untested.
+    - Earlier backups are kept. It is local only.
+  - **Nonblocking review finding, for a later cleanup (test code not changed now):** in the broadcast indicator test in `tests/spec/catalog_spec.lua`, the yaw 180 placement near the +Z edge is a valid bounds check. But its label, "backing plate against the +Z edge", is inaccurate: at yaw 180 the backing faces −Z.
+  - The historical manifests and the gap audit are unchanged.
