@@ -513,6 +513,18 @@ Catalog.Items = {
 		type = "storage",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.future_drawer_cabinet_01",
 	},
+	-- Water dispenser (2026-10-26): extracted by Codex from the existing
+	-- Conference Room (docs/assets/Water_Dispenser_Registration_2026-10-26.json);
+	-- the room itself is unchanged. Install source:
+	-- ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- Decorative only: it dispenses nothing and the taps don't move.
+	{
+		id = "studio_water_dispenser_01",
+		displayName = "Water Dispenser",
+		collections = { "cozy", "1980s" },
+		type = "decor",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_water_dispenser_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.

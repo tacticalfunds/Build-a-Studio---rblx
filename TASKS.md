@@ -836,9 +836,31 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): Pending
+## 11. Existing room assets in Build (user request): In progress (1 registered, integration pending)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
 - The user is browsing in Edit, so there are no Play or camera changes.
 - Acceptance (draft): the same per-manifest catalog tests as earlier registrations, with type and count updates and provenance kept out of the catalog. Studio install and Play check by Codex.
+- Water dispenser registration (repository; Codex integration pending). This is the first existing-room extraction; Codex supplied an inspected, per-item preparation report rather than a whole-room manifest:
+  - **Registered (1):** `studio_water_dispenser_01` (Water Dispenser; furniture type decor; cozy and 1980s; normal floor placement), appended last.
+    - **Counts:** repository 58 (40 furniture, 18 structure). Installed stays **57** (39 furniture, 18 structure).
+  - **Source:** extracted from `Workspace.RoomCollection.ConferenceRoom.Water Machine`. The original room is unchanged.
+    - The parent free model is 4993294691, per the ConferenceRoom record in `docs/assets/Studio_Asset_Guide_2026-10-25.json` (preparation "Source4993294691").
+    - The creator is not independently verified and isn't recorded, and the dispenser has no individual asset ID.
+  - **Prepared copy (Codex):** `ServerStorage.StudioBuilderPreparedAssets.studio_water_dispenser_01`.
+    - Bounds 1.949987769126892 × 5.100000381469727 × 2.25, with an identity bottom-centre pivot.
+    - 20 anchored BaseParts, 14 SpecialMeshes; 0 LuaSourceContainers, 0 Lights, 0 Seats, 0 joints.
+    - 16 redundant ManualWelds were removed, the parts anchored, touch disabled and the pivot normalized. The original geometry, colours and meshes were kept, and no geometry was added.
+    - Native visual review passed: a white upright dispenser with a translucent blue bottle and water, red and blue labels, and two gray taps.
+  - **Decorative only:** no dispensing and no tap animation.
+  - **Provenance:** `docs/assets/Water_Dispenser_Registration_2026-10-26.json`. The asset guide and the gap audit are unchanged.
+  - **Backup:** the prepared and review copies are newer than the 57-item backup; the original room source is in it.
+  - **Pending (Codex):** install, the probe, Play Place → Rotate → Delete, then a backup.
+  - **Not affected:** batch 02 stays at 6 installed, 16 pending, because this is a room extraction, not batch 02.
+  - **Tests:**
+    - counts updated: 58 items, 40 furniture; cozy 28, 1980s 18; cozy All items 28;
+    - a new test checks the manifest fields and facts, the room provenance cross-checked against the asset guide's ConferenceRoom record, that no creator, credit or individual asset ID is invented, and that the prepared name matches the id;
+    - floor placement with the measured bounds: in a corner, the Z overhang unless turned 90°, and the 24-stud height limit;
+    - it's listed last in Cozy > Decor and 1980s > Decor, and never in other styles or Structure mode.
+    - No UI or runtime code changed.

@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually reviewed by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates and NOT runtime tested. Installed Build count remains 57 (39 furniture, 18 structure); repository count 58.",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of 2a0dc9c (not an export file)",
+  "kind": "Existing-room extraction (task 11); not a batch 02 or batch 03 candidate",
+  "source": {
+    "extractedFrom": "Workspace.RoomCollection.ConferenceRoom.Water Machine",
+    "parentModel": "ConferenceRoom",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, ConferenceRoom (path ServerStorage.PodcastAssetStaging.ConferenceRoom), preparation 'Source4993294691'",
+    "parentFreeModelAssetId": "4993294691",
+    "creator": "Not independently verified; not recorded",
+    "dispenserAssetId": "None: the dispenser has no individual asset ID; 4993294691 is the parent room model",
+    "originalRoomSource": "Unchanged"
+  },
+  "items": [
+    {
+      "id": "studio_water_dispenser_01",
+      "displayName": "Water Dispenser",
+      "collections": ["cozy", "1980s"],
+      "type": "decor",
+      "placement": "floor",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.studio_water_dispenser_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.studio_water_dispenser_01",
+      "baseParts": 20,
+      "specialMeshes": 14,
+      "scripts": 0,
+      "lights": 0,
+      "seats": 0,
+      "joints": 0,
+      "anchored": true,
+      "canTouch": false,
+      "adaptation": "Removed 16 redundant ManualWelds, anchored the parts, disabled touch and normalized the pivot. Original geometry, colours and meshes retained; no geometry added.",
+      "rotation": "Identity",
+      "pivot": "Identity bottom-centre pivot",
+      "size": [1.949987769126892, 5.100000381469727, 2.25],
+      "look": "White upright dispenser with a translucent blue bottle and water, red and blue labels and two gray taps",
+      "functionality": "Decorative only: no dispensing and no tap animation.",
+      "visualReview": "Native Studio visual review passed (Codex)"
+    }
+  ],
+  "backup": "The prepared and review copies are newer than the latest full-place backup (StudioBuilder-FullBackup-57Items-2026-10-26-0116.rbxl); the original room source is in that backup.",
+  "historicalRecords": "docs/assets/Studio_Asset_Guide_2026-10-25.json and docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json are unchanged."
+}
