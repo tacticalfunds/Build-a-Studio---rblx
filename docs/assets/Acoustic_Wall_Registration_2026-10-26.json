@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually inspected by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates and NOT runtime tested. Installed Build count remains 55 (38 furniture, 17 structure); repository count 56.",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of 17cded2 (not an export file)",
+  "source": {
+    "name": "Acoustic Panel Set",
+    "creator": "DesolatedWorld",
+    "creatorStoreAssetId": "9069165816",
+    "free": true,
+    "batch02Candidate": "H02_10 (Acoustic Panel Set); the original candidate is retained"
+  },
+  "items": [
+    {
+      "id": "structure_acoustic_wall_01",
+      "displayName": "Acoustic Foam Wall",
+      "collections": ["retro", "1980s", "futuristic"],
+      "structure": { "kind": "wall" },
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.structure_acoustic_wall_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.structure_acoustic_wall_01",
+      "baseParts": 57,
+      "partBreakdown": "56 UnionOperation tiles (adapted from the free model) + 1 structural backing Part (added)",
+      "scripts": 0,
+      "lights": 0,
+      "anchored": true,
+      "adaptation": "ONE imported grooved UnionOperation from the free model was adapted into an 8-column x 7-row checkerboard with alternating groove directions (56 tiles). A simple structural backing Part was ADDED; it is not from the source model.",
+      "tiles": {
+        "count": 56,
+        "layout": "8 columns x 7 rows, checkerboard, alternating groove directions",
+        "size": [1.96, 0.2, 1.96],
+        "material": "Fabric",
+        "colorRGB": [48, 48, 51],
+        "usePartColor": true,
+        "collision": "CanCollide and CanTouch disabled on tiles"
+      },
+      "backing": {
+        "count": 1,
+        "size": [16, 15, 0.8],
+        "collision": "The backing supplies the wall's collision"
+      },
+      "rotation": "Identity",
+      "pivot": "Bottom-centre pivot at the origin",
+      "size": [16, 15, 1],
+      "look": "Charcoal grooved acoustic foam tiles in a checkerboard on the front; plain reverse",
+      "functionality": "Static wall panel. Appearance is acoustic foam ONLY; no sound-absorption behaviour is claimed.",
+      "visualReview": "Front and plain reverse inspected by Codex in native Studio; bounds and pivot assertions passed"
+    }
+  ],
+  "batch02Tally": "4 installed (future_speaker_01, future_layered_coffee_table_01, cozy_tufted_leather_sofa_01, structure_industrial_wall_01); 18 pending, including this H02_10 piece (registered, integration pending).",
+  "backup": "NOT included in the latest full-place backup (StudioBuilder-FullBackup-55Items-2026-10-26-0035.rbxl), which predates this candidate.",
+  "historicalRecords": "docs/assets/Catalog_Hunt_Batch02_2026-10-26.json is unchanged."
+}

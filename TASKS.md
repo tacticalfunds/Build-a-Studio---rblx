@@ -533,7 +533,7 @@ Requested 2026-10-25. Not started: it waits on the current panel, director and p
 - Context: laptop Apple logos were already replaced with existing geometric Roblox marks on 11 live and stored instances (Codex).
 - Acceptance (draft): tests that actually run cover the asset-ID validation, target allowlist, host check, keeping prior branding on failure, and save/load of overrides including legacy presets. Studio-pending for preview and rendering.
 
-## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (17 pieces and R rotation installed; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
+## 10. Structure pieces: walls, floors, ceilings, doorways, windows: In progress (17 pieces and R rotation installed, 1 more registered with integration pending; remote-tested in Play; physical R-key/UI, visual QA and doorway clearance pending)
 Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **structure** category separate from the style collections.
 - Candidates (Codex, 2026-10-25): 10 prepared and visually inspected in `ServerStorage.StudioStructureCandidates`. The manifest is [`docs/assets/Structure_and_Decor_Candidates_2026-10-25.json`](docs/assets/Structure_and_Decor_Candidates_2026-10-25.json), indexed in `docs/assets/README.md` with creator credits, the 2 rejected unsafe imports (IDs kept) and 3 deferred ones.
   - **Structure pieces:** wall, window wall, doorway, corner, floor, ceiling, industrial window frame.
@@ -764,6 +764,26 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - It includes the prepared and installed industrial wall.
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
+- Acoustic wall registration (repository; Codex integration pending):
+  - **Registered (1):** `structure_acoustic_wall_01` (Acoustic Foam Wall; `wall`, in Walls; retro, 1980s, futuristic), appended last.
+    - **Counts:** repository 56 (38 furniture, 18 structure; Walls 5). Installed stays **55** (38 furniture, 17 structure).
+  - **Source:** free Creator Store asset 9069165816, Acoustic Panel Set by DesolatedWorld; batch 02 H02_10 (the original candidate is retained).
+  - **Preparation (Codex):**
+    - **Adapted from the source:** one grooved UnionOperation, made into an 8-column × 7-row checkerboard with alternating groove directions (56 tiles).
+      - Each tile is 1.96 × 0.2 × 1.96, charcoal Fabric RGB 48, 48, 51, with UsePartColor on.
+      - Collision and touch are disabled on the tiles.
+    - **Added (not from the source):** one plain structural backing Part, 16 × 15 × 0.8, which supplies the collision.
+    - **Totals:** 57 anchored BaseParts; measured bounds exactly 16 × 15 × 1; identity rotation; bottom-centre pivot at the origin; zero LuaSourceContainers and zero lights.
+    - The front and the plain reverse were inspected in native Studio, and the bounds and pivot assertions passed.
+  - **Appearance only:** no sound-absorption behaviour is claimed.
+  - **Provenance:** `docs/assets/Acoustic_Wall_Registration_2026-10-26.json`. Install source: `ServerStorage.StudioBuilderPreparedAssets.structure_acoustic_wall_01`. The batch 02 manifest is unchanged.
+  - **Pending (Codex):** install, the probe, Play Place → Rotate → Delete, then a refreshed backup (the 55-item backup predates this candidate).
+  - **Batch 02 tally:** 4 installed, 18 pending (H02_10 among them until integration).
+  - **Tests:**
+    - counts updated: 56 items, Walls 5, 18 structure; per-collection structure tags retro 17, 1980s 18, futuristic 18;
+    - a new test checks the manifest fields and facts (57 = 56 tiles + 1 backing, the 8 × 7 layout, the backing disclosure, no acoustic claim) and that the prepared name matches the id;
+    - it also checks grid validation on both wall orientations, refusals for a cell centre and a raised spot, the exact Walls order, and that it stays out of furniture style lists.
+    - No UI or runtime code changed.
 
 ## 11. Existing room assets in Build (user request): Pending
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).

@@ -489,6 +489,18 @@ Catalog.Items = {
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.structure_industrial_wall_01",
 		structure = { kind = "wall" },
 	},
+	-- Acoustic wall (2026-10-26): batch 02 H02_10. One grooved tile from a free
+	-- acoustic panel set, laid out by Codex as an 8 x 7 checkerboard on an added
+	-- 16 x 15 backing (docs/assets/Acoustic_Wall_Registration_2026-10-26.json).
+	-- Install source: ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- Looks like acoustic foam only; it does not change any sound.
+	{
+		id = "structure_acoustic_wall_01",
+		displayName = "Acoustic Foam Wall",
+		collections = { "retro", "1980s", "futuristic" },
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.structure_acoustic_wall_01",
+		structure = { kind = "wall" },
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.
