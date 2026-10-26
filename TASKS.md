@@ -258,7 +258,7 @@ Turn chosen decorative chairs into seat anchors that work with StudioLayout and 
   - The wiring decisions are recorded in `docs/task7-seat-plan.md` §3, not implemented: Builder scene entry, sit distance from the requested seat, server-owned reservations with cleanup, Couch disabled, chair profile first, free-room camera formula as a candidate, unassigned Builder slots inactive.
   - Evidence: `lua5.4 tests/run.lua` gives **261 passed, 0 failed**. 2 new regressions, plus 2 new corrupt-section cases. Removing either check makes tests fail (2 and 1 respectively).
 
-## 8. More collection themes: 62 installed in total (44 furniture, 18 structure; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
+## 8. More collection themes: 62 installed in total (44 furniture, 18 structure; 1 more registered, repository 63, integration pending: the steaming coffee mug; see task 11 for the room extractions; see task 10 for the structure pieces; the batch 02 pieces passed remote Place→Rotate→Delete); batch 02: 6 installed, 16 pending; all 10 new items passed remote Place→Rotate→Delete in Play (physical UI/visual checks unverified); 10 candidates tracked, not registered; batch 02/03 candidates; Executive/Broadcast pending
 Starter, Retro, Winter, Futuristic, Executive and Broadcast, drawing on the asset index once Codex promotes templates.
 - Acceptance: catalog entries only for templates Codex has prepared. Still free.
 - Catalog expansion (user priority, 2026-10-25; task 7 wiring is paused, not started):
@@ -836,7 +836,7 @@ Let hosts build room shells in the sandbox from modular 16-stud pieces, as a **s
     - Earlier backups are kept. It is local only and not uploaded.
   - The historical manifests are unchanged.
 
-## 11. Existing room assets in Build (user request): In progress (5 installed: the water dispenser, the tall floor plant, the conference table, the flower pot and the office chair; 8 original gap-audit entries remaining)
+## 11. Existing room assets in Build (user request): In progress (5 installed: the water dispenser, the tall floor plant, the conference table, the flower pot and the office chair; 8 original gap-audit entries remaining, one of them, the coffee mug, prepared and registered with integration pending)
 Make the assets already used in the six existing rooms available in the Build drawer, as decorative catalog entries in the right furniture types (or structure kinds).
 - **Waiting on:** an inspected manifest from Codex, covering the prepared templates (zero scripts, anchored, bottom-centre pivots, normalized scale), stable IDs, names, collections, types, sourceRefs and credits. Nothing is registered until then, and nothing guesses which room models qualify.
 - The live rooms themselves stay untouched; the builder only gets prepared copies.
@@ -1073,3 +1073,29 @@ Make the assets already used in the six existing rooms available in the Build dr
     - It includes the chair's prepared, template and review copies.
     - Previous backups are kept. It is local only and not uploaded.
   - The historical registration manifest is unchanged.
+- Steaming coffee mug registration (repository; prepared and registered, integration pending):
+  - **Registered (1):** `studio_coffee_mug_01` (Steaming Coffee Mug; existing decor type; all five collections), appended last.
+    - **Counts:** repository 63 (45 furniture, 18 structure). Installed stays **62** (44 furniture, 18 structure).
+  - **Source:** one `Workspace.RoomCollection.ConferenceRoom.Coffee cup`; this is the gap audit's "Roblox coffee mug".
+    - It is the **current modified room version**, with project-specific porcelain, recessed coffee, Roblox mark and steam edits, **not** an unchanged free model.
+    - The parent room model is 4993294691, per the asset guide. The creator isn't verified, so there's no individual model ID and no credit.
+    - The original room is untouched this checkpoint.
+  - **Prepared copy (Codex):** `ServerStorage.StudioBuilderPreparedAssets.studio_coffee_mug_01`; review copy `Workspace.StudioAssetYard.Coffee Mug Review`.
+    - **Measurements:** GetBoundingBox size 0.7700138092041016 × 0.7425129413604736 × 0.6092129349708557, with an identity bottom-centre pivot (error about 0.00000162 studs).
+    - **Contents:** 5 anchored BaseParts (3 Parts and 2 UnionOperations), CanTouch false; 0 scripts, Lights, Seats and joints; 2 SurfaceGuis for the Roblox marks; 1 ParticleEmitter under an Attachment. It was cloned and normalized, with no new geometry.
+    - **Look:** a cream hollow porcelain mug with an exterior handle, recessed dark coffee, and black Roblox marks on opposite sides.
+    - **Steam:** enabled, rate 4, lifetime 1.8–2.5, speed 0.18–0.27, upward acceleration 0.32, spread 9 × 9, using the built-in `rbxasset://textures/particles/smoke_main.dds`. The Attachment was checked to sit above the liquid and point world-up.
+    - **Visual review:** static only; it shows the hollow rim, handle and mark.
+  - **Sanitizer:** the existing TemplateSanitizer was checked on disposable clones in Edit. `forPlacement` keeps 1 emitter, 2 SurfaceGuis and 0 scripts; `forPreview` removes the emitter and keeps 2 SurfaceGuis and 0 scripts. No sanitizer code change was needed.
+  - **Decorative only:** no pickup or drinking.
+  - **Not yet verified:** live Place, Rotate and Delete, steam motion in Play, and elevated tabletop placement.
+  - **Provenance:** `docs/assets/Coffee_Mug_Registration_2026-10-26.json`. The asset guide and the gap audit are unchanged.
+  - **Backup:** the latest is still the 62-item backup. The prepared and review copies postdate it; the original source is in it.
+  - **Tallies:**
+    - task 11: 5 installed, 8 remaining (the mug prepared and registered among them, pending integration);
+    - batch 02 unchanged: 6 installed, 16 pending.
+  - **Tests (kept compact):**
+    - counts updated: 63 items, 45 furniture, every collection +1; Futuristic now has a Decor group (decor=1), and winter decor is 5;
+    - one focused test covers: the catalog fields only (no provenance or steam keys); the manifest agreeing with the catalog; the modified-version and no-creator records; source and size against the gap audit; floor, tabletop (y = 3.3) and edge placement; and last under Decor in every collection;
+    - the water dispenser's "last in Decor" check now allows the mug after it.
+    - No UI or runtime code changed.

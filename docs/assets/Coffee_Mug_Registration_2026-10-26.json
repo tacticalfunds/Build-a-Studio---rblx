@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-26",
+  "status": "Prepared and visually reviewed (static) by Codex; registered in Catalog.luau (repository). NOT installed in StudioBuilderTemplates; live Place/Rotate/Delete, steam motion in Play and elevated tabletop placement not yet verified. Installed Build count remains 62 (44 furniture, 18 structure); repository count 63.",
+  "recordedFrom": "Codex preparation report relayed in the checkpoint request after the review of 08ae24e (not an export file)",
+  "kind": "Existing-room extraction (task 11); not a batch 02 or batch 03 candidate",
+  "source": {
+    "extractedFrom": "One Workspace.RoomCollection.ConferenceRoom.Coffee cup",
+    "gapAuditEntry": "Roblox coffee mug (docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json)",
+    "parentModel": "ConferenceRoom",
+    "parentModelAssetGuideRecord": "docs/assets/Studio_Asset_Guide_2026-10-25.json, ConferenceRoom (path ServerStorage.PodcastAssetStaging.ConferenceRoom), preparation 'Source4993294691'",
+    "parentFreeModelAssetId": "4993294691",
+    "creator": "Not independently verified; not recorded (no credit)",
+    "mugModelAssetId": "None claimed: 4993294691 is the parent room model, not an individual mug model",
+    "modifiedVersion": "This is the CURRENT MODIFIED room version, with project-specific edits: porcelain finish, recessed coffee, Roblox marks and steam. It is NOT an unchanged free model.",
+    "originalRoomSource": "Untouched this checkpoint"
+  },
+  "items": [
+    {
+      "id": "studio_coffee_mug_01",
+      "displayName": "Steaming Coffee Mug",
+      "collections": ["cozy", "retro", "1980s", "winter", "futuristic"],
+      "type": "decor",
+      "placement": "Existing furniture placement; no new placement metadata",
+      "sourceRef": "ServerStorage.StudioBuilderPreparedAssets.studio_coffee_mug_01",
+      "preparedPath": "ServerStorage.StudioBuilderPreparedAssets.studio_coffee_mug_01",
+      "reviewCopy": "Workspace.StudioAssetYard.Coffee Mug Review",
+      "baseParts": 5,
+      "partBreakdown": "3 Parts + 2 UnionOperations",
+      "scripts": 0,
+      "lights": 0,
+      "seats": 0,
+      "joints": 0,
+      "surfaceGuis": 2,
+      "particleEmitters": 1,
+      "anchored": true,
+      "canTouch": false,
+      "adaptation": "Cloned and normalized; no new geometry.",
+      "rotation": "Identity",
+      "pivot": "Identity bottom-centre pivot; error about 0.00000162 studs",
+      "size": [0.7700138092041016, 0.7425129413604736, 0.6092129349708557],
+      "sizeSource": "GetBoundingBox",
+      "look": "Cream hollow porcelain mug with an exterior handle, recessed dark coffee and black Roblox marks on opposite sides (two SurfaceGuis)",
+      "steam": {
+        "emitter": "1 ParticleEmitter under an Attachment, checked to sit above the liquid and point world-up",
+        "enabled": true,
+        "rate": 4,
+        "lifetime": [1.8, 2.5],
+        "speed": [0.18, 0.27],
+        "upwardAcceleration": 0.32,
+        "spreadAngle": [9, 9],
+        "texture": "rbxasset://textures/particles/smoke_main.dds (built-in engine texture)"
+      },
+      "sanitizer": "Existing TemplateSanitizer verified by Codex on disposable clones in Edit: forPlacement keeps 1 emitter, 2 SurfaceGuis and 0 scripts; forPreview removes the emitter and keeps 2 SurfaceGuis and 0 scripts. No sanitizer code change needed.",
+      "functionality": "Decorative only: no pickup and no drinking. The steam is a visual particle effect.",
+      "visualReview": "Static visual review shows the hollow rim, handle and mark (Codex)"
+    }
+  ],
+  "pendingVerification": [
+    "Live Place, Rotate and Delete",
+    "Steam motion in Play",
+    "Elevated tabletop placement"
+  ],
+  "task11Tally": "5 installed (studio_water_dispenser_01, studio_tall_floor_plant_01, studio_conference_table_01, studio_flower_pot_01, studio_office_chair_01); 8 original gap-audit entries remaining, including the mug (prepared and registered, integration pending).",
+  "backup": "The prepared and review copies postdate the latest full-place backup (StudioBuilder-FullBackup-62Items-2026-10-26-0256.rbxl); the original source is in that backup.",
+  "historicalRecords": "docs/assets/Studio_Asset_Guide_2026-10-25.json and docs/assets/Existing_Room_Catalog_Gap_Audit_2026-10-26.json are unchanged."
+}

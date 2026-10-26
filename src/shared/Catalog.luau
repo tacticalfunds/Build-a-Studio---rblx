@@ -574,6 +574,19 @@ Catalog.Items = {
 		type = "seating",
 		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_office_chair_01",
 	},
+	-- Steaming coffee mug (2026-10-26): extracted by Codex from the current,
+	-- project-modified Conference Room mug
+	-- (docs/assets/Coffee_Mug_Registration_2026-10-26.json). Install source:
+	-- ServerStorage.StudioBuilderPreparedAssets.<id>; Studio install pending.
+	-- Decorative only: the steam is a particle effect, and the mug can't be
+	-- picked up.
+	{
+		id = "studio_coffee_mug_01",
+		displayName = "Steaming Coffee Mug",
+		collections = { "cozy", "retro", "1980s", "winter", "futuristic" },
+		type = "decor",
+		sourceRef = "ServerStorage.StudioBuilderPreparedAssets.studio_coffee_mug_01",
+	},
 }
 
 -- Furniture types, in chooser order. Each furniture item has exactly one.
