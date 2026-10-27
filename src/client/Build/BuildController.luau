@@ -20,6 +20,8 @@
 		setSelectionHighlight(id | nil),
 		panel = { getPosition() -> x, y, onClosed(info) },  -- optional
 		spawn(fn), wait(seconds),
+		clock() -> seconds,                         -- optional; os.clock by default
+		textFocused() -> boolean,                   -- optional; a TextBox has focus
 	}
 
 	Async rules (review of 3d6519f):
@@ -74,15 +76,45 @@
 	  cleared whenever it can't be recomputed. A Place or Move is only sent
 	  for a valid preview of the current item at the current yaw, so a
 	  rotate (or move) without a fresh preview never sends a stale spot.
+
+	Keyboard (BuildInput classifies; BuilderClient forwards):
+	* onKeyPressed acts once per press: a key already down is ignored until
+	  onKeyReleased, so a held key never repeats or cascades.
+	* Z / Ctrl+Z run the Undo button's command and Ctrl+Y / Ctrl+Shift+Z the
+	  Redo button's, only while open and when the server status allows it.
+	  Backspace runs the Delete button's command, only for a selected item
+	  in "selected" mode; no selection means no action. All of them go
+	  through _send, so busy state, permissions and history are unchanged.
+	* R turns once on press, through the same rotate() as before. Held, it
+	  turns again after RotateHold.delay and then every RotateHold.interval,
+	  from tick(). The next turn is scheduled from the time of the turn, so
+	  a lag spike never causes a catch-up burst; a selected item's Rotate
+	  request is never sent while another edit is in flight, so at most one
+	  is queued (interval 0.2 s = 5 a second, under the edit rate limit).
+	  The hold stops on release, focus loss, text focus, close, cancel, a
+	  failed Rotate, loss of edit rights, or when the target (the preview
+	  item or the selected item) changes, including a delete.
+
+	Search (BuildSearch): setSearch narrows the cards of the current view
+	(the chosen collection and type, or structure filter) by display name.
+	In Furniture mode a non-empty search over the type chooser lists the
+	matching furniture of the whole collection; clearing it restores the
+	chooser. The query survives filter and mode changes and resets on
+	open/close. Typing never bumps intent or cancels a preview; the search
+	box is a TextBox, so every build shortcut is ignored while it has focus.
 ]]
 
 local BuildSession = require(script.Parent.BuildSession)
 local PlacementPreview = require(script.Parent.PlacementPreview)
+local BuildSearch = require(script.Parent.BuildSearch)
 
 local BuildController = {}
 BuildController.__index = BuildController
 
 local RETRY_SECONDS = 2
+
+-- Holding R: first repeat after `delay`, then every `interval` (seconds).
+BuildController.RotateHold = { delay = 0.35, interval = 0.2 }
 
 function BuildController.new(env)
 	local self = setmetatable({
@@ -100,6 +132,9 @@ function BuildController.new(env)
 		intent = 0,
 		cleanupGeneration = 0,
 		lastCloseInfo = nil,
+		keysDown = {},
+		rotateHold = nil,
+		search = "",
 	}, BuildController)
 	return self
 end
@@ -280,6 +315,7 @@ function BuildController:open()
 	self.sandbox = sandbox
 	self.sending = false
 	self.session:opened(self.env.isHost())
+	self.search = "" -- a new drawer starts with an empty search box
 	self.drawer = drawer
 	if x then
 		drawer:setPosition(x, y)
@@ -313,6 +349,8 @@ function BuildController:close(reason)
 		return
 	end
 	self.generation = self.generation + 1
+	self.rotateHold = nil
+	self.search = ""
 	local x, y = nil, nil
 	if self.drawer then
 		x, y = self.drawer:getPosition()
@@ -492,29 +530,48 @@ function BuildController:showFilter(id)
 	self:_renderFurniture()
 end
 
+-- Shows list narrowed by the search; an empty result shows the empty state.
+-- scopeName names what the search looked in (for its hint).
+function BuildController:_showCards(list, scopeName)
+	local matches = BuildSearch.filter(list, self.search)
+	self:_setItems(matches)
+	if self.drawer and self.drawer.setEmptyState then
+		local empty = self.search ~= "" and #matches == 0
+		self.drawer:setEmptyState(empty and BuildSearch.emptyHint(scopeName) or nil)
+	end
+end
+
 -- The furniture body for the current collection: its type chooser, or the
--- cards of the chosen type (or of all its furniture).
+-- cards of the chosen type (or of all its furniture). A search replaces the
+-- chooser with the collection's matching furniture.
 function BuildController:_renderFurniture()
 	local session, catalog = self.session, self.env.catalog
 	local collectionId = session.filter
+	local collection = catalog.getCollection(collectionId)
+	local collectionName = collection and collection.displayName or ""
 	if session.furnitureType == nil then
+		if self.search ~= "" then
+			self.drawer:hideTypes()
+			self:_showCards(catalog.getFurnitureTagged(collectionId), collectionName)
+			return
+		end
 		local types = catalog.getFurnitureTypeCounts(collectionId)
 		local total = #catalog.getFurnitureTagged(collectionId)
 		if total > 0 then
 			types[#types + 1] = { id = "all", displayName = "All items", count = total }
 		end
 		self.drawer:showTypes(types)
-		self:_setItems({})
+		self:_showCards({})
 		return
 	end
 	if session.furnitureType == "all" then
 		self.drawer:showTypeItems("All items")
-		self:_setItems(catalog.getFurnitureTagged(collectionId))
+		self:_showCards(catalog.getFurnitureTagged(collectionId), collectionName)
 		return
 	end
 	local t = catalog.getFurnitureType(session.furnitureType)
 	self.drawer:showTypeItems(t and t.displayName or "")
-	self:_setItems(catalog.getFurnitureByType(collectionId, session.furnitureType))
+	self:_showCards(catalog.getFurnitureByType(collectionId, session.furnitureType), collectionName .. " " .. (t and t.displayName or ""))
 end
 
 -- A type button in the chooser ("all" for All items).
@@ -541,6 +598,11 @@ function BuildController:showStructureFilter(kind)
 	if self.drawer == nil then
 		return
 	end
+	self:_renderStructure()
+end
+
+function BuildController:_renderStructure()
+	local session = self.session
 	self.drawer:hideTypes()
 	local name
 	for _, f in ipairs(self.env.catalog.StructureFilters) do
@@ -549,7 +611,25 @@ function BuildController:showStructureFilter(kind)
 		end
 	end
 	self.drawer:setFilter(session.structureFilter, name)
-	self:_setItems(self.env.catalog.getStructureItems(session.structureFilter))
+	self:_showCards(self.env.catalog.getStructureItems(session.structureFilter), name)
+end
+
+-- Search box text changed. Re-renders the current view only: no intent
+-- bump, no preview change.
+function BuildController:setSearch(text)
+	local query = BuildSearch.normalize(text)
+	if query == self.search then
+		return
+	end
+	self.search = query
+	if self.drawer == nil or not self.session:isOpen() then
+		return
+	end
+	if self.session.category == "structure" then
+		self:_renderStructure()
+	else
+		self:_renderFurniture()
+	end
 end
 
 -- "furniture" | "structure": swaps the filter row and cancels any preview.
@@ -594,9 +674,125 @@ function BuildController:rotate()
 end
 
 function BuildController:cancel()
+	self.rotateHold = nil
 	self:_bumpIntent()
 	self.session:cancel()
 	self:_refresh()
+end
+
+function BuildController:undo()
+	return self:_send({ op = "Undo", expectedRevision = self.session.revision })
+end
+
+function BuildController:redo()
+	return self:_send({ op = "Redo", expectedRevision = self.session.revision })
+end
+
+function BuildController:deleteSelected()
+	if self.session.selectedId then
+		self.rotateHold = nil -- the target is going away
+		return self:_send({ op = "Delete", id = self.session.selectedId })
+	end
+	return nil
+end
+
+-- Keyboard ------------------------------------------------------------------------
+
+function BuildController:_now()
+	local clock = self.env.clock or os.clock
+	return clock()
+end
+
+-- What R turns right now, as a comparable key: the previewed item (placing
+-- or moving) or the selected item. nil when R has nothing to turn.
+function BuildController:_rotateTarget()
+	local session = self.session
+	if session:isPreviewing() then
+		return session.mode .. ":" .. tostring(session.itemId) .. ":" .. tostring(session.selectedId)
+	end
+	if session.mode == "selected" and session.selectedId then
+		return "selected:" .. tostring(session.selectedId)
+	end
+	return nil
+end
+
+-- action: "undo" | "redo" | "rotate" | "delete" (BuildInput.classify); key:
+-- the KeyCode name, so a held key acts once until onKeyReleased.
+function BuildController:onKeyPressed(action, key)
+	if key ~= nil then
+		if self.keysDown[key] then
+			return nil
+		end
+		self.keysDown[key] = true
+	end
+	local session = self.session
+	if not session:isOpen() then
+		return nil
+	end
+	if action == "undo" then
+		return session.canUndo and self:undo() or nil
+	elseif action == "redo" then
+		return session.canRedo and self:redo() or nil
+	elseif action == "delete" then
+		if session.mode == "selected" and session.selectedId and session:canEdit() then
+			return self:deleteSelected()
+		end
+		return nil
+	elseif action == "rotate" then
+		self.rotateHold = nil
+		local target = self:_rotateTarget()
+		local hold = target and { target = target, nextAt = self:_now() + BuildController.RotateHold.delay } or nil
+		self.rotateHold = hold
+		local response = self:rotate()
+		-- The first turn may have yielded on a Rotate request.
+		if hold and self.rotateHold == hold and response and not response.ok then
+			self.rotateHold = nil
+		end
+		return response
+	end
+	return nil
+end
+
+function BuildController:onKeyReleased(key)
+	if key ~= nil then
+		self.keysDown[key] = nil
+	end
+	if key == "R" then
+		self.rotateHold = nil
+	end
+end
+
+function BuildController:onTextFocused()
+	self.rotateHold = nil
+end
+
+-- Per frame, from tick(): one more turn when the held R is due.
+function BuildController:_tickRotateHold()
+	local hold = self.rotateHold
+	if hold == nil then
+		return
+	end
+	local session = self.session
+	local textFocused = self.env.textFocused ~= nil and self.env.textFocused()
+	if not session:canEdit() or textFocused or self:_rotateTarget() ~= hold.target then
+		self.rotateHold = nil
+		return
+	end
+	local now = self:_now()
+	if now < hold.nextAt or self.sending then
+		return
+	end
+	hold.nextAt = now + BuildController.RotateHold.interval -- from now: no catch-up
+	if session:isPreviewing() then
+		self:rotate()
+		return
+	end
+	self.env.spawn(function()
+		local response = self:rotate()
+		if self.rotateHold == hold and response and not response.ok then
+			self.rotateHold = nil
+		end
+	end)
 end
 
 function BuildController:beginMove()
@@ -624,14 +820,17 @@ function BuildController:_drawerCallbacks()
 		onTypes = function()
 			self:backToTypes()
 		end,
+		onSearch = function(text)
+			self:setSearch(text)
+		end,
 		onItem = function(itemId)
 			self:chooseItem(itemId)
 		end,
 		onUndo = function()
-			self:_send({ op = "Undo", expectedRevision = self.session.revision })
+			self:undo()
 		end,
 		onRedo = function()
-			self:_send({ op = "Redo", expectedRevision = self.session.revision })
+			self:redo()
 		end,
 		onBack = function()
 			self:close()
@@ -651,9 +850,7 @@ function BuildController:_drawerCallbacks()
 			end
 		end,
 		onDelete = function()
-			if self.session.selectedId then
-				self:_send({ op = "Delete", id = self.session.selectedId })
-			end
+			self:deleteSelected()
 		end,
 		onPlaceHere = function()
 			self:confirmPlacement()
@@ -708,6 +905,7 @@ end
 
 -- Per frame.
 function BuildController:tick()
+	self:_tickRotateHold()
 	if not self.session:isPreviewing() then
 		return
 	end
@@ -766,6 +964,9 @@ function BuildController:onFocusLost()
 	if self.drawer then
 		self.drawer:cancelDrag()
 	end
+	-- Releases can be missed while unfocused.
+	self.keysDown = {}
+	self.rotateHold = nil
 end
 
 return BuildController

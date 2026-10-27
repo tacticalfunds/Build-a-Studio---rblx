@@ -6,19 +6,21 @@
 	Layout (contract positions):
 	* title "Build" at (18, 13), shared status line at (18, 39);
 	* DRAG TO MOVE handle top right, 30x30 close (= Back) at (right - 48, 12);
-	* the five collection filters in the tab row (x 14, y 72, h 34, gap 6),
-	  standard/selected button styles;
-	* the same tab row is relabelled in Structure mode: Floors / Walls /
-	  Doors / Ceilings / Windows (task 10). No extra tab row or panel;
+	* the Furniture | Structure choice row in the tab row position (x 14,
+	  y 72, h 34, gap 6), standard/selected button styles (selected = teal);
 	* scroll body (x 14, y 119, w - 28, h - 177), rows with 9 px padding:
-	  a Furniture | Structure choice row (same button styles, selected =
-	  teal), actions (Undo / Redo / Exit / Done; Exit leaves build mode),
-	  selection (Move / Rotate /
+	  first the filter row: the five collection filters in Furniture mode,
+	  relabelled Floors / Walls / Doors / Ceilings / Windows in Structure
+	  mode (task 10; no extra row or panel), then actions (Undo / Redo /
+	  Exit / Done; Exit leaves build mode), selection (Move / Rotate /
 	  Duplicate / Delete), placement row (Place here when the active input is
-	  touch / Rotate / Cancel), the collection heading, then either the
+	  touch / Rotate / Cancel), a search row (a TextBox styled like a card
+	  button with the placeholder "Search items...", plus a Clear button),
+	  the collection heading, then either the
 	  furniture type chooser (two-column grid of "Seating (4)"-style buttons,
 	  empty types hidden, plus All items) or a "< Types" row and the chosen
-	  type's catalog cards with ViewportFrames from PreviewTemplates;
+	  type's catalog cards with ViewportFrames from PreviewTemplates, or a
+	  "No matching items" state with a hint naming the search scope;
 	* footer status at (18, bottom - 49), 11 px muted.
 	The drawer is draggable by its handle and clamped on-screen; refit() follows
 	viewport resizes/orientation; containsPoint() lets the controller keep every
@@ -72,11 +74,11 @@ local function buttonRow(parent, order, labels, callbacks)
 	return r, buttons
 end
 
--- callbacks: onFilter(id), onCategory(category), onType(typeId), onTypes,
+-- callbacks: onFilter(id), onCategory(category), onType(typeId), onTypes, onSearch(text),
 --            onItem(itemId), onUndo, onRedo, onBack (Exit), onDone, onMove,
 --            onRotate, onDuplicate, onDelete, onPlaceHere, onCancel
 -- collections: sorted { id, displayName }; structureFilters: { id, displayName }
--- (optional). The tab row starts with the collections; setCategory relabels it.
+-- (optional). The filter row starts with the collections; setCategory relabels it.
 function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
 	local self = setmetatable({ callbacks = callbacks, cards = {}, tabButtons = {}, tabIds = {} }, BuildDrawer)
 
@@ -111,29 +113,16 @@ function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
 	place(close, drawer, UDim2.new(1, -L.closeRightInset, 0, L.closeTop), UDim2.fromOffset(L.closeSize, L.closeSize))
 	close.Activated:Connect(callbacks.onBack)
 
-	-- Filter row in the tab position.
+	-- Furniture | Structure choice row in the tab position.
 	local tabs = Instance.new("Frame")
 	tabs.BackgroundTransparency = 1
 	place(tabs, drawer, UDim2.fromOffset(L.tabsX, L.tabsY), UDim2.new(1, -L.tabsX * 2, 0, L.tabsHeight))
-	local tabLayout = Instance.new("UIListLayout")
-	tabLayout.FillDirection = Enum.FillDirection.Horizontal
-	tabLayout.Padding = UDim.new(0, L.tabsGap)
-	tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	tabLayout.Parent = tabs
-	local n = math.max(#collections, structureFilters and #structureFilters or 0)
-	for i = 1, n do
-		local b = PanelTheme.button("", false)
-		b.LayoutOrder = i
-		b.Parent = tabs
-		b.Activated:Connect(function()
-			local id = self.tabIds[i]
-			if id then
-				callbacks.onFilter(id)
-			end
-		end)
-		self.tabButtons[i] = b
-	end
-	self:_labelTabs(collections)
+	local onCategory = callbacks.onCategory or function() end
+	local _, categories = buttonRow(tabs, 0, { "Furniture", "Structure" }, {
+		function() onCategory("furniture") end,
+		function() onCategory("structure") end,
+	})
+	self.categoryButtons = categories
 
 	local body = Instance.new("ScrollingFrame")
 	body.BackgroundTransparency = 1
@@ -153,19 +142,37 @@ function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
 	padding.Parent = body
 	self.body = body
 
-	local onCategory = callbacks.onCategory or function() end
-	local _, categories = buttonRow(body, 0, { "Furniture", "Structure" }, {
-		function() onCategory("furniture") end,
-		function() onCategory("structure") end,
-	})
-	self.categoryButtons = categories
+	-- Filter row, first in the body: collections, or structure kinds.
+	local filterRow = row(body, 0, L.tabsHeight)
+	local filterLayout = Instance.new("UIListLayout")
+	filterLayout.FillDirection = Enum.FillDirection.Horizontal
+	filterLayout.Padding = UDim.new(0, L.tabsGap)
+	filterLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	filterLayout.Parent = filterRow
+	local n = math.max(#collections, structureFilters and #structureFilters or 0)
+	for i = 1, n do
+		local b = PanelTheme.button("", false)
+		b.LayoutOrder = i
+		b.Parent = filterRow
+		b.Activated:Connect(function()
+			local id = self.tabIds[i]
+			if id then
+				callbacks.onFilter(id)
+			end
+		end)
+		self.tabButtons[i] = b
+	end
+	self:_labelTabs(collections)
 
 	-- "Exit" leaves build mode; "< Types" (below) only returns to the type chooser.
 	local _, actions = buttonRow(body, 1, { "Undo", "Redo", "Exit", "Done" }, { callbacks.onUndo, callbacks.onRedo, callbacks.onBack, callbacks.onDone })
+	actions.Undo.Text = "Undo [Z]" -- key hints; the table stays keyed by the plain names
+	actions.Redo.Text = "Redo [Ctrl+Y]"
 	self.actions = actions
 
 	local selection
 	self.selectionRow, selection = buttonRow(body, 2, { "Move", "Rotate [R]", "Duplicate", "Delete" }, { callbacks.onMove, callbacks.onRotate, callbacks.onDuplicate, callbacks.onDelete })
+	selection.Delete.Text = "Delete [Bksp]"
 	self.selectionButtons = selection
 
 	local hint = row(body, 3, 54)
@@ -191,12 +198,47 @@ function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
 	self.hintRow = hint
 	self:setInputMode("mouse")
 
-	local heading = row(body, 4, 34)
+	-- Search: narrows the current view's cards by name (the controller filters).
+	local search = row(body, 4, L.tabsHeight)
+	local clearWidth = 64
+	local box = Instance.new("TextBox")
+	box.Font = Enum.Font[PanelTheme.FontName]
+	box.TextSize = PanelTheme.TextSize.button
+	box.Text = ""
+	box.PlaceholderText = "Search items..."
+	box.PlaceholderColor3 = PanelTheme.color("muted")
+	box.TextColor3 = PanelTheme.color("white")
+	box.BackgroundColor3 = PanelTheme.color("card")
+	box.BorderSizePixel = 0
+	box.ClearTextOnFocus = false
+	box.TextXAlignment = Enum.TextXAlignment.Left
+	box.TextTruncate = Enum.TextTruncate.AtEnd
+	local boxCorner = Instance.new("UICorner")
+	boxCorner.CornerRadius = UDim.new(0, PanelTheme.ButtonRadius)
+	boxCorner.Parent = box
+	local boxPadding = Instance.new("UIPadding")
+	boxPadding.PaddingLeft = UDim.new(0, 10)
+	boxPadding.PaddingRight = UDim.new(0, 10)
+	boxPadding.Parent = box
+	place(box, search, UDim2.new(), UDim2.new(1, -(clearWidth + L.tabsGap), 1, 0))
+	box:GetPropertyChangedSignal("Text"):Connect(function()
+		if callbacks.onSearch then
+			callbacks.onSearch(box.Text)
+		end
+	end)
+	local clear = PanelTheme.button("Clear", false)
+	place(clear, search, UDim2.new(1, -clearWidth, 0, 0), UDim2.new(0, clearWidth, 1, 0))
+	clear.Activated:Connect(function()
+		box.Text = "" -- fires onSearch("")
+	end)
+	self.searchBox = box
+
+	local heading = row(body, 5, 34)
 	self.collectionHeading = place(PanelTheme.label("heading", ""), heading, UDim2.new(), UDim2.new(1, 0, 0, 16))
 	self.headingDescription = place(PanelTheme.label("description", "Choose an item, then a floor or tabletop."), heading, UDim2.fromOffset(0, 18), UDim2.new(1, 0, 0, 14))
 
 	-- "< Types" row: back to the chooser (not out of build mode).
-	local typeBack = row(body, 5, L.tabsHeight)
+	local typeBack = row(body, 6, L.tabsHeight)
 	local backButton = PanelTheme.button("< Types", false)
 	place(backButton, typeBack, UDim2.new(), UDim2.new(1 / 3, -L.tabsGap * 2 / 3, 1, 0))
 	backButton.Activated:Connect(function()
@@ -213,7 +255,7 @@ function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
 	chooser.BackgroundTransparency = 1
 	chooser.Size = UDim2.new(1, 0, 0, 0)
 	chooser.AutomaticSize = Enum.AutomaticSize.Y
-	chooser.LayoutOrder = 6
+	chooser.LayoutOrder = 7
 	chooser.Visible = false
 	chooser.Parent = body
 	local grid = Instance.new("UIGridLayout")
@@ -223,6 +265,13 @@ function BuildDrawer.new(playerGui, collections, callbacks, structureFilters)
 	grid.Parent = chooser
 	self.typeChooser = chooser
 	self.typeButtons = {}
+
+	-- Search found nothing in the current view.
+	local empty = row(body, 8, 48)
+	place(PanelTheme.label("heading", "No matching items"), empty, UDim2.new(), UDim2.new(1, 0, 0, 16))
+	self.emptyHint = place(PanelTheme.label("description", ""), empty, UDim2.fromOffset(0, 18), UDim2.new(1, 0, 0, 28)) -- wraps to two lines
+	empty.Visible = false
+	self.emptyRow = empty
 	self:setCategory("furniture", collections)
 
 	self.footer = place(PanelTheme.label("status", ""), drawer, UDim2.new(0, L.footerX, 1, -L.footerBottomInset), UDim2.new(1, -L.footerX * 2, 0, L.footerHeight))
@@ -285,7 +334,7 @@ end
 function BuildDrawer:setInputMode(method)
 	local touch = method == "touch"
 	self.placeHere.Visible = touch
-	self.hintText.Text = touch and "Tap a surface to preview, then Place here." or "Click a surface to place. R rotates, Esc cancels."
+	self.hintText.Text = touch and "Tap a surface to preview, then Place here." or "Click a surface to place. Hold R to keep turning, Esc cancels."
 end
 
 function BuildDrawer:setPosition(x, y)
@@ -308,7 +357,7 @@ function BuildDrawer:setFooter(text)
 	self.footer.Text = text or ""
 end
 
--- Relabels the tab row with filters ({ id, displayName }); extra buttons hide.
+-- Relabels the filter row with filters ({ id, displayName }); extra buttons hide.
 function BuildDrawer:_labelTabs(filters)
 	local n = #filters
 	for i, b in ipairs(self.tabButtons) do
@@ -321,7 +370,7 @@ function BuildDrawer:_labelTabs(filters)
 	end
 end
 
--- "furniture" | "structure": relabels the tab row and marks the choice row.
+-- "furniture" | "structure": relabels the filter row and marks the choice row.
 function BuildDrawer:setCategory(category, filters)
 	self:_labelTabs(filters)
 	if self.categoryButtons then
@@ -366,6 +415,12 @@ end
 function BuildDrawer:hideTypes()
 	self.typeChooser.Visible = false
 	self.typeBackRow.Visible = false
+end
+
+-- hint: nil hides the empty state; a string shows it with that hint.
+function BuildDrawer:setEmptyState(hint)
+	self.emptyRow.Visible = hint ~= nil
+	self.emptyHint.Text = hint or ""
 end
 
 function BuildDrawer:setFilter(filterId, displayName)

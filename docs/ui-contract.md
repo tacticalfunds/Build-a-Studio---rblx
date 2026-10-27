@@ -82,7 +82,7 @@ local C = {
 
 Codex compared it with a screenshot in Play: it matches the dark/teal panel, and the two-column grid renders as specified. The type counts, type cards, "< Types" and Structure → Doors behaved as described below.
 
-- **Flow:** pick a collection in the tab row (Cozy, 1980s, Retro, Winter, Futuristic). In Furniture mode, the body shows that collection's **type chooser**: a compact **two-column grid** (UIGridLayout, cells half-width minus the 6 px gap, 34 px high, 6 px padding) of standard `PanelTheme.button` buttons.
+- **Flow:** pick a collection in the filter row (Cozy, 1980s, Retro, Winter, Futuristic), the first row of the scroll body. In Furniture mode, the body shows that collection's **type chooser**: a compact **two-column grid** (UIGridLayout, cells half-width minus the 6 px gap, 34 px high, 6 px padding) of standard `PanelTheme.button` buttons.
   - The buttons read like "Seating (4)".
   - Only types with items appear, in the fixed order Seating, Tables, Storage, Microphones, Audio, Lighting, Screens, Plants, Decor, followed by **All items (N)**.
 - **Picking a type** hides the grid and shows a row with a **"< Types"** button (a third of the width) and the type name as a heading. That type's item cards follow, unchanged.
@@ -93,8 +93,10 @@ Codex compared it with a screenshot in Play: it matches the dark/teal panel, and
 
 ## Structure mode (task 10; check during the visual comparison)
 
-- A **Furniture | Structure** choice row sits at the top of the drawer's scroll body. It's built with `PanelTheme.button` in the same row style as the action buttons (selected = teal background with dark text).
-- In Structure mode the **existing** tab-row filter buttons are relabelled Floors / Walls / Doors / Ceilings / Windows. There's no extra tab row and no new panel, colour or font.
+- A **Furniture | Structure** choice row sits in the tab-row position (x 14, y 72, h 34), directly under the heading. It's built with `PanelTheme.button` in the same row style as the action buttons (selected = teal background with dark text). **Changed 2026-10-27 (repository only; not installed in Studio): it swapped places with the filter row, which is now the first row of the scroll body.**
+- In Structure mode the **existing** filter-row buttons are relabelled Floors / Walls / Doors / Ceilings / Windows. There's no extra row and no new panel, colour or font.
+- **Keys (2026-10-27; repository only, not installed in Studio):** Z / Ctrl+Z undo, Ctrl+Y / Ctrl+Shift+Z redo, Backspace deletes the selected item, R turns once and keeps turning while held. All are ignored while any TextBox (chat, search) has focus. The buttons read "Undo [Z]", "Redo [Ctrl+Y]" and "Delete [Bksp]", like the existing "Rotate [R]".
+- **Search (2026-10-27; repository only, not installed in Studio):** a search row ("Search items..." TextBox in the card style, plus a Clear button) above the collection heading filters the current view's cards by name, case-insensitively and literally. An empty result shows "No matching items" with a hint naming the scope.
 - The heading description changes to "Choose a piece, then point at the floor; it snaps to the room grid." While a ghost is shown, the status line reads "Placing: snaps to the 16-stud room grid. Angle 90° [R]" for structure, or "Placing: snaps to floors and tabletops. Angle 15° [R]" for furniture.
 - **Installed (Codex, 2026-10-26):** the visual comparison of the labels and angle text is **still pending**; the Play camera viewport was 1 × 1, so no UI was seen.
 - **Rotate buttons:** the selection-row and placement-row Rotate buttons are labelled **"Rotate [R]"**, with the same button style. R turns structure previews 90° and furniture 15°.

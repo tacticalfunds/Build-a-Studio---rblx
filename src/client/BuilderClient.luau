@@ -93,6 +93,10 @@ local env = {
 	wait = function(seconds)
 		task.wait(seconds)
 	end,
+	clock = os.clock,
+	textFocused = function()
+		return UserInputService:GetFocusedTextBox() ~= nil
+	end,
 }
 
 function env.request(payload)
@@ -255,22 +259,41 @@ local function method(input)
 	return input.UserInputType == Enum.UserInputType.Touch and "touch" or "mouse"
 end
 
+local function keyDown(a, b)
+	return UserInputService:IsKeyDown(a) or UserInputService:IsKeyDown(b)
+end
+
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	local keyboard = input.UserInputType == Enum.UserInputType.Keyboard
 	local action = BuildInput.classify({
 		keyCode = input.KeyCode.Name,
 		inputType = input.UserInputType.Name,
 		gameProcessed = gameProcessed,
 		textFocused = UserInputService:GetFocusedTextBox() ~= nil,
+		ctrl = keyboard and keyDown(Enum.KeyCode.LeftControl, Enum.KeyCode.RightControl),
+		shift = keyboard and keyDown(Enum.KeyCode.LeftShift, Enum.KeyCode.RightShift),
+		alt = keyboard and keyDown(Enum.KeyCode.LeftAlt, Enum.KeyCode.RightAlt),
 	})
 	if action == "cancel" then
 		controller:cancel()
-	elseif action == "rotate" then
-		controller:rotate()
+	elseif action == "rotate" or action == "undo" or action == "redo" or action == "delete" then
+		controller:onKeyPressed(action, input.KeyCode.Name)
 	elseif action == "pointer" then
 		local m = method(input)
 		local pointer = m == "touch" and { position = Vector2.new(input.Position.X, input.Position.Y), space = "screen" } or env.mouseLocation()
 		controller:onPointerPressed(pointer, m, input.Position.X, input.Position.Y)
 	end
+end)
+
+-- Every key release counts (processed or not), so a hold always ends.
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Keyboard then
+		controller:onKeyReleased(input.KeyCode.Name)
+	end
+end)
+
+UserInputService.TextBoxFocused:Connect(function()
+	controller:onTextFocused()
 end)
 
 UserInputService.InputChanged:Connect(function(input, gameProcessed)
